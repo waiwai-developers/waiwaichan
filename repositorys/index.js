@@ -9,11 +9,15 @@ client.on("ready", () => {
 });
 
 client.on("messageCreate", async msg => {
-  const [botname, command, parameter] = msg.content.split(' ');
+  const words = msg.content.split(' ');
+  const botname = words.shift()
+  const command = words.shift()
+  const parameters = words
     if (botname === "/waiwai") {
       try{
         switch (command) {
           case 'parrot':
+            parameter = parameters.shift()
             if (parameter == null) {
               msg.reply('パラメーターがないよ！っ');
               return
@@ -22,6 +26,7 @@ client.on("messageCreate", async msg => {
             msg.reply(parameter);
             break;
           case 'dice':
+            parameter = parameters.shift()
             if (parameter == null) {
               msg.reply('パラメーターがないよ！っ');
               return
