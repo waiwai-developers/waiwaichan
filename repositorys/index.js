@@ -13,40 +13,41 @@ client.on("messageCreate", async msg => {
   const botname = words.shift()
   const command = words.shift()
   const parameters = words
-    if (botname === "/waiwai") {
-      try{
-        switch (command) {
-          case 'parrot':
-            parameter = parameters.shift()
-            if (parameter == null) {
-              msg.reply('パラメーターがないよ！っ');
-              return
-            }
+  let parameter = null
+  if (botname === "/waiwai") {
+    try{
+      switch (command) {
+        case 'parrot':
+          parameter = parameters.shift()
+          if (parameter == null) {
+            msg.reply('パラメーターがないよ！っ');
+            return
+          }
 
-            msg.reply(parameter);
-            break;
-          case 'dice':
-            parameter = parameters.shift()
-            if (parameter == null) {
-              msg.reply('パラメーターがないよ！っ');
-              return
-            }
-            if (!Number.isInteger(Number(parameter))) {
-              msg.reply('パラメーターが整数じゃないよ！っ');
-              return
-            }
+          msg.reply(parameter);
+          break;
+        case 'dice':
+          parameter = parameters.shift()
+          if (parameter == null) {
+            msg.reply('パラメーターがないよ！っ');
+            return
+          }
+          if (!Number.isInteger(Number(parameter))) {
+            msg.reply('パラメーターが整数じゃないよ！っ');
+            return
+          }
 
-            const random = Math.floor(Math.random() * (Number(parameter)) + 1)
-            msg.reply(random.toString(10));
-            break;
-          default:
-            msg.reply('そんなコマンドはないよ！っ');
-        }
-      } catch (e) {
-        console.log(e)
-        msg.reply('エラーが起こったよ！っ');
+          const random = Math.floor(Math.random() * (Number(parameter)) + 1)
+          msg.reply(random.toString(10));
+          break;
+        default:
+          msg.reply('そんなコマンドはないよ！っ');
       }
+    } catch (e) {
+      console.log(e)
+      msg.reply('エラーが起こったよ！っ');
     }
+  }
 });
 
 client.login(env.DISCORD_TOKEN);
