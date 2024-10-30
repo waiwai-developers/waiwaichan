@@ -14,10 +14,24 @@ client.on("messageCreate", async msg => {
       try{
         switch (command) {
           case 'parrot':
+            if (parameter == null) {
+              msg.reply('パラメーターがないよ！っ');
+              return
+            }
+
             msg.reply(parameter);
             break;
           case 'dice':
-            const random = Math.floor(Math.random() * (Number(parameter) + 1))
+            if (parameter == null) {
+              msg.reply('パラメーターがないよ！っ');
+              return
+            }
+            if (!Number.isInteger(parameter)) {
+              msg.reply('パラメーターが整数じゃないよ！っ');
+              return
+            }
+
+            const random = Math.floor(Math.random() * (Number(parameter)) + 1)
             msg.reply(random.toString(10));
             break;
           default:
