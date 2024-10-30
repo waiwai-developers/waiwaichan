@@ -1,4 +1,5 @@
 const { Client,GatewayIntentBits } = require("discord.js");
+const { random } = require("lodash");
 const env = require('dotenv').config();
 const client = new Client({
   intents: Object.values(GatewayIntentBits).reduce((a, b) => a | b)
@@ -10,15 +11,25 @@ client.on("ready", () => {
 
 client.on("messageCreate", async msg => {
   const [botname, command, parameter] = msg.content.split(' ');
-  if (botname === "/waiwai") {
-    switch (command) {
-      case 'parrot':
-        msg.reply(parameter);
-        break;
-      default:
-        msg.reply('そんなコマンドはないよ！っ');
+    if (botname === "/waiwai") {
+      try{
+        switch (command) {
+          case 'parrot':
+            msg.reply(parameter);
+            break;
+          case 'dice':
+            const random = Math.floor(Math.random() * (Number(parameter) + 1))
+            console.log(random)
+            msg.reply(random.toString(10));
+            break;
+          default:
+            msg.reply('そんなコマンドはないよ！っ');
+        }
+      } catch (e) {
+        console.log(e)
+        msg.reply('エラーが起こったよ！っ');
+      }
     }
-  }
 });
 
 client.login(env.DISCORD_TOKEN);
