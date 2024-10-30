@@ -1,5 +1,4 @@
 const { Client,GatewayIntentBits } = require("discord.js");
-const { random } = require("lodash");
 const env = require('dotenv').config();
 const client = new Client({
   intents: Object.values(GatewayIntentBits).reduce((a, b) => a | b)
@@ -19,7 +18,6 @@ client.on("messageCreate", async msg => {
             break;
           case 'dice':
             const random = Math.floor(Math.random() * (Number(parameter) + 1))
-            console.log(random)
             msg.reply(random.toString(10));
             break;
           default:
