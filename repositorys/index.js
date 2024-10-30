@@ -13,6 +13,7 @@ client.on("messageCreate", async msg => {
   const botname = words.shift()
   const command = words.shift()
   const parameters = words
+  let parameter = null;
     if (botname === "/waiwai") {
       try{
         switch (command) {
