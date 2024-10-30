@@ -26,7 +26,7 @@ client.on("messageCreate", async msg => {
               msg.reply('パラメーターがないよ！っ');
               return
             }
-            if (!Number.isInteger(parameter)) {
+            if (!Number.isInteger(Number(parameter))) {
               msg.reply('パラメーターが整数じゃないよ！っ');
               return
             }
