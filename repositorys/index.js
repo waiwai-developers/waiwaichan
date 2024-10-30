@@ -10,15 +10,24 @@ client.on("ready", () => {
 
 client.on("messageCreate", async msg => {
   const [botname, command, parameter] = msg.content.split(' ');
-  if (botname === "/waiwai") {
-    switch (command) {
-      case 'parrot':
-        msg.reply(parameter);
-        break;
-      default:
-        msg.reply('そんなコマンドはないよ！っ');
+    if (botname === "/waiwai") {
+      try{
+        switch (command) {
+          case 'parrot':
+            msg.reply(parameter);
+            break;
+          case 'dice':
+            const random = Math.floor(Math.random() * (Number(parameter) + 1))
+            msg.reply(random.toString(10));
+            break;
+          default:
+            msg.reply('そんなコマンドはないよ！っ');
+        }
+      } catch (e) {
+        console.log(e)
+        msg.reply('エラーが起こったよ！っ');
+      }
     }
-  }
 });
 
 client.login(env.DISCORD_TOKEN);
