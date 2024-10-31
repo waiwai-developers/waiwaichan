@@ -51,7 +51,6 @@ client.on('interactionCreate', async interaction => {
         const source = interaction.options?.getString('source')
         const target = interaction.options?.getString('target')
 
-
         if (message == null) {
           interaction.reply('messageパラメーターがないよ！っ')
           return
@@ -72,7 +71,7 @@ client.on('interactionCreate', async interaction => {
           return
         }
 
-        interaction.reply(translate.text);
+        interaction.reply(translate.text + '\n' + message);
         break;
       default:
         interaction.reply('そんなコマンドはないよ！っ')
