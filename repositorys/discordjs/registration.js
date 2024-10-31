@@ -11,42 +11,42 @@ const commands = [
     .setDescription('parrot string')
     .addStringOption(option =>
       option.setName('message')
-          .setDescription('string')
-          .setRequired(true)
+        .setDescription('string')
+        .setRequired(true)
     ),
   new SlashCommandBuilder()
     .setName('dice')
     .setDescription('dice integer')
     .addStringOption(option =>
       option.setName('message')
-          .setDescription('string')
-          .setRequired(true)
+        .setDescription('string')
+        .setRequired(true)
     ),
   new SlashCommandBuilder()
     .setName('choice')
     .setDescription('choice [string]')
     .addStringOption(option =>
       option.setName('message')
-          .setDescription('string')
-          .setRequired(true)
+        .setDescription('string')
+        .setRequired(true)
     ),
   new SlashCommandBuilder()
     .setName('translate')
     .setDescription('translate string')
     .addStringOption(option =>
       option.setName('source')
-          .setDescription('string')
-          .setRequired(true)
+        .setDescription('string')
+        .setRequired(true)
     )
     .addStringOption(option =>
       option.setName('target')
-          .setDescription('string')
-          .setRequired(true)
+        .setDescription('string')
+        .setRequired(true)
     )
     .addStringOption(option =>
       option.setName('message')
-          .setDescription('string')
-          .setRequired(true)
+        .setDescription('string')
+        .setRequired(true)
     )
 ].map(command => command.toJSON());
 
