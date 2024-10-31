@@ -5,8 +5,6 @@ const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 client.on('interactionCreate', async interaction => {
   if (!interaction.isCommand()) return;
 
-  console.log(interaction);
-
   const command = interaction.commandName;
   const parameters = interaction.options?.getString('message')?.split(' ') ?? null
   let parameter = null
