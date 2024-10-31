@@ -5,10 +5,10 @@ const rest = new REST({ version: '10' }).setToken(token);
 const commands = [
   new SlashCommandBuilder()
       .setName('waiwai')
-      .setDescription('reply waiwai'),
+      .setDescription('waiwai'),
   new SlashCommandBuilder()
-    .setName('parrot')
-    .setDescription('reply parrot')
+    .setName('parrot string')
+    .setDescription('')
     .addStringOption(option =>
       option.setName('message')
           .setDescription('string')
@@ -25,6 +25,24 @@ const commands = [
   new SlashCommandBuilder()
     .setName('choice')
     .setDescription('choice [string]')
+    .addStringOption(option =>
+      option.setName('message')
+          .setDescription('string')
+          .setRequired(true)
+    ),
+  new SlashCommandBuilder()
+    .setName('translate')
+    .setDescription('translate string')
+    .addStringOption(option =>
+      option.setName('source')
+          .setDescription('string')
+          .setRequired(true)
+    )
+    .addStringOption(option =>
+      option.setName('target')
+          .setDescription('string')
+          .setRequired(true)
+    )
     .addStringOption(option =>
       option.setName('message')
           .setDescription('string')
