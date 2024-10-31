@@ -50,7 +50,7 @@ client.on('interactionCreate', async interaction => {
   console.log(interaction);
 
   const command = interaction.commandName;
-  const parameters = interaction.options?.getString('message').split(' ') ?? null
+  const parameters = interaction.options?.getString('message')?.split(' ') ?? null
   let parameter = null
   try{
     switch (command) {
