@@ -36,9 +36,14 @@ client.on("messageCreate", async msg => {
             msg.reply('パラメーターが整数じゃないよ！っ');
             return
           }
-
-          const random = Math.floor(Math.random() * (Number(parameter)) + 1)
-          msg.reply(random.toString(10));
+          msg.reply(Math.floor(Math.random() * (Number(parameter)) + 1).toString(10));
+          break;
+        case 'select':
+          if (parameters == []) {
+            msg.reply('パラメーターがないよ！っ');
+            return
+          }
+          msg.reply(parameters[Math.floor(Math.random() * (Number(parameters.length))).toString(10)]);
           break;
         default:
           msg.reply('そんなコマンドはないよ！っ');
