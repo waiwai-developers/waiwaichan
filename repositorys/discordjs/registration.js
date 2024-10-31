@@ -7,8 +7,8 @@ const commands = [
       .setName('waiwai')
       .setDescription('waiwai'),
   new SlashCommandBuilder()
-    .setName('parrot string')
-    .setDescription('')
+    .setName('parrot')
+    .setDescription('parrot string')
     .addStringOption(option =>
       option.setName('message')
           .setDescription('string')
