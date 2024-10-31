@@ -1,58 +1,101 @@
-const { Client,GatewayIntentBits } = require("discord.js");
-const env = require('dotenv').config();
-const client = new Client({
-  intents: Object.values(GatewayIntentBits).reduce((a, b) => a | b)
-});
+const { Client, GatewayIntentBits, SlashCommandBuilder, REST, Routes } = require('discord.js');
+const { token, clientId, guildId } = require('../config.json');
+const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const rest = new REST({ version: '10' }).setToken(token);
 
-client.on("ready", () => {
-  console.log(`login: ${client.user.tag}`);
-});
+const commands = [
+  new SlashCommandBuilder()
+      .setName('waiwai')
+      .setDescription('reply waiwai'),
+    new SlashCommandBuilder()
+      .setName('parrot')
+      .setDescription('reply parrot')
+      .addStringOption(option =>
+        option.setName('message')
+            .setDescription('string')
+            .setRequired(true)
+      ),
+    new SlashCommandBuilder()
+      .setName('dice')
+      .setDescription('dice integer')
+      .addStringOption(option =>
+        option.setName('message')
+            .setDescription('string')
+            .setRequired(true)
+      ),
+    new SlashCommandBuilder()
+      .setName('choice')
+      .setDescription('choice [string]')
+      .addStringOption(option =>
+        option.setName('message')
+            .setDescription('string')
+            .setRequired(true)
+      )
+].map(command => command.toJSON());
 
-client.on("messageCreate", async msg => {
-  const words = msg.content.split(' ');
-  const botname = words.shift()
-  const command = words.shift()
-  const parameters = words
+(async () => {
+  try {
+      await rest.put(
+          Routes.applicationGuildCommands(clientId, guildId),
+          { body: commands },
+      );
+  } catch (e) {
+      console.error(e)
+  }
+})();
+
+client.on('interactionCreate', async interaction => {
+  if (!interaction.isCommand()) return;
+
+  console.log(interaction);
+
+  const command = interaction.commandName;
+  const parameters = interaction.options?.getString('message').split(' ') ?? null
   let parameter = null
-  if (botname === "/waiwai") {
-    try{
-      switch (command) {
-        case 'parrot':
-          parameter = parameters.shift()
-          if (parameter == null) {
-            msg.reply('パラメーターがないよ！っ');
-            return
-          }
+  try{
+    switch (command) {
+      case 'waiwai':
+        interaction.reply('waiwai')
+        break;
+      case 'parrot':
+        parameter = parameters[0]
 
-          msg.reply(parameter);
-          break;
-        case 'dice':
-          parameter = parameters.shift()
-          if (parameter == null) {
-            msg.reply('パラメーターがないよ！っ');
-            return
-          }
-          if (!Number.isInteger(Number(parameter))) {
-            msg.reply('パラメーターが整数じゃないよ！っ');
-            return
-          }
-          msg.reply(Math.floor(Math.random() * (Number(parameter)) + 1).toString(10));
-          break;
-        case 'select':
-          if (parameters == []) {
-            msg.reply('パラメーターがないよ！っ');
-            return
-          }
-          msg.reply(parameters[Math.floor(Math.random() * (Number(parameters.length))).toString(10)]);
-          break;
-        default:
-          msg.reply('そんなコマンドはないよ！っ');
-      }
-    } catch (e) {
-      console.log(e)
-      msg.reply('エラーが起こったよ！っ');
+        if (parameter == null) {
+          interaction.reply('パラメーターがないよ！っ');
+          return
+        }
+
+        interaction.reply(parameter);
+        break;
+      case 'dice':
+        parameter = parameters[0]
+
+        if (parameter == null) {
+          interaction.reply('パラメーターがないよ！っ')
+          return
+        }
+        if (!Number.isInteger(Number(parameter))) {
+          interaction.reply('パラメーターが整数じゃないよ！っ')
+          return
+        }
+
+        interaction.reply(Math.floor(Math.random() * (Number(parameter)) + 1).toString(10));
+        break;
+      case 'choice':
+        if (parameters == []) {
+          interaction.reply('パラメーターがないよ！っ')
+          return
+        }
+
+        interaction.reply(parameters[Math.floor(Math.random() * (Number(parameters.length))).toString(10)]);
+        break;
+      default:
+        interaction.reply('そんなコマンドはないよ！っ')
     }
+  } catch (e) {
+    console.log(e)
+    interaction.reply('エラーが起こったよ！っ')
   }
 });
 
-client.login(env.DISCORD_TOKEN);
+client.login(token);
