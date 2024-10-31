@@ -1,14 +1,16 @@
 const { Client, GatewayIntentBits } = require('discord.js');
 const { token } = require('../../config.json');
+const deeplapi = require('../deeplapi/translate');
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 client.on('interactionCreate', async interaction => {
-  if (!interaction.isCommand()) return;
-
-  const command = interaction.commandName;
-  const parameters = interaction.options?.getString('message')?.split(' ') ?? null
-  let parameter = null
   try{
+    if (!interaction.isCommand()) return;
+
+    const command = interaction.commandName;
+    const message = interaction.options?.getString('message') ?? null
+    const parameters = message?.split(' ') ?? null
+    let parameter = null
     switch (command) {
       case 'waiwai':
         interaction.reply('waiwai')
@@ -44,6 +46,33 @@ client.on('interactionCreate', async interaction => {
         }
 
         interaction.reply(parameters[Math.floor(Math.random() * (Number(parameters.length))).toString(10)]);
+        break;
+      case 'translate':
+        const source = interaction.options?.getString('source')
+        const target = interaction.options?.getString('target')
+
+
+        if (message == null) {
+          interaction.reply('messageパラメーターがないよ！っ')
+          return
+        }
+        if (source == null) {
+          interaction.reply('sourceパラメーターがないよ！っ')
+          return
+        }
+        if (target == null) {
+          interaction.reply('targetパラメーターがないよ！っ')
+          return
+        }
+
+        const translate = await deeplapi.translate(message, source, target)
+
+        if (translate == undefined || translate == null) {
+          interaction.reply('翻訳できなかったよ！っ')
+          return
+        }
+
+        interaction.reply(translate.text);
         break;
       default:
         interaction.reply('そんなコマンドはないよ！っ')
