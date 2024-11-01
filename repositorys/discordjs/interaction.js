@@ -76,6 +76,7 @@ client.on('interactionCreate', async interaction => {
         const texts = message.split('  ')
         const postMessages = []
 
+        interaction.deferReply()
         let translate = null
         for (const text of texts) {
           translate = await deeplapi.translate(text, source, target)
@@ -87,15 +88,15 @@ client.on('interactionCreate', async interaction => {
           return
         }
 
-        interaction.reply(postMessages.join('\n\n'));
+        interaction.editReply(postMessages.join('\n\n'));
         break;
       case 'talk':
         if (message == null) {
           interaction.reply(message);
           return
         }
-        interaction.deferReply()
 
+        interaction.deferReply()
         const generate = await chatgpt.generate(message)
         interaction.editReply(generate.choices[0].message.content);
         break;
