@@ -12,6 +12,7 @@
     "deepl-node": "^1.14.0",
     "discord.js": "^14.16.3",
     "dotenv": "^16.4.5",
-    "express": "^4.21.1"
+    "express": "^4.21.1",
+    "openai": "^4.69.0"
   }
 }

@@ -115,7 +115,15 @@ const commands = [
       option.setName('message')
         .setDescription('string')
         .setRequired(true)
-    )
+    ),
+  new SlashCommandBuilder()
+    .setName('talk')
+    .setDescription('talk string')
+    .addStringOption(option =>
+      option.setName('message')
+        .setDescription('string')
+        .setRequired(true)
+    ),
 ].map(command => command.toJSON());
 
 (async () => {
