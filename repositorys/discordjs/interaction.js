@@ -36,6 +36,10 @@ client.on('interactionCreate', async interaction => {
           interaction.reply('パラメーターが整数じゃないよ！っ')
           return
         }
+        if (!Number.isInteger(Number(parameter) <= 0)) {
+          interaction.reply('パラメーターが0以下の数だよ！っ')
+          return
+        }
 
         interaction.reply(Math.floor(Math.random() * (Number(parameter)) + 1).toString(10));
         break;
