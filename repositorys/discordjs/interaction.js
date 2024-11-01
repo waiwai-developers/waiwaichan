@@ -63,6 +63,10 @@ client.on('interactionCreate', async interaction => {
           interaction.reply('targetパラメーターがないよ！っ')
           return
         }
+        if (source == target) {
+          interaction.reply('sourceとtargetが同じだよ！っ')
+          return
+        }
 
         const texts = message.split('  ')
         const postMessages = []
