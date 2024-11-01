@@ -94,9 +94,10 @@ client.on('interactionCreate', async interaction => {
           interaction.reply(message);
           return
         }
+        interaction.deferReply()
 
         const generate = await chatgpt.generate(message)
-        interaction.reply(generate.choices[0].message);
+        interaction.editReply(generate.choices[0].message);
         break;
       default:
         interaction.reply('そんなコマンドはないよ！っ')
