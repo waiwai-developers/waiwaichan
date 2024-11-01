@@ -1,6 +1,7 @@
 const { Client, GatewayIntentBits } = require('discord.js');
 const { token } = require('../../config.json');
 const deeplapi = require('../deeplapi/translate');
+const chatgpt = require('../chatgptapi/generate');
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 client.on('interactionCreate', async interaction => {
@@ -88,11 +89,21 @@ client.on('interactionCreate', async interaction => {
 
         interaction.reply(postMessages.join('\n\n'));
         break;
+      case 'talk':
+        if (message == null) {
+          interaction.reply(message);
+          return
+        }
+        interaction.deferReply()
+
+        const generate = await chatgpt.generate(message)
+        interaction.editReply(generate.choices[0].message.content);
+        break;
       default:
         interaction.reply('そんなコマンドはないよ！っ')
     }
   } catch (e) {
-    console.log(e)
+    console.error("Error:", e)
     interaction.reply('エラーが起こったよ！っ')
   }
 });
