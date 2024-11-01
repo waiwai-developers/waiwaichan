@@ -119,12 +119,12 @@ const commands = [
 ].map(command => command.toJSON());
 
 (async () => {
-    try {
-        await rest.put(
-            Routes.applicationGuildCommands(clientId, guildId),
-            { body: commands },
-        );
-    } catch (e) {
-        console.error(e)
-    }
+  try {
+      await rest.put(
+          Routes.applicationGuildCommands(clientId, guildId),
+          { body: commands },
+      );
+  } catch (e) {
+      console.error(e)
+  }
 })();

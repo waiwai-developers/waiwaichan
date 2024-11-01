@@ -64,14 +64,21 @@ client.on('interactionCreate', async interaction => {
           return
         }
 
-        const translate = await deeplapi.translate(message, source, target)
+        const texts = message.split('  ')
+        const postMessages = []
 
-        if (translate == undefined || translate == null) {
+        let translate = null
+        for (const text of texts) {
+          translate = await deeplapi.translate(text, source, target)
+          postMessages.push(translate.text + '\n' + text)
+        }
+
+        if (postMessages == []) {
           interaction.reply('翻訳できなかったよ！っ')
           return
         }
 
-        interaction.reply(translate.text + '\n' + message);
+        interaction.reply(postMessages.join('\n\n'));
         break;
       default:
         interaction.reply('そんなコマンドはないよ！っ')
