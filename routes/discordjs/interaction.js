@@ -1,6 +1,6 @@
 const { Client, GatewayIntentBits } = require('discord.js');
 const { token } = require('../../config.json');
-const deeplapi = require('../deeplapi/translate');
+const deeplapi = require('../../repositorys/deeplapi/translate');
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 client.on('interactionCreate', async interaction => {
