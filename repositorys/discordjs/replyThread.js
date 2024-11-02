@@ -1,5 +1,5 @@
 const { Client,GatewayIntentBits } = require("discord.js");
-const { token, clientId } = require('../../config.json');
+const { token, clientId, gptPrompt } = require('../../config.json');
 const chatgpt = require('../chatgptapi/generate');
 const client = new Client({
   intents: Object.values(GatewayIntentBits).reduce((a, b) => a | b)
@@ -19,9 +19,19 @@ client.on("messageCreate", async message => {
     return
   }
 
+  const fetchedMessages = await message.channel.messages.fetch({ limit: 11 });
+
   const replyMessage = await message.reply("ちょっと待ってね！っ");
 
-  const generate = await chatgpt.generate(message.content)
+  const sendMessages = [{"role": "system", "content":gptPrompt}]
+  fetchedMessages.reverse().forEach((m) =>
+    sendMessages.push({
+      "role": m.author.bot ? 'system' : 'user',
+      "content": m.content
+    })
+  );
+
+  const generate = await chatgpt.generate(sendMessages)
 
   await replyMessage.edit(generate.choices[0].message.content);
 });
