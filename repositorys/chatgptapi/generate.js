@@ -2,14 +2,11 @@ const { openaiApiKey, gptModel, gptPrompt} = require('../../config.json');
 const OpenAI = require("openai")
 const openai = new OpenAI({apiKey: openaiApiKey});
 
-async function generate(text) {
+async function generate(messages) {
   try {
     return await openai.chat.completions.create({
         model: gptModel,
-        messages: [
-            {"role": "system", "content":gptPrompt},
-            {"role": "user","content": text}
-        ]
+        messages: messages
     });
   } catch (e) {
     console.error("Error:", e)
