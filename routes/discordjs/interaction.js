@@ -1,6 +1,6 @@
 const { Client, GatewayIntentBits } = require('discord.js');
 const { token } = require('../../config.json');
-const deeplapi = require('../deeplapi/translate');
+const deeplapi = require('../../repositorys/deeplapi/translate');
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 client.on('interactionCreate', async interaction => {
@@ -13,69 +13,69 @@ client.on('interactionCreate', async interaction => {
     let parameter = null
     switch (command) {
       case 'waiwai':
-        interaction.reply('waiwai')
+        await interaction.reply('waiwai')
         break;
       case 'parrot':
         parameter = parameters[0]
 
         if (parameter == null) {
-          interaction.reply('パラメーターがないよ！っ');
+          await interaction.reply('パラメーターがないよ！っ');
           return
         }
 
-        interaction.reply(parameter);
+        await interaction.reply(parameter);
         break;
       case 'dice':
         parameter = parameters[0]
 
         if (parameter == null) {
-          interaction.reply('パラメーターがないよ！っ')
+          await interaction.reply('パラメーターがないよ！っ')
           return
         }
         if (!Number.isInteger(Number(parameter))) {
-          interaction.reply('パラメーターが整数じゃないよ！っ')
+          await interaction.reply('パラメーターが整数じゃないよ！っ')
           return
         }
-        if (!Number.isInteger(Number(parameter) <= 0)) {
-          interaction.reply('パラメーターが0以下の数だよ！っ')
+        if (Number(parameter) <= 0) {
+          await interaction.reply('パラメーターが0以下の数だよ！っ')
           return
         }
 
-        interaction.reply(Math.floor(Math.random() * (Number(parameter)) + 1).toString(10));
+        await interaction.reply(Math.floor(Math.random() * (Number(parameter)) + 1).toString(10));
         break;
       case 'choice':
         if (parameters == []) {
-          interaction.reply('パラメーターがないよ！っ')
+          await interaction.reply('パラメーターがないよ！っ')
           return
         }
 
-        interaction.reply(parameters[Math.floor(Math.random() * (Number(parameters.length))).toString(10)]);
+        await interaction.reply(parameters[Math.floor(Math.random() * (Number(parameters.length))).toString(10)]);
         break;
       case 'translate':
         const source = interaction.options?.getString('source')
         const target = interaction.options?.getString('target')
 
         if (message == null) {
-          interaction.reply('messageパラメーターがないよ！っ')
+          await interaction.reply('messageパラメーターがないよ！っ')
           return
         }
         if (source == null) {
-          interaction.reply('sourceパラメーターがないよ！っ')
+          await interaction.reply('sourceパラメーターがないよ！っ')
           return
         }
         if (target == null) {
-          interaction.reply('targetパラメーターがないよ！っ')
+          await interaction.reply('targetパラメーターがないよ！っ')
           return
         }
         if (source == target) {
-          interaction.reply('sourceとtargetが同じだよ！っ')
+          await interaction.reply('sourceとtargetが同じだよ！っ')
           return
         }
 
         const texts = message.split('  ')
         const postMessages = []
 
-        interaction.deferReply()
+        await interaction.deferReply()
         let translate = null
         for (const text of texts) {
           translate = await deeplapi.translate(text, source, target)
@@ -83,31 +83,31 @@ client.on('interactionCreate', async interaction => {
         }
 
         if (postMessages == []) {
-          interaction.reply('翻訳できなかったよ！っ')
+          await interaction.reply('翻訳できなかったよ！っ')
           return
         }
 
-        interaction.editReply(postMessages.join('\n\n'));
+        await interaction.editReply(postMessages.join('\n\n'));
         break;
       case 'talk':
         const title = interaction.options?.getString('title')
         if (title == null) {
-          interaction.reply('titleパラメーターがないよ！っ');
+          await interaction.reply('titleパラメーターがないよ！っ');
           return
         }
 
-        interaction.reply('以下にお話する場を用意したよ！っ')
+        await interaction.reply('以下にお話する場を用意したよ！っ')
         await interaction.channel.threads.create({
           name: title,
           autoArchiveDuration: 60
         });
         break;
       default:
-        interaction.reply('そんなコマンドはないよ！っ')
+        await interaction.reply('そんなコマンドはないよ！っ')
     }
   } catch (e) {
     console.error("Error:", e)
-    interaction.reply('エラーが起こったよ！っ')
+    await interaction.reply('エラーが起こったよ！っ')
   }
 });
 
