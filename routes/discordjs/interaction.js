@@ -12,6 +12,11 @@ client.on('interactionCreate', async interaction => {
     const parameters = message?.split(' ') ?? null
     let parameter = null
     switch (command) {
+      case 'help':
+
+      const a = logics.help()
+        await interaction.reply(logics.help())
+        break;
       case 'waiwai':
         await interaction.reply(logics.waiwai())
         break;

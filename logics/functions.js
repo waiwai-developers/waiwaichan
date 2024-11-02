@@ -1,4 +1,20 @@
-const deeplapi = require('../repositorys/deeplapi/translate');
+const config = require('../config/commands.json');
+
+function help() {
+    try {
+        const texts = config.map((c) =>
+            [
+                `- \`${c.name}\``,
+                `  - parameter: ${c.parameter}`,
+                `  - example: ${c.example}`,
+                `  - description: ${c.description}`
+            ].join("\n")
+        )
+        return texts.join("\n");
+    } catch (e) {
+        console.error("Error:", e)
+    }
+}
 
 function waiwai() {
     try {
@@ -47,6 +63,7 @@ async function translate(texts, source, target) {
 }
 
 module.exports = {
+    help,
     waiwai,
     parrot,
     dice,

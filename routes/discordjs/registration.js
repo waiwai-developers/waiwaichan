@@ -4,6 +4,9 @@ const rest = new REST({ version: '10' }).setToken(token);
 
 const commands = [
   new SlashCommandBuilder()
+      .setName('help')
+      .setDescription('help'),
+  new SlashCommandBuilder()
       .setName('waiwai')
       .setDescription('waiwai'),
   new SlashCommandBuilder()
