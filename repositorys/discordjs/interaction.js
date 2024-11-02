@@ -36,7 +36,7 @@ client.on('interactionCreate', async interaction => {
           await interaction.reply('パラメーターが整数じゃないよ！っ')
           return
         }
-        if (!Number.isInteger(Number(parameter) <= 0)) {
+        if (Number(parameter) <= 0) {
           await interaction.reply('パラメーターが0以下の数だよ！っ')
           return
         }
