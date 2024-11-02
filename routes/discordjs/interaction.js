@@ -1,7 +1,7 @@
 const { Client, GatewayIntentBits } = require('discord.js');
 const { token } = require('../../config.json');
-const deeplapi = require('../../repositorys/deeplapi/translate');
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const logics = require('../../logics/functions')
 
 client.on('interactionCreate', async interaction => {
   try{
@@ -13,7 +13,7 @@ client.on('interactionCreate', async interaction => {
     let parameter = null
     switch (command) {
       case 'waiwai':
-        await interaction.reply('waiwai')
+        await interaction.reply(logics.waiwai())
         break;
       case 'parrot':
         parameter = parameters[0]
@@ -23,7 +23,7 @@ client.on('interactionCreate', async interaction => {
           return
         }
 
-        await interaction.reply(parameter);
+        await interaction.reply(logics.parrot(parameter));
         break;
       case 'dice':
         parameter = parameters[0]
@@ -41,7 +41,7 @@ client.on('interactionCreate', async interaction => {
           return
         }
 
-        await interaction.reply(Math.floor(Math.random() * (Number(parameter)) + 1).toString(10));
+        await interaction.reply(logics.dice(parameter));
         break;
       case 'choice':
         if (parameters == []) {
@@ -49,7 +49,7 @@ client.on('interactionCreate', async interaction => {
           return
         }
 
-        await interaction.reply(parameters[Math.floor(Math.random() * (Number(parameters.length))).toString(10)]);
+        await interaction.reply(logics.choice(parameters));
         break;
       case 'translate':
         const source = interaction.options?.getString('source')
@@ -73,14 +73,8 @@ client.on('interactionCreate', async interaction => {
         }
 
         const texts = message.split('  ')
-        const postMessages = []
-
         await interaction.deferReply()
-        let translate = null
-        for (const text of texts) {
-          translate = await deeplapi.translate(text, source, target)
-          postMessages.push(translate.text + '\n' + text)
-        }
+        const postMessages = await logics.translate(texts, source, target)
 
         if (postMessages == []) {
           await interaction.reply('翻訳できなかったよ！っ')
