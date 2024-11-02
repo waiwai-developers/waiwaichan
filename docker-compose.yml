@@ -1,0 +1,14 @@
+services:
+    backend:
+      container_name: backend
+      restart: always
+      tty: true
+      build:
+        context: ./
+        dockerfile: Dockerfile
+      volumes:
+        - type: bind
+          source: .
+          target: /app
+      ports:
+        - 3000:3000
