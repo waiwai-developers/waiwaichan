@@ -15,7 +15,7 @@ client.on("messageCreate", async message => {
   if (!(message.channel.ownerId === clientId)) return;
 
   if (message == null) {
-    interaction.reply('messageパラメーターがないよ！っ');
+    await interaction.reply('messageパラメーターがないよ！っ');
     return
   }
 
