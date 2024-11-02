@@ -1,7 +1,6 @@
 const { Client, GatewayIntentBits } = require('discord.js');
 const { token } = require('../../config.json');
 const deeplapi = require('../deeplapi/translate');
-const chatgpt = require('../chatgptapi/generate');
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 client.on('interactionCreate', async interaction => {
@@ -91,14 +90,17 @@ client.on('interactionCreate', async interaction => {
         interaction.editReply(postMessages.join('\n\n'));
         break;
       case 'talk':
-        if (message == null) {
-          interaction.reply(message);
+        const title = interaction.options?.getString('title')
+        if (title == null) {
+          interaction.reply('titleパラメーターがないよ！っ');
           return
         }
 
-        interaction.deferReply()
-        const generate = await chatgpt.generate(message)
-        interaction.editReply(generate.choices[0].message.content);
+        interaction.reply('以下にお話する場を用意したよ！っ')
+        await interaction.channel.threads.create({
+          name: title,
+          autoArchiveDuration: 60
+        });
         break;
       default:
         interaction.reply('そんなコマンドはないよ！っ')

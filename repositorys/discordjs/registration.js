@@ -120,7 +120,7 @@ const commands = [
     .setName('talk')
     .setDescription('talk string')
     .addStringOption(option =>
-      option.setName('message')
+      option.setName('title')
         .setDescription('string')
         .setRequired(true)
     ),
