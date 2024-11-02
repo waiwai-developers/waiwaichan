@@ -13,7 +13,6 @@ async function generate(text) {
     });
   } catch (e) {
     console.error("Error:", e)
-    interaction.reply('エラーが起こったよ！っ')
   }
 }
 
