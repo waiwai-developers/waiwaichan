@@ -1,3 +1,5 @@
+const deeplapi = require('../repositorys/deeplapi/translate');
+
 function waiwai() {
     try {
         return 'waiwai'
@@ -30,9 +32,24 @@ function choice(parameters) {
     }
 }
 
+async function translate(texts, source, target) {
+    try {
+        const postMessages = []
+        let translate = null
+        for (const text of texts) {
+          translate = await deeplapi.translate(text, source, target)
+          postMessages.push(translate.text + '\n' + text)
+        }
+        return postMessages
+    } catch (e) {
+        console.error("Error:", e)
+    }
+}
+
 module.exports = {
     waiwai,
     parrot,
     dice,
-    choice
+    choice,
+    translate
 }

@@ -1,6 +1,5 @@
 const { Client, GatewayIntentBits } = require('discord.js');
 const { token } = require('../../config.json');
-const deeplapi = require('../../repositorys/deeplapi/translate');
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 const logics = require('../../logics/functions')
 
@@ -74,14 +73,8 @@ client.on('interactionCreate', async interaction => {
         }
 
         const texts = message.split('  ')
-        const postMessages = []
-
         await interaction.deferReply()
-        let translate = null
-        for (const text of texts) {
-          translate = await deeplapi.translate(text, source, target)
-          postMessages.push(translate.text + '\n' + text)
-        }
+        const postMessages = await logics.translate(texts, source, target)
 
         if (postMessages == []) {
           await interaction.reply('翻訳できなかったよ！っ')
