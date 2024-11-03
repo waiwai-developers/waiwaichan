@@ -1,7 +1,7 @@
 const { Client, GatewayIntentBits } = require('discord.js');
 const { token } = require('../../config.json');
+const {help, waiwai, parrot,dice, choice, translate} = require("../../logics");
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
-const logics = require('../../logics/functions')
 
 client.on('interactionCreate', async interaction => {
   try{
@@ -14,11 +14,11 @@ client.on('interactionCreate', async interaction => {
     switch (command) {
       case 'help':
 
-      const a = logics.help()
-        await interaction.reply(logics.help())
+      const a = help()
+        await interaction.reply(help())
         break;
       case 'waiwai':
-        await interaction.reply(logics.waiwai())
+        await interaction.reply(waiwai())
         break;
       case 'parrot':
         parameter = parameters[0]
@@ -28,7 +28,7 @@ client.on('interactionCreate', async interaction => {
           return
         }
 
-        await interaction.reply(logics.parrot(parameter));
+        await interaction.reply(parrot(parameter));
         break;
       case 'dice':
         parameter = parameters[0]
@@ -46,7 +46,7 @@ client.on('interactionCreate', async interaction => {
           return
         }
 
-        await interaction.reply(logics.dice(parameter));
+        await interaction.reply(dice(parameter));
         break;
       case 'choice':
         if (parameters == []) {
@@ -54,7 +54,7 @@ client.on('interactionCreate', async interaction => {
           return
         }
 
-        await interaction.reply(logics.choice(parameters));
+        await interaction.reply(choice(parameters));
         break;
       case 'translate':
         const source = interaction.options?.getString('source')
@@ -79,7 +79,7 @@ client.on('interactionCreate', async interaction => {
 
         const texts = message.split('  ')
         await interaction.deferReply()
-        const postMessages = await logics.translate(texts, source, target)
+        const postMessages = await translate(texts, source, target)
 
         if (postMessages == []) {
           await interaction.reply('翻訳できなかったよ！っ')
