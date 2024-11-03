@@ -1,38 +1,44 @@
 [
-	{
-		"name": "/help",
-		"example": "/help",
-		"parameter": "none",
-		"description": "It will tell you more about each command"
-	},
-	{
-		"name": "/waiwai",
-		"example": "/waiwai",
-		"parameter": "none",
-		"description": "Answer waiwai with great enthusiasm"
-	},
-	{
-		"name": "/dice",
-		"example": "/dice message: 10",
-		"parameter": "message: int",
-		"description": "returns a random integer less than or equal to a specified number and greater than 0"
-	},
-	{
-		"name": "/choice",
-		"example": "/choice message: apple orange grape",
-		"parameter": "message: [string]",
-		"description": "If you pass a string separated by half-width spaces, it will randomly select and return it"
-	},
-	{
-		"name": "/translate",
-		"example": "/translate source: English target: Japanese message: hello world",
-		"parameter": "source: string, target: string, message: [string]",
-		"description": "Send a message and it will return a line by line translation."
-	},
-	{
-		"name": "/talk",
-		"example": "/talk message: please tell me your favorite food",
-		"parameter": "message: string",
-		"description": "You can start a new thread and have a conversation there"
-	}
+    {
+        "name": "/help",
+        "example": "/help",
+        "parameter": "none",
+        "description": "It will tell you more about each command."
+    },
+    {
+        "name": "/parrot",
+        "example": "/parrot message: It's not a parrot, it's a parakeet",
+        "parameter": "message: string",
+        "description": "The parrot returns the same sentence with food."
+    },
+    {
+        "name": "/waiwai",
+        "example": "/waiwai",
+        "parameter": "none",
+        "description": "Answer waiwai with great enthusiasm"
+    },
+    {
+        "name": "/dice",
+        "example": "/dice message: 10",
+        "parameter": "message: int",
+        "description": "returns a random integer less than or equal to a specified number and greater than 0."
+    },
+    {
+        "name": "/choice",
+        "example": "/choice message: apple orange grape",
+        "parameter": "message: [string]",
+        "description": "If you pass a string separated by half-width spaces, it will randomly select and return it."
+    },
+    {
+        "name": "/translate",
+        "example": "/translate source: English target: Japanese message: hello world",
+        "parameter": "source: string, target: string, message: [string]",
+        "description": "Send a message and it will return a line by line translation."
+    },
+    {
+        "name": "/talk",
+        "example": "/talk message: please tell me your favorite food",
+        "parameter": "message: string",
+        "description": "You can start a new thread and have a conversation there"
+    }
 ]
