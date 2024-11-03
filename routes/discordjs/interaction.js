@@ -1,6 +1,7 @@
 const { Client, GatewayIntentBits } = require("discord.js");
 const { token } = require("../../config.json");
 const loadModule = require("../..//logics/index.js");
+// TODO replace to ESM
 loadModule().then(({help, waiwai, parrot, dice, choice, translate}) => {
 
 	const client = new Client({ intents: [GatewayIntentBits.Guilds] });
