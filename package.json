@@ -1,18 +1,22 @@
 {
-  "name": "waiwaichan",
-  "version": "1.0.0",
-  "description": "",
-  "main": "app.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "deepl-node": "^1.14.0",
-    "discord.js": "^14.16.3",
-    "dotenv": "^16.4.5",
-    "express": "^4.21.1",
-    "openai": "^4.69.0"
-  }
+	"name": "waiwaichan",
+	"version": "1.0.0",
+	"description": "",
+	"main": "app.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"lint": "biome format --write && biome check --write"
+	},
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"deepl-node": "^1.14.0",
+		"discord.js": "^14.16.3",
+		"dotenv": "^16.4.5",
+		"express": "^4.21.1",
+		"openai": "^4.69.0"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "1.9.4"
+	}
 }
