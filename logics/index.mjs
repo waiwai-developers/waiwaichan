@@ -1,6 +1,6 @@
-export { help } from "help";
-export { waiwai } from "logics/waiwai.mjs";
-export { dice } from "dice";
-export { choice } from "choice";
-export { translate } from "logics/translate.mjs";
-export { parrot } from "logics/parrot.mjs";
+export { help } from "./help.mjs";
+export { waiwai } from "./waiwai.mjs";
+export { dice } from "./dice.mjs";
+export { choice } from "./choice.mjs";
+export { translate } from "./translate.mjs";
+export { parrot } from "./parrot.mjs";

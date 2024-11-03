@@ -1,4 +1,4 @@
-const config = require("../config/commands.json");
+import config from "../config/commands.json" with { type: "json" };
 
 export const help = () => {
 	try {
