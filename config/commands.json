@@ -3,7 +3,13 @@
         "name": "/help",
         "example": "/help",
         "parameter": "none",
-        "description": "It will tell you more about each command"
+        "description": "It will tell you more about each command."
+    },
+    {
+        "name": "/parrot",
+        "example": "/parrot message: It's not a parrot, it's a parakeet",
+        "parameter": "message: string",
+        "description": "The parrot returns the same sentence with food."
     },
     {
         "name": "/waiwai",
@@ -15,13 +21,13 @@
         "name": "/dice",
         "example": "/dice message: 10",
         "parameter": "message: int",
-        "description": "returns a random integer less than or equal to a specified number and greater than 0"
+        "description": "returns a random integer less than or equal to a specified number and greater than 0."
     },
     {
         "name": "/choice",
         "example": "/choice message: apple orange grape",
         "parameter": "message: [string]",
-        "description": "If you pass a string separated by half-width spaces, it will randomly select and return it"
+        "description": "If you pass a string separated by half-width spaces, it will randomly select and return it."
     },
     {
         "name": "/translate",
