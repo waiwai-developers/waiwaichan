@@ -1,9 +1,9 @@
 {
-    "token": "",
-    "clientId": "",
-    "guildId": "",
-    "deeplApiKey": "",
-    "openaiApiKey": "",
-    "gptModel": "",
-    "gptPrompt": ""
+	"token": "",
+	"clientId": "",
+	"guildId": "",
+	"deeplApiKey": "",
+	"openaiApiKey": "",
+	"gptModel": "",
+	"gptPrompt": ""
 }
