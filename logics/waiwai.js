@@ -1,11 +1,11 @@
 function waiwai() {
-    try {
-        return 'waiwai'
-    } catch (e) {
-        console.error("Error:", e)
-    }
+	try {
+		return "waiwai";
+	} catch (e) {
+		console.error("Error:", e);
+	}
 }
 
 module.exports = {
-    waiwai,
-}
+	waiwai,
+};
