@@ -51,7 +51,7 @@ loadModule().then(({ help, waiwai, parrot, dice, choice, translate }) => {
 					await interaction.reply(dice(parameter));
 					break;
 				case "choice":
-					if (parameters === []) {
+					if (parameters == []) {
 						await interaction.reply("パラメーターがないよ！っ");
 						return;
 					}
@@ -83,7 +83,7 @@ loadModule().then(({ help, waiwai, parrot, dice, choice, translate }) => {
 					await interaction.deferReply();
 					const postMessages = await translate(texts, source, target);
 
-					if (postMessages === []) {
+					if (postMessages == []) {
 						await interaction.reply("翻訳できなかったよ！っ");
 						return;
 					}
