@@ -1,0 +1,6 @@
+export {help} from './help'
+export {waiwai} from './waiwai'
+export {dice} from '/dice'
+export {choice} from './choice'
+export {translate} from './translate'
+export {parrot} from './parrot'
