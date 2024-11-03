@@ -1,4 +1,4 @@
-import { requestTransrate } from '../repositorys/deeplapi/translate.mjs';
+import { requestTransrate } from "../repositorys/deeplapi/translate.mjs";
 export const translate = async (texts, source, target) => {
 	try {
 		const postMessages = [];
