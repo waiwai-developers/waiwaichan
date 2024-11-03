@@ -1,14 +1,34 @@
 services:
-    backend:
-      container_name: backend
-      restart: always
-      tty: true
-      build:
-        context: ./
-        dockerfile: Dockerfile
-      volumes:
-        - type: bind
-          source: .
-          target: /app
-      ports:
-        - 3000:3000
+  backend:
+    container_name: backend
+    restart: always
+    tty: true
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    volumes:
+      - type: bind
+        source: .
+        target: /app
+    ports:
+      - 3000:3000
+    depends_on:
+      - mysql
+    networks:
+      - db-net
+  mysql:
+    image: mysql:8.0
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    ports:
+      - 3306:3306
+    networks:
+      - db-net
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_USER: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    platform: linux/x86_64
+networks:
+  db-net:
+    driver: bridge
