@@ -1,4 +1,4 @@
-import config from '../config/commands.json' assert { type: "json" };
+import config from "../config/commands.json" with { type: "json" };
 
 export const help = () => {
 	try {
