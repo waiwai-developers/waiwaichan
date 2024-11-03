@@ -14,5 +14,8 @@
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
     "openai": "^4.69.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4"
   }
 }
