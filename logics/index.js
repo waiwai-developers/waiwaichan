@@ -1,5 +1,5 @@
 const loadModule = async () => {
-    return await import('./index.mjs');
+	return await import("./index.mjs");
 };
 
 module.exports = loadModule;

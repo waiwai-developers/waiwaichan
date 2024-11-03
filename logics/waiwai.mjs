@@ -4,4 +4,4 @@ export const waiwai = () => {
 	} catch (e) {
 		console.error("Error:", e);
 	}
-}
+};

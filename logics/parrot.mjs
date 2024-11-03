@@ -4,4 +4,4 @@ export const parrot = (parameter) => {
 	} catch (e) {
 		console.error("Error:", e);
 	}
-}
+};
