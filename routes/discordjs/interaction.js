@@ -7,7 +7,7 @@ const {
 	dice,
 	choice,
 	translate,
-} = require("../../logics");
+} = require("../../logics/index.mjs");
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 client.on("interactionCreate", async (interaction) => {

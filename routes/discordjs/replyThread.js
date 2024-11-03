@@ -24,11 +24,11 @@ client.on("messageCreate", async (message) => {
 	const replyMessage = await message.reply("ちょっと待ってね！っ");
 
 	const sendMessages = [{ role: "system", content: gptPrompt }];
-	for(const m  of fetchedMessages.reverse()){
+	for (const m of fetchedMessages.reverse()) {
 		sendMessages.push({
 			role: m.author.bot ? "system" : "user",
 			content: m.content,
-		})
+		});
 	}
 
 	const generate = await chatgpt.generate(sendMessages);
