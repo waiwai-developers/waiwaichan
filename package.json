@@ -10,11 +10,14 @@
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
+		"@sequelize/mysql": "^7.0.0-alpha.43",
 		"deepl-node": "^1.14.0",
 		"discord.js": "^14.16.3",
 		"dotenv": "^16.4.5",
 		"express": "^4.21.1",
-		"openai": "^4.69.0"
+		"openai": "^4.69.0",
+		"sequelize": "^6.37.5",
+		"sequelize-cli": "^6.6.2"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4"
