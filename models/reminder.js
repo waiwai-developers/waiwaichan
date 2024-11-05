@@ -14,10 +14,10 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Reminder.init({
-    channelId: DataTypes.INTEGER,
-    userId: DataTypes.INTEGER,
+    channelId: DataTypes.BIGINT,
+    userId: DataTypes.BIGINT,
     message: DataTypes.STRING,
-    reminderAt: DataTypes.DATE
+    remindAt: DataTypes.DATE
   }, {
     sequelize,
     modelName: 'Reminder',

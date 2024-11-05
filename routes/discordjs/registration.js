@@ -119,8 +119,9 @@ const commands = [
 		.setName("reminderset")
 		.setDescription("reminder string")
     .addStringOption((option) =>
-      option.setName("message").setDescription("string").setRequired(true),
-  ),
+      option.setName("message").setDescription("string").setRequired(true))
+	.addStringOption((option) =>
+      option.setName("datetime").setDescription("string").setRequired(true)),
   new SlashCommandBuilder()
 		.setName("reminderdelete")
 		.setDescription("reminder string")

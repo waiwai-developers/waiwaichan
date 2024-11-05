@@ -10,15 +10,19 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       channelId: {
-        type: Sequelize.INTEGER
+        allowNull: false,
+        type: Sequelize.BIGINT
       },
       userId: {
-        type: Sequelize.INTEGER
+        allowNull: false,
+        type: Sequelize.BIGINT
       },
       message: {
+        allowNull: false,
         type: Sequelize.STRING
       },
-      reminderAt: {
+      remindAt: {
+        allowNull: false,
         type: Sequelize.DATE
       },
       createdAt: {

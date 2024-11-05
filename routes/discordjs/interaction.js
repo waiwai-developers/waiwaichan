@@ -105,13 +105,13 @@ loadModule().then(({ help, waiwai, parrot, dice, choice, translate, reminderSet,
 					break;
 				}
 				case "reminderset":
-					await interaction.reply(reminderSet());
+					await interaction.reply( await reminderSet(interaction.channelId, interaction.user.id, interaction.options.getString("message"), interaction.options.getString("datetime")));
 					break;
 				case "reminderdelete":
-					await interaction.reply(reminderDelete());
+					await interaction.reply( await reminderDelete(interaction.options.getString("id"), interaction.user.id));
 					break;
 				case "reminderlist":
-					await interaction.reply(reminderList());
+					await interaction.reply( await reminderList(interaction.user.id));
 					break;
 				default:
 					await interaction.reply("そんなコマンドはないよ！っ");
