@@ -1,6 +1,6 @@
 services:
   backend:
-    container_name: backend
+    container_name: waiwai-backend
     restart: always
     tty: true
     build:
@@ -13,10 +13,11 @@ services:
     ports:
       - 3000:3000
     depends_on:
-      - mysql
+      - database
     networks:
       - db-net
-  mysql:
+  database:
+    container_name: waiwai-database
     image: mysql:8.0
     command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     ports:
