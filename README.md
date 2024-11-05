@@ -5,6 +5,16 @@ Start the server locally
 docker-compose up
 ```
 
+How to enter the environment
+```
+docker-compose exec backend sh
+```
+
+Performing the migration
+```
+node_modules/.bin/sequelize db:migrate --env development
+```
+
 Running formatter && linter
 ```
 npm i -D --save-exact @biomejs/biome
