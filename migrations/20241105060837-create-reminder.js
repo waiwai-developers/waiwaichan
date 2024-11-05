@@ -19,7 +19,7 @@ module.exports = {
         type: Sequelize.STRING
       },
       reminderAt: {
-        type: Sequelize.TIME
+        type: Sequelize.DATE
       },
       createdAt: {
         allowNull: false,

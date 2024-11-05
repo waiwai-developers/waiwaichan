@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
     channelId: DataTypes.INTEGER,
     userId: DataTypes.INTEGER,
     message: DataTypes.STRING,
-    reminderAt: DataTypes.TIME
+    reminderAt: DataTypes.DATE
   }, {
     sequelize,
     modelName: 'Reminder',
