@@ -10,7 +10,7 @@ export const reminderList = async (userId) => {
 		const texts = reminders.map((r) =>
 			[
 				`- id: ${r.dataValues.id}`,
-				`  - ${dayjs(r.dataValues.remindAt.toLocaleString()).format('YYYY-MM-DD HH:mm:ss')}`,
+				`  - ${dayjs(r.dataValues.remindAt.toLocaleString()).add(9, 'h').format('YYYY-MM-DD HH:mm:ss')}`,
 				`  - ${r.dataValues.message}`
 			].join("\n"),
 		);
