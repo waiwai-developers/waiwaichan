@@ -2,7 +2,7 @@ const { Client, GatewayIntentBits } = require("discord.js");
 const { token } = require("../../config.json");
 const loadModule = require("../..//logics/index.js");
 // TODO replace to ESM
-loadModule().then(({ help, waiwai, parrot, dice, choice, translate }) => {
+loadModule().then(({ help, waiwai, parrot, dice, choice, translate, reminderSet, reminderDelete, reminderList }) => {
 	const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 	client.on("interactionCreate", async (interaction) => {
@@ -15,7 +15,6 @@ loadModule().then(({ help, waiwai, parrot, dice, choice, translate }) => {
 			let parameter = null;
 			switch (command) {
 				case "help": {
-					const a = help();
 					await interaction.reply(help());
 					break;
 				}
@@ -105,6 +104,15 @@ loadModule().then(({ help, waiwai, parrot, dice, choice, translate }) => {
 					});
 					break;
 				}
+				case "reminderset":
+					await interaction.reply( await reminderSet(interaction.channelId, interaction.user.id, interaction.options.getString("message"), interaction.options.getString("datetime")));
+					break;
+				case "reminderdelete":
+					await interaction.reply( await reminderDelete(interaction.options.getString("id"), interaction.user.id));
+					break;
+				case "reminderlist":
+					await interaction.reply( await reminderList(interaction.user.id));
+					break;
 				default:
 					await interaction.reply("そんなコマンドはないよ！っ");
 			}

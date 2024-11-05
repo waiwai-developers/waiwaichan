@@ -4,3 +4,6 @@ export { dice } from "./dice.mjs";
 export { choice } from "./choice.mjs";
 export { translate } from "./translate.mjs";
 export { parrot } from "./parrot.mjs";
+export { reminderSet } from "./reminderSet.mjs";
+export { reminderDelete } from "./reminderDelete.mjs";
+export { reminderList } from "./reminderList.mjs";

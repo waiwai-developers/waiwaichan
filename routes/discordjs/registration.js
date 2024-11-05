@@ -115,7 +115,23 @@ const commands = [
 		.addStringOption((option) =>
 			option.setName("title").setDescription("string").setRequired(true),
 		),
-].map((command) => command.toJSON());
+	new SlashCommandBuilder()
+			.setName("reminderset")
+			.setDescription("reminder string")
+		.addStringOption((option) =>
+			option.setName("datetime").setDescription("string").setRequired(true))
+	    .addStringOption((option) =>
+	      option.setName("message").setDescription("string").setRequired(true)),
+	new SlashCommandBuilder()
+			.setName("reminderdelete")
+			.setDescription("reminder string")
+	    .addStringOption((option) =>
+	      option.setName("id").setDescription("string").setRequired(true),
+	  ),
+	new SlashCommandBuilder()
+			.setName("reminderlist")
+			.setDescription("reminder string")
+	].map((command) => command.toJSON());
 
 (async () => {
 	try {

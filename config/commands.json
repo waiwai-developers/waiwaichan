@@ -40,5 +40,23 @@
         "example": "/talk message: please tell me your favorite food",
         "parameter": "message: string",
         "description": "You can start a new thread and have a conversation there"
+    },
+    {
+        "name": "/reminderset",
+        "example": "/reminderset datetime: 2024-11-06 11:31:00 message: hello",
+        "parameter": "datetime: datetime, message: string",
+        "description": "Enter the reminder time and message and register"
+    },
+    {
+        "name": "/reminderdelete",
+        "example": "/reminderdelete id: 1",
+        "parameter": "id: integer",
+        "description": "Delete the registered reminder with the specified id"
+    },
+    {
+        "name": "/reminderlist",
+        "example": "/reminderlist",
+        "parameter": "none",
+        "description": "You can check the contents of registered reminders"
     }
 ]
