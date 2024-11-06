@@ -27,12 +27,7 @@ loadModule().then(({ help, waiwai, parrot, dice, choice, translate, reminderSet,
 					await interaction.reply(dice(interaction.options?.getString("parameter")));
 					break;
 				case "choice":
-					if (parameters == []) {
-						await interaction.reply("パラメーターがないよ！っ");
-						return;
-					}
-
-					await interaction.reply(choice(parameters));
+					await interaction.reply(choice(interaction.options?.getString("items")));
 					break;
 				case "translate": {
 					const source = interaction.options?.getString("source");

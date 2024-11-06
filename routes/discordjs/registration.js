@@ -21,7 +21,7 @@ const commands = [
 		.setName("choice")
 		.setDescription("choice [string]")
 		.addStringOption((option) =>
-			option.setName("message").setDescription("string").setRequired(true),
+			option.setName("items").setDescription("string").setRequired(true),
 		),
 	new SlashCommandBuilder()
 		.setName("translate")
