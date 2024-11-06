@@ -6,7 +6,7 @@ export const pointCheck = async (userId) => {
 		const date = new Date()
         const points = await models.Point.findAndCountAll({
             where: {
-                giveUserId: userId,
+                receiveUserId: userId,
                 status: models.Point.STATUS_VALID,
                 expiredAt: {[Sequelize.Op.gte]: date.setMonth(date.getMonth() -1)}
 			}
