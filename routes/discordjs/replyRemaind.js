@@ -18,5 +18,5 @@ setInterval(async () => {
   } catch (e) {
     console.error("Error:", e);
   }
-}, 10000);
+}, 60000);
 client.login(token);

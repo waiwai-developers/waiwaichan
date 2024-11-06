@@ -107,7 +107,7 @@ const commands = [
 				),
 		)
 		.addStringOption((option) =>
-			option.setName("message").setDescription("string").setRequired(true),
+			option.setName("messages").setDescription("string").setRequired(true),
 		),
 	new SlashCommandBuilder()
 		.setName("talk")
