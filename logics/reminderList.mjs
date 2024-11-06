@@ -14,6 +14,9 @@ export const reminderList = async (userId) => {
 				`  - ${r.dataValues.message}`
 			].join("\n"),
 		);
+
+		if (texts.length === 0) return "リマインドは予約されていないよ！っ"
+
 		return ( "以下のリマインドが予約されているよ！っ" + "\n" + texts.join("\n"));
     } catch (e) {
         console.error("Error:", e);
