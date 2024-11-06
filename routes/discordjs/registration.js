@@ -15,13 +15,13 @@ const commands = [
 		.setName("dice")
 		.setDescription("dice integer")
 		.addStringOption((option) =>
-			option.setName("message").setDescription("string").setRequired(true),
+			option.setName("parameter").setDescription("integer").setRequired(true),
 		),
 	new SlashCommandBuilder()
 		.setName("choice")
 		.setDescription("choice [string]")
 		.addStringOption((option) =>
-			option.setName("message").setDescription("string").setRequired(true),
+			option.setName("items").setDescription("string").setRequired(true),
 		),
 	new SlashCommandBuilder()
 		.setName("translate")
@@ -107,7 +107,7 @@ const commands = [
 				),
 		)
 		.addStringOption((option) =>
-			option.setName("message").setDescription("string").setRequired(true),
+			option.setName("messages").setDescription("string").setRequired(true),
 		),
 	new SlashCommandBuilder()
 		.setName("talk")
