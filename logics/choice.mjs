@@ -1,8 +1,10 @@
-export const choice = (parameters) => {
+export const choice = (items) => {
 	try {
-		return parameters[
-			Math.floor(Math.random() * Number(parameters.length)).toString(10)
-		];
+		if (items == null) return "パラメーターがないよ！っ";
+
+		const itemNames = items.split(" ")
+
+		return itemNames[Math.floor(Math.random() * Number(itemNames.length)).toString(10)];
 	} catch (e) {
 		console.error("Error:", e);
 	}
