@@ -1,6 +1,8 @@
-export const parrot = (parameter) => {
+export const parrot = (message) => {
 	try {
-		return parameter;
+		if(!message) return "パラメーターがないよ！っ";
+
+		return message;
 	} catch (e) {
 		console.error("Error:", e);
 	}

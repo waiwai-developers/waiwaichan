@@ -20,7 +20,7 @@
     {
         "name": "/dice",
         "example": "/dice message: 10",
-        "parameter": "message: int",
+        "parameter": "message: integer",
         "description": "returns a random integer less than or equal to a specified number and greater than 0."
     },
     {

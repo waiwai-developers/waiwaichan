@@ -15,7 +15,7 @@ const commands = [
 		.setName("dice")
 		.setDescription("dice integer")
 		.addStringOption((option) =>
-			option.setName("message").setDescription("string").setRequired(true),
+			option.setName("parameter").setDescription("integer").setRequired(true),
 		),
 	new SlashCommandBuilder()
 		.setName("choice")
