@@ -13,10 +13,9 @@ loadModule().then(({ help, waiwai, parrot, dice, choice, translate, reminderSet,
 			// const parameters = message?.split(" ") ?? null;
 			let parameter = null;
 			switch (interaction.commandName) {
-				case "help": {
+				case "help":
 					await interaction.reply(help());
 					break;
-				}
 				case "waiwai":
 					await interaction.reply(waiwai());
 					break;
