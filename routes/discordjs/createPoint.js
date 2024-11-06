@@ -23,7 +23,7 @@ client.on('messageReactionAdd', async (reaction, user) => {
       }
     });
 
-    if (points.count > 3) {
+    if (points.count > 2) {
       await reaction.message.channel.send(`もう今日はスタンプを押してもポイントは増えないよ！っ`);
       return;
     }
