@@ -1,22 +1,22 @@
 import models from '../models/index.js'
-import dayjs from 'dayjs';
-const Sequelize = require('sequelize');
+import Sequelize from 'sequelize';
 
 export const pointCheck = async (userId) => {
     try {
-        const pointConut = await models.Point.findAll({
-			attributes: [[Sequelize.fn('COUNT', Sequelize.col('id'))]],
+		const date = new Date()
+        const points = await models.Point.findAndCountAll({
             where: {
-                userId: userId,
-                enable: models.Point.STATUS_VALID,
-                expiredAt: {[Sequelize.Op.gte]: new Date().setMonth(dt.getMonth() -1)}
+                giveUserId: userId,
+                status: models.Point.STATUS_VALID,
+                expiredAt: {[Sequelize.Op.gte]: date.setMonth(date.getMonth() -1)}
 			}
         });
 
-		if (pointConut === 0) return "ポイントがないよ！っ"
+		if (points.count === 0) return "ポイントがないよ！っ";
 
-		return ( "以下のリマインドが予約されているよ！っ" + "\n" + texts.join("\n"));
+		return ( `${points.count}` + "ポイントあるよ！っ");
     } catch (e) {
         console.error("Error:", e);
+		return ( "エラーが起こったよ！っ");
     }
 };

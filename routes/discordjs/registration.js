@@ -130,8 +130,11 @@ const commands = [
 	  ),
 	new SlashCommandBuilder()
 			.setName("reminderlist")
-			.setDescription("reminder string")
-	].map((command) => command.toJSON());
+			.setDescription("reminder string"),
+	new SlashCommandBuilder()
+		.setName("pointcheck")
+		.setDescription("pointcheck")
+].map((command) => command.toJSON());
 
 (async () => {
 	try {
