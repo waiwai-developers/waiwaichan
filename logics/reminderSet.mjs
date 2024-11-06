@@ -4,7 +4,6 @@ import moment from 'moment';
 
 export const reminderSet = async (channelId, userId, message, datetime) => {
 	try {
-
 		const remindAt = dayjs(datetime).subtract(9, 'h').format('YYYY-MM-DD HH:mm:ss');
 		const datenow = moment().format('YYYY-MM-DD HH:mm:ss');
 
