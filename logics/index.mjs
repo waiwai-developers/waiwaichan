@@ -7,3 +7,4 @@ export { parrot } from "./parrot.mjs";
 export { reminderSet } from "./reminderSet.mjs";
 export { reminderDelete } from "./reminderDelete.mjs";
 export { reminderList } from "./reminderList.mjs";
+export { pointCheck } from "./pointCheck.mjs";
