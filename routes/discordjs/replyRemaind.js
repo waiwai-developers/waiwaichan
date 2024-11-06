@@ -11,6 +11,8 @@ setInterval(async () => {
             where: {remindAt: {[Sequelize.Op.lte]: new Date()}}
         });
 
+        if (remainders.length === 0) return
+
         for (const remainder of remainders) {
             await client.channels.cache.get(remainder.channelId).send((`<@${remainder.userId}>` + "\n"+ remainder.message))
             await remainder.destroy();
@@ -18,5 +20,5 @@ setInterval(async () => {
   } catch (e) {
     console.error("Error:", e);
   }
-}, 60000);
+}, 10000);
 client.login(token);
