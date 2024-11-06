@@ -13,12 +13,14 @@ setInterval(async () => {
 
         if (remainders.length === 0) return
 
+        let channel = null
         for (const remainder of remainders) {
-            await client.channels.cache.get(remainder.channelId).send((`<@${remainder.userId}>` + "\n"+ remainder.message))
+            channel = client.channels.cache.get(remainder.channelId)
+            if (channel) {await channel.send((`<@${remainder.userId}>` + "\n"+ remainder.message))}
             await remainder.destroy();
         }
-  } catch (e) {
-    console.error("Error:", e);
-  }
+    } catch (e) {
+        console.error("Error:", e);
+    }
 }, 10000);
 client.login(token);
