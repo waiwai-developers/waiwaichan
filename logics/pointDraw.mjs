@@ -1,6 +1,5 @@
 import models from '../models/index.js'
-import db from '../models/index.js'
-const sequelize = db.sequelize
+import { sequelize } from '../models/index.js'
 
 export const pointDraw = async (userId) => {
     const t = await sequelize.transaction();
