@@ -27,7 +27,7 @@ client.on('messageReactionAdd', async (reaction, user) => {
     if (points.rows.map((p) => p.messageId).includes(reaction.message.id)) return;
 
     if (points.count > 2) {
-      await reaction.message.channel.send(`今はスタンプを押してもポイントは増えないよ！っ`);
+      await reaction.message.channel.send(`今はスタンプを押してもポイントをあげられないよ！っ`);
       return;
     }
 
