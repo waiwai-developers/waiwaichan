@@ -24,7 +24,7 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   UserItem.associate = models => {
-    UserItem.belongsTo(models.Item, { as: 'user', foreignKey: 'userId' })
+    UserItem.belongsTo(models.Item, { as: 'item', foreignKey: 'itemId' })
   }
 
   UserItem.STATUS_VALID = 0

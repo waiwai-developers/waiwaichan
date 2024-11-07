@@ -22,8 +22,13 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   Item.associate = models => {
-    Item.hasMany(models.UserItem, {foreignKey: 'userId'})
+    Item.hasMany(models.UserItem, {foreignKey: 'itemId'})
   }
+
+  Item.PROBABILITY_JACKPOD = 100
+  Item.PROBABILITY_HIT = 3
+  Item.ID_JACKPOD = 1
+  Item.ID_HIT = 2
 
   return Item;
 };

@@ -1,58 +1,72 @@
 import models from '../models/index.js'
-import db from '../models/index.js'
-const sequelize = db.sequelize
+import Sequelize from 'sequelize'
 
 export const pointDraw = async (userId) => {
-    const t = await sequelize.transaction();
+    const t = await models.sequelize.transaction();
     try {
 		const date = new Date()
-        await models.Point.update(
-            { status: models.Point.STATUS_INVALID },
+        const point = await models.Point.findOne(
             {
                 where: {
                     receiveUserId: userId,
                     status: models.Point.STATUS_VALID,
                     expiredAt: {[Sequelize.Op.gte]: date.setMonth(date.getMonth() -1)}
     			},
-    			order: [['expiredAt', 'ASC']],
-    			limit: 1
-            },
+    			order: [['expiredAt', 'ASC']]
+            }
+        );
+
+        if (!point) return "ポイントがなかったよ！っ";
+
+        await models.Point.update(
+            { status: models.Point.STATUS_INVALID},
+            { where: {id: point.id} },
             { transaction: t }
         );
 
-        const probabilityNum = 100
-        const randomNum = Math.floor(Math.random() * probabilityNum + 1)
+        // NOTE:todo より良い乱数生成に変える
+        const randomNum = Math.floor(Math.random() * models.Item.PROBABILITY_JACKPOD + 1)
 
-        if (randomNum % 10 !== 0) {
+        if (randomNum % models.Item.PROBABILITY_HIT !== 0) {
             await t.commit();
             return "ハズレちゃったよ！っ";
         }
 
         let userItem = null
-        if (randomNum  % 100 === 0){
+        if (randomNum % models.Item.PROBABILITY_JACKPOD === 0){
             userItem = await models.UserItem.create(
                 {
                     userId: userId,
-                    itemId: 1,
+                    itemId: models.Item.ID_JACKPOD,
                     status: models.Point.STATUS_VALID,
-                    expiredAt: dayjs(datetime).subtract(1, 'y').format('YYYY-MM-DD HH:mm:ss')
+                    expiredAt: date.setMonth(date.getYear() +1)
                 },
                 { transaction: t }
             );
             await t.commit();
-            return `${userItem.name}が当たったよ👕！っ`;
-        } else if (randomNum  % 10 === 0) {
+
+            const item = await models.Item.findOne({
+                attributes: ['name'],
+                where: {id: models.Item.ID_JACKPOD}
+            });
+            return `${item.name}が当たったよ👕！っ`;
+        } else {
             userItem = await models.UserItem.create(
                 {
                     userId: userId,
-                    itemId: 2,
+                    itemId: models.Item.ID_HIT,
                     status: models.Point.STATUS_VALID,
-                    expiredAt: dayjs(datetime).subtract(1, 'y').format('YYYY-MM-DD HH:mm:ss')
+                    expiredAt: date.setMonth(date.getYear() +1)
                 },
                 { transaction: t }
             );
             await t.commit();
-            return `${userItem.name}が当たったよ🍭！っ`;
+
+            const item = await models.Item.findOne({
+                attributes: ['name'],
+                where: {id: models.Item.ID_HIT}
+            });
+            return `${item.name}が当たったよ🍭！っ`;
         }
     } catch (e) {
         console.error("Error:", e);
