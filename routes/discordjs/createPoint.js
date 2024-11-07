@@ -27,7 +27,7 @@ client.on('messageReactionAdd', async (reaction, user) => {
     if (points.rows.map((p) => p.messageId).includes(reaction.message.id)) return;
 
     if (points.count > 2) {
-      await reaction.message.channel.send(`もう今日はスタンプを押してもポイントは増えないよ！っ`);
+      await reaction.message.channel.send(`今はスタンプを押してもポイントをあげられないよ！っ`);
       return;
     }
 
@@ -39,7 +39,7 @@ client.on('messageReactionAdd', async (reaction, user) => {
       expiredAt: date.setMonth(date.getMonth() +1)
 		});
 
-    await reaction.message.channel.send(`ありがと！っ<@${user.id}>さんが🍬スタンプを押したよ！！っ`);
+    await reaction.message.reply(`<@${user.id}>さんが🍬スタンプを押したよ！！っ`);
   }
 });
 
