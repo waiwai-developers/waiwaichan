@@ -5,7 +5,7 @@ const Sequelize = require('sequelize');
 const client = new Client({
   intents: Object.values(GatewayIntentBits).reduce((a, b) => a | b)
 });
-client.on("", () => {
+client.on("createPoint", () => {
   console.log(`login: ${client.user.tag}`);
 });
 
