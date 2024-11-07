@@ -19,5 +19,6 @@ export const translate = async (messages, source, target) => {
 		return postMessages.join("\n\n");
 	} catch (e) {
 		console.error("Error:", e);
+		return ("エラーが起こったよ！っ");
 	}
 };

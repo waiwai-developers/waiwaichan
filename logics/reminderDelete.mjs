@@ -16,5 +16,6 @@ export const reminderDelete = async (id, userId) => {
 		return "リマインドの予約を削除したよ！っ";
 	} catch (e) {
 		console.error("Error:", e);
+		return ("エラーが起こったよ！っ");
 	}
 };

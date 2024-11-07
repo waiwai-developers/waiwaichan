@@ -18,5 +18,6 @@ export const reminderSet = async (channelId, userId, message, datetime) => {
 		return "リマインドの投稿を予約したよ！っ";
 	} catch (e) {
 		console.error("Error:", e);
+		return ("エラーが起こったよ！っ");
 	}
 };
