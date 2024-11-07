@@ -7,5 +7,6 @@ export const choice = (items) => {
 		return itemNames[Math.floor(Math.random() * Number(itemNames.length)).toString(10)];
 	} catch (e) {
 		console.error("Error:", e);
+		return ("エラーが起こったよ！っ");
 	}
 };

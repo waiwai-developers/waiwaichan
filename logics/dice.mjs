@@ -10,5 +10,6 @@ export const dice = (parameter) => {
 		return Math.floor(Math.random() * param + 1).toString(10);
 	} catch (e) {
 		console.error("Error:", e);
+		return ("エラーが起こったよ！っ");
 	}
 };
