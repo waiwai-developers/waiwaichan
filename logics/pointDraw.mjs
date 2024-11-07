@@ -1,8 +1,9 @@
 import models from '../models/index.js'
-import Sequelize from 'sequelize';
+import db from '../models/index.js'
+const sequelize = db.sequelize
 
 export const pointDraw = async (userId) => {
-    const t = await Sequelize.Transaction();
+    const t = await sequelize.transaction();
     try {
 		const date = new Date()
         await models.Point.update(
