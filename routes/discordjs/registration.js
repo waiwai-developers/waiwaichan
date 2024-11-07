@@ -133,6 +133,12 @@ const commands = [
 			.setDescription("reminder string"),
 	new SlashCommandBuilder()
 		.setName("pointcheck")
+		.setDescription("pointcheck"),
+	new SlashCommandBuilder()
+		.setName("pointdraw")
+		.setDescription("pointdraw"),
+	new SlashCommandBuilder()
+		.setName("pointchange")
 		.setDescription("pointcheck")
 ].map((command) => command.toJSON());
 
