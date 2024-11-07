@@ -17,6 +17,6 @@ export const pointCheck = async (userId) => {
 		return ( `${points.count}` + "ポイントあるよ！っ");
     } catch (e) {
         console.error("Error:", e);
-		return ( "エラーが起こったよ！っ");
+		return ("エラーが起こったよ！っ");
     }
 };

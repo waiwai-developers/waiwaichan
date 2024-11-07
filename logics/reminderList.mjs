@@ -20,5 +20,6 @@ export const reminderList = async (userId) => {
 		return ( "以下のリマインドが予約されているよ！っ" + "\n" + texts.join("\n"));
     } catch (e) {
         console.error("Error:", e);
+		return ("エラーが起こったよ！っ");
     }
 };
