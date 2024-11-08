@@ -32,8 +32,8 @@ client.on('messageReactionAdd', async (reaction, user) => {
     }
 
 		await models.Point.create({
-      receiveUserId: user.id,
-      giveUserId: reaction.message.author.id,
+      receiveUserId: reaction.message.author.id,
+      giveUserId: user.id,
       messageId: reaction.message.id,
       status: models.Point.STATUS_VALID,
       expiredAt: date.setMonth(date.getMonth() +1)
