@@ -39,7 +39,7 @@ export const pointDraw = async (userId) => {
                     userId: userId,
                     itemId: models.Item.ID_JACKPOD,
                     status: models.Point.STATUS_VALID,
-                    expiredAt: date.setYear(date.getYear() +1)
+                    expiredAt: date.setFullYear(date.getFullYear() +1)
                 },
                 { transaction: t }
             );
@@ -56,7 +56,7 @@ export const pointDraw = async (userId) => {
                     userId: userId,
                     itemId: models.Item.ID_HIT,
                     status: models.Point.STATUS_VALID,
-                    expiredAt: date.setYear(date.getYear() +1)
+                    expiredAt: date.setFullYear(date.getFullYear() +1)
                 },
                 { transaction: t }
             );
