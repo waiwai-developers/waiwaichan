@@ -8,7 +8,7 @@ export const pointCheck = async (userId) => {
             where: {
                 receiveUserId: userId,
                 status: models.Point.STATUS_VALID,
-                expiredAt: {[Sequelize.Op.gte]: date.setMonth(date.getMonth() -1)}
+                expiredAt: {[Sequelize.Op.gte]: date}
 			}
         });
 
