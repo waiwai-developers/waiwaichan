@@ -1,5 +1,5 @@
-require("./routes/discordjs/interaction");
-require("./routes/discordjs/registration");
-require("./routes/discordjs/replyRemaind");
-require("./routes/discordjs/replyThread");
-require("./routes/discordjs/createPoint");
+import "./routes/discordjs/interaction";
+import "./routes/discordjs/registration";
+import "./routes/discordjs/replyRemaind";
+import "./routes/discordjs/replyThread";
+import "./routes/discordjs/createPoint";
