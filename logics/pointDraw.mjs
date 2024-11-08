@@ -16,7 +16,7 @@ export const pointDraw = async (userId) => {
             }
         );
 
-        if (!point) return "ポイントがなかったよ！っ";
+        if (!point) return "ポイントがないよ！っ";
 
         await models.Point.update(
             { status: models.Point.STATUS_INVALID},
