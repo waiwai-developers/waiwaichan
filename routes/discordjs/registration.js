@@ -139,7 +139,10 @@ const commands = [
 		.setDescription("pointdraw"),
 	new SlashCommandBuilder()
 		.setName("pointchange")
-		.setDescription("pointcheck")
+		.setDescription("pointcheck"),
+	new SlashCommandBuilder()
+		.setName("pointitem")
+		.setDescription("pointitem")
 ].map((command) => command.toJSON());
 
 (async () => {
