@@ -10,7 +10,7 @@ export const pointDraw = async (userId) => {
                 where: {
                     receiveUserId: userId,
                     status: models.Point.STATUS_VALID,
-                    expiredAt: {[Sequelize.Op.gte]: date.setMonth(date.getMonth() -1)}
+                    expiredAt: {[Sequelize.Op.gte]: date}
     			},
     			order: [['expiredAt', 'ASC']]
             }
@@ -39,7 +39,7 @@ export const pointDraw = async (userId) => {
                     userId: userId,
                     itemId: models.Item.ID_JACKPOD,
                     status: models.Point.STATUS_VALID,
-                    expiredAt: date.setMonth(date.getYear() +1)
+                    expiredAt: date.setYear(date.getYear() +1)
                 },
                 { transaction: t }
             );
@@ -56,7 +56,7 @@ export const pointDraw = async (userId) => {
                     userId: userId,
                     itemId: models.Item.ID_HIT,
                     status: models.Point.STATUS_VALID,
-                    expiredAt: date.setMonth(date.getYear() +1)
+                    expiredAt: date.setYear(date.getYear() +1)
                 },
                 { transaction: t }
             );
