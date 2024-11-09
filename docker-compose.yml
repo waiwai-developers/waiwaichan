@@ -13,11 +13,31 @@ services:
     ports:
       - 3000:3000
     depends_on:
-      - database
+      database:
+        condition: service_healthy
     networks:
       - db-net
+  migrate:
+    container_name: waiwai-migrate
+    restart: "no"
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    volumes:
+      - type: bind
+        source: .
+        target: /app
+    ports:
+      - 3001:3001
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - db-net
+    command: ["npm", "run", "migrate"]
   database:
     container_name: waiwai-database
+    restart: always
     image: mysql:8.0
     command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     ports:
@@ -26,15 +46,15 @@ services:
       - mysql_data:/var/lib/mysql
     networks:
       - db-net
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_USER: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
     platform: linux/x86_64
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 5s
 networks:
   db-net:
     driver: bridge
-
 volumes:
   mysql_data:
