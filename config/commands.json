@@ -3,60 +3,84 @@
         "name": "/help",
         "example": "/help",
         "parameter": "none",
-        "description": "It will tell you more about each command."
-    },
-    {
-        "name": "/parrot",
-        "example": "/parrot message: It's not a parrot, it's a parakeet",
-        "parameter": "message: string",
-        "description": "The parrot returns the same sentence with food."
+        "description": "コマンドの一覧と詳細を確認する"
     },
     {
         "name": "/waiwai",
         "example": "/waiwai",
         "parameter": "none",
-        "description": "Answer waiwai with great enthusiasm"
+        "description": "waiwaiで場を盛り上げる"
+    },
+    {
+        "name": "/parrot",
+        "example": "/parrot message: It's not a parrot, it's a parakeet",
+        "parameter": "message: string",
+        "description": "メッセージの内容をオウムがえしする"
     },
     {
         "name": "/dice",
         "example": "/dice message: 10",
         "parameter": "message: integer",
-        "description": "returns a random integer less than or equal to a specified number and greater than 0."
+        "description": "指定した数の目のサイコロを転がす"
     },
     {
         "name": "/choice",
         "example": "/choice message: apple orange grape",
         "parameter": "message: [string]",
-        "description": "If you pass a string separated by half-width spaces, it will randomly select and return it."
+        "description": "指定した単語から選んでもらう"
     },
     {
         "name": "/translate",
         "example": "/translate source: English target: Japanese message: hello world",
         "parameter": "source: string, target: string, message: [string]",
-        "description": "Send a message and it will return a line by line translation."
+        "description": "指定した言語から言語へ翻訳を行う"
     },
     {
         "name": "/talk",
         "example": "/talk message: please tell me your favorite food",
         "parameter": "message: string",
-        "description": "You can start a new thread and have a conversation there"
+        "description": "スレッドを立ててwaiwaiちゃんと会話をする"
     },
     {
         "name": "/reminderset",
-        "example": "/reminderset datetime: 2024-11-06 11:31:00 message: hello",
+        "example": "/reminderset datetime: 2024-01-01 00:00:00 message: hello",
         "parameter": "datetime: datetime, message: string",
-        "description": "Enter the reminder time and message and register"
+        "description": "新しくリマインダーを登録する"
     },
     {
         "name": "/reminderdelete",
         "example": "/reminderdelete id: 1",
         "parameter": "id: integer",
-        "description": "Delete the registered reminder with the specified id"
+        "description": "登録されているリマインダーを削除する"
     },
     {
         "name": "/reminderlist",
         "example": "/reminderlist",
         "parameter": "none",
-        "description": "You can check the contents of registered reminders"
+        "description": "登録されているリマインダーを確認する"
+    },
+    {
+        "name": "/pointCheck",
+        "example": "/pointCheck",
+        "parameter": "none",
+        "description": "付与されているポイントの数を確認する"
+    },
+    {
+        "name": "/pointDraw",
+        "example": "/pointDraw",
+        "parameter": "none",
+        "description": "ポイントを消費しガチャを回す"
+    },
+    {
+        "name": "/pointItem",
+        "example": "/pointItem",
+        "parameter": "none",
+        "description": "ガチャで取得したアイテムを確認する"
+    },
+    {
+        "name": "/pointChange",
+        "example": "/pointChange id: 1",
+        "parameter": "none",
+        "description": "取得したアイテムを交換する"
     }
 ]
