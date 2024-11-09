@@ -5,9 +5,9 @@ export const help = () => {
 		const texts = config.map((c) =>
 			[
 				`- \`${c.name}\``,
-				`  - パラメータ: ${c.parameter}`,
-				`  - 例: ${c.example}`,
-				`  - 説明: ${c.description}`,
+				`  - 値　　： ${c.parameter}`,
+				`  - 例　　： ${c.example}`,
+				`  - 説明　： ${c.description}`,
 			].join("\n"),
 		);
 		return texts.join("\n");
