@@ -77,7 +77,7 @@ loadModule().then(({ help, waiwai, parrot, dice, choice, translate, reminderSet,
 					await interaction.reply( await pointItem(interaction.user.id));
 					break;
 				case "pointchange":
-					await interaction.reply( await pointChange(interaction.user.id, interaction.options.getString("id")));
+					await interaction.reply( await pointChange(interaction.user.id, interaction.options.getInteger("id")));
 					break;
 				default:
 					await interaction.reply("そんなコマンドはないよ！っ");
