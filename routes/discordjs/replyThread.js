@@ -1,6 +1,7 @@
-const { Client,GatewayIntentBits } = require("discord.js");
-const { token, clientId, gptPrompt } = require('../../config.json');
-const chatgpt = require('../../repositorys/chatgptapi/generate');
+import { Client,GatewayIntentBits } from 'discord.js';
+import { token, clientId, gptPrompt } from '../../config.json';
+import chatgpt from '../../repositorys/chatgptapi/generate';
+
 const client = new Client({
   intents: Object.values(GatewayIntentBits).reduce((a, b) => a | b)
 });
