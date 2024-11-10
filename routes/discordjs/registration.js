@@ -1,7 +1,7 @@
 import { REST, Routes, SlashCommandBuilder } from "discord.js";
 import config from "../../config.json" with { type: "json" };
 import { TranslateConst } from "../../entities/index.js";
-
+import command from "../../config/commands.json" with { type: "json" };
 const rest = new REST({ version: "10" }).setToken(config.token);
 
 const commands = [
@@ -15,9 +15,9 @@ const commands = [
 			.setRequired(true)
 			.addChoices(
 				{ name: "全てのコマンド", value: "all" },
-				{ name: config[0].category.name, value: config[0].category.name },
-				{ name: config[1].category.name, value: config[1].category.name },
-				{ name: config[2].category.name, value: config[2].category.name },
+				{ name: command[0].category.name, value: command[0].category.name },
+				{ name: command[1].category.name, value: command[1].category.name },
+				{ name: command[2].category.name, value: command[2].category.name }
 			),
 	),
 	new SlashCommandBuilder().setName("waiwai").setDescription("waiwai"),
