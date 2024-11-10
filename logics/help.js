@@ -17,7 +17,7 @@ export const help = (category) => {
 		return texts.join("\n");
 	} catch (e) {
 		console.error("Error:", e);
-		return ("エラーが起こったよ！っ");
+		return "エラーが起こったよ！っ";
 	}
 };
 
