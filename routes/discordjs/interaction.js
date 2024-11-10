@@ -26,7 +26,9 @@ client.on("interactionCreate", async (interaction) => {
 		// let parameter = null;
 		switch (interaction.commandName) {
 			case "help":
-				await interaction.reply(help(interaction.options?.getString("category")));
+				await interaction.reply(
+					help(interaction.options?.getString("category")),
+				);
 				break;
 			case "waiwai":
 				await interaction.reply(waiwai());

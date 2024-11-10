@@ -1,25 +1,25 @@
 import { REST, Routes, SlashCommandBuilder } from "discord.js";
 import config from "../../config.json" with { type: "json" };
-import { TranslateConst } from "../../entities/index.js";
 import command from "../../config/commands.json" with { type: "json" };
+import { TranslateConst } from "../../entities/index.js";
 const rest = new REST({ version: "10" }).setToken(config.token);
 
 const commands = [
 	new SlashCommandBuilder()
-	.setName("help")
-	.setDescription("help")
-	.addStringOption((option) =>
-		option
-			.setName("category")
-			.setDescription("string")
-			.setRequired(true)
-			.addChoices(
-				{ name: "全てのコマンド", value: "all" },
-				{ name: command[0].category.name, value: command[0].category.name },
-				{ name: command[1].category.name, value: command[1].category.name },
-				{ name: command[2].category.name, value: command[2].category.name }
-			),
-	),
+		.setName("help")
+		.setDescription("help")
+		.addStringOption((option) =>
+			option
+				.setName("category")
+				.setDescription("string")
+				.setRequired(true)
+				.addChoices(
+					{ name: "全てのコマンド", value: "all" },
+					{ name: command[0].category.name, value: command[0].category.name },
+					{ name: command[1].category.name, value: command[1].category.name },
+					{ name: command[2].category.name, value: command[2].category.name },
+				),
+		),
 	new SlashCommandBuilder().setName("waiwai").setDescription("waiwai"),
 	new SlashCommandBuilder()
 		.setName("parrot")
