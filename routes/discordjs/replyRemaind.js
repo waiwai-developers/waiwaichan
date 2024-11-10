@@ -1,7 +1,8 @@
-const { Client,GatewayIntentBits } = require("discord.js");
-const { token } = require("../../config.json");
-const models = require('../../models/index.js');
-const Sequelize = require('sequelize');
+import { Client,GatewayIntentBits } from "discord.js";
+import { token } from "../../config.json";
+import models from'../../models/index.js';
+import Sequelize from'sequelize';
+
 const client = new Client({
     intents: Object.values(GatewayIntentBits).reduce((a, b) => a | b)
 });
@@ -22,5 +23,5 @@ setInterval(async () => {
     } catch (e) {
         console.error("Error:", e);
     }
-}, 10000);
+}, 10_000);
 client.login(token);
