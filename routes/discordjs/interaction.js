@@ -2,7 +2,7 @@ const { Client, GatewayIntentBits } = require("discord.js");
 const { token } = require("../../config.json");
 const loadModule = require("../..//logics/index.js");
 // TODO replace to ESM
-loadModule().then(({ help, waiwai, parrot, dice, choice, translate, reminderSet, reminderDelete, reminderList, pointCheck, pointDraw, pointChange, pointItem }) => {
+loadModule().then(({ help, waiwai, parrot, dice, choice, translate, reminderSet, reminderDelete, reminderList, pointCheck, pointDraw, pointItem }) => {
 	const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 	client.on("interactionCreate", async (interaction) => {
@@ -72,9 +72,6 @@ loadModule().then(({ help, waiwai, parrot, dice, choice, translate, reminderSet,
 					break;
 				case "pointdraw":
 					await interaction.reply( await pointDraw(interaction.user.id));
-					break;
-				case "pointchange":
-					await interaction.reply( await pointChange(interaction.user.id));
 					break;
 				case "pointitem":
 					await interaction.reply( await pointItem(interaction.user.id));
