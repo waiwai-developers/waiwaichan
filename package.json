@@ -3,12 +3,14 @@
 	"version": "1.0.0",
 	"description": "",
 	"main": "app.js",
+	"type": "module",
 	"scripts": {
 		"dev": "nodemon ./app.js",
 		"migrate": "node_modules/.bin/sequelize db:migrate",
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"debug": "INSPECT=true nodemon --inspect app.js",
-		"lint": "biome format --write && biome check --write"
+		"lint": "biome check --write && biome format --write",
+		"lint:unsafe": "biome check --write --unsafe && biome format --write"
 	},
 	"author": "",
 	"license": "ISC",

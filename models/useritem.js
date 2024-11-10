@@ -1,34 +1,37 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
-module.exports = (sequelize, DataTypes) => {
-  class UserItem extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
-    static associate(models) {
-      // define association here
-    }
-  }
-  UserItem.init({
-    userId: DataTypes.BIGINT,
-    itemId: DataTypes.INTEGER,
-    status: DataTypes.BOOLEAN,
-    expiredAt: DataTypes.DATE
-  }, {
-    sequelize,
-    modelName: 'UserItem',
-  });
+import { DataTypes, Model } from "sequelize";
+import { MysqlConnector } from "./mysqlConnector.js";
+const sequelize = MysqlConnector.getInstance();
 
-  UserItem.associate = models => {
-    UserItem.belongsTo(models.Item, { as: 'item', foreignKey: 'itemId' })
-  }
+export const UserItem = (() => {
+	class UserItem extends Model {
+		/**
+		 * Helper method for defining associations.
+		 * This method is not a part of Sequelize lifecycle.
+		 * The `models/index` file will call this method automatically.
+		 */
+		static associate(models) {
+			// define association here
+		}
+	}
+	UserItem.init(
+		{
+			userId: DataTypes.BIGINT,
+			itemId: DataTypes.INTEGER,
+			status: DataTypes.BOOLEAN,
+			expiredAt: DataTypes.DATE,
+		},
+		{
+			sequelize,
+			modelName: "UserItem",
+		},
+	);
 
-  UserItem.STATUS_VALID = 0
-  UserItem.STATUS_INVALID = 1
+	UserItem.associate = (models) => {
+		UserItem.belongsTo(models.Item, { as: "item", foreignKey: "itemId" });
+	};
 
-  return UserItem;
-};
+	UserItem.STATUS_VALID = 0;
+	UserItem.STATUS_INVALID = 1;
+
+	return UserItem;
+})();
