@@ -1,5 +1,13 @@
-const loadModule = async () => {
-	return await import("./index.mjs");
-};
-
-module.exports = loadModule;
+export { help } from "./help.js";
+export { waiwai } from "./waiwai.js";
+export { dice } from "./dice.js";
+export { choice } from "./choice.js";
+export { translate } from "./translate.js";
+export { parrot } from "./parrot.js";
+export { reminderSet } from "./reminderSet.js";
+export { reminderDelete } from "./reminderDelete.js";
+export { reminderList } from "./reminderList.js";
+export { pointCheck } from "./pointCheck.js";
+export { pointDraw } from "./pointDraw.js";
+export { pointItem } from "./pointItem.js";
+export { pointChange } from "./pointChange.mjs";

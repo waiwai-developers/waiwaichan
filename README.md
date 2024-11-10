@@ -17,5 +17,10 @@ node_modules/.bin/sequelize db:migrate --env development
 
 Running formatter && linter
 ```
-npm i -D --save-exact @biomejs/biome
+npm run lint
+```
+
+Running formatter && linter (unsafe) https://biomejs.dev/linter/#unsafe-fixes
+```
+npm run lint:unsafe
 ```

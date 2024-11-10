@@ -1,7 +1,7 @@
 import { requestTransrate } from "../repositorys/deeplapi/translate.mjs";
 export const translate = async (messages, source, target) => {
 	try {
-		const texts = messages.split("  ")
+		const texts = messages.split("  ");
 		if (texts == null) return "messageパラメーターがないよ！っ";
 		if (source == null) return "sourceパラメーターがないよ！っ";
 		if (target == null) return "targetパラメーターがないよ！っ";
@@ -14,11 +14,11 @@ export const translate = async (messages, source, target) => {
 			postMessages.push(`${translate.text}\n${text}`);
 		}
 
-		if (postMessages == []) return "翻訳できなかったよ！っ";
+		if (postMessages === []) return "翻訳できなかったよ！っ";
 
 		return postMessages.join("\n\n");
 	} catch (e) {
 		console.error("Error:", e);
-		return ("エラーが起こったよ！っ");
+		return "エラーが起こったよ！っ";
 	}
 };

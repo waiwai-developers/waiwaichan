@@ -1,80 +1,101 @@
 [
-    {
-        "name": "/help",
-        "example": "/help",
-        "parameter": "none",
-        "description": "コマンドの一覧と詳細を確認する"
-    },
-    {
-        "name": "/waiwai",
-        "example": "/waiwai",
-        "parameter": "none",
-        "description": "waiwaiで場を盛り上げる"
-    },
-    {
-        "name": "/parrot",
-        "example": "/parrot message: It's not a parrot, it's a parakeet",
-        "parameter": "message: string",
-        "description": "メッセージの内容をオウムがえしする"
-    },
-    {
-        "name": "/dice",
-        "example": "/dice message: 10",
-        "parameter": "message: integer",
-        "description": "指定した数の目のサイコロを転がす"
-    },
-    {
-        "name": "/choice",
-        "example": "/choice message: apple orange grape",
-        "parameter": "message: [string]",
-        "description": "指定した単語から選んでもらう"
-    },
-    {
-        "name": "/translate",
-        "example": "/translate source: English target: Japanese message: hello world",
-        "parameter": "source: string, target: string, message: [string]",
-        "description": "指定した言語から言語へ翻訳を行う"
-    },
-    {
-        "name": "/talk",
-        "example": "/talk message: please tell me your favorite food",
-        "parameter": "message: string",
-        "description": "スレッドを立ててwaiwaiちゃんと会話をする"
-    },
-    {
-        "name": "/reminderset",
-        "example": "/reminderset datetime: 2024-01-01 00:00:00 message: hello",
-        "parameter": "datetime: datetime, message: string",
-        "description": "新しくリマインダーを登録する"
-    },
-    {
-        "name": "/reminderdelete",
-        "example": "/reminderdelete id: 1",
-        "parameter": "id: integer",
-        "description": "登録されているリマインダーを削除する"
-    },
-    {
-        "name": "/reminderlist",
-        "example": "/reminderlist",
-        "parameter": "none",
-        "description": "登録されているリマインダーを確認する"
-    },
-    {
-        "name": "/pointCheck",
-        "example": "/pointCheck",
-        "parameter": "none",
-        "description": "付与されているポイントの数を確認する"
-    },
-    {
-        "name": "/pointDraw",
-        "example": "/pointDraw",
-        "parameter": "none",
-        "description": "ポイントを消費しガチャを回す"
-    },
-    {
-        "name": "/pointItem",
-        "example": "/pointItem",
-        "parameter": "none",
-        "description": "ガチャで取得したアイテムを確認する"
-    }
+	{
+		"category": {
+			"name": "mainコマンド",
+			"commands": [
+				{
+					"name": "/help",
+					"example": "/help",
+					"parameter": "none",
+					"description": "コマンドの一覧と詳細を確認する"
+				},
+				{
+					"name": "/waiwai",
+					"example": "/waiwai",
+					"parameter": "none",
+					"description": "waiwaiで場を盛り上げる"
+				},
+				{
+					"name": "/parrot",
+					"example": "/parrot message: It's not a parrot, it's a parakeet",
+					"parameter": "message: string",
+					"description": "メッセージの内容をオウムがえしする"
+				},
+				{
+					"name": "/dice",
+					"example": "/dice message: 10",
+					"parameter": "message: integer",
+					"description": "指定した数の目のサイコロを転がす"
+				},
+				{
+					"name": "/choice",
+					"example": "/choice message: apple orange grape",
+					"parameter": "message: [string]",
+					"description": "指定した単語から選んでもらう"
+				},
+				{
+					"name": "/translate",
+					"example": "/translate source: English target: Japanese message: hello world",
+					"parameter": "source: string, target: string, message: [string]",
+					"description": "指定した言語から言語へ翻訳を行う"
+				},
+				{
+					"name": "/talk",
+					"example": "/talk message: please tell me your favorite food",
+					"parameter": "message: string",
+					"description": "スレッドを立ててwaiwaiちゃんと会話をする"
+				}
+			]
+		}
+	},
+	{
+		"category": {
+			"name": "reminderコマンド",
+			"commands": [
+				{
+					"name": "/reminderset",
+					"example": "/reminderset datetime: 2024-01-01 00:00:00 message: hello",
+					"parameter": "datetime: datetime, message: string",
+					"description": "新しくリマインダーを登録する"
+				},
+				{
+					"name": "/reminderdelete",
+					"example": "/reminderdelete id: 1",
+					"parameter": "id: integer",
+					"description": "登録されているリマインダーを削除する"
+				},
+				{
+					"name": "/reminderlist",
+					"example": "/reminderlist",
+					"parameter": "none",
+					"description": "登録されているリマインダーを確認する"
+				}
+			]
+		}
+	},
+	{
+		"category": {
+			"name": "pointコマンド",
+			"commands": [
+				{
+					"name": "/pointCheck",
+					"example": "/pointCheck",
+					"parameter": "none",
+					"description": "付与されているポイントの数を確認する"
+				},
+				{
+					"name": "/pointDraw",
+					"example": "/pointDraw",
+					"parameter": "none",
+					"description": "ポイントを消費しガチャを回す"
+				},
+				{
+					"name": "/pointItem",
+					"example": "/pointItem",
+					"parameter": "none",
+					"description": "ガチャで取得したアイテムを確認する"
+				}
+			]
+		}
+	}
 ]
