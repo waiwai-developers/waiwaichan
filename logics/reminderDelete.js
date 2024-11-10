@@ -1,8 +1,8 @@
-import models from "../models/index.js";
+import { Reminder } from "../models/index.js";
 
 export const reminderDelete = async (id, userId) => {
 	try {
-		const reminder = await models.Reminder.destroy({
+		const reminder = await Reminder.destroy({
 			where: {
 				id: id,
 				userId: userId,

@@ -1,5 +1,5 @@
-import "./routes/discordjs/interaction";
-import "./routes/discordjs/registration";
-import "./routes/discordjs/replyRemaind";
-import "./routes/discordjs/replyThread";
-import "./routes/discordjs/createPoint";
+import "./routes/discordjs/interaction.js";
+import "./routes/discordjs/registration.js";
+import "./routes/discordjs/replyRemaind.js";
+import "./routes/discordjs/replyThread.js";
+import "./routes/discordjs/createPoint.js";

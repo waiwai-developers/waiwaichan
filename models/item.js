@@ -1,6 +1,6 @@
-const { Model, DataTypes } = require("sequelize");
+import { DataTypes, Model } from "sequelize";
 import { MysqlConnector } from "./mysqlConnector.js";
-const sequelize = new MysqlConnector.getInstance();
+const sequelize = MysqlConnector.getInstance();
 
 export const Item = (() => {
 	class Item extends Model {

@@ -1,5 +1,7 @@
 import { Sequelize } from "sequelize";
+const env = process.env.NODE_ENV || "development";
 import config from "../config/config.json" with { type: "json" };
+const dbConfig = config[env];
 
 export const MysqlConnector = (() => {
 	let instance;
@@ -7,10 +9,14 @@ export const MysqlConnector = (() => {
 		getInstance: () => {
 			if (!instance) {
 				instance = new Sequelize(
-					config.database,
-					config.username,
-					config.password,
-					{ host: config.host, port: config.port, dialect: config.dialect },
+					dbConfig.database,
+					dbConfig.username,
+					dbConfig.password,
+					{
+						host: dbConfig.host,
+						port: dbConfig.port,
+						dialect: dbConfig.dialect,
+					},
 				);
 			}
 			return instance;

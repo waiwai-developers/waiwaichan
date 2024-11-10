@@ -1,13 +1,13 @@
 import Sequelize from "sequelize";
-import models from "../models/index.js";
+import { Point } from "../models/index.js";
 
 export const pointCheck = async (userId) => {
 	try {
 		const date = new Date();
-		const points = await models.Point.findAndCountAll({
+		const points = await Point.findAndCountAll({
 			where: {
 				receiveUserId: userId,
-				status: models.Point.STATUS_VALID,
+				status: Point.STATUS_VALID,
 				expiredAt: { [Sequelize.Op.gte]: date },
 			},
 		});

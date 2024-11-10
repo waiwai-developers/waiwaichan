@@ -1,8 +1,8 @@
 import { Client, GatewayIntentBits } from "discord.js";
-import { token } from "../../config.json" with { type: "json" };
-import models from "../../models/index.js";
+import config from "../../config.json" with { type: "json" };
+import { Point } from "../../models/index.js";
 
-const Sequelize = require("sequelize");
+import Sequelize from "sequelize";
 const client = new Client({
 	intents: Object.values(GatewayIntentBits).reduce((a, b) => a | b),
 });
@@ -17,7 +17,7 @@ client.on("messageReactionAdd", async (reaction, user) => {
 
 	if (reaction.emoji.name === "🍬") {
 		const date = new Date();
-		const points = await models.Point.findAndCountAll({
+		const points = await Point.findAndCountAll({
 			attributes: ["messageId"],
 			where: {
 				giveUserId: user.id,
@@ -35,11 +35,11 @@ client.on("messageReactionAdd", async (reaction, user) => {
 			return;
 		}
 
-		await models.Point.create({
+		await Point.create({
 			receiveUserId: reaction.message.author.id,
 			giveUserId: user.id,
 			messageId: reaction.message.id,
-			status: models.Point.STATUS_VALID,
+			status: Point.STATUS_VALID,
 			expiredAt: date.setMonth(date.getMonth() + 1),
 		});
 
@@ -49,4 +49,4 @@ client.on("messageReactionAdd", async (reaction, user) => {
 	}
 });
 
-client.login(token);
+client.login(config.token);

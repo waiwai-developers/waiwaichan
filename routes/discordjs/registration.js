@@ -1,8 +1,8 @@
 import { REST, Routes, SlashCommandBuilder } from "discord.js";
-import { clientId, guildId, token } from "../../config.json";
-import { TranslateConst } from "../../entities";
+import config from "../../config.json" with { type: "json" };
+import { TranslateConst } from "../../entities/index.js";
 
-const rest = new REST({ version: "10" }).setToken(token);
+const rest = new REST({ version: "10" }).setToken(config.token);
 
 const commands = [
 	new SlashCommandBuilder().setName("help").setDescription("help"),
@@ -76,9 +76,12 @@ const commands = [
 
 (async () => {
 	try {
-		await rest.put(Routes.applicationGuildCommands(clientId, guildId), {
-			body: commands,
-		});
+		await rest.put(
+			Routes.applicationGuildCommands(config.clientId, config.guildId),
+			{
+				body: commands,
+			},
+		);
 	} catch (e) {
 		console.error(e);
 	}

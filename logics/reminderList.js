@@ -1,9 +1,9 @@
 import dayjs from "dayjs";
-import models from "../models/index.js";
+import { Reminder } from "../models/index.js";
 
 export const reminderList = async (userId) => {
 	try {
-		const reminders = await models.Reminder.findAll({
+		const reminders = await Reminder.findAll({
 			where: { userId: userId },
 		});
 

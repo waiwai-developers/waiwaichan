@@ -1,6 +1,6 @@
-import { Item } from "./item";
-import { Point } from "./point";
-import { Reminder } from "./reminder";
+import { Item } from "./item.js";
+import { Point } from "./point.js";
+import { Reminder } from "./reminder.js";
 import { UserItem } from "./useritem.js";
 
 const models = { UserItem, Item, Point, Reminder };

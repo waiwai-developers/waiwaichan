@@ -1,6 +1,6 @@
 import { Client, GatewayIntentBits } from "discord.js";
-import { clientId, gptPrompt, token } from "../../config.json";
-import chatgpt from "../../repositorys/chatgptapi/ChatGPT.js";
+import config from "../../config.json" with { type: "json" };
+import { generate } from "../../repositorys/chatgptapi/ChatGPT.js";
 
 const client = new Client({
 	intents: Object.values(GatewayIntentBits).reduce((a, b) => a | b),
@@ -10,18 +10,17 @@ client.on("ready", () => {
 });
 client.on("messageCreate", async (message) => {
 	try {
-		if (message.author.bot) return;
-		if (!message.channel.isThread()) return;
-		if (!(message.channel.ownerId === clientId)) return;
-
 		if (message == null) {
 			await interaction.reply("messageパラメーターがないよ！っ");
 			return;
 		}
+		if (message.author.bot) return;
+		if (!message.channel.isThread()) return;
+		if (!(message.channel.ownerId === config.clientId)) return;
 
 		const fetchedMessages = await message.channel.messages.fetch({ limit: 11 });
 		const replyMessage = await message.reply("ちょっと待ってね！っ");
-		const sendMessages = [{ role: "system", content: gptPrompt }];
+		const sendMessages = [{ role: "system", content: config.gptPrompt }];
 
 		for (const message of fetchedMessages.reverse()) {
 			sendMessages.push({
@@ -29,10 +28,10 @@ client.on("messageCreate", async (message) => {
 				content: m.content,
 			});
 		}
-		const generate = await chatgpt.generate(sendMessages);
-		await replyMessage.edit(generate.choices[0].message.content);
+		const generated = await generate(sendMessages);
+		await replyMessage.edit(generated.choices[0].message.content);
 	} catch (e) {
 		console.error("Error:", e);
 	}
 });
-client.login(token);
+client.login(config.token);

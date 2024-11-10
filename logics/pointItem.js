@@ -1,15 +1,15 @@
 import Sequelize from "sequelize";
-import models from "../models/index.js";
+import { Item, UserItem } from "../models/index.js";
 
 export const pointItem = async (userId) => {
 	try {
 		const date = new Date();
-		const userItems = await models.UserItem.findAll(
-			{ include: { model: models.Item, as: "item" } },
+		const userItems = await UserItem.findAll(
+			{ include: { model: Item, as: "item" } },
 			{
 				where: {
 					userId: userId,
-					status: models.UserItem.STATUS_VALID,
+					status: UserItem.STATUS_VALID,
 					expiredAt: { [Sequelize.Op.gte]: date },
 				},
 			},

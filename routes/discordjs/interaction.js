@@ -1,5 +1,5 @@
 import { Client, GatewayIntentBits } from "discord.js";
-import { token } from "../../config.json";
+import config from "../../config.json" with { type: "json" };
 import {
 	choice,
 	dice,
@@ -110,4 +110,4 @@ client.on("interactionCreate", async (interaction) => {
 	}
 });
 
-client.login(token);
+client.login(config.token);

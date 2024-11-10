@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import moment from "moment";
-import models from "../models/index.js";
+import { Reminder } from "../models/index.js";
 
 export const reminderSet = async (channelId, userId, message, datetime) => {
 	try {
@@ -12,7 +12,7 @@ export const reminderSet = async (channelId, userId, message, datetime) => {
 		if (remindAt <= datenow)
 			return "過去の日付のリマインドは設定できないよ！っ";
 
-		await models.Reminder.create({
+		await Reminder.create({
 			channelId: channelId,
 			userId: userId,
 			message: message,

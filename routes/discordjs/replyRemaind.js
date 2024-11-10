@@ -1,14 +1,14 @@
 import { Client, GatewayIntentBits } from "discord.js";
 import Sequelize from "sequelize";
-import { token } from "../../config.json";
-import models from "../../models/index.js";
+import config from "../../config.json" with { type: "json" };
+import { Reminder } from "../../models/index.js";
 
 const client = new Client({
 	intents: Object.values(GatewayIntentBits).reduce((a, b) => a | b),
 });
 setInterval(async () => {
 	try {
-		const remainders = await models.Reminder.findAll({
+		const remainders = await Reminder.findAll({
 			where: { remindAt: { [Sequelize.Op.lte]: new Date() } },
 		});
 
@@ -26,4 +26,4 @@ setInterval(async () => {
 		console.error("Error:", e);
 	}
 }, 10_000);
-client.login(token);
+client.login(config.token);
