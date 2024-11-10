@@ -5,14 +5,14 @@ export const pointItem = async (userId) => {
 	try {
 		const date = new Date();
 		const userItems = await UserItem.findAll(
-			{ include: { model: Item, as: "item" } },
 			{
+				include: { model: Item, as: "item" },
 				where: {
 					userId: userId,
 					status: UserItem.STATUS_VALID,
 					expiredAt: { [Sequelize.Op.gte]: date },
 				},
-			},
+			}
 		);
 
 		const texts = userItems.map((u) =>
