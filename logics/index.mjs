@@ -9,4 +9,4 @@ export { reminderDelete } from "./reminderDelete.mjs";
 export { reminderList } from "./reminderList.mjs";
 export { pointCheck } from "./pointCheck.mjs";
 export { pointDraw } from "./pointDraw.mjs";
-export { pointChange } from "./pointChange.mjs";
+export { pointItem } from "./pointItem.mjs";

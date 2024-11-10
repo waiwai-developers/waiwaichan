@@ -5,7 +5,10 @@
 	"main": "app.js",
 	"type": "module",
 	"scripts": {
+		"dev": "nodemon ./app.js",
+		"migrate": "node_modules/.bin/sequelize db:migrate",
 		"test": "echo \"Error: no test specified\" && exit 1",
+		"debug": "INSPECT=true nodemon --inspect app.js",
 		"lint": "biome format --write && biome check --write"
 	},
 	"author": "",
@@ -23,6 +26,7 @@
 		"sequelize-cli": "^6.6.2"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "1.9.4"
+		"@biomejs/biome": "1.9.4",
+		"nodemon": "^3.1.7"
 	}
 }
