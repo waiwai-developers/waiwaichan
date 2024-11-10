@@ -3,7 +3,7 @@
 import models from '../models/index.js'
 import Sequelize from 'sequelize'
 
-export const pointChange = async (userId, itemId) => {
+export const pointChange = async (userId, userItemId) => {
 	try {
 		//DBから指定のuserItemを1件取得
 		   //statusが0
@@ -15,8 +15,8 @@ export const pointChange = async (userId, itemId) => {
 			{status: models.UserItem.STATUS_INVALID},
 			{
 				where: {
+					id: userItemId,
 					userId: userId,
-					itemId: itemId,
 					status: models.UserItem.STATUS_VALID,
 					expiredAt: {[Sequelize.Op.gte]: date}
 				}
