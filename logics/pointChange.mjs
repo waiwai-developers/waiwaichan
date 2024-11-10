@@ -1,6 +1,6 @@
 //modelsをインポート
 //sequelizeをインポート
-import models from '../models/index.js'
+import { UserItem } from '../models/index.js'
 import Sequelize from 'sequelize'
 
 export const pointChange = async (userId, userItemId) => {
@@ -11,12 +11,12 @@ export const pointChange = async (userId, userItemId) => {
 		   //userIdが引数のuserId
 		   //itemIdが引数のitemId
 		const date = new Date()
-		const userItem = await models.UserItem.findOne(
+		const userItem = await UserItem.findOne(
 			{
 				where: {
 					id: userItemId,
 					userId: userId,
-					status: models.UserItem.STATUS_VALID,
+					status: UserItem.STATUS_VALID,
 					expiredAt: {[Sequelize.Op.gte]: date}
 				}
 			}
@@ -25,7 +25,7 @@ export const pointChange = async (userId, userItemId) => {
 		//userItemが取れなかった場合に”アイテムは持ってないよ！っ"を返す
 		if(!userItem) return "アイテムは持ってないよ！っ";
 		//userItemのstatusを0から1に更新する
-		await userItem.update({ status: models.UserItem.STATUS_INVALID});
+		await userItem.update({ status: UserItem.STATUS_INVALID});
 		return "アイテムと交換したよ！っ";
 	} catch (e) {
 		console.error("Error:", e);
