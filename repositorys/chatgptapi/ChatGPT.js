@@ -1,8 +1,10 @@
-const { openaiApiKey, gptModel, gptPrompt } = require("../../config.json");
-const OpenAI = require("openai");
+import OpenAI from "openai";
+import { gptModel, openaiApiKey } from "../../config.json" with {
+	type: "json",
+};
 const openai = new OpenAI({ apiKey: openaiApiKey });
 
-async function generate(messages) {
+export const generate = async (messages) => {
 	try {
 		return await openai.chat.completions.create({
 			model: gptModel,
@@ -11,6 +13,4 @@ async function generate(messages) {
 	} catch (e) {
 		console.error("Error:", e);
 	}
-}
-
-module.exports = { generate };
+};
