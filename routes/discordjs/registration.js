@@ -2,9 +2,24 @@ const { SlashCommandBuilder, REST, Routes } = require("discord.js");
 const { token, clientId, guildId } = require("../../config.json");
 const rest = new REST({ version: "10" }).setToken(token);
 const entities = require('../../entities');
+const config = require("../../config/commands.json")
 
 const commands = [
-	new SlashCommandBuilder().setName("help").setDescription("help"),
+	new SlashCommandBuilder()
+		.setName("help")
+		.setDescription("help")
+		.addStringOption((option) =>
+			option
+				.setName("category")
+				.setDescription("string")
+				.setRequired(true)
+				.addChoices(
+					{ name: "全てのコマンド", value: "all" },
+					{ name: config[0].category.name, value: config[0].category.name },
+					{ name: config[1].category.name, value: config[1].category.name },
+					{ name: config[2].category.name, value: config[2].category.name },
+				),
+		),
 	new SlashCommandBuilder().setName("waiwai").setDescription("waiwai"),
 	new SlashCommandBuilder()
 		.setName("parrot")
