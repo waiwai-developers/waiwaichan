@@ -1,7 +1,8 @@
-const { SlashCommandBuilder, REST, Routes } = require("discord.js");
-const { token, clientId, guildId } = require("../../config.json");
+import { REST, Routes, SlashCommandBuilder } from "discord.js";
+import { clientId, guildId, token } from "../../config.json";
+import { TranslateConst } from "../../entities";
+
 const rest = new REST({ version: "10" }).setToken(token);
-const entities = require('../../entities');
 
 const commands = [
 	new SlashCommandBuilder().setName("help").setDescription("help"),
@@ -32,14 +33,14 @@ const commands = [
 				.setName("source")
 				.setDescription("string")
 				.setRequired(true)
-				.addChoices(...entities.Translate.source)
+				.addChoices(...TranslateConst.source),
 		)
 		.addStringOption((option) =>
 			option
 				.setName("target")
 				.setDescription("string")
 				.setRequired(true)
-				.addChoices(...entities.Translate.target)
+				.addChoices(...TranslateConst.target),
 		)
 		.addStringOption((option) =>
 			option.setName("messages").setDescription("string").setRequired(true),
@@ -51,30 +52,26 @@ const commands = [
 			option.setName("title").setDescription("string").setRequired(true),
 		),
 	new SlashCommandBuilder()
-			.setName("reminderset")
-			.setDescription("reminder string")
+		.setName("reminderset")
+		.setDescription("reminder string")
 		.addStringOption((option) =>
-			option.setName("datetime").setDescription("string").setRequired(true))
-	    .addStringOption((option) =>
-	      option.setName("message").setDescription("string").setRequired(true)),
+			option.setName("datetime").setDescription("string").setRequired(true),
+		)
+		.addStringOption((option) =>
+			option.setName("message").setDescription("string").setRequired(true),
+		),
 	new SlashCommandBuilder()
-			.setName("reminderdelete")
-			.setDescription("reminder string")
-	    .addStringOption((option) =>
-	      option.setName("id").setDescription("string").setRequired(true),
-	  ),
+		.setName("reminderdelete")
+		.setDescription("reminder string")
+		.addStringOption((option) =>
+			option.setName("id").setDescription("string").setRequired(true),
+		),
 	new SlashCommandBuilder()
-			.setName("reminderlist")
-			.setDescription("reminder string"),
-	new SlashCommandBuilder()
-		.setName("pointcheck")
-		.setDescription("pointcheck"),
-	new SlashCommandBuilder()
-		.setName("pointdraw")
-		.setDescription("pointdraw"),
-	new SlashCommandBuilder()
-		.setName("pointitem")
-		.setDescription("pointitem")
+		.setName("reminderlist")
+		.setDescription("reminder string"),
+	new SlashCommandBuilder().setName("pointcheck").setDescription("pointcheck"),
+	new SlashCommandBuilder().setName("pointdraw").setDescription("pointdraw"),
+	new SlashCommandBuilder().setName("pointitem").setDescription("pointitem"),
 ].map((command) => command.toJSON());
 
 (async () => {
