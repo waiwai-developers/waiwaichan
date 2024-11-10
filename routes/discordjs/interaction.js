@@ -26,7 +26,9 @@ client.on("interactionCreate", async (interaction) => {
 		// let parameter = null;
 		switch (interaction.commandName) {
 			case "help":
-				await interaction.reply(help());
+				await interaction.reply(
+					help(interaction.options?.getString("category")),
+				);
 				break;
 			case "waiwai":
 				await interaction.reply(waiwai());
@@ -109,5 +111,4 @@ client.on("interactionCreate", async (interaction) => {
 		await interaction.reply("エラーが起こったよ！っ");
 	}
 });
-
 client.login(config.token);
