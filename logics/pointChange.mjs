@@ -11,8 +11,7 @@ export const pointChange = async (userId, userItemId) => {
 		   //userIdが引数のuserId
 		   //itemIdが引数のitemId
 		const date = new Date()
-		const userItem = await models.UserItem.update(
-			{status: models.UserItem.STATUS_INVALID},
+		const userItem = await models.UserItem.findOne(
 			{
 				where: {
 					id: userItemId,
@@ -26,8 +25,7 @@ export const pointChange = async (userId, userItemId) => {
 		//userItemが取れなかった場合に”アイテムは持ってないよ！っ"を返す
 		if(!userItem) return "アイテムは持ってないよ！っ";
 		//userItemのstatusを0から1に更新する
-
-		//userItemが取れた場合に”アイテムと交換したよ！っ"を返す
+		await userItem.update({ status: models.UserItem.STATUS_INVALID});
 		return "アイテムと交換したよ！っ";
 	} catch (e) {
 		console.error("Error:", e);

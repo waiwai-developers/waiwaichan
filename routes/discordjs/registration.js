@@ -78,7 +78,7 @@ const commands = [
 	new SlashCommandBuilder()
 		.setName("pointchange")
 		.setDescription("pointchange")
-		.addStringOption((option) =>
+		.addIntegerOption((option) =>
 			option.setName("id").setDescription("integer").setRequired(true),
 		)
 ].map((command) => command.toJSON());
