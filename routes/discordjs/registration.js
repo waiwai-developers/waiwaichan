@@ -91,7 +91,7 @@ const commands = [
 		.setDescription("pointchange")
 		.addIntegerOption((option) =>
 			option.setName("id").setDescription("integer").setRequired(true),
-		)
+		),
 ].map((command) => command.toJSON());
 
 (async () => {
