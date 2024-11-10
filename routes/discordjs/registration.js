@@ -74,7 +74,13 @@ const commands = [
 		.setDescription("pointdraw"),
 	new SlashCommandBuilder()
 		.setName("pointitem")
-		.setDescription("pointitem")
+		.setDescription("pointitem"),
+	new SlashCommandBuilder()
+		.setName("pointchange")
+		.setDescription("pointchange")
+		.addStringOption((option) =>
+			option.setName("id").setDescription("integer").setRequired(true),
+		)
 ].map((command) => command.toJSON());
 
 (async () => {
