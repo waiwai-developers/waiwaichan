@@ -18,7 +18,7 @@ setInterval(async () => {
 		for (const remainder of remainders) {
 			channel = client.channels.cache.get(remainder.channelId);
 			if (channel) {
-				await channel.send(`<@${remainder.userId}>` + "\n" + remainder.message);
+				await channel.send(`<@${remainder.userId}>\n${remainder.message}`);
 			}
 			await remainder.destroy();
 		}

@@ -22,12 +22,13 @@ client.on("messageCreate", async (message) => {
 		const fetchedMessages = await message.channel.messages.fetch({ limit: 11 });
 		const replyMessage = await message.reply("ちょっと待ってね！っ");
 		const sendMessages = [{ role: "system", content: gptPrompt }];
-		fetchedMessages.reverse().forEach((m) =>
+
+		for (const message of fetchedMessages.reverse()) {
 			sendMessages.push({
 				role: m.author.bot ? "system" : "user",
 				content: m.content,
-			}),
-		);
+			});
+		}
 		const generate = await chatgpt.generate(sendMessages);
 		await replyMessage.edit(generate.choices[0].message.content);
 	} catch (e) {
