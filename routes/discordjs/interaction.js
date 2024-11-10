@@ -1,4 +1,5 @@
 import { Client, GatewayIntentBits } from "discord.js";
+import { token } from "../../config.json";
 import {
 	choice,
 	dice,
@@ -12,8 +13,7 @@ import {
 	reminderSet,
 	translate,
 	waiwai,
-} from "../..//logics/index.mjs";
-import { token } from "../../config.json";
+} from "../../logics/index.js";
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
