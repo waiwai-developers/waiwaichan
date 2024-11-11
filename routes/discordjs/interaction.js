@@ -111,4 +111,4 @@ client.on("interactionCreate", async (interaction) => {
 		await interaction.reply("エラーが起こったよ！っ");
 	}
 });
-client.login(config.token);
+client.login(config.discord.token);

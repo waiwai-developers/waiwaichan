@@ -15,7 +15,7 @@ client.on("messageReactionAdd", async (reaction, user) => {
 	if (reaction.message.author.bot) return;
 	if (user.id === reaction.message.author.id) return;
 
-	if (reaction.emoji.name === "🍬") {
+	if (reaction.emoji.name === config.backend.pointEmoji) {
 		const date = new Date();
 		const points = await Point.findAndCountAll({
 			attributes: ["messageId"],
@@ -49,4 +49,4 @@ client.on("messageReactionAdd", async (reaction, user) => {
 	}
 });
 
-client.login(config.token);
+client.login(config.discord.token);
