@@ -1,9 +1,19 @@
 {
-	"token": "",
-	"clientId": "",
-	"guildId": "",
-	"deeplApiKey": "",
-	"openaiApiKey": "",
-	"gptModel": "",
-	"gptPrompt": ""
+	"discord":{
+		"token": "",
+		"clientId": "",
+		"guildId": ""
+	},
+	"deepl":{
+		"deeplApiKey": ""
+	},
+	"openai":{
+		"openaiApiKey": "",
+		"gptModel": "",
+		"gptPrompt": ""
+	},
+	"backend":{
+		"reminderSpan": ,
+		"pointEmoji": ""
+	}
 }
