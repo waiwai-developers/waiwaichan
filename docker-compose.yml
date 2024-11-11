@@ -34,7 +34,7 @@ services:
         condition: service_healthy
     networks:
       - db-net
-    command: ["npm", "run", "migrate"]
+    command: sh -c "npm run migrate && npm run seed"
   database:
     container_name: waiwai-database
     env_file:

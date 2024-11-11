@@ -29,7 +29,7 @@ export const TranslateConst = {
 		{ name: "Swedish", value: "SV" },
 		{ name: "Turkish", value: "TR" },
 		{ name: "Ukrainian", value: "UK" },
-		{ name: "Chinese", value: "ZH" }
+		{ name: "Chinese", value: "ZH" },
 	],
 	target: [
 		{ name: "Arabic", value: "AR" },
@@ -65,6 +65,6 @@ export const TranslateConst = {
 		{ name: "Turkish", value: "TR" },
 		{ name: "Ukrainian", value: "UK" },
 		{ name: "Chinese (simplified)", value: "ZH" },
-		{ name: "Chinese (traditional)", value: "ZH" }
-	]
+		{ name: "Chinese (traditional)", value: "ZH" },
+	],
 };
