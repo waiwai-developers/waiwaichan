@@ -49,4 +49,4 @@ client.on("messageReactionAdd", async (reaction, user) => {
 	}
 });
 
-client.login(config.token);
+client.login(config.discord.token);

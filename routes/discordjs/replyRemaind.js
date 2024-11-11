@@ -26,4 +26,4 @@ setInterval(async () => {
 		console.error("Error:", e);
 	}
 }, 10_000);
-client.login(config.token);
+client.login(config.discord.token);
