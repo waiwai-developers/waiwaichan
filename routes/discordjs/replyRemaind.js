@@ -25,5 +25,5 @@ setInterval(async () => {
 	} catch (e) {
 		console.error("Error:", e);
 	}
-}, 10_000);
+}, config.backend.reminderSpan);
 client.login(config.discord.token);
