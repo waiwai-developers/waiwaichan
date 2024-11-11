@@ -16,11 +16,11 @@ client.on("messageCreate", async (message) => {
 		}
 		if (message.author.bot) return;
 		if (!message.channel.isThread()) return;
-		if (!(message.channel.ownerId === config.clientId)) return;
+		if (!(message.channel.ownerId === config.discord.clientId)) return;
 
 		const fetchedMessages = await message.channel.messages.fetch({ limit: 11 });
 		const replyMessage = await message.reply("ちょっと待ってね！っ");
-		const sendMessages = [{ role: "system", content: config.gptPrompt }];
+		const sendMessages = [{ role: "system", content: config.openai.gptPrompt }];
 		fetchedMessages.reverse().forEach((m) =>
 			sendMessages.push({
 				role: m.author.bot ? "system" : "user",
@@ -33,4 +33,4 @@ client.on("messageCreate", async (message) => {
 		console.error("Error:", e);
 	}
 });
-client.login(config.token);
+client.login(config.discord.token);
