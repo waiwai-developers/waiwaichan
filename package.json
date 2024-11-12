@@ -5,6 +5,7 @@
 	"main": "app.js",
 	"type": "module",
 	"scripts": {
+		"build": "tsc && tsc-alias",
 		"dev": "nodemon ./app.js",
 		"migrate": "node_modules/.bin/sequelize db:migrate",
 		"test": "echo \"Error: no test specified\" && exit 1",
@@ -25,6 +26,7 @@
 		"openai": "^4.71.1",
 		"sequelize": "^6.37.5",
 		"sequelize-cli": "^6.6.2",
+		"tsc-alias": "^1.8.10",
 		"typescript": "^5.6.3"
 	},
 	"devDependencies": {
