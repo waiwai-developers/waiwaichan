@@ -1,5 +1,5 @@
 export class ValueObject<T> {
-	value: T;
+	private readonly value: T;
 	protected validator: (value: T) => boolean = (t) => true;
 	constructor(value: T) {
 		this.value = value;
@@ -8,7 +8,7 @@ export class ValueObject<T> {
 		return this.value;
 	}
 
-	isValid(value: T): boolean {
-		return this.validator(value);
+	isValid(): boolean {
+		return this.validator(this.value);
 	}
 }
