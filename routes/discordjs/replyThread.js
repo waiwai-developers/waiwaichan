@@ -1,6 +1,6 @@
 import { Client, GatewayIntentBits } from "discord.js";
 import config from "../../config.json" with { type: "json" };
-import { generate } from "../../repositorys/chatgptapi/ChatGPT.js";
+import { generate } from "../../repositories/chatgptapi/ChatGPT.js";
 
 const client = new Client({
 	intents: Object.values(GatewayIntentBits).reduce((a, b) => a | b),
