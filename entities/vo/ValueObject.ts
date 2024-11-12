@@ -1,6 +1,6 @@
-class ValueObject<T> {
+export class ValueObject<T> {
 	value: T;
-	protected validator: (value: T) => boolean;
+	protected validator: (value: T) => boolean = (t) => true;
 	constructor(value: T) {
 		this.value = value;
 	}
@@ -9,9 +9,6 @@ class ValueObject<T> {
 	}
 
 	isValid(value: T): boolean {
-		if (this.validator == null) {
-			return true;
-		}
 		return this.validator(value);
 	}
 }
