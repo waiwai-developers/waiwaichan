@@ -1,6 +1,6 @@
 import { Sequelize } from "sequelize";
 const env = process.env.NODE_ENV || "development";
-import config from "../config/config.json" with { type: "json" };
+import config from "../../config/config.json" with { type: "json" };
 const dbConfig = config[env];
 
 export const MysqlConnector = (() => {

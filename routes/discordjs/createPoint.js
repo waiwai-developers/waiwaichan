@@ -1,6 +1,6 @@
 import { Client, GatewayIntentBits } from "discord.js";
 import config from "../../config.json" with { type: "json" };
-import { Point } from "../../models/index.js";
+import { Point } from "../../repositorys/models/index.js";
 
 import Sequelize from "sequelize";
 const client = new Client({

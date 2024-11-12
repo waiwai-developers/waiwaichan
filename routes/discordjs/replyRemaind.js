@@ -1,7 +1,7 @@
 import { Client, GatewayIntentBits } from "discord.js";
 import Sequelize from "sequelize";
 import config from "../../config.json" with { type: "json" };
-import { Reminder } from "../../models/index.js";
+import { Reminder } from "../../repositorys/models/index.js";
 
 const client = new Client({
 	intents: Object.values(GatewayIntentBits).reduce((a, b) => a | b),

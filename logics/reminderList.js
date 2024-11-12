@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import { Reminder } from "../models/index.js";
+import { Reminder } from "../repositorys/models/index.js";
 
 export const reminderList = async (userId) => {
 	try {

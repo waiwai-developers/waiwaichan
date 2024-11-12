@@ -1,4 +1,4 @@
-import { Reminder } from "../models/index.js";
+import { Reminder } from "../repositorys/models/index.js";
 
 export const reminderDelete = async (id, userId) => {
 	try {
