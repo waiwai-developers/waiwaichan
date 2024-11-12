@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import { Reminder } from "../repositorys/models/index.js";
+import { Reminder } from "../repositorys/sequelize-mysql/index.js";
 
 export const reminderList = async (userId) => {
 	try {

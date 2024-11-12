@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import moment from "moment";
-import { Reminder } from "../repositorys/models/index.js";
+import { Reminder } from "../repositorys/sequelize-mysql/index.js";
 
 export const reminderSet = async (channelId, userId, message, datetime) => {
 	try {

@@ -1,5 +1,5 @@
 import Sequelize from "sequelize";
-import { Item, UserItem } from "../repositorys/models/index.js";
+import { Item, UserItem } from "../repositorys/sequelize-mysql/index.js";
 
 export const pointItem = async (userId) => {
 	try {
