@@ -1,4 +1,4 @@
-import { TRADABLE_ITEMS } from "../Items";
+import { TRADABLE_ITEMS } from "../constants/Items";
 import { ValueObject } from "./ValueObject";
 
 export class ItemId extends ValueObject<number> {
