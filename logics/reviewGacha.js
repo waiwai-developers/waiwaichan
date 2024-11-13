@@ -40,7 +40,7 @@ export const reviewGacha = async (discordId, pullReqId) => {
 		const texts = [];
 		texts.push(selectReviewerDiscordIds.map((r) => `<@${r}>`).join(" "));
 		texts.push("review依頼が来たよ！っ");
-		texts.push(`\n${pullRequestTitle}\npullreq: ${pullRequestUrl}`);
+		texts.push(`\n${pullRequestTitle}\npullreq: <${pullRequestUrl}>`);
 
 		return texts.join("\n");
 	} catch (e) {
