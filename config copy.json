@@ -12,8 +12,13 @@
 		"gptModel": "",
 		"gptPrompt": ""
 	},
+	"github": {
+		"token": "",
+		"owner": "",
+		"repo": ""
+	},
 	"backend": {
-		"reminderSpan": "",
+		"reminderSpan": ,
 		"pointEmoji": ""
 	}
 }
