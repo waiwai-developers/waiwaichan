@@ -12,6 +12,7 @@ export const getPullRequest = async (pullReqId) => {
 			{
 				owner: config.github.owner,
 				repo: config.github.repo,
+				state: "open",
 				pull_number: pullReqId,
 				headers: {
 					"X-GitHub-Api-Version": "2022-11-28",

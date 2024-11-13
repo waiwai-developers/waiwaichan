@@ -12,6 +12,7 @@ export const reviewPullRequest = async (reviewerGithubIds, pullReqId) => {
 			{
 				owner: config.github.owner,
 				repo: config.github.repo,
+				state: "open",
 				pull_number: pullReqId,
 				reviewers: reviewerGithubIds,
 				team_reviewers: [],
