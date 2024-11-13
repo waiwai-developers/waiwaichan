@@ -78,19 +78,19 @@
 			"name": "pointコマンド",
 			"commands": [
 				{
-					"name": "/pointCheck",
+					"name": "/pointcheck",
 					"example": "/pointCheck",
 					"parameter": "none",
 					"description": "付与されているポイントの数を確認する"
 				},
 				{
-					"name": "/pointDraw",
+					"name": "/pointdraw",
 					"example": "/pointDraw",
 					"parameter": "none",
 					"description": "ポイントを消費しガチャを回す"
 				},
 				{
-					"name": "/pointItem",
+					"name": "/pointitem",
 					"example": "/pointItem",
 					"parameter": "none",
 					"description": "ガチャで取得したアイテムを確認する"

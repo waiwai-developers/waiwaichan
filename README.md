@@ -10,9 +10,14 @@ How to enter the environment
 docker-compose exec backend sh
 ```
 
-Performing the migration
+Execute the migration
 ```
-node_modules/.bin/sequelize db:migrate --env development
+npm run migrate
+```
+
+Insert seed data
+```
+npm run seed
 ```
 
 Running formatter && linter
