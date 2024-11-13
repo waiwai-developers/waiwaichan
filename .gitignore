@@ -2,3 +2,4 @@
 config.json
 node_modules/
 ignore/
+config/accounts.json
