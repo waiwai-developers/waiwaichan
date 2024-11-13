@@ -92,6 +92,7 @@ const commands = [
 		.addStringOption((option) =>
 			option.setName("id").setDescription("string").setRequired(true),
 		),
+	new SlashCommandBuilder().setName("reviewlist").setDescription("reviewlist"),
 ].map((command) => command.toJSON());
 
 (async () => {
