@@ -4,6 +4,8 @@ import {
 	choice,
 	dice,
 	help,
+	minecraftStart,
+	minecraftStop,
 	parrot,
 	pointCheck,
 	pointDraw,
@@ -112,6 +114,12 @@ client.on("interactionCreate", async (interaction) => {
 						interaction.options?.getInteger("id"),
 					),
 				);
+				break;
+			case "minecraftstart":
+				await interaction.reply(await minecraftStart());
+				break;
+			case "minecraftStop":
+				await interaction.reply(await minecraftStop());
 				break;
 			default:
 				await interaction.reply("そんなコマンドはないよ！っ");
