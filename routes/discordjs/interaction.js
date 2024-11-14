@@ -12,6 +12,7 @@ import {
 	reminderDelete,
 	reminderList,
 	reminderSet,
+	reviewGacha,
 	translate,
 	waiwai,
 } from "../../logics/index.js";
@@ -108,6 +109,16 @@ client.on("interactionCreate", async (interaction) => {
 					await pointChange(
 						interaction.user.id,
 						interaction.options.getInteger("id"),
+
+					),
+				);
+				break;
+			case "reviewgacha":
+				await interaction.deferReply();
+				await interaction.editReply(
+					await reviewGacha(
+						interaction.user.id,
+						interaction.options?.getInteger("id"),
 					),
 				);
 				break;
