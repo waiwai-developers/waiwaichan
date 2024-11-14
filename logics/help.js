@@ -3,7 +3,7 @@ import config from "../config/commands.json" with { type: "json" };
 export const help = (category) => {
 	try {
 		const texts = config
-			.filter((c) => category === "all" || c.category.name === category)
+			.filter((c) => category === "all" || c.name === category)
 			.map((c) =>
 				[
 					`## ${c.category.name}`,
