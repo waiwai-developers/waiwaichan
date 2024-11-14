@@ -12,10 +12,7 @@ import {
 	reminderList,
 	reminderSet,
 	reviewGacha,
-<<<<<<< HEAD
 	reviewList,
-=======
->>>>>>> develop
 	translate,
 	waiwai,
 } from "../../logics/index.js";
