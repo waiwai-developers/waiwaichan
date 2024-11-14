@@ -106,15 +106,6 @@ client.on("interactionCreate", async (interaction) => {
 				await interaction.reply(await pointItem(interaction.user.id));
 				break;
 			case "reviewgacha":
-				await interaction.reply(
-					await reviewGacha(
-						interaction.user.id,
-						interaction.options?.getInteger("id"),
-					),
-				);
-				break;
-			case "reviewlist":
-				await interaction.reply(await reviewList(interaction.user.id));
 				await interaction.deferReply();
 				await interaction.editReply(
 					await reviewGacha(
@@ -122,6 +113,10 @@ client.on("interactionCreate", async (interaction) => {
 						interaction.options?.getInteger("id"),
 					),
 				);
+				break;
+			case "reviewlist":
+				await interaction.deferReply();
+				await interaction.editReply(await reviewList(interaction.user.id));
 				break;
 			default:
 				await interaction.reply("そんなコマンドはないよ！っ");

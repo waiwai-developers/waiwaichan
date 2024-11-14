@@ -89,13 +89,10 @@ const commands = [
 	new SlashCommandBuilder()
 		.setName("reviewgacha")
 		.setDescription("reviewgacha integer")
-		.addStringOption((option) =>
-			option.setName("id").setDescription("string").setRequired(true),
-		),
-	new SlashCommandBuilder().setName("reviewlist").setDescription("reviewlist")
 		.addIntegerOption((option) =>
-			option.setName("id").setDescription("string").setRequired(true)
-		)
+			option.setName("id").setDescription("integer").setRequired(true),
+		),
+	new SlashCommandBuilder().setName("reviewlist").setDescription("reviewlist"),
 ].map((command) => command.toJSON());
 
 (async () => {
