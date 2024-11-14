@@ -109,7 +109,7 @@ client.on("interactionCreate", async (interaction) => {
 				await interaction.editReply(
 					await reviewGacha(
 						interaction.user.id,
-						interaction.options?.getString("id"),
+						interaction.options?.getInteger("id"),
 					),
 				);
 				break;

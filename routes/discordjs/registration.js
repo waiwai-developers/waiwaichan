@@ -89,7 +89,7 @@ const commands = [
 	new SlashCommandBuilder()
 		.setName("reviewgacha")
 		.setDescription("reviewgacha integer")
-		.addStringOption((option) =>
+		.addIntegerOption((option) =>
 			option.setName("id").setDescription("string").setRequired(true),
 		),
 ].map((command) => command.toJSON());
