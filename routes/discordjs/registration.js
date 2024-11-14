@@ -15,10 +15,9 @@ const commands = [
 				.setRequired(true)
 				.addChoices(
 					{ name: "全てのコマンド", value: "all" },
-					{ name: command[0].category.name, value: command[0].category.name },
-					{ name: command[1].category.name, value: command[1].category.name },
-					{ name: command[2].category.name, value: command[2].category.name },
-					{ name: command[3].category.name, value: command[3].category.name },
+					...command.categories.map((c) => {
+						return { name: c.name, value: c.name };
+					}),
 				),
 		),
 	new SlashCommandBuilder().setName("waiwai").setDescription("waiwai"),
@@ -87,6 +86,12 @@ const commands = [
 	new SlashCommandBuilder().setName("pointcheck").setDescription("pointcheck"),
 	new SlashCommandBuilder().setName("pointdraw").setDescription("pointdraw"),
 	new SlashCommandBuilder().setName("pointitem").setDescription("pointitem"),
+	new SlashCommandBuilder()
+		.setName("pointchange")
+		.setDescription("pointchange")
+		.addIntegerOption((option) =>
+			option.setName("id").setDescription("integer").setRequired(true),
+		),
 	new SlashCommandBuilder()
 		.setName("reviewgacha")
 		.setDescription("reviewgacha integer")

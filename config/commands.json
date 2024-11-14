@@ -1,6 +1,6 @@
-[
-	{
-		"category": {
+{
+	"categories": [
+		{
 			"name": "mainコマンド",
 			"commands": [
 				{
@@ -46,10 +46,8 @@
 					"description": "スレッドを立ててwaiwaiちゃんと会話をする"
 				}
 			]
-		}
-	},
-	{
-		"category": {
+		},
+		{
 			"name": "reminderコマンド",
 			"commands": [
 				{
@@ -71,10 +69,8 @@
 					"description": "登録されているリマインダーを確認する"
 				}
 			]
-		}
-	},
-	{
-		"category": {
+		},
+		{
 			"name": "pointコマンド",
 			"commands": [
 				{
@@ -94,12 +90,17 @@
 					"example": "/pointItem",
 					"parameter": "none",
 					"description": "ガチャで取得したアイテムを確認する"
+				},
+				{
+					"name": "/pointChange",
+					"example": "/pointChange id: 1",
+					"parameter": "id: integer",
+					"description": "ガチャで取得したアイテムを交換する"
 				}
 			]
-		}
-	},
-	{
-		"category": {
+		},
+		{
+
 			"name": "reviewコマンド",
 			"commands": [
 				{
@@ -116,5 +117,5 @@
 				}
 			]
 		}
-	}
-]
+	]
+}
