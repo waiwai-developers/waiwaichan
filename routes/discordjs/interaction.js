@@ -11,6 +11,7 @@ import {
 	reminderDelete,
 	reminderList,
 	reminderSet,
+	reviewGacha,
 	translate,
 	waiwai,
 } from "../../logics/index.js";
@@ -102,6 +103,15 @@ client.on("interactionCreate", async (interaction) => {
 				break;
 			case "pointitem":
 				await interaction.reply(await pointItem(interaction.user.id));
+				break;
+			case "reviewgacha":
+				await interaction.deferReply();
+				await interaction.editReply(
+					await reviewGacha(
+						interaction.user.id,
+						interaction.options?.getInteger("id"),
+					),
+				);
 				break;
 			default:
 				await interaction.reply("そんなコマンドはないよ！っ");

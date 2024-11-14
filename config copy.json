@@ -1,18 +1,23 @@
 {
-	"discord":{
+	"discord": {
 		"token": "",
 		"clientId": "",
 		"guildId": ""
 	},
-	"deepl":{
+	"deepl": {
 		"deeplApiKey": ""
 	},
-	"openai":{
+	"openai": {
 		"openaiApiKey": "",
 		"gptModel": "",
 		"gptPrompt": ""
 	},
-	"backend":{
+	"github": {
+		"token": "",
+		"owner": "",
+		"repo": ""
+	},
+	"backend": {
 		"reminderSpan": ,
 		"pointEmoji": ""
 	}
