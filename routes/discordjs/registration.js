@@ -92,7 +92,10 @@ const commands = [
 		.addStringOption((option) =>
 			option.setName("id").setDescription("string").setRequired(true),
 		),
-	new SlashCommandBuilder().setName("reviewlist").setDescription("reviewlist"),
+	new SlashCommandBuilder().setName("reviewlist").setDescription("reviewlist")
+		.addIntegerOption((option) =>
+			option.setName("id").setDescription("string").setRequired(true)
+		)
 ].map((command) => command.toJSON());
 
 (async () => {
