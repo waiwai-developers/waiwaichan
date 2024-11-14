@@ -87,6 +87,12 @@ const commands = [
 	new SlashCommandBuilder().setName("pointdraw").setDescription("pointdraw"),
 	new SlashCommandBuilder().setName("pointitem").setDescription("pointitem"),
 	new SlashCommandBuilder()
+		.setName("pointchange")
+		.setDescription("pointchange")
+		.addIntegerOption((option) =>
+			option.setName("id").setDescription("integer").setRequired(true),
+		),
+	new SlashCommandBuilder()
 		.setName("reviewgacha")
 		.setDescription("reviewgacha integer")
 		.addIntegerOption((option) =>
