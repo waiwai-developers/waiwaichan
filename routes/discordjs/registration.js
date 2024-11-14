@@ -15,9 +15,9 @@ const commands = [
 				.setRequired(true)
 				.addChoices(
 					{ name: "全てのコマンド", value: "all" },
-					{ name: categories[0].name, value: categories[0].name },
-					{ name: categories[1].name, value: categories[1].name },
-					{ name: categories[2].name, value: categories[2].name },
+					...command.categories.map((c) => {
+						return { name: c.name, value: c.name };
+					}),
 				),
 		),
 	new SlashCommandBuilder().setName("waiwai").setDescription("waiwai"),
