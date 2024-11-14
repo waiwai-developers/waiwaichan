@@ -18,6 +18,7 @@ const commands = [
 					{ name: command[0].category.name, value: command[0].category.name },
 					{ name: command[1].category.name, value: command[1].category.name },
 					{ name: command[2].category.name, value: command[2].category.name },
+					{ name: command[3].category.name, value: command[3].category.name },
 				),
 		),
 	new SlashCommandBuilder().setName("waiwai").setDescription("waiwai"),
