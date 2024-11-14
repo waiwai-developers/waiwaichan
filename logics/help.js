@@ -13,7 +13,6 @@ export const help = (category) => {
 					`  - 説明　： ${command.description}`,
 				]),
 			]);
-		console.log(texts);
 		return texts.join("\n");
 	} catch (e) {
 		console.error("Error:", e);
