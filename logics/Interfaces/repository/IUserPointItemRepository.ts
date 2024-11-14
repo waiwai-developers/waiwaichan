@@ -4,10 +4,10 @@ import type { UserPointItemId } from "../../../entities/vo/UserPointItemId";
 import type { UserPointItemStatus } from "../../../entities/vo/UserPointItemStatus";
 
 export interface IUserPointItemRepository {
-	create(data: UserPointItemDto): UserPointItemId;
+	create(data: UserPointItemDto): Promise<UserPointItemId>;
 	findByNotUsed(
 		userId: DiscordUserId,
 		userStatus: UserPointItemStatus,
 	): Promise<UserPointItemDto[]>;
-	tradeById(id: UserPointItemId): Promise<boolean>;
+	exchangeById(id: UserPointItemId, userId: DiscordUserId): Promise<boolean>;
 }

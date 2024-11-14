@@ -1,8 +1,8 @@
-import { DiscordUserId } from "../vo/DiscordUserId";
-import { PointItemId } from "../vo/PointItemId";
-import { UserPointItemExpire } from "../vo/UserPointItemExpire";
-import { UserPointItemId } from "../vo/UserPointItemId";
-import { UserPointItemStatus } from "../vo/UserPointItemStatus";
+import type { DiscordUserId } from "../vo/DiscordUserId";
+import type { PointItemId } from "../vo/PointItemId";
+import type { UserPointItemExpire } from "../vo/UserPointItemExpire";
+import type { UserPointItemId } from "../vo/UserPointItemId";
+import type { UserPointItemStatus } from "../vo/UserPointItemStatus";
 export class UserPointItemDto {
 	constructor(
 		public id: UserPointItemId,
@@ -11,19 +11,4 @@ export class UserPointItemDto {
 		public status: UserPointItemStatus,
 		public expiredAt: UserPointItemExpire,
 	) {}
-	static from(
-		id: number,
-		userId: number,
-		itemId: number,
-		status: boolean,
-		expiredAt: Date,
-	): UserPointItemDto {
-		return new UserPointItemDto(
-			new UserPointItemId(id),
-			new DiscordUserId(userId),
-			new PointItemId(itemId),
-			new UserPointItemStatus(status),
-			new UserPointItemExpire(expiredAt),
-		);
-	}
 }
