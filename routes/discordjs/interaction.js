@@ -105,7 +105,8 @@ client.on("interactionCreate", async (interaction) => {
 				await interaction.reply(await pointItem(interaction.user.id));
 				break;
 			case "reviewgacha":
-				await interaction.reply(
+				await interaction.deferReply();
+				await interaction.editReply(
 					await reviewGacha(
 						interaction.user.id,
 						interaction.options?.getString("id"),
