@@ -109,7 +109,6 @@ client.on("interactionCreate", async (interaction) => {
 					await pointChange(
 						interaction.user.id,
 						interaction.options.getInteger("id"),
-
 					),
 				);
 				break;

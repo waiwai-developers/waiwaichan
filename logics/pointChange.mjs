@@ -15,7 +15,7 @@ export const pointChange = async (userId, userItemId) => {
 		});
 		if (!userItem) return "アイテムは持ってないよ！っ";
 		const itemName = userItem.dataValues.item.dataValues.name;
-		await userItem.update({ status: UserItem.STATUS_INVALID});
+		await userItem.update({ status: UserItem.STATUS_INVALID });
 		return `${itemName}と交換したよ！っ`;
 	} catch (e) {
 		console.error("Error:", e);

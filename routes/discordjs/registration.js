@@ -90,13 +90,13 @@ const commands = [
 		.setName("pointchange")
 		.setDescription("pointchange")
 		.addIntegerOption((option) =>
-			option.setName("id").setDescription("integer").setRequired(true)
+			option.setName("id").setDescription("integer").setRequired(true),
 		),
 	new SlashCommandBuilder()
 		.setName("reviewgacha")
 		.setDescription("reviewgacha integer")
 		.addIntegerOption((option) =>
-			option.setName("id").setDescription("string").setRequired(true)
+			option.setName("id").setDescription("string").setRequired(true),
 		),
 ].map((command) => command.toJSON());
 
