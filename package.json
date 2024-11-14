@@ -11,7 +11,8 @@
 		"debug": "INSPECT=true nodemon --inspect app.js",
 		"lint": "biome check --write && biome format --write",
 		"lint:unsafe": "biome check --write --unsafe && biome format --write",
-		"seed": "node_modules/.bin/sequelize-cli db:seed:all"
+		"seed": "node_modules/.bin/sequelize-cli db:seed:all",
+		"scheduler": "nodemon ./scheduler.js"
 	},
 	"author": "",
 	"license": "ISC",

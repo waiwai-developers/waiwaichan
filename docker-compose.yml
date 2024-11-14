@@ -17,6 +17,25 @@ services:
         condition: service_healthy
     networks:
       - db-net
+    command: sh -c "npm run dev"
+  scheduler:
+    container_name: waiwai-scheduler
+    restart: "always"
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    volumes:
+      - type: bind
+        source: .
+        target: /app
+    ports:
+      - 3001:3001
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - db-net
+    command: sh -c "npm run scheduler"
   migrate:
     container_name: waiwai-migrate
     restart: "no"
@@ -28,7 +47,7 @@ services:
         source: .
         target: /app
     ports:
-      - 3001:3001
+      - 3002:3002
     depends_on:
       database:
         condition: service_healthy
