@@ -44,12 +44,6 @@
 					"example": "/talk message: please tell me your favorite food",
 					"parameter": "message: string",
 					"description": "スレッドを立ててwaiwaiちゃんと会話をする"
-				},
-				{
-					"name": "/reviewgacha",
-					"example": "/reviewgacha id: 1",
-					"parameter": "id: integer",
-					"description": "レビューガチャを回してレビュワーをアサインする"
 				}
 			]
 		}
