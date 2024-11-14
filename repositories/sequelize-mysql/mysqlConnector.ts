@@ -1,13 +1,23 @@
-import { Sequelize } from "sequelize";
-const env = process.env.NODE_ENV || "development";
-import config from "../../config/config.json";
-const dbConfig = config[env];
+import * as process from "node:process";
+import { type Dialect, Sequelize } from "sequelize";
+import { DatabaseConfig } from "../../entities/config/DatabaseConfig";
 
 export class MysqlConnector {
 	private static instance: Sequelize;
 	private constructor() {}
+	private static getDbConfig() {
+		switch (process.env.NODE_ENV || "development") {
+			case "test":
+				return DatabaseConfig.test;
+			case "production":
+				return DatabaseConfig.production;
+			default:
+				return DatabaseConfig.development;
+		}
+	}
 	static getInstance(): Sequelize {
 		if (MysqlConnector.instance == null) {
+			const dbConfig = MysqlConnector.getDbConfig();
 			MysqlConnector.instance = new Sequelize(
 				dbConfig.database,
 				dbConfig.username,
@@ -15,7 +25,7 @@ export class MysqlConnector {
 				{
 					host: dbConfig.host,
 					port: dbConfig.port,
-					dialect: dbConfig.dialect,
+					dialect: dbConfig.dialect as Dialect,
 				},
 			);
 		}
