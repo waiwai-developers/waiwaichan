@@ -1,6 +1,6 @@
 import accounts from "../config/accounts.json" with { type: "json" };
-import { getPullRequest } from "../repositorys/githubapi/getPullRequest.mjs";
-import { reviewPullRequest } from "../repositorys/githubapi/reviewPullRequest.mjs";
+import { getPullRequest } from "../repositorys/githubapi/getPullRequest.js";
+import { reviewPullRequest } from "../repositorys/githubapi/reviewPullRequest.js";
 
 export const reviewGacha = async (discordId, pullReqId) => {
 	try {
