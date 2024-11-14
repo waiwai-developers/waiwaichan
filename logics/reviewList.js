@@ -1,5 +1,5 @@
 import accounts from "../config/accounts.json" with { type: "json" };
-import { getPullRequestList } from "../repositorys/githubapi/getPullRequestList.mjs";
+import { getPullRequestList } from "../repositorys/githubapi/getPullRequestList.js";
 
 export const reviewList = async (discordId) => {
 	try {
