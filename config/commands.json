@@ -1,6 +1,6 @@
-[
-	{
-		"category": {
+{
+	"categories": [
+		{
 			"name": "mainコマンド",
 			"commands": [
 				{
@@ -52,10 +52,8 @@
 					"description": "レビューガチャを回してレビュワーをアサインする"
 				}
 			]
-		}
-	},
-	{
-		"category": {
+		},
+		{
 			"name": "reminderコマンド",
 			"commands": [
 				{
@@ -77,10 +75,8 @@
 					"description": "登録されているリマインダーを確認する"
 				}
 			]
-		}
-	},
-	{
-		"category": {
+		},
+		{
 			"name": "pointコマンド",
 			"commands": [
 				{
@@ -103,5 +99,5 @@
 				}
 			]
 		}
-	}
-]
+	]
+}
