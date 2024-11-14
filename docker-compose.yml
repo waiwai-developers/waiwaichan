@@ -10,8 +10,6 @@ services:
       - type: bind
         source: .
         target: /app
-    ports:
-      - 3000:3000
     depends_on:
       database:
         condition: service_healthy
@@ -28,8 +26,6 @@ services:
       - type: bind
         source: .
         target: /app
-    ports:
-      - 3001:3001
     depends_on:
       database:
         condition: service_healthy
@@ -46,8 +42,6 @@ services:
       - type: bind
         source: .
         target: /app
-    ports:
-      - 3002:3002
     depends_on:
       database:
         condition: service_healthy
