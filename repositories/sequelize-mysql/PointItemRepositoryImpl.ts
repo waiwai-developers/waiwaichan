@@ -2,7 +2,6 @@ import { DataTypes, Model } from "sequelize";
 import { PointItemDto } from "../../entities/dto/PointItemDto";
 import type { PointItemId } from "../../entities/vo/PointItemId";
 import type { IPointItemRepository } from "../../logics/Interfaces/repository/IPointItemRepository";
-import type { IModels } from "./Models";
 import { MysqlConnector } from "./mysqlConnector";
 
 const sequelize = MysqlConnector.getInstance();
@@ -17,11 +16,6 @@ class PointItemRepositoryImpl extends Model implements IPointItemRepository {
 		}).then((r) =>
 			r ? PointItemDto.from(r.id, r.name, r.description) : undefined,
 		);
-	}
-	static associate(models: IModels) {
-		PointItemRepositoryImpl.hasMany(models.UserPointItem, {
-			foreignKey: "itemId",
-		});
 	}
 }
 
