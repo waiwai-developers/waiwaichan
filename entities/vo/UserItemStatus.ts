@@ -1,11 +1,6 @@
 import { ValueObject } from "./ValueObject";
 
-const USED = 0;
-const UNUSED = 1;
-export const USER_ITEM_STATUS: number[] = [USED, UNUSED];
-
-export class UserItemStatus extends ValueObject<number> {
-	validator = (value: number) => USER_ITEM_STATUS.includes(value);
-	static USED = new UserItemStatus(USED);
-	static UNUSED = new UserItemStatus(UNUSED);
+export class UserItemStatus extends ValueObject<boolean> {
+	static USED = new UserItemStatus(true);
+	static UNUSED = new UserItemStatus(false);
 }
