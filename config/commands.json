@@ -96,6 +96,12 @@
 					"example": "/pointItem",
 					"parameter": "none",
 					"description": "ガチャで取得したアイテムを確認する"
+				},
+				{
+					"name": "/pointChange",
+					"example": "/pointChange id: 1",
+					"parameter": "id: integer",
+					"description": "ガチャで取得したアイテムを交換する"
 				}
 			]
 		}
