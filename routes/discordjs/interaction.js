@@ -12,6 +12,7 @@ import {
 	reminderList,
 	reminderSet,
 	reviewGacha,
+	reviewList,
 	translate,
 	waiwai,
 } from "../../logics/index.js";
@@ -112,6 +113,10 @@ client.on("interactionCreate", async (interaction) => {
 						interaction.options?.getInteger("id"),
 					),
 				);
+				break;
+			case "reviewlist":
+				await interaction.deferReply();
+				await interaction.editReply(await reviewList(interaction.user.id));
 				break;
 			default:
 				await interaction.reply("そんなコマンドはないよ！っ");

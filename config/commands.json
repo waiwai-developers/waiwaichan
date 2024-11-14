@@ -44,12 +44,6 @@
 					"example": "/talk message: please tell me your favorite food",
 					"parameter": "message: string",
 					"description": "スレッドを立ててwaiwaiちゃんと会話をする"
-				},
-				{
-					"name": "/reviewgacha",
-					"example": "/reviewgacha id: 1",
-					"parameter": "id: integer",
-					"description": "レビューガチャを回してレビュワーをアサインする"
 				}
 			]
 		}
@@ -100,6 +94,25 @@
 					"example": "/pointItem",
 					"parameter": "none",
 					"description": "ガチャで取得したアイテムを確認する"
+				}
+			]
+		}
+	},
+	{
+		"category": {
+			"name": "reviewコマンド",
+			"commands": [
+				{
+					"name": "/reviewgacha",
+					"example": "/reviewgacha id: 1",
+					"parameter": "id: integer",
+					"description": "レビューガチャを回してレビュワーをアサインする"
+				},
+				{
+					"name": "/reviewlist",
+					"example": "/reviewlist",
+					"parameter": "none",
+					"description": "レビューにアサインされているpull reqを表示する"
 				}
 			]
 		}

@@ -18,6 +18,7 @@ const commands = [
 					{ name: command[0].category.name, value: command[0].category.name },
 					{ name: command[1].category.name, value: command[1].category.name },
 					{ name: command[2].category.name, value: command[2].category.name },
+					{ name: command[3].category.name, value: command[3].category.name },
 				),
 		),
 	new SlashCommandBuilder().setName("waiwai").setDescription("waiwai"),
@@ -90,8 +91,9 @@ const commands = [
 		.setName("reviewgacha")
 		.setDescription("reviewgacha integer")
 		.addIntegerOption((option) =>
-			option.setName("id").setDescription("string").setRequired(true),
+			option.setName("id").setDescription("integer").setRequired(true),
 		),
+	new SlashCommandBuilder().setName("reviewlist").setDescription("reviewlist"),
 ].map((command) => command.toJSON());
 
 (async () => {
