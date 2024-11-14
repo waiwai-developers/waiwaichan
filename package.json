@@ -17,6 +17,7 @@
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
+		"@octokit/core": "^6.1.2",
 		"dayjs": "^1.11.13",
 		"deepl-node": "^1.14.0",
 		"discord.js": "^14.16.3",

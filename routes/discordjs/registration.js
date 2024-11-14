@@ -86,6 +86,12 @@ const commands = [
 	new SlashCommandBuilder().setName("pointcheck").setDescription("pointcheck"),
 	new SlashCommandBuilder().setName("pointdraw").setDescription("pointdraw"),
 	new SlashCommandBuilder().setName("pointitem").setDescription("pointitem"),
+	new SlashCommandBuilder()
+		.setName("reviewgacha")
+		.setDescription("reviewgacha integer")
+		.addIntegerOption((option) =>
+			option.setName("id").setDescription("string").setRequired(true),
+		),
 ].map((command) => command.toJSON());
 
 (async () => {
