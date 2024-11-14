@@ -6,15 +6,14 @@ export const help = (category) => {
 			.filter((c) => category === "all" || c.name === category)
 			.flatMap((c) => [
 				`## ${c.name}`,
-				...c.commands.map((command) =>
-					[
-						`- \`${command.name}\``,
-						`  - 値　　： ${command.parameter}`,
-						`  - 例　　： ${command.example}`,
-						`  - 説明　： ${command.description}`,
-					].join("\n"),
-				),
+				...c.commands.flatMap((command) => [
+					`- \`${command.name}\``,
+					`  - 値　　： ${command.parameter}`,
+					`  - 例　　： ${command.example}`,
+					`  - 説明　： ${command.description}`,
+				]),
 			]);
+		console.log(texts);
 		return texts.join("\n");
 	} catch (e) {
 		console.error("Error:", e);
