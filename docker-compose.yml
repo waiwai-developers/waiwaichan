@@ -31,7 +31,7 @@ services:
         condition: service_healthy
     networks:
       - db-net
-    command: sh -c "npm run scheduler"
+    command: sh -c "npm run dev:scheduler"
   migrate:
     container_name: waiwai-migrate
     restart: "no"
