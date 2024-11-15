@@ -3,6 +3,6 @@ import type { ReminderDto } from "../../../entities/dto/ReminderDto";
 import type { DiscordUserId } from "../../../entities/vo/DiscordUserId";
 import type { PointCount } from "../../../entities/vo/PointCount";
 
-export interface IPointRepository {
+export interface IReminderSchedulerRepository {
 	findByRemindTime(): Promise<ReminderDto[]>;
 }
