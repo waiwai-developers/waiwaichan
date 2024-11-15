@@ -57,7 +57,7 @@ class UserPointItemRepositoryImpl
 		id: UserPointItemId,
 		userId: DiscordUserId,
 	): Promise<boolean> {
-		const updated = await UserPointItemRepositoryImpl.update(
+		return await UserPointItemRepositoryImpl.update(
 			{ status: UserPointItemStatus.USED },
 			{
 				where: {
@@ -68,8 +68,7 @@ class UserPointItemRepositoryImpl
 				},
 				limit: 1,
 			},
-		);
-		return updated[0] > 0;
+		).then((updated) => updated[0] > 0);
 	}
 
 	toDto(
