@@ -1,6 +1,6 @@
 import * as process from "node:process";
+import { DatabaseConfig } from "@/entities/config/DatabaseConfig";
 import { type Dialect, Sequelize } from "sequelize";
-import { DatabaseConfig } from "../../entities/config/DatabaseConfig";
 
 export class MysqlConnector {
 	private static instance: Sequelize;
