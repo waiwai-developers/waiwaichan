@@ -7,6 +7,7 @@ import {
 	minecraftStart,
 	minecraftStop,
 	parrot,
+	pointChange,
 	pointCheck,
 	pointDraw,
 	pointItem,
@@ -17,7 +18,6 @@ import {
 	translate,
 	waiwai,
 } from "../../logics/index.js";
-
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 client.on("interactionCreate", async (interaction) => {
@@ -105,6 +105,14 @@ client.on("interactionCreate", async (interaction) => {
 				break;
 			case "pointitem":
 				await interaction.reply(await pointItem(interaction.user.id));
+				break;
+			case "pointchange":
+				await interaction.reply(
+					await pointChange(
+						interaction.user.id,
+						interaction.options.getInteger("id"),
+					),
+				);
 				break;
 			case "reviewgacha":
 				await interaction.deferReply();
