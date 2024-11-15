@@ -31,7 +31,7 @@ class UserPointItemRepositoryImpl
 	}
 	async findByNotUsed(
 		userId: DiscordUserId,
-		userStatus: UserPointItemStatus,
+		userStatus: UserPointItemStatus = UserPointItemStatus.UNUSED,
 	): Promise<UserPointItemDto[]> {
 		return UserPointItemRepositoryImpl.findAll({
 			include: { model: PointItemRepositoryImpl, as: "item" },
