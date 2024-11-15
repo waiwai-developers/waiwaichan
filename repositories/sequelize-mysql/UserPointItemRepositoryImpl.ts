@@ -16,7 +16,7 @@ class UserPointItemRepositoryImpl
 	implements IUserPointItemRepository
 {
 	declare id: number;
-	declare userId: number;
+	declare userId: string;
 	declare itemId: number;
 	declare status: boolean;
 	declare expiredAt: Date;
@@ -74,7 +74,7 @@ class UserPointItemRepositoryImpl
 
 	toDto(
 		id: number,
-		userId: number,
+		userId: string,
 		itemId: number,
 		status: boolean,
 		expiredAt: Date,
