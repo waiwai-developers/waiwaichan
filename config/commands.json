@@ -106,13 +106,13 @@
 					"name": "/minecraftstart",
 					"example": "/minecraftstart",
 					"parameter": "none",
-					"description": "minecraftサーバーを起動します"
+					"description": "minecraftサーバーを起動する"
 				},
 				{
 					"name": "/minecraftstop",
 					"example": "/minecraftstop",
 					"parameter": "none",
-					"description": "minecraftサーバーを停止します"
+					"description": "minecraftサーバーを停止する"
 				}
 			]
 		}
