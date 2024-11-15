@@ -118,7 +118,7 @@ client.on("interactionCreate", async (interaction) => {
 			case "minecraftstart":
 				await interaction.reply(await minecraftStart());
 				break;
-			case "minecraftStop":
+			case "minecraftstop":
 				await interaction.reply(await minecraftStop());
 				break;
 			default:

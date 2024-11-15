@@ -1,9 +1,9 @@
 import config from "../config.json" with { type: "json" };
-import { minecraftStart } from "../repositorys/gcpapi/instanceStart.js";
+import { instanceStart } from "../repositorys/gcpapi/instanceStart.js";
 
-export const minecraftStart = () => {
+export const minecraftStart = async () => {
 	try {
-	    const instance = await computeClient(config.project, config.zone, config.instance)
+	    const instance = await instanceStart(config.gcp.project, config.gcp.zone, config.gcp.instance)
 		if (instance.error) return "インスタンスを起動できなかったよ！っ" ;
 
         return "インスタンスを起動したよ！っ"

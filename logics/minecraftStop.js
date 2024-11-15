@@ -1,9 +1,9 @@
 import config from "../config.json" with { type: "json" };
-import { minecraftStop } from "../repositorys/gcpapi/instanceStop.js";
+import { instanceStop } from "../repositorys/gcpapi/instanceStop.js";
 
-export const minecraftStop = () => {
+export const minecraftStop = async () => {
 	try {
-	    const instance = await computeClient(config.project, config.zone, config.instance)
+	    const instance = await instanceStop(config.gcp.project, config.gcp.zone, config.gcp.instance)
 		if (instance.error) return "インスタンスを停止できなかったよ！っ" ;
 
         return "インスタンスを停止したよ！っ" ;

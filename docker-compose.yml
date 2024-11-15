@@ -15,6 +15,8 @@ services:
         condition: service_healthy
     networks:
       - db-net
+    environment:
+      GOOGLE_APPLICATION_CREDENTIALS: config/key.json
     command: sh -c "npm run dev"
   scheduler:
     container_name: waiwai-scheduler

@@ -1,4 +1,4 @@
-const { InstancesClient } = require("@google-cloud/compute").v1;
+import { InstancesClient } from "@google-cloud/compute";
 
 export const instanceStart = async (project, zone, instance) => {
 	try {

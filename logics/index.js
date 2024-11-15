@@ -11,3 +11,5 @@ export { pointCheck } from "./pointCheck.js";
 export { pointDraw } from "./pointDraw.js";
 export { pointItem } from "./pointItem.js";
 export { reviewGacha } from "./reviewGacha.js";
+export { minecraftStart } from "./minecraftStart.js";
+export { minecraftStop } from "./minecraftStop.js";
