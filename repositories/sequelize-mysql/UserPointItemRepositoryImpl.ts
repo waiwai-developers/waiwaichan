@@ -1,15 +1,15 @@
+import { UserPointItemDto } from "@/entities/dto/UserPointItemDto";
+import { DiscordUserId } from "@/entities/vo/DiscordUserId";
+import { PointItemId } from "@/entities/vo/PointItemId";
+import { UserPointItemExpire } from "@/entities/vo/UserPointItemExpire";
+import { UserPointItemId } from "@/entities/vo/UserPointItemId";
+import { UserPointItemStatus } from "@/entities/vo/UserPointItemStatus";
 import type { IUserPointItemRepository } from "@/logics/Interfaces/repositories/database/IUserPointItemRepository";
 import dayjs from "dayjs";
 import Sequelize, { DataTypes, Model } from "sequelize";
-import { UserPointItemDto } from "../../entities/dto/UserPointItemDto";
-import { DiscordUserId } from "../../entities/vo/DiscordUserId";
-import { PointItemId } from "../../entities/vo/PointItemId";
-import { UserPointItemExpire } from "../../entities/vo/UserPointItemExpire";
-import { UserPointItemId } from "../../entities/vo/UserPointItemId";
-import { UserPointItemStatus } from "../../entities/vo/UserPointItemStatus";
 import { PointItemRepositoryImpl } from "./PointItemRepositoryImpl";
 import { MysqlConnector } from "./mysqlConnector";
-const sequelize = MysqlConnector.getInstance();
+const sequelize = MysqlConnector.getInstance().db;
 
 class UserPointItemRepositoryImpl
 	extends Model

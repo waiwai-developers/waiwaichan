@@ -7,7 +7,7 @@ import type { IPointItemRepository } from "@/logics/Interfaces/repositories/data
 import { DataTypes, Model } from "sequelize";
 import { MysqlConnector } from "./mysqlConnector";
 
-const sequelize = MysqlConnector.getInstance();
+const sequelize = MysqlConnector.getInstance().db;
 
 class PointItemRepositoryImpl extends Model implements IPointItemRepository {
 	declare id: number;

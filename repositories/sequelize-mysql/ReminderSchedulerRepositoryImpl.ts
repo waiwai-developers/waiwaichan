@@ -4,13 +4,12 @@ import { DiscordMessageId } from "@/entities/vo/DiscordMessageId";
 import { DiscordUserId } from "@/entities/vo/DiscordUserId";
 import { RemindTime } from "@/entities/vo/RemindTime";
 import { ReminderId } from "@/entities/vo/ReminderId";
-import type { IReminderRepository } from "@/logics/Interfaces/repositories/database/IReminderRepository";
 import type { IReminderSchedulerRepository } from "@/logics/Interfaces/repositories/database/IReminderSchedulerRepository";
 import { MysqlConnector } from "@/repositories/sequelize-mysql/mysqlConnector";
 import dayjs from "dayjs";
 import { DataTypes, Model, Op } from "sequelize";
 
-const sequelize = MysqlConnector.getInstance();
+const sequelize = MysqlConnector.getInstance().db;
 
 class ReminderSchedulerRepositoryImpl
 	extends Model

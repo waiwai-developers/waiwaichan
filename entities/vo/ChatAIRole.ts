@@ -1,3 +1,3 @@
 import { ValueObject } from "./ValueObject";
 
-export class ChatAIRole extends ValueObject<"system"|"user"|"assistant"> {}
+export class ChatAIRole extends ValueObject<"system" | "user" | "assistant"> {}
