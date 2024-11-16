@@ -44,7 +44,7 @@ client.on("messageReactionAdd", async (reaction, user) => {
 		});
 
 		await reaction.message.reply(
-			`<@${user.id}>さんが🍬スタンプを押したよ！！っ`,
+			`<@${user.id}>さんが${config.backend.pointEmoji}スタンプを押したよ！！っ`,
 		);
 	}
 });
