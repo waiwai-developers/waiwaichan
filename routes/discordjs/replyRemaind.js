@@ -1,4 +1,5 @@
 import { Client, GatewayIntentBits } from "discord.js";
+import cron from "node-cron";
 import Sequelize from "sequelize";
 import config from "../../config.json" with { type: "json" };
 import { Reminder } from "../../repositories/sequelize-mysql/index.js";
@@ -6,7 +7,7 @@ import { Reminder } from "../../repositories/sequelize-mysql/index.js";
 const client = new Client({
 	intents: Object.values(GatewayIntentBits).reduce((a, b) => a | b),
 });
-setInterval(async () => {
+cron.schedule("* * * * *", async () => {
 	try {
 		const remainders = await Reminder.findAll({
 			where: { remindAt: { [Sequelize.Op.lte]: new Date() } },
@@ -25,5 +26,5 @@ setInterval(async () => {
 	} catch (e) {
 		console.error("Error:", e);
 	}
-}, config.backend.reminderSpan);
+});
 client.login(config.discord.token);
