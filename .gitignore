@@ -3,3 +3,4 @@ config.json
 node_modules/
 ignore/
 config/accounts.json
+config/key.json
