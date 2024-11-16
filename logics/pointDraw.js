@@ -1,5 +1,10 @@
 import Sequelize from "sequelize";
-import { Item, MysqlConnector, Point, UserItem } from "../models/index.js";
+import {
+	Item,
+	MysqlConnector,
+	Point,
+	UserItem,
+} from "../repositories/sequelize-mysql/index.js";
 
 export const pointDraw = async (userId) => {
 	const t = await MysqlConnector.getInstance().transaction();

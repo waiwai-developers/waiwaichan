@@ -1,6 +1,6 @@
 import { Client, GatewayIntentBits } from "discord.js";
 import config from "../../config.json" with { type: "json" };
-import { Point } from "../../models/index.js";
+import { Point } from "../../repositories/sequelize-mysql/index.js";
 
 import Sequelize from "sequelize";
 const client = new Client({
@@ -25,9 +25,12 @@ client.on("messageReactionAdd", async (reaction, user) => {
 			},
 		});
 
+		// duplicate reaction
 		if (points.rows.map((p) => p.messageId).includes(reaction.message.id))
 			return;
 
+		// reaction limit
+		// todo reaction limit to constant
 		if (points.count > 2) {
 			await reaction.message.channel.send(
 				"今はスタンプを押してもポイントをあげられないよ！っ",

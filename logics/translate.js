@@ -1,4 +1,4 @@
-import { requestTransrate } from "../repositorys/deeplapi/translate.mjs";
+import { requestTransrate } from "../repositories/deeplapi/translate.mjs";
 export const translate = async (messages, source, target) => {
 	try {
 		const texts = messages.split("  ");

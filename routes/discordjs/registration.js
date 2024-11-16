@@ -1,7 +1,7 @@
 import { REST, Routes, SlashCommandBuilder } from "discord.js";
 import config from "../../config.json" with { type: "json" };
 import command from "../../config/commands.json" with { type: "json" };
-import { TranslateConst } from "../../entities/index.js";
+import { TranslateConst } from "../../entities/constants/translate.js";
 const rest = new REST({ version: "10" }).setToken(config.discord.token);
 
 const commands = [
