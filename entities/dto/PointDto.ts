@@ -1,7 +1,7 @@
-import type { DiscordMessageId } from "../vo/DiscordMessageId";
-import type { DiscordUserId } from "../vo/DiscordUserId";
-import type { PointExpire } from "../vo/PointExpire";
-import type { PointStatus } from "../vo/PointStatus";
+import type { DiscordMessageId } from "@/entities/vo/DiscordMessageId";
+import type { DiscordUserId } from "@/entities/vo/DiscordUserId";
+import type { PointExpire } from "@/entities/vo/PointExpire";
+import type { PointStatus } from "@/entities/vo/PointStatus";
 
 export class PointDto {
 	constructor(

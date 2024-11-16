@@ -1,7 +1,7 @@
 import type { DiscordUserId } from "@/entities/vo/DiscordUserId";
-import type { PointItemDescription } from "../vo/PointItemDescription";
-import type { PointItemId } from "../vo/PointItemId";
-import type { PointItemName } from "../vo/PointItemName";
+import type { PointItemDescription } from "@/entities/vo/PointItemDescription";
+import type { PointItemId } from "@/entities/vo/PointItemId";
+import type { PointItemName } from "@/entities/vo/PointItemName";
 export class PointItemDto {
 	constructor(
 		public id: PointItemId,

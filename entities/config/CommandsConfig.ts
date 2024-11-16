@@ -1,4 +1,4 @@
-import json from "../../config/commands.json" with { type: "json" };
+import json from "@/config/commands.json" with { type: "json" };
 interface CommandType {
 	name: string;
 	example: string;

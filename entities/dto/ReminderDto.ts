@@ -1,8 +1,8 @@
-import type { DiscordChannelId } from "../vo/DiscordChannelId";
-import type { DiscordMessageId } from "../vo/DiscordMessageId";
-import type { DiscordUserId } from "../vo/DiscordUserId";
-import type { RemindTime } from "../vo/RemindTime";
-import type { UserPointItemId } from "../vo/UserPointItemId";
+import type { DiscordChannelId } from "@/entities/vo/DiscordChannelId";
+import type { DiscordMessageId } from "@/entities/vo/DiscordMessageId";
+import type { DiscordUserId } from "@/entities/vo/DiscordUserId";
+import type { RemindTime } from "@/entities/vo/RemindTime";
+import type { UserPointItemId } from "@/entities/vo/UserPointItemId";
 
 export class ReminderDto {
 	constructor(
