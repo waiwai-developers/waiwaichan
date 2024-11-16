@@ -18,11 +18,19 @@ interface GithubConfig {
 	owner: string;
 	repo: string;
 }
+
+interface GCPInstanceConfig {
+	project: string;
+	zone: string;
+	instance: string;
+}
+
 interface AppConfigJson {
 	discord: DiscordConfig;
 	deepl: DeepLConfig;
 	openai: OpenAIConfig;
 	github: GithubConfig;
+	gcp: GCPInstanceConfig;
 	backend: {
 		pointEmoji: string;
 	};
