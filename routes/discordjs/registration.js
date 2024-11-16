@@ -98,6 +98,12 @@ const commands = [
 		.addIntegerOption((option) =>
 			option.setName("id").setDescription("string").setRequired(true),
 		),
+	new SlashCommandBuilder()
+		.setName("minecraftstart")
+		.setDescription("minecraftstart"),
+	new SlashCommandBuilder()
+		.setName("minecraftstop")
+		.setDescription("minecraftstop"),
 ].map((command) => command.toJSON());
 
 (async () => {

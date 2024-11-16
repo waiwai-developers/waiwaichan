@@ -104,6 +104,23 @@
 					"description": "ガチャで取得したアイテムを交換する"
 				}
 			]
+		},
+		{
+			"name": "minecraftコマンド",
+			"commands": [
+				{
+					"name": "/minecraftstart",
+					"example": "/minecraftstart",
+					"parameter": "none",
+					"description": "minecraftサーバーを起動する"
+				},
+				{
+					"name": "/minecraftstop",
+					"example": "/minecraftstop",
+					"parameter": "none",
+					"description": "minecraftサーバーを停止する"
+				}
+			]
 		}
 	]
 }
