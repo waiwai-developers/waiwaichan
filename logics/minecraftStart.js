@@ -1,5 +1,5 @@
 import config from "../config.json" with { type: "json" };
-import { instanceStart } from "../repositorys/gcpapi/instanceStart.js";
+import { instanceStart } from "../repositories/gcpapi/instanceStart.js";
 
 export const minecraftStart = async () => {
 	try {
