@@ -1,12 +1,12 @@
+import { PointDto } from "@/entities/dto/PointDto";
+import { DiscordMessageId } from "@/entities/vo/DiscordMessageId";
+import { DiscordUserId } from "@/entities/vo/DiscordUserId";
+import { PointCount } from "@/entities/vo/PointCount";
+import { PointExpire } from "@/entities/vo/PointExpire";
+import { PointStatus } from "@/entities/vo/PointStatus";
+import type { IPointRepository } from "@/logics/Interfaces/repository/IPointRepository";
 import dayjs from "dayjs";
 import { DataTypes, Model, Op } from "sequelize";
-import { PointDto } from "../../entities/dto/PointDto";
-import { DiscordMessageId } from "../../entities/vo/DiscordMessageId";
-import { DiscordUserId } from "../../entities/vo/DiscordUserId";
-import { PointCount } from "../../entities/vo/PointCount";
-import { PointExpire } from "../../entities/vo/PointExpire";
-import { PointStatus } from "../../entities/vo/PointStatus";
-import type { IPointRepository } from "../../logics/Interfaces/repository/IPointRepository";
 import { PointItemRepositoryImpl } from "./PointItemRepositoryImpl";
 import { MysqlConnector } from "./mysqlConnector";
 
@@ -36,6 +36,16 @@ class PointRepositoryImpl extends Model implements IPointRepository {
 	}
 
 	async pointCount(userId: DiscordUserId): Promise<PointCount> {
+		return PointRepositoryImpl.count({
+			where: {
+				receiveUserId: userId,
+				status: PointStatus.UNUSED.getValue(),
+				expiredAt: { [Op.gte]: dayjs().toDate() },
+			},
+		}).then((c) => new PointCount(c));
+	}
+
+	async countByToday(userId: DiscordUserId): Promise<PointCount> {
 		return PointRepositoryImpl.count({
 			where: {
 				receiveUserId: userId,
