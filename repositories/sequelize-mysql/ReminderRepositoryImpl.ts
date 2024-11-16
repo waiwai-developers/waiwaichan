@@ -4,7 +4,7 @@ import { DiscordMessageId } from "@/entities/vo/DiscordMessageId";
 import { DiscordUserId } from "@/entities/vo/DiscordUserId";
 import { RemindTime } from "@/entities/vo/RemindTime";
 import { ReminderId } from "@/entities/vo/ReminderId";
-import type { IReminderRepository } from "@/logics/Interfaces/repository/sequelize-mysql/IReminderRepository";
+import type { IReminderRepository } from "@/logics/Interfaces/repositories/sequelize-mysql/IReminderRepository";
 import { MysqlConnector } from "@/repositories/sequelize-mysql/mysqlConnector";
 import { DataTypes, Model } from "sequelize";
 

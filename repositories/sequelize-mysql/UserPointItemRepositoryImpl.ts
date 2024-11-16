@@ -1,3 +1,4 @@
+import type { IUserPointItemRepository } from "@/logics/Interfaces/repositories/sequelize-mysql/IUserPointItemRepository";
 import dayjs from "dayjs";
 import Sequelize, { DataTypes, Model } from "sequelize";
 import { UserPointItemDto } from "../../entities/dto/UserPointItemDto";
@@ -6,7 +7,6 @@ import { PointItemId } from "../../entities/vo/PointItemId";
 import { UserPointItemExpire } from "../../entities/vo/UserPointItemExpire";
 import { UserPointItemId } from "../../entities/vo/UserPointItemId";
 import { UserPointItemStatus } from "../../entities/vo/UserPointItemStatus";
-import type { IUserPointItemRepository } from "../../logics/Interfaces/repository/sequelize-mysql/IUserPointItemRepository";
 import { PointItemRepositoryImpl } from "./PointItemRepositoryImpl";
 import { MysqlConnector } from "./mysqlConnector";
 const sequelize = MysqlConnector.getInstance();
