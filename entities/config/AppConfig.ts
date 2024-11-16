@@ -15,6 +15,8 @@ interface OpenAIConfig {
 
 interface GithubConfig {
 	token: string;
+	owner: string;
+	repo: string;
 }
 interface AppConfigJson {
 	discord: DiscordConfig;
@@ -22,7 +24,6 @@ interface AppConfigJson {
 	openai: OpenAIConfig;
 	github: GithubConfig;
 	backend: {
-		reminderSpan: number;
 		pointEmoji: string;
 	};
 }
