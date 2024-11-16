@@ -4,19 +4,19 @@ import { reviewPullRequest } from "../repositories/githubapi/reviewPullRequest.j
 
 export const reviewGacha = async (discordId, pullReqId) => {
 	try {
-		const reviewerDiscordIds = accounts
-			.filter((a) => a.user.discordId !== discordId)
-			.map((a) => a.user.discordId);
-		const reviewerGithubIds = accounts
-			.filter((a) => a.user.discordId !== discordId)
-			.map((a) => a.user.githubId);
+		const reviewerDiscordIds = accounts.users
+			.filter((u) => u.discordId !== discordId)
+			.map((u) => u.discordId);
+		const reviewerGithubIds = accounts.users
+			.filter((u) => u.discordId !== discordId)
+			.map((u) => u.githubId);
 
 		const response = await getPullRequest(pullReqId);
 		const pullRequest = response.data;
 
 		if (
 			pullRequest.user.login !==
-			accounts.find((a) => a.user.discordId === discordId).user.githubId
+			accounts.users.find((u) => u.discordId === discordId).githubId
 		) {
 			return "pull reqのオーナーじゃないよ！っ";
 		}
