@@ -5,3 +5,6 @@ ignore/
 dist/
 config/accounts.json
 config/key.json
+.idea/
+pnpm-lock.yaml
+yarn.lock
