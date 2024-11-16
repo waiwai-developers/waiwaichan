@@ -1,9 +1,11 @@
 import json from "@/config/accounts.json";
 interface UserAssociation {
-	user: {
-		githubId: string;
-		discordId: string;
-	};
+	githubId: string;
+	discordId: string;
+};
+
+interface AccountsConfigType {
+	users: Array<UserAssociation>;
 }
-// TODO JSONの構造を修正する
-export const AccountsConfig: Array<UserAssociation> = json;
+
+export const AccountsConfig: AccountsConfigType = json;
