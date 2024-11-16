@@ -7,7 +7,7 @@ export const Reminder = (() => {
 		/**
 		 * Helper method for defining associations.
 		 * This method is not a part of Sequelize lifecycle.
-		 * The `sequelize-mysql/index` file will call this method automatically.
+		 * The `database/index` file will call this method automatically.
 		 */
 		static associate(models) {
 			// define association here

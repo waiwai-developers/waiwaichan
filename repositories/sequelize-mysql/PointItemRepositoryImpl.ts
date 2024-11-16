@@ -3,7 +3,7 @@ import { DiscordUserId } from "@/entities/vo/DiscordUserId";
 import { PointItemDescription } from "@/entities/vo/PointItemDescription";
 import { PointItemId } from "@/entities/vo/PointItemId";
 import { PointItemName } from "@/entities/vo/PointItemName";
-import type { IPointItemRepository } from "@/logics/Interfaces/repositories/sequelize-mysql/IPointItemRepository";
+import type { IPointItemRepository } from "@/logics/Interfaces/repositories/database/IPointItemRepository";
 import { DataTypes, Model } from "sequelize";
 import { MysqlConnector } from "./mysqlConnector";
 

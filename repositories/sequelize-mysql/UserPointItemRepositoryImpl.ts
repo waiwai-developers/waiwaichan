@@ -1,4 +1,4 @@
-import type { IUserPointItemRepository } from "@/logics/Interfaces/repositories/sequelize-mysql/IUserPointItemRepository";
+import type { IUserPointItemRepository } from "@/logics/Interfaces/repositories/database/IUserPointItemRepository";
 import dayjs from "dayjs";
 import Sequelize, { DataTypes, Model } from "sequelize";
 import { UserPointItemDto } from "../../entities/dto/UserPointItemDto";

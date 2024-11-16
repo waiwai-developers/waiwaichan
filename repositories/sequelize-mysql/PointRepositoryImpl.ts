@@ -4,7 +4,7 @@ import { DiscordUserId } from "@/entities/vo/DiscordUserId";
 import { PointCount } from "@/entities/vo/PointCount";
 import { PointExpire } from "@/entities/vo/PointExpire";
 import { PointStatus } from "@/entities/vo/PointStatus";
-import type { IPointRepository } from "@/logics/Interfaces/repositories/sequelize-mysql/IPointRepository";
+import type { IPointRepository } from "@/logics/Interfaces/repositories/database/IPointRepository";
 import dayjs from "dayjs";
 import { DataTypes, Model, Op } from "sequelize";
 import { PointItemRepositoryImpl } from "./PointItemRepositoryImpl";
