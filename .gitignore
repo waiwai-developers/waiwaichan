@@ -4,3 +4,4 @@ node_modules/
 ignore/
 dist/
 config/accounts.json
+config/key.json

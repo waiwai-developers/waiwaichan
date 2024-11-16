@@ -18,6 +18,7 @@
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
+		"@google-cloud/compute": "^4.8.0",
 		"@octokit/core": "^6.1.2",
 		"dayjs": "^1.11.13",
 		"deepl-node": "^1.14.0",
