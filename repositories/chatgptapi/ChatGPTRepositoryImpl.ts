@@ -7,7 +7,7 @@ import config from "@/config.json";
 
 class ChatGPTRepositoryImpl implements IChatAIRepository {
 	openai = new OpenAI({ apiKey: AppConfig.openai.openaiApiKey });
-	generate(messages: Array<ChatAIMessageDto>): Promise<ChatAIContent> {
+	async generate(messages: Array<ChatAIMessageDto>): Promise<ChatAIContent> {
 		return this.openai.chat.completions.create({
 			model: config.openai.gptModel,
 			messages: messages.map(({role,content}) => {
