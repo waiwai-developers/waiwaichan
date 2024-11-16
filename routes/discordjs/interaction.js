@@ -124,10 +124,12 @@ client.on("interactionCreate", async (interaction) => {
 				);
 				break;
 			case "minecraftstart":
-				await interaction.reply(await minecraftStart());
+				await interaction.deferReply();
+				await interaction.editReply(await minecraftStart());
 				break;
 			case "minecraftstop":
-				await interaction.reply(await minecraftStop());
+				await interaction.deferReply();
+				await interaction.editReply(await minecraftStop());
 				break;
 			default:
 				await interaction.reply("そんなコマンドはないよ！っ");
