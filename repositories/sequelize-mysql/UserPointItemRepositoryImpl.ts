@@ -6,7 +6,7 @@ import { PointItemId } from "../../entities/vo/PointItemId";
 import { UserPointItemExpire } from "../../entities/vo/UserPointItemExpire";
 import { UserPointItemId } from "../../entities/vo/UserPointItemId";
 import { UserPointItemStatus } from "../../entities/vo/UserPointItemStatus";
-import type { IUserPointItemRepository } from "../../logics/Interfaces/repository/IUserPointItemRepository";
+import type { IUserPointItemRepository } from "../../logics/Interfaces/repository/sequelize-mysql/IUserPointItemRepository";
 import { PointItemRepositoryImpl } from "./PointItemRepositoryImpl";
 import { MysqlConnector } from "./mysqlConnector";
 const sequelize = MysqlConnector.getInstance();
