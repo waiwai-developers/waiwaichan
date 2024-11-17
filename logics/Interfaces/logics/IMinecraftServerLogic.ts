@@ -1,4 +1,4 @@
-export interface IMinecraftServerLogics {
+export interface IMinecraftServerLogic {
 	startServer(): string;
 	stopServer(): string;
 }

@@ -1,61 +1,6 @@
-const sourceLanguages = [
-	"AR",
-	"CS",
-	"DA",
-	"DE",
-	"EL",
-	"EN",
-	"ES",
-	"ET",
-	"ET",
-	"FR",
-	"ID",
-	"IT",
-	"JA",
-	"KO",
-	"LV",
-	"NB",
-	"NL",
-	"PL",
-	"SV",
-	"TR",
-	"UK",
-	"ZH",
-] as const;
-export type sourceLanguage = (typeof sourceLanguages)[number];
-
-const targetLanguages = [
-	"AR",
-	"CS",
-	"DA",
-	"DE",
-	"EL-GB",
-	"EN-GB",
-	"EN-US",
-	"ES",
-	"ET",
-	"ET",
-	"FI",
-	"FR",
-	"ID",
-	"IT",
-	"JA",
-	"KO",
-	"LV",
-	"NB",
-	"NL",
-	"PL",
-	"SV",
-	"TR",
-	"UK",
-	"ZH",
-	"ZH",
-] as const;
-export type targetLanguage = (typeof targetLanguages)[number];
-
 export const TranslateConst: {
-	source: { name: string; value: sourceLanguage }[];
-	target: { name: string; value: targetLanguage }[];
+	source: { name: string; value: string }[];
+	target: { name: string; value: string }[];
 } = {
 	source: [
 		{ name: "Arabic", value: "AR" },

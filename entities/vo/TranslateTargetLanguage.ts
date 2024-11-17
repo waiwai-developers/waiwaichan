@@ -1,3 +1,7 @@
-import type { targetLanguage } from "@/entities/constants/translate";
+import { TranslateConst } from "@/entities/constants/translate";
 import { ValueObject } from "./ValueObject";
-export class TranslateTargetLanguage extends ValueObject<targetLanguage> {}
+export class TranslateTargetLanguage extends ValueObject<string> {
+	validator = (value: string) => {
+		return TranslateConst.target.map((r) => r.value).includes(value);
+	};
+}
