@@ -8,10 +8,12 @@ import {
 	type SlashCommandOptionsOnlyBuilder,
 } from "discord.js";
 
-const rest = new REST({ version: "10" }).setToken(AppConfig.discord.token);
 export class DiscordCommandRegister {
 	commands: SlashCommandOptionsOnlyBuilder[] = [];
+	rest: REST;
 	constructor() {
+		this.rest = new REST({ version: "10" }).setToken(AppConfig.discord.token);
+
 		this.commands = [
 			new SlashCommandBuilder()
 				.setName("help")
@@ -124,7 +126,7 @@ export class DiscordCommandRegister {
 		];
 	}
 	async register() {
-		await rest.put(
+		await this.rest.put(
 			Routes.applicationGuildCommands(
 				AppConfig.discord.clientId,
 				AppConfig.discord.guildId,
