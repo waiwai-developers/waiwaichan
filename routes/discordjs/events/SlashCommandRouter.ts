@@ -23,14 +23,9 @@ import type { ITranslatorLogic } from "@/logics/Interfaces/logics/ITranslator";
 import type { IUtilityLogic } from "@/logics/Interfaces/logics/IUtilityLogic";
 import type { DiscordEventRouter } from "@/routes/discordjs/events/DiscordEventRouter";
 import dayjs from "dayjs";
-import {
-	BaseGuildTextChannel,
-	type Client,
-	NewsChannel,
-	TextChannel,
-} from "discord.js";
+import { type Client, TextChannel } from "discord.js";
 
-class SlashCommandRouter implements DiscordEventRouter {
+export class SlashCommandRouter implements DiscordEventRouter {
 	constructor(
 		private utilLogic: IUtilityLogic,
 		private translateLogic: ITranslatorLogic,

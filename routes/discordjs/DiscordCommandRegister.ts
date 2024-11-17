@@ -10,10 +10,7 @@ import {
 
 export class DiscordCommandRegister {
 	commands: SlashCommandOptionsOnlyBuilder[] = [];
-	rest: REST;
 	constructor() {
-		this.rest = new REST({ version: "10" }).setToken(AppConfig.discord.token);
-
 		this.commands = [
 			new SlashCommandBuilder()
 				.setName("help")
@@ -125,8 +122,9 @@ export class DiscordCommandRegister {
 				.setDescription("minecraftstop"),
 		];
 	}
-	async register() {
-		await this.rest.put(
+	async register(token: string) {
+		const rest = new REST({ version: "10" }).setToken(AppConfig.discord.token);
+		await rest.put(
 			Routes.applicationGuildCommands(
 				AppConfig.discord.clientId,
 				AppConfig.discord.guildId,
