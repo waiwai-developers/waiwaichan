@@ -4,7 +4,7 @@ import type { DiscordUserId } from "@/entities/vo/DiscordUserId";
 import type { RemindTime } from "@/entities/vo/RemindTime";
 import type { ReminderId } from "@/entities/vo/ReminderId";
 
-interface IReminderLogics {
+export interface IReminderLogics {
 	create(
 		channel: DiscordChannelId,
 		userId: DiscordUserId,

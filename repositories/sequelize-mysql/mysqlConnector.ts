@@ -2,6 +2,7 @@ import * as process from "node:process";
 import { DatabaseConfig } from "@/entities/config/DatabaseConfig";
 import { type Dialect, Sequelize } from "sequelize";
 
+// TODO define transaction interface with CLS
 export class MysqlConnector {
 	private static instance: MysqlConnector;
 	public db: Sequelize;
