@@ -4,7 +4,7 @@
 		"password": "",
 		"database": "",
 		"host": "",
-		"port": "",
+		"port": 0,
 		"dialect": ""
 	},
 	"test": {
@@ -12,7 +12,7 @@
 		"password": "",
 		"database": "",
 		"host": "",
-		"port": "",
+		"port": 0,
 		"dialect": ""
 	},
 	"production": {
@@ -20,7 +20,7 @@
 		"password": "",
 		"database": "",
 		"host": "",
-		"port": "",
+		"port": 0,
 		"dialect": ""
 	}
 }

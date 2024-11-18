@@ -1,4 +1,3 @@
-import config from "@/config.json";
 import { AppConfig } from "@/entities/config/AppConfig";
 import { PullRequestDto } from "@/entities/dto/PullRequestDto";
 import { GitHubUserId } from "@/entities/vo/GitHubUserId";
@@ -46,8 +45,8 @@ export class PullRequestRepositoryImpl implements IPullRequestRepository {
 			.request(
 				"POST /repos/{owner}/{repo}/pulls/{pull_number}/requested_reviewers",
 				{
-					owner: config.github.owner,
-					repo: config.github.repo,
+					owner: AppConfig.github.owner,
+					repo: AppConfig.github.repo,
 					state: "open",
 					pull_number: pr.getValue(),
 					reviewers: [user.getValue()],
