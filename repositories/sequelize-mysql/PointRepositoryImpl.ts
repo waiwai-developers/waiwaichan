@@ -11,7 +11,7 @@ import { DataTypes, Model, Op } from "sequelize";
 import { PointItemRepositoryImpl } from "./PointItemRepositoryImpl";
 import { MysqlConnector } from "./mysqlConnector";
 
-const sequelize = MysqlConnector.getInstance().db;
+const sequelize = MysqlConnector.getInstance();
 
 class PointRepositoryImpl extends Model implements IPointRepository {
 	declare id: number;

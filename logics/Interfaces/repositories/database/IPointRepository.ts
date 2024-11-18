@@ -12,5 +12,5 @@ export interface IPointRepository {
 		giver: DiscordChannelId,
 		messageId: DiscordMessageId,
 	): Promise<Array<PointDto>>;
-	ConsumePoints(userId: DiscordUserId, points: PointCount): Promise<boolean>;
+	ConsumePoints(userId: DiscordUserId, points?: PointCount): Promise<boolean>;
 }

@@ -1,6 +1,9 @@
+import type { PointItemDto } from "@/entities/dto/PointItemDto";
 import { UserPointItemDto } from "@/entities/dto/UserPointItemDto";
+import type { UserPointItemWithItemDto } from "@/entities/dto/UserPointItemWithItemDto";
 import { DiscordUserId } from "@/entities/vo/DiscordUserId";
 import { PointItemId } from "@/entities/vo/PointItemId";
+import { PointItemName } from "@/entities/vo/PointItemName";
 import { UserPointItemExpire } from "@/entities/vo/UserPointItemExpire";
 import { UserPointItemId } from "@/entities/vo/UserPointItemId";
 import { UserPointItemStatus } from "@/entities/vo/UserPointItemStatus";
@@ -9,7 +12,7 @@ import dayjs from "dayjs";
 import Sequelize, { DataTypes, Model } from "sequelize";
 import { PointItemRepositoryImpl } from "./PointItemRepositoryImpl";
 import { MysqlConnector } from "./mysqlConnector";
-const sequelize = MysqlConnector.getInstance().db;
+const sequelize = MysqlConnector.getInstance();
 
 class UserPointItemRepositoryImpl
 	extends Model
@@ -20,6 +23,12 @@ class UserPointItemRepositoryImpl
 	declare itemId: number;
 	declare status: boolean;
 	declare expiredAt: Date;
+	declare dataValues: {
+		item: {
+			name: string;
+			description: string;
+		};
+	};
 
 	async create(data: UserPointItemDto): Promise<UserPointItemId> {
 		return UserPointItemRepositoryImpl.create({
@@ -32,7 +41,7 @@ class UserPointItemRepositoryImpl
 	async findByNotUsed(
 		userId: DiscordUserId,
 		userStatus: UserPointItemStatus = UserPointItemStatus.UNUSED,
-	): Promise<UserPointItemDto[]> {
+	): Promise<UserPointItemWithItemDto[]> {
 		return UserPointItemRepositoryImpl.findAll({
 			include: { model: PointItemRepositoryImpl, as: "item" },
 			where: {
@@ -40,7 +49,15 @@ class UserPointItemRepositoryImpl
 				status: userStatus.getValue(),
 				expiredAt: { [Sequelize.Op.gte]: dayjs().toDate() },
 			},
-		}).then((r) => r.map((it) => this.toDto(it)));
+		}).then((r) =>
+			r.map((it) => {
+				return {
+					...this.toDto(it),
+					name: new PointItemName(it.dataValues.item.name),
+					description: new PointItemName(it.dataValues.item.description),
+				};
+			}),
+		);
 	}
 
 	/**
@@ -80,6 +97,7 @@ class UserPointItemRepositoryImpl
 		itemId,
 		status,
 		expiredAt,
+		dataValues,
 	}: UserPointItemRepositoryImpl): UserPointItemDto {
 		return new UserPointItemDto(
 			new UserPointItemId(id),

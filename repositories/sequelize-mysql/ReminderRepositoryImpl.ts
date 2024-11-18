@@ -8,7 +8,7 @@ import type { IReminderRepository } from "@/logics/Interfaces/repositories/datab
 import { MysqlConnector } from "@/repositories/sequelize-mysql/mysqlConnector";
 import { DataTypes, Model } from "sequelize";
 
-const sequelize = MysqlConnector.getInstance().db;
+const sequelize = MysqlConnector.getInstance();
 
 class ReminderRepositoryImpl extends Model implements IReminderRepository {
 	declare id: number;

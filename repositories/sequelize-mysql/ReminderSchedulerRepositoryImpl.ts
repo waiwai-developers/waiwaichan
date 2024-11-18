@@ -9,7 +9,7 @@ import { MysqlConnector } from "@/repositories/sequelize-mysql/mysqlConnector";
 import dayjs from "dayjs";
 import { DataTypes, Model, Op } from "sequelize";
 
-const sequelize = MysqlConnector.getInstance().db;
+const sequelize = MysqlConnector.getInstance();
 
 class ReminderSchedulerRepositoryImpl
 	extends Model
