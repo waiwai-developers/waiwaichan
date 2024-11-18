@@ -1,4 +1,5 @@
 import { PointDto } from "@/entities/dto/PointDto";
+import type { DiscordChannelId } from "@/entities/vo/DiscordChannelId";
 import { DiscordMessageId } from "@/entities/vo/DiscordMessageId";
 import { DiscordUserId } from "@/entities/vo/DiscordUserId";
 import { PointCount } from "@/entities/vo/PointCount";
@@ -61,17 +62,27 @@ class PointRepositoryImpl extends Model implements IPointRepository {
 	): Promise<boolean> {
 		return PointRepositoryImpl.update(
 			{ status: PointStatus.USED.getValue() },
-			{ where: { userId: userId }, limit: points.getValue() },
+			{ where: { receiveUserId: userId }, limit: points.getValue() },
 		).then((updated) => updated[0] > 0);
 	}
-
-	toDto(
-		receiveUserId: string,
-		giveUserId: string,
-		messageId: string,
-		status: boolean,
-		expiredAt: Date,
-	): PointDto {
+	async findByGiverAndMessageId(
+		giver: DiscordChannelId,
+		messageId: DiscordMessageId,
+	): Promise<Array<PointDto>> {
+		return PointRepositoryImpl.findAll({
+			where: {
+				giveUserId: giver.getValue(),
+				messageId: messageId.getValue(),
+			},
+		}).then((res) => res.map((r) => this.toDto(r)));
+	}
+	toDto({
+		receiveUserId,
+		giveUserId,
+		messageId,
+		status,
+		expiredAt,
+	}: PointRepositoryImpl): PointDto {
 		return new PointDto(
 			new DiscordUserId(receiveUserId),
 			new DiscordUserId(giveUserId),
