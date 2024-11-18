@@ -4,9 +4,9 @@ import type { HelpCategory } from "@/entities/vo/HelpCategory";
 import type { ParrotMessage } from "@/entities/vo/ParrotMessage";
 
 export interface IUtilityLogic {
-	waiwai(): string;
-	help(type: HelpCategory): string;
-	choice(items: Array<ChoiceContent>): string;
-	dice(sides: DiceSides): string;
-	parrot(msg: ParrotMessage): string;
+	waiwai(): Promise<string>;
+	help(type: HelpCategory): Promise<string>;
+	choice(items: Array<ChoiceContent>): Promise<string>;
+	dice(sides: DiceSides): Promise<string>;
+	parrot(msg: ParrotMessage): Promise<string>;
 }

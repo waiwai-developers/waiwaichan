@@ -5,5 +5,5 @@ export interface IPullRequestLogic {
 	randomAssign(
 		PullRequestId: GithubPullRequestId,
 		userId: DiscordUserId,
-	): string;
+	): Promise<string>;
 }
