@@ -27,9 +27,12 @@ class ReminderRepositoryImpl extends Model implements IReminderRepository {
 		}).then((res) => !!res);
 	}
 
-	async deleteReminder(id: ReminderId): Promise<boolean> {
+	async deleteReminder(
+		id: ReminderId,
+		userId: DiscordUserId,
+	): Promise<boolean> {
 		return ReminderRepositoryImpl.destroy({
-			where: { id: id.getValue() },
+			where: { id: id.getValue(), userID: userId.getValue() },
 		}).then((res) => res > 0);
 	}
 

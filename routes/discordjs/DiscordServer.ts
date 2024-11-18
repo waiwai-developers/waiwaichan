@@ -40,6 +40,7 @@ export class DiscordServer {
 		const pointItemRepository = new PointItemRepositoryImpl();
 		const userPointItemRepository = new UserPointItemRepositoryImpl();
 		const reminderRepository = new ReminderRepositoryImpl();
+		const transaction = new SequelizeTransaction();
 
 		const chatGPTRepository = new ChatGPTRepositoryImpl();
 		const gcpVMRepository = new GCPComputeEngineInstanceRepositoryImpl();
@@ -49,12 +50,12 @@ export class DiscordServer {
 		const utilityLogic = new UtilityLogic();
 		const translatorLogic = new TranslatorLogic(translateRepository);
 		const chatAILogic = new ChatAILogic(chatGPTRepository);
-		const reminderLogic = new ReminderLogic(reminderRepository);
+		const reminderLogic = new ReminderLogic(reminderRepository, transaction);
 		const pointLogic = new PointLogic(
 			pointRepository,
 			pointItemRepository,
 			userPointItemRepository,
-			new SequelizeTransaction(),
+			transaction,
 		);
 		const pullRequestLogic = new PullRequestLogic(pullRequestRepository);
 		const minecraftServerLogic = new MinecraftServerLogic(gcpVMRepository);
