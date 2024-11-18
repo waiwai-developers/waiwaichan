@@ -5,7 +5,7 @@ import { ChatAIContent } from "@/entities/vo/ChatAIContent";
 import type { IChatAIRepository } from "@/logics/Interfaces/repositories/chataiapi/IChatAIRepository";
 import OpenAI from "openai";
 
-class ChatGPTRepositoryImpl implements IChatAIRepository {
+export class ChatGPTRepositoryImpl implements IChatAIRepository {
 	openai = new OpenAI({ apiKey: AppConfig.openai.openaiApiKey });
 	async generate(messages: Array<ChatAIMessageDto>): Promise<ChatAIContent> {
 		return this.openai.chat.completions

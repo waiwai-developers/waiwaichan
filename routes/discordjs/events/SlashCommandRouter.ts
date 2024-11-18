@@ -19,7 +19,7 @@ import type { IMinecraftServerLogic } from "@/logics/Interfaces/logics/IMinecraf
 import type { IPointLogic } from "@/logics/Interfaces/logics/IPointLogic";
 import type { IPullRequestLogic } from "@/logics/Interfaces/logics/IPullRequestLogic";
 import type { IReminderLogic } from "@/logics/Interfaces/logics/IReminderLogic";
-import type { ITranslatorLogic } from "@/logics/Interfaces/logics/ITranslator";
+import type { ITranslatorLogic } from "@/logics/Interfaces/logics/ITranslatorLogic";
 import type { IUtilityLogic } from "@/logics/Interfaces/logics/IUtilityLogic";
 import type { DiscordEventRouter } from "@/routes/discordjs/events/DiscordEventRouter";
 import dayjs from "dayjs";
@@ -104,6 +104,7 @@ export class SlashCommandRouter implements DiscordEventRouter {
 							return;
 						}
 						if (!(interaction.channel instanceof TextChannel)) {
+							// TODO check type hinting that channel is thread
 							return;
 						}
 
