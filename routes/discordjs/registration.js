@@ -96,8 +96,9 @@ const commands = [
 		.setName("reviewgacha")
 		.setDescription("reviewgacha integer")
 		.addIntegerOption((option) =>
-			option.setName("id").setDescription("string").setRequired(true),
+			option.setName("id").setDescription("integer").setRequired(true),
 		),
+	new SlashCommandBuilder().setName("reviewlist").setDescription("reviewlist"),
 	new SlashCommandBuilder()
 		.setName("minecraftstart")
 		.setDescription("minecraftstart"),
