@@ -40,44 +40,47 @@ class UserPointItemRepositoryImpl
 				status: userStatus.getValue(),
 				expiredAt: { [Sequelize.Op.gte]: dayjs().toDate() },
 			},
-		}).then((r) =>
-			r.map((it) =>
-				this.toDto(it.id, it.userId, it.itemId, it.status, it.expiredAt),
-			),
-		);
+		}).then((r) => r.map((it) => this.toDto(it)));
 	}
 
 	/**
 	 *
 	 * @param id the UserPointItem id that created with Vo
 	 * @param userId the Discord user id that created with Vo
-	 * @return boolean exchange was succeed
+	 * @return dto that updated item
 	 */
 	async exchangeById(
 		id: UserPointItemId,
 		userId: DiscordUserId,
-	): Promise<boolean> {
+	): Promise<UserPointItemDto | null> {
 		return await UserPointItemRepositoryImpl.update(
 			{ status: UserPointItemStatus.USED },
 			{
 				where: {
 					id: id.getValue(),
 					userId: userId.getValue(),
-					status: UserPointItemStatus.USED,
+					status: UserPointItemStatus.UNUSED,
 					expiredAt: { [Sequelize.Op.gte]: dayjs().toDate() },
 				},
 				limit: 1,
 			},
-		).then((updated) => updated[0] > 0);
+		)
+			.then((updated) => {
+				if (updated[0] <= 0) {
+					throw Error("no item updated");
+				}
+				return UserPointItemRepositoryImpl.findByPk(id.getValue());
+			})
+			.then((repo) => (repo ? this.toDto(repo) : null));
 	}
 
-	toDto(
-		id: number,
-		userId: string,
-		itemId: number,
-		status: boolean,
-		expiredAt: Date,
-	): UserPointItemDto {
+	toDto({
+		id,
+		userId,
+		itemId,
+		status,
+		expiredAt,
+	}: UserPointItemRepositoryImpl): UserPointItemDto {
 		return new UserPointItemDto(
 			new UserPointItemId(id),
 			new DiscordUserId(userId),

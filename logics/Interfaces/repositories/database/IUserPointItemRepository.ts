@@ -9,5 +9,9 @@ export interface IUserPointItemRepository {
 		userId: DiscordUserId,
 		userStatus: UserPointItemStatus,
 	): Promise<UserPointItemDto[]>;
-	exchangeById(id: UserPointItemId, userId: DiscordUserId): Promise<boolean>;
+
+	exchangeById(
+		id: UserPointItemId,
+		userId: DiscordUserId,
+	): Promise<UserPointItemDto | null>;
 }
