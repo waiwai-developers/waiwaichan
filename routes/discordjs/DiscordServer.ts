@@ -15,6 +15,7 @@ import {
 	ReminderRepositoryImpl,
 	UserPointItemRepositoryImpl,
 } from "@/repositories/sequelize-mysql";
+import { SequelizeTransaction } from "@/repositories/sequelize-mysql/SequelizeTransaction";
 import { DiscordCommandRegister } from "@/routes/discordjs/DiscordCommandRegister";
 import { MessageReplyRouter } from "@/routes/discordjs/events/MessageReplyRouter";
 import { ReactionRouter } from "@/routes/discordjs/events/ReactionRouter";
@@ -53,6 +54,7 @@ export class DiscordServer {
 			pointRepository,
 			pointItemRepository,
 			userPointItemRepository,
+			new SequelizeTransaction(),
 		);
 		const pullRequestLogic = new PullRequestLogic(pullRequestRepository);
 		const minecraftServerLogic = new MinecraftServerLogic(gcpVMRepository);
