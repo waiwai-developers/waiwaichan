@@ -3,9 +3,9 @@ import { getPullRequestList } from "../repositorys/githubapi/getPullRequestList.
 
 export const reviewList = async (discordId) => {
 	try {
-		const reviewerGithubId = accounts.find(
-			(a) => a.user.discordId === discordId,
-		).user.githubId;
+		const reviewerGithubId = accounts.users.find(
+			(u) => u.discordId === discordId,
+		).githubId;
 		const response = await getPullRequestList();
 
 		const pullRequests = response.data;
