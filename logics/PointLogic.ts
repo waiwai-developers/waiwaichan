@@ -1,10 +1,20 @@
 import config from "@/config.json";
+import {
+	ID_HIT,
+	ID_JACKPOT,
+	PROBABILITY_HIT,
+	PROBABILITY_JACKPOD,
+} from "@/entities/constants/Items";
 import { PointDto } from "@/entities/dto/PointDto";
+import { UserPointItemDto } from "@/entities/dto/UserPointItemDto";
 import type { DiscordMessageId } from "@/entities/vo/DiscordMessageId";
 import type { DiscordUserId } from "@/entities/vo/DiscordUserId";
 import { PointExpire } from "@/entities/vo/PointExpire";
+import { PointItemId } from "@/entities/vo/PointItemId";
 import { PointStatus } from "@/entities/vo/PointStatus";
-import type { UserPointItemId } from "@/entities/vo/UserPointItemId";
+import { UserPointItemExpire } from "@/entities/vo/UserPointItemExpire";
+import { UserPointItemId } from "@/entities/vo/UserPointItemId";
+import { UserPointItemStatus } from "@/entities/vo/UserPointItemStatus";
 import type { IPointLogic } from "@/logics/Interfaces/logics/IPointLogic";
 import type { IPointItemRepository } from "@/logics/Interfaces/repositories/database/IPointItemRepository";
 import type { IPointRepository } from "@/logics/Interfaces/repositories/database/IPointRepository";
@@ -16,21 +26,93 @@ export class PointLogic implements IPointLogic {
 		private readonly pointRepository: IPointRepository,
 		private readonly pointItemRepository: IPointItemRepository,
 		private readonly userPointItemRepository: IUserPointItemRepository,
+		private readonly transaction: ITransaction<TransactionLike>,
 	) {}
-	check(userId: DiscordUserId): Promise<string> {
-		throw new Error("Method not implemented.");
+
+	async check(userId: DiscordUserId): Promise<string> {
+		return this.transaction
+			.startTransaction(async () => {
+				return this.pointRepository.pointCount(userId);
+			})
+			.then((point) => {
+				if (point.getValue() <= 0) {
+					return "ポイントがないよ！っ";
+				}
+
+				return `${point.getValue()}ポイントあるよ！っ`;
+			});
 	}
-	exchange(
+
+	async exchange(
 		userId: DiscordUserId,
-		UserPointItemId: UserPointItemId,
+		userPointItemId: UserPointItemId,
 	): Promise<string> {
-		throw new Error("Method not implemented.");
+		return this.transaction.startTransaction(async (t) => {
+			return this.userPointItemRepository
+				.exchangeById(userPointItemId, userId)
+				.then(async (updated) => {
+					if (!updated) {
+						await t.rollback();
+						return "アイテムは持ってないよ！っ";
+					}
+					const item = await this.pointItemRepository.findById(updated.itemId);
+					if (item == null) {
+						return "アイテムは持ってないよ！っ";
+					}
+					return `${item.name.getValue()}と交換したよ！っ`;
+				});
+		});
 	}
-	drawItem(userId: DiscordUserId): Promise<string> {
-		throw new Error("Method not implemented.");
+
+	async drawItem(userId: DiscordUserId): Promise<string> {
+		return await this.transaction
+			.startTransaction(async (t) => {
+				return this.pointRepository.ConsumePoints(userId);
+			})
+			.then(async (success) => {
+				if (!success) {
+					return "ポイントがないよ！っ";
+				}
+
+				// NOTE:todo より良い乱数生成に変える
+				const randomNum = Math.floor(Math.random() * PROBABILITY_JACKPOD + 1);
+				if (randomNum % PROBABILITY_HIT !== 0) {
+					return "ハズレちゃったよ！っ";
+				}
+				const hitId = new PointItemId(
+					randomNum % PROBABILITY_JACKPOD === 0 ? ID_JACKPOT : ID_HIT,
+				);
+				//TODO: this creation require just user and hit id
+				await this.userPointItemRepository.create(
+					new UserPointItemDto(
+						new UserPointItemId(0),
+						userId,
+						hitId,
+						UserPointItemStatus.UNUSED,
+						new UserPointItemExpire(dayjs().add(1, "year").toDate()),
+					),
+				);
+				const item = await this.pointItemRepository.findById(hitId);
+				return `${item?.name}が当たったよ${randomNum % PROBABILITY_JACKPOD === 0 ? "👕" : "🍭"}！っ`;
+			});
 	}
-	getItems(userId: DiscordUserId): Promise<string> {
-		throw new Error("Method not implemented.");
+
+	async getItems(userId: DiscordUserId): Promise<string> {
+		return this.transaction.startTransaction(async (t) => {
+			const userPointItems =
+				await this.userPointItemRepository.findByNotUsed(userId);
+
+			if (userPointItems.length === 0) return "アイテムは持ってないよ！っ";
+			const texts = userPointItems.map((u) => {
+				[
+					`- id: ${u.id.getValue()}`,
+					`  - ${u.name.getValue()}`,
+					`  - ${u.description.getValue()}`,
+				].join("\n");
+			});
+
+			return `以下のアイテムが交換できるよ！っ\n${texts.join("\n")}`;
+		});
 	}
 	async givePoint(
 		receiver: DiscordUserId,

@@ -7,7 +7,7 @@ export interface IPointLogic {
 	check(userId: DiscordUserId): Promise<string>;
 	exchange(
 		userId: DiscordUserId,
-		UserPointItemId: UserPointItemId,
+		userPointItemId: UserPointItemId,
 	): Promise<string>;
 	drawItem(userId: DiscordUserId): Promise<string>;
 	getItems(userId: DiscordUserId): Promise<string>;
