@@ -42,7 +42,7 @@ export class SlashCommandRouter implements DiscordEventRouter {
 				switch (interaction.commandName) {
 					case "help":
 						await interaction.reply(
-							this.utilLogic.help(
+							await this.utilLogic.help(
 								new HelpCategory(
 									interaction.options?.getString("category") ?? "",
 								),
@@ -50,11 +50,11 @@ export class SlashCommandRouter implements DiscordEventRouter {
 						);
 						break;
 					case "waiwai":
-						await interaction.reply(this.utilLogic.waiwai());
+						await interaction.reply(await this.utilLogic.waiwai());
 						break;
 					case "parrot":
 						await interaction.reply(
-							this.utilLogic.parrot(
+							await this.utilLogic.parrot(
 								new ParrotMessage(
 									interaction.options?.getString("message") ?? "",
 								),
@@ -63,7 +63,7 @@ export class SlashCommandRouter implements DiscordEventRouter {
 						break;
 					case "dice":
 						await interaction.reply(
-							this.utilLogic.dice(
+							await this.utilLogic.dice(
 								new DiceSides(
 									interaction.options?.getInteger("parameter") ?? 0,
 								),
@@ -72,7 +72,7 @@ export class SlashCommandRouter implements DiscordEventRouter {
 						break;
 					case "choice":
 						await interaction.reply(
-							this.utilLogic.choice(
+							await this.utilLogic.choice(
 								(interaction.options?.getString("items")?.split(" ") ?? []).map(
 									(r) => new ChoiceContent(r),
 								),
@@ -92,7 +92,9 @@ export class SlashCommandRouter implements DiscordEventRouter {
 								interaction.options?.getString("target") ?? "",
 							),
 						);
-						await interaction.editReply(this.translateLogic.translate(dto));
+						await interaction.editReply(
+							await this.translateLogic.translate(dto),
+						);
 						break;
 					}
 					case "talk": {
@@ -114,7 +116,7 @@ export class SlashCommandRouter implements DiscordEventRouter {
 					}
 					case "reminderset":
 						await interaction.reply(
-							this.reminderLogic.create(
+							await this.reminderLogic.create(
 								new ReminderDto(
 									new ReminderId(0),
 									new DiscordUserId(interaction.user.id),
@@ -133,7 +135,7 @@ export class SlashCommandRouter implements DiscordEventRouter {
 						break;
 					case "reminderdelete":
 						await interaction.reply(
-							this.reminderLogic.delete(
+							await this.reminderLogic.delete(
 								new ReminderId(interaction.options?.getInteger("id") ?? 0),
 								new DiscordUserId(interaction.user.id),
 							),
@@ -141,28 +143,36 @@ export class SlashCommandRouter implements DiscordEventRouter {
 						break;
 					case "reminderlist":
 						await interaction.reply(
-							this.reminderLogic.list(new DiscordUserId(interaction.user.id)),
+							await this.reminderLogic.list(
+								new DiscordUserId(interaction.user.id),
+							),
 						);
 						break;
 					case "pointcheck":
 						await interaction.reply(
-							this.pointLogic.check(new DiscordUserId(interaction.user.id)),
+							await this.pointLogic.check(
+								new DiscordUserId(interaction.user.id),
+							),
 						);
 
 						break;
 					case "pointdraw":
 						await interaction.reply(
-							this.pointLogic.drawItem(new DiscordUserId(interaction.user.id)),
+							await this.pointLogic.drawItem(
+								new DiscordUserId(interaction.user.id),
+							),
 						);
 						break;
 					case "pointitem":
 						await interaction.reply(
-							this.pointLogic.getItems(new DiscordUserId(interaction.user.id)),
+							await this.pointLogic.getItems(
+								new DiscordUserId(interaction.user.id),
+							),
 						);
 						break;
 					case "pointchange":
 						await interaction.reply(
-							this.pointLogic.exchange(
+							await this.pointLogic.exchange(
 								new DiscordUserId(interaction.user.id),
 								new UserPointItemId(interaction.options.getInteger("id") ?? 0),
 							),
@@ -171,7 +181,7 @@ export class SlashCommandRouter implements DiscordEventRouter {
 					case "reviewgacha":
 						await interaction.deferReply();
 						await interaction.editReply(
-							this.pullRequestLogic.randomAssign(
+							await this.pullRequestLogic.randomAssign(
 								new GithubPullRequestId(
 									interaction.options?.getInteger("id") ?? 0,
 								),
@@ -181,11 +191,13 @@ export class SlashCommandRouter implements DiscordEventRouter {
 						break;
 					case "minecraftstart":
 						await interaction.deferReply();
-						await interaction.editReply(this.mineCraftLogic.startServer());
+						await interaction.editReply(
+							await this.mineCraftLogic.startServer(),
+						);
 						break;
 					case "minecraftstop":
 						await interaction.deferReply();
-						await interaction.editReply(this.mineCraftLogic.stopServer());
+						await interaction.editReply(await this.mineCraftLogic.stopServer());
 						break;
 					default:
 						await interaction.reply("そんなコマンドはないよ！っ");
