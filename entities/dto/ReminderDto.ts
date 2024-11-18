@@ -1,7 +1,7 @@
 import type { DiscordChannelId } from "@/entities/vo/DiscordChannelId";
-import type { DiscordMessageId } from "@/entities/vo/DiscordMessageId";
 import type { DiscordUserId } from "@/entities/vo/DiscordUserId";
 import type { RemindTime } from "@/entities/vo/RemindTime";
+import type { ReminderMessage } from "@/entities/vo/ReminderMessage";
 import type { UserPointItemId } from "@/entities/vo/UserPointItemId";
 
 export class ReminderDto {
@@ -9,7 +9,7 @@ export class ReminderDto {
 		public id: UserPointItemId,
 		public channelId: DiscordChannelId,
 		public userId: DiscordUserId,
-		public messageId: DiscordMessageId,
+		public message: ReminderMessage,
 		public remindAt: RemindTime,
 	) {}
 }
