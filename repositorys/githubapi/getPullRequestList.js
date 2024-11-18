@@ -8,7 +8,7 @@ const octokit = new Octokit({
 export const getPullRequestList = async () => {
 	try {
 		const requests = await octokit.request(
-			"GET /repos/{owner}/{repo}/pulls/{pull_number}",
+			"GET /repos/{owner}/{repo}/pulls",
 			{
 				owner: config.github.owner,
 				repo: config.github.repo,
