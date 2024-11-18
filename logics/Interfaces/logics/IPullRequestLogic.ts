@@ -3,7 +3,8 @@ import type { GithubPullRequestId } from "@/entities/vo/GithubPullRequestId";
 
 export interface IPullRequestLogic {
 	randomAssign(
-		PullRequestId: GithubPullRequestId,
+		pullRequestId: GithubPullRequestId,
 		userId: DiscordUserId,
 	): Promise<string>;
+	findAssignedPullRequest(userId: DiscordUserId): Promise<string>;
 }

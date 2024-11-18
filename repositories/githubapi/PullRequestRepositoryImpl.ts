@@ -2,6 +2,8 @@ import { AppConfig } from "@/entities/config/AppConfig";
 import { PullRequestDto } from "@/entities/dto/PullRequestDto";
 import { GitHubUserId } from "@/entities/vo/GitHubUserId";
 import { GithubPullRequestId } from "@/entities/vo/GithubPullRequestId";
+import { GithubPullRequestTitle } from "@/entities/vo/GithubPullRequestTitle";
+import { GithubPullRequestUrl } from "@/entities/vo/GithubPullRequestUrl";
 import { GithubPullRequestStatus } from "@/entities/vo/GtihubPullRequestStatus";
 import type { IPullRequestRepository } from "@/logics/Interfaces/repositories/githubapi/IPullRequestRepository";
 import { Octokit } from "@octokit/core";
@@ -25,7 +27,13 @@ export class PullRequestRepositoryImpl implements IPullRequestRepository {
 				},
 			})
 			.then((r) =>
-				this.toDto(r.data.user.login, r.data.state === "open", r.data.id),
+				this.toDto(
+					r.data.user.login,
+					r.data.state === "open",
+					r.data.id,
+					r.data.title,
+					r.data.html_url,
+				),
 			);
 	}
 
@@ -53,6 +61,8 @@ export class PullRequestRepositoryImpl implements IPullRequestRepository {
 					r.data.user?.login ? r.data.user.login : "",
 					r.data.state === "open",
 					r.data.id,
+					r.data.title,
+					r.data.html_url,
 				),
 			);
 	}
@@ -77,16 +87,26 @@ export class PullRequestRepositoryImpl implements IPullRequestRepository {
 							r.user?.login ? r.user.login : "",
 							r.state === "open",
 							r.id,
+							r.title,
+							r.html_url,
 						),
 					);
 			});
 	}
 
-	toDto(ownerId: string, state: boolean, prId: number): PullRequestDto {
+	toDto(
+		ownerId: string,
+		state: boolean,
+		prId: number,
+		title: string,
+		url: string,
+	): PullRequestDto {
 		return new PullRequestDto(
 			new GitHubUserId(ownerId),
 			new GithubPullRequestStatus(state),
 			new GithubPullRequestId(prId),
+			new GithubPullRequestTitle(""),
+			new GithubPullRequestUrl(""),
 		);
 	}
 }
