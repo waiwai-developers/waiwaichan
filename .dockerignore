@@ -5,7 +5,3 @@ config/accounts.json
 config/key.json
 node_modules/
 ignore/
-dist/
-.idea/
-pnpm-lock.yaml
-yarn.lock
