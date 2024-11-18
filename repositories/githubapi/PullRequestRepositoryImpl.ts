@@ -29,14 +29,6 @@ export class PullRequestRepositoryImpl implements IPullRequestRepository {
 			);
 	}
 
-	toDto(ownerId: string, state: boolean, prId: number): PullRequestDto {
-		return new PullRequestDto(
-			new GitHubUserId(ownerId),
-			new GithubPullRequestStatus(state),
-			new GithubPullRequestId(prId),
-		);
-	}
-
 	async assignReviewer(
 		user: GitHubUserId,
 		pr: GithubPullRequestId,
@@ -63,5 +55,38 @@ export class PullRequestRepositoryImpl implements IPullRequestRepository {
 					r.data.id,
 				),
 			);
+	}
+
+	async getAssigneeList(user: GitHubUserId): Promise<PullRequestDto[]> {
+		return this.octokit
+			.request("GET /repos/{owner}/{repo}/pulls", {
+				owner: AppConfig.github.owner,
+				repo: AppConfig.github.repo,
+				state: "open",
+				headers: {
+					"X-GitHub-Api-Version": "2022-11-28",
+				},
+			})
+			.then((res) => {
+				return res.data
+					.filter((p) =>
+						p.requested_reviewers?.some((r) => r.login === user.getValue()),
+					)
+					.map((r) =>
+						this.toDto(
+							r.user?.login ? r.user.login : "",
+							r.state === "open",
+							r.id,
+						),
+					);
+			});
+	}
+
+	toDto(ownerId: string, state: boolean, prId: number): PullRequestDto {
+		return new PullRequestDto(
+			new GitHubUserId(ownerId),
+			new GithubPullRequestStatus(state),
+			new GithubPullRequestId(prId),
+		);
 	}
 }

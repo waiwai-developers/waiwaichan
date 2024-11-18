@@ -8,4 +8,5 @@ export interface IPullRequestRepository {
 		user: GitHubUserId,
 		pr: GithubPullRequestId,
 	): Promise<PullRequestDto | undefined>;
+	getAssigneeList(user: GitHubUserId): Promise<PullRequestDto[]>;
 }
