@@ -17,6 +17,7 @@
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
+		"@google-cloud/compute": "^4.8.0",
 		"@octokit/core": "^6.1.2",
 		"@sequelize/mysql": "^7.0.0-alpha.43",
 		"dayjs": "^1.11.13",

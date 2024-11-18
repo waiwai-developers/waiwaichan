@@ -1,20 +1,16 @@
-[
-	{
-		"user": {
+{
+	"users": [
+		{
+			"githubId": "",
+			"discordId": ""
+		},
+		{
+			"githubId": "",
+			"discordId": ""
+		},
+		{
 			"githubId": "",
 			"discordId": ""
 		}
-	},
-	{
-		"user": {
-			"githubId": "",
-			"discordId": ""
-		}
-	},
-	{
-		"user": {
-			"githubId": "",
-			"discordId": ""
-		}
-	}
-]
+	]
+}

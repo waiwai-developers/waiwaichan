@@ -100,7 +100,6 @@
 			]
 		},
 		{
-
 			"name": "reviewコマンド",
 			"commands": [
 				{
@@ -114,6 +113,23 @@
 					"example": "/reviewlist",
 					"parameter": "none",
 					"description": "レビューにアサインされているpull reqを表示する"
+				}
+			]
+		},
+		{
+			"name": "minecraftコマンド",
+			"commands": [
+				{
+					"name": "/minecraftstart",
+					"example": "/minecraftstart",
+					"parameter": "none",
+					"description": "minecraftサーバーを起動する"
+				},
+				{
+					"name": "/minecraftstop",
+					"example": "/minecraftstop",
+					"parameter": "none",
+					"description": "minecraftサーバーを停止する"
 				}
 			]
 		}

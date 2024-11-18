@@ -99,6 +99,12 @@ const commands = [
 			option.setName("id").setDescription("integer").setRequired(true),
 		),
 	new SlashCommandBuilder().setName("reviewlist").setDescription("reviewlist"),
+	new SlashCommandBuilder()
+		.setName("minecraftstart")
+		.setDescription("minecraftstart"),
+	new SlashCommandBuilder()
+		.setName("minecraftstop")
+		.setDescription("minecraftstop"),
 ].map((command) => command.toJSON());
 
 (async () => {

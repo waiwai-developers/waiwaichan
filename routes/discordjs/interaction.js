@@ -4,6 +4,8 @@ import {
 	choice,
 	dice,
 	help,
+	minecraftStart,
+	minecraftStop,
 	parrot,
 	pointChange,
 	pointCheck,
@@ -125,6 +127,14 @@ client.on("interactionCreate", async (interaction) => {
 			case "reviewlist":
 				await interaction.deferReply();
 				await interaction.editReply(await reviewList(interaction.user.id));
+				break;
+			case "minecraftstart":
+				await interaction.deferReply();
+				await interaction.editReply(await minecraftStart());
+				break;
+			case "minecraftstop":
+				await interaction.deferReply();
+				await interaction.editReply(await minecraftStop());
 				break;
 			default:
 				await interaction.reply("そんなコマンドはないよ！っ");
