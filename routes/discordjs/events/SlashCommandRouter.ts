@@ -1,3 +1,4 @@
+import { channel } from "node:diagnostics_channel";
 import { ReminderDto } from "@/entities/dto/ReminderDto";
 import { TranslateDto } from "@/entities/dto/TranslateDto";
 import { ChoiceContent } from "@/entities/vo/ChoiceContent";
@@ -23,7 +24,12 @@ import type { ITranslatorLogic } from "@/logics/Interfaces/logics/ITranslatorLog
 import type { IUtilityLogic } from "@/logics/Interfaces/logics/IUtilityLogic";
 import type { DiscordEventRouter } from "@/routes/discordjs/events/DiscordEventRouter";
 import dayjs from "dayjs";
-import { type Client, TextChannel } from "discord.js";
+import {
+	BaseGuildTextChannel,
+	type Client,
+	NewsChannel,
+	type TextChannel,
+} from "discord.js";
 
 export class SlashCommandRouter implements DiscordEventRouter {
 	constructor(
@@ -99,17 +105,19 @@ export class SlashCommandRouter implements DiscordEventRouter {
 					}
 					case "talk": {
 						const title = interaction.options?.getString("title");
+						if (interaction.channel == null) {
+							return;
+						}
 						if (title == null) {
 							await interaction.reply("titleパラメーターがないよ！っ");
 							return;
 						}
-						if (!(interaction.channel instanceof TextChannel)) {
-							// TODO check type hinting that channel is thread
+						if (!this.isTextChannel(interaction.channel)) {
 							return;
 						}
 
 						await interaction.reply("以下にお話する場を用意したよ！っ");
-						await interaction.channel?.threads.create({
+						await interaction.channel.threads.create({
 							name: title,
 							autoArchiveDuration: 60,
 						});
@@ -207,5 +215,8 @@ export class SlashCommandRouter implements DiscordEventRouter {
 				console.log(error);
 			}
 		});
+	}
+	isTextChannel(channel: unknown): channel is TextChannel {
+		return (channel as TextChannel).threads !== undefined;
 	}
 }
