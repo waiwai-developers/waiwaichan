@@ -8,7 +8,9 @@ export class ChatAILogic implements IChatAILogic {
 	createTopic(): Promise<string> {
 		throw new Error("Method not implemented.");
 	}
-	replyTalk(context: Array<ChatAIMessageDto>): Promise<string> {
-		throw new Error("Method not implemented.");
+	async replyTalk(context: Array<ChatAIMessageDto>): Promise<string> {
+		return this.chatAIRepository
+			.generate(context)
+			.then((res) => res.getValue());
 	}
 }
