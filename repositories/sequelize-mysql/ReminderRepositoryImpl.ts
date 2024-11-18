@@ -1,9 +1,9 @@
 import { ReminderDto } from "@/entities/dto/ReminderDto";
 import { DiscordChannelId } from "@/entities/vo/DiscordChannelId";
-import { DiscordMessageId } from "@/entities/vo/DiscordMessageId";
 import { DiscordUserId } from "@/entities/vo/DiscordUserId";
 import { RemindTime } from "@/entities/vo/RemindTime";
 import { ReminderId } from "@/entities/vo/ReminderId";
+import { ReminderMessage } from "@/entities/vo/ReminderMessage";
 import type { IReminderRepository } from "@/logics/Interfaces/repositories/database/IReminderRepository";
 import { MysqlConnector } from "@/repositories/sequelize-mysql/mysqlConnector";
 import { DataTypes, Model } from "sequelize";
@@ -22,14 +22,14 @@ class ReminderRepositoryImpl extends Model implements IReminderRepository {
 			id: data.id.getValue(),
 			channelId: data.channelId.getValue(),
 			userId: data.userId.getValue(),
-			messageId: data.messageId.getValue(),
+			messageId: data.message.getValue(),
 			remindAt: data.remindAt.getValue(),
 		}).then((res) => !!res);
 	}
 
 	async deleteReminder(id: ReminderId): Promise<boolean> {
 		return ReminderRepositoryImpl.destroy({
-			where: {},
+			where: { id: id.getValue() },
 		}).then((res) => res > 0);
 	}
 
@@ -44,7 +44,7 @@ class ReminderRepositoryImpl extends Model implements IReminderRepository {
 			new ReminderId(this.id),
 			new DiscordChannelId(this.channelId),
 			new DiscordUserId(this.userId),
-			new DiscordMessageId(this.message),
+			new ReminderMessage(this.message),
 			new RemindTime(this.remindAt),
 		);
 	}

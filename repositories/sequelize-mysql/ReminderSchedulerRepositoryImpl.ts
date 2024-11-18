@@ -1,9 +1,9 @@
 import { ReminderDto } from "@/entities/dto/ReminderDto";
 import { DiscordChannelId } from "@/entities/vo/DiscordChannelId";
-import { DiscordMessageId } from "@/entities/vo/DiscordMessageId";
 import { DiscordUserId } from "@/entities/vo/DiscordUserId";
 import { RemindTime } from "@/entities/vo/RemindTime";
 import { ReminderId } from "@/entities/vo/ReminderId";
+import { ReminderMessage } from "@/entities/vo/ReminderMessage";
 import type { IReminderSchedulerRepository } from "@/logics/Interfaces/repositories/database/IReminderSchedulerRepository";
 import { MysqlConnector } from "@/repositories/sequelize-mysql/mysqlConnector";
 import dayjs from "dayjs";
@@ -27,12 +27,18 @@ class ReminderSchedulerRepositoryImpl
 		}).then((res) => res.map((r) => r.toDto()));
 	}
 
+	async deleteReminder(id: ReminderId): Promise<boolean> {
+		return ReminderSchedulerRepositoryImpl.destroy({
+			where: { id: id.getValue() },
+		}).then((res) => res > 0);
+	}
+
 	toDto(): ReminderDto {
 		return new ReminderDto(
 			new ReminderId(this.id),
 			new DiscordChannelId(this.channelId),
 			new DiscordUserId(this.userId),
-			new DiscordMessageId(this.message),
+			new ReminderMessage(this.message),
 			new RemindTime(this.remindAt),
 		);
 	}
