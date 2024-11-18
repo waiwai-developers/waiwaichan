@@ -1,3 +1,4 @@
+import config from "@/config/commands.json";
 import type { ChoiceContent } from "@/entities/vo/ChoiceContent";
 import type { DiceSides } from "@/entities/vo/DiceSides";
 import type { HelpCategory } from "@/entities/vo/HelpCategory";
@@ -5,19 +6,39 @@ import type { ParrotMessage } from "@/entities/vo/ParrotMessage";
 import type { IUtilityLogic } from "@/logics/Interfaces/logics/IUtilityLogic";
 
 export class UtilityLogic implements IUtilityLogic {
-	waiwai(): Promise<string> {
-		throw new Error("Method not implemented.");
+	async waiwai(): Promise<string> {
+		return "waiwai";
 	}
-	help(type: HelpCategory): Promise<string> {
-		throw new Error("Method not implemented.");
+	async help(type: HelpCategory): Promise<string> {
+		const texts = config.categories
+			.filter((c) => type.getValue() === "all" || c.name === type.getValue())
+			.flatMap((c) => [
+				`## ${c.name}`,
+				...c.commands.flatMap((command) => [
+					`- \`${command.name}\``,
+					`  - 値　　： ${command.parameter}`,
+					`  - 例　　： ${command.example}`,
+					`  - 説明　： ${command.description}`,
+				]),
+			]);
+		return texts.join("\n");
 	}
-	choice(items: Array<ChoiceContent>): Promise<string> {
-		throw new Error("Method not implemented.");
+	async choice(items: Array<ChoiceContent>): Promise<string> {
+		if (items.length <= 0) return "パラメーターがないよ！っ";
+
+		return items[Math.floor(Math.random() * Number(items.length))]?.getValue();
 	}
-	dice(sides: DiceSides): Promise<string> {
-		throw new Error("Method not implemented.");
+	async dice(sides: DiceSides): Promise<string> {
+		if (sides == null) return "パラメーターがないよ！っ";
+		if (!Number.isInteger(sides.getValue()))
+			return "パラメーターが整数じゃないよ！っ";
+		if (sides.getValue() <= 0) return "パラメーターが0以下の数だよ！っ";
+
+		return Math.floor(Math.random() * sides.getValue() + 1).toString(10);
 	}
-	parrot(msg: ParrotMessage): Promise<string> {
-		throw new Error("Method not implemented.");
+	async parrot(msg: ParrotMessage): Promise<string> {
+		if (!msg) return "パラメーターがないよ！っ";
+
+		return msg.getValue();
 	}
 }
