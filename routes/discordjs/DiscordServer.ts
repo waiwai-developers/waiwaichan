@@ -19,6 +19,7 @@ import { SequelizeTransaction } from "@/repositories/sequelize-mysql/SequelizeTr
 import { DiscordCommandRegister } from "@/routes/discordjs/DiscordCommandRegister";
 import { MessageReplyRouter } from "@/routes/discordjs/events/MessageReplyRouter";
 import { ReactionRouter } from "@/routes/discordjs/events/ReactionRouter";
+import { ReadyStateRouter } from "@/routes/discordjs/events/ReadyStateRouter";
 import { SlashCommandRouter } from "@/routes/discordjs/events/SlashCommandRouter";
 import { Client, GatewayIntentBits } from "discord.js";
 import type { DiscordEventRouter } from "./events/DiscordEventRouter";
@@ -71,6 +72,7 @@ export class DiscordServer {
 			),
 			new ReactionRouter(pointLogic),
 			new MessageReplyRouter(chatAILogic),
+			new ReadyStateRouter(),
 		];
 	}
 
@@ -79,6 +81,6 @@ export class DiscordServer {
 		this.EventRoutes.forEach((event) => {
 			event.register(this.client);
 		});
-		await this.client.login(token);
+		this.client.login(token);
 	}
 }
