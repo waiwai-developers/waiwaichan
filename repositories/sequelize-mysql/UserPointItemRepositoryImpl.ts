@@ -70,12 +70,12 @@ class UserPointItemRepositoryImpl
 		userId: DiscordUserId,
 	): Promise<UserPointItemDto | null> {
 		return await UserPointItemRepositoryImpl.update(
-			{ status: UserPointItemStatus.USED },
+			{ status: UserPointItemStatus.USED.getValue() },
 			{
 				where: {
 					id: id.getValue(),
 					userId: userId.getValue(),
-					status: UserPointItemStatus.UNUSED,
+					status: UserPointItemStatus.UNUSED.getValue(),
 					expiredAt: { [Sequelize.Op.gte]: dayjs().toDate() },
 				},
 				limit: 1,
