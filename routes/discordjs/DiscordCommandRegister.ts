@@ -37,7 +37,7 @@ export class DiscordCommandRegister {
 			new SlashCommandBuilder()
 				.setName("dice")
 				.setDescription("dice integer")
-				.addStringOption((option) =>
+				.addIntegerOption((option) =>
 					option
 						.setName("parameter")
 						.setDescription("integer")
