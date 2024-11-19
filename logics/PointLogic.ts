@@ -103,15 +103,13 @@ export class PointLogic implements IPointLogic {
 				await this.userPointItemRepository.findByNotUsed(userId);
 
 			if (userPointItems.length === 0) return "アイテムは持ってないよ！っ";
-			const texts = userPointItems.map((u) => {
-				[
-					`- id: ${u.id.getValue()}`,
-					`  - ${u.name.getValue()}`,
-					`  - ${u.description.getValue()}`,
-				].join("\n");
-			});
+			const texts = userPointItems.flatMap((u) => [
+				`- id: ${u.id.getValue()}`,
+				`  - ${u.name.getValue()}`,
+				`  - ${u.description.getValue()}`,
+			]);
 
-			return `以下のアイテムが交換できるよ！っ\n${texts.join("\n")}`;
+			return ["以下のアイテムが交換できるよ！っ", ...texts].join("\n");
 		});
 	}
 	async givePoint(
