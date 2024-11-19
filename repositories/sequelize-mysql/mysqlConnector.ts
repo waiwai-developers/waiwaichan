@@ -27,6 +27,17 @@ export class MysqlConnector {
 					host: dbConfig.host,
 					port: dbConfig.port,
 					dialect: dbConfig.dialect as Dialect,
+					logging: (sql, timing) => {
+						//
+						// @ts-ignore
+						if (typeof timing === "object" && timing?.bind) {
+							//@ts-ignore
+							const bind = timing.bind;
+							console.log(`${sql} params:{${bind}}`);
+						} else {
+							console.log(sql);
+						}
+					},
 				},
 			);
 		}
