@@ -62,7 +62,13 @@ class PointRepositoryImpl extends Model implements IPointRepository {
 	): Promise<boolean> {
 		return PointRepositoryImpl.update(
 			{ status: PointStatus.USED.getValue() },
-			{ where: { receiveUserId: userId }, limit: points.getValue() },
+			{
+				where: {
+					receiveUserId: userId.getValue(),
+					status: PointStatus.UNUSED.getValue(),
+				},
+				limit: points.getValue(),
+			},
 		).then((updated) => updated[0] > 0);
 	}
 	async findByGiverAndMessageId(

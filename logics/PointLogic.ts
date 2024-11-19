@@ -65,36 +65,36 @@ export class PointLogic implements IPointLogic {
 	}
 
 	async drawItem(userId: DiscordUserId): Promise<string> {
-		return await this.transaction
-			.startTransaction(async () => {
-				return this.pointRepository.ConsumePoints(userId);
-			})
-			.then(async (success) => {
-				if (!success) {
-					return "ポイントがないよ！っ";
-				}
+		return await this.transaction.startTransaction(async () => {
+			return this.pointRepository
+				.ConsumePoints(userId)
+				.then(async (success) => {
+					if (!success) {
+						return "ポイントがないよ！っ";
+					}
 
-				// NOTE:todo より良い乱数生成に変える
-				const randomNum = Math.floor(Math.random() * PROBABILITY_JACKPOT + 1);
-				if (randomNum % PROBABILITY_HIT !== 0) {
-					return "ハズレちゃったよ！っ";
-				}
-				const hitId = new PointItemId(
-					randomNum % PROBABILITY_JACKPOT === 0 ? ID_JACKPOT : ID_HIT,
-				);
-				//TODO: this creation require just user and hit id
-				await this.userPointItemRepository.create(
-					new UserPointItemDto(
-						new UserPointItemId(0),
-						userId,
-						hitId,
-						UserPointItemStatus.UNUSED,
-						new UserPointItemExpire(dayjs().add(1, "year").toDate()),
-					),
-				);
-				const item = await this.pointItemRepository.findById(hitId);
-				return `${item?.name}が当たったよ${randomNum % PROBABILITY_JACKPOT === 0 ? "👕" : "🍭"}！っ`;
-			});
+					// NOTE:todo より良い乱数生成に変える
+					const randomNum = Math.floor(Math.random() * PROBABILITY_JACKPOT + 1);
+					if (randomNum % PROBABILITY_HIT !== 0) {
+						return "ハズレちゃったよ！っ";
+					}
+					const hitId = new PointItemId(
+						randomNum % PROBABILITY_JACKPOT === 0 ? ID_JACKPOT : ID_HIT,
+					);
+					//TODO: this creation require just user and hit id
+					await this.userPointItemRepository.create(
+						new UserPointItemDto(
+							new UserPointItemId(0),
+							userId,
+							hitId,
+							UserPointItemStatus.UNUSED,
+							new UserPointItemExpire(dayjs().add(1, "year").toDate()),
+						),
+					);
+					const item = await this.pointItemRepository.findById(hitId);
+					return `${item?.name.getValue()}が当たったよ${randomNum % PROBABILITY_JACKPOT === 0 ? "👕" : "🍭"}！っ`;
+				});
+		});
 	}
 
 	async getItems(userId: DiscordUserId): Promise<string> {
