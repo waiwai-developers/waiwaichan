@@ -9,8 +9,6 @@ export class ReactionRouter implements DiscordEventRouter {
 	constructor(private pointLogic: IPointLogic) {}
 	register(client: Client): void {
 		client.on("messageReactionAdd", async (reaction, user) => {
-			console.log(`reaction: ${reaction} partial: ${reaction.partial}`);
-			console.log();
 			if (reaction.partial) {
 				try {
 					await reaction.fetch();
@@ -20,7 +18,6 @@ export class ReactionRouter implements DiscordEventRouter {
 					return;
 				}
 			}
-			console.log(reaction.message);
 			if (user.bot) {
 				console.log("reaction by bot");
 				return;
