@@ -115,6 +115,9 @@ export class DiscordCommandRegister {
 					option.setName("id").setDescription("string").setRequired(true),
 				),
 			new SlashCommandBuilder()
+				.setName("reviewlist")
+				.setDescription("reviewlist"),
+			new SlashCommandBuilder()
 				.setName("minecraftstart")
 				.setDescription("minecraftstart"),
 			new SlashCommandBuilder()

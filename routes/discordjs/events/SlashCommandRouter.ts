@@ -4,6 +4,7 @@ import { ChoiceContent } from "@/entities/vo/ChoiceContent";
 import { DiceSides } from "@/entities/vo/DiceSides";
 import { DiscordChannelId } from "@/entities/vo/DiscordChannelId";
 import { DiscordUserId } from "@/entities/vo/DiscordUserId";
+import { GitHubUserId } from "@/entities/vo/GitHubUserId";
 import { GithubPullRequestId } from "@/entities/vo/GithubPullRequestId";
 import { HelpCategory } from "@/entities/vo/HelpCategory";
 import { ParrotMessage } from "@/entities/vo/ParrotMessage";
@@ -188,6 +189,14 @@ export class SlashCommandRouter implements DiscordEventRouter {
 								new GithubPullRequestId(
 									interaction.options?.getInteger("id") ?? 0,
 								),
+								new DiscordUserId(interaction.user.id),
+							),
+						);
+						break;
+					case "reviewlist":
+						await interaction.deferReply();
+						await interaction.editReply(
+							await this.pullRequestLogic.findAssignedPullRequest(
 								new DiscordUserId(interaction.user.id),
 							),
 						);
