@@ -1,6 +1,5 @@
 import type { DiscordMessageId } from "@/entities/vo/DiscordMessageId";
 import type { DiscordUserId } from "@/entities/vo/DiscordUserId";
-import type { PointCount } from "@/entities/vo/PointCount";
 import type { UserPointItemId } from "@/entities/vo/UserPointItemId";
 
 export interface IPointLogic {

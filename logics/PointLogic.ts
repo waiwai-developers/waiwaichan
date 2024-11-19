@@ -66,7 +66,7 @@ export class PointLogic implements IPointLogic {
 
 	async drawItem(userId: DiscordUserId): Promise<string> {
 		return await this.transaction
-			.startTransaction(async (t) => {
+			.startTransaction(async () => {
 				return this.pointRepository.ConsumePoints(userId);
 			})
 			.then(async (success) => {
@@ -98,7 +98,7 @@ export class PointLogic implements IPointLogic {
 	}
 
 	async getItems(userId: DiscordUserId): Promise<string> {
-		return this.transaction.startTransaction(async (t) => {
+		return this.transaction.startTransaction(async () => {
 			const userPointItems =
 				await this.userPointItemRepository.findByNotUsed(userId);
 

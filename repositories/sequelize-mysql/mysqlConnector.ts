@@ -5,7 +5,7 @@ import { type Dialect, Sequelize } from "sequelize";
 // TODO define transaction interface with CLS
 export class MysqlConnector {
 	private static instance: Sequelize;
-	private constructor(sequelize: Sequelize) {}
+	private constructor() {}
 	private static getDbConfig() {
 		switch (process.env.NODE_ENV || "development") {
 			case "test":

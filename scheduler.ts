@@ -30,4 +30,7 @@ cron.schedule("* * * * *", async () => {
 		console.error("Error:", e);
 	}
 });
-const _ = client.login(config.discord.token);
+
+(async () => {
+	await client.login(config.discord.token);
+})();

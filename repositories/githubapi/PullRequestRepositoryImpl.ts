@@ -105,8 +105,8 @@ export class PullRequestRepositoryImpl implements IPullRequestRepository {
 			new GitHubUserId(ownerId),
 			new GithubPullRequestStatus(state),
 			new GithubPullRequestId(prId),
-			new GithubPullRequestTitle(""),
-			new GithubPullRequestUrl(""),
+			new GithubPullRequestTitle(title),
+			new GithubPullRequestUrl(url),
 		);
 	}
 }

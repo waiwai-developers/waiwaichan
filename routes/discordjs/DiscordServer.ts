@@ -81,6 +81,6 @@ export class DiscordServer {
 		this.EventRoutes.forEach((event) => {
 			event.register(this.client);
 		});
-		this.client.login(token);
+		await this.client.login(token);
 	}
 }

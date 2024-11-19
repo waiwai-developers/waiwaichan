@@ -1,4 +1,3 @@
-import { channel } from "node:diagnostics_channel";
 import { ReminderDto } from "@/entities/dto/ReminderDto";
 import { TranslateDto } from "@/entities/dto/TranslateDto";
 import { ChoiceContent } from "@/entities/vo/ChoiceContent";
@@ -24,12 +23,7 @@ import type { ITranslatorLogic } from "@/logics/Interfaces/logics/ITranslatorLog
 import type { IUtilityLogic } from "@/logics/Interfaces/logics/IUtilityLogic";
 import type { DiscordEventRouter } from "@/routes/discordjs/events/DiscordEventRouter";
 import dayjs from "dayjs";
-import {
-	BaseGuildTextChannel,
-	type Client,
-	NewsChannel,
-	type TextChannel,
-} from "discord.js";
+import type { Client, TextChannel } from "discord.js";
 
 export class SlashCommandRouter implements DiscordEventRouter {
 	constructor(
@@ -45,7 +39,6 @@ export class SlashCommandRouter implements DiscordEventRouter {
 		client.on("interactionCreate", async (interaction) => {
 			try {
 				if (!interaction.isChatInputCommand()) return;
-				console.log(interaction.commandName);
 				switch (interaction.commandName) {
 					case "help":
 						await interaction.reply(

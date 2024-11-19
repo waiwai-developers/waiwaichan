@@ -1,6 +1,6 @@
 export class ValueObject<T> {
 	private readonly value: T;
-	protected validator: (value: T) => boolean = (t) => true;
+	protected validator: (value: T) => boolean = (_t) => true;
 	constructor(value: T) {
 		this.value = value;
 	}

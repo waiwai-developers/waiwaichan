@@ -1,4 +1,3 @@
-import type { PointItemDto } from "@/entities/dto/PointItemDto";
 import { UserPointItemDto } from "@/entities/dto/UserPointItemDto";
 import type { UserPointItemWithItemDto } from "@/entities/dto/UserPointItemWithItemDto";
 import { DiscordUserId } from "@/entities/vo/DiscordUserId";
@@ -97,7 +96,6 @@ class UserPointItemRepositoryImpl
 		itemId,
 		status,
 		expiredAt,
-		dataValues,
 	}: UserPointItemRepositoryImpl): UserPointItemDto {
 		return new UserPointItemDto(
 			new UserPointItemId(id),

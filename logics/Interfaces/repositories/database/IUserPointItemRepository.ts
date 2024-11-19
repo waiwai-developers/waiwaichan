@@ -1,4 +1,3 @@
-import type { PointItemDto } from "@/entities/dto/PointItemDto";
 import type { UserPointItemDto } from "@/entities/dto/UserPointItemDto";
 import type { UserPointItemWithItemDto } from "@/entities/dto/UserPointItemWithItemDto";
 import type { DiscordUserId } from "@/entities/vo/DiscordUserId";

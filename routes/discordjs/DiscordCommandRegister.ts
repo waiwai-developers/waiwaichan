@@ -123,7 +123,7 @@ export class DiscordCommandRegister {
 		];
 	}
 	async register(token: string) {
-		const rest = new REST({ version: "10" }).setToken(AppConfig.discord.token);
+		const rest = new REST({ version: "10" }).setToken(token);
 		await rest.put(
 			Routes.applicationGuildCommands(
 				AppConfig.discord.clientId,

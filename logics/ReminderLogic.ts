@@ -15,13 +15,13 @@ export class ReminderLogic implements IReminderLogic {
 		if (dayjs().isBefore(dayjs(data.remindAt.getValue()))) {
 			return "過去の日付のリマインドは設定できないよ！っ";
 		}
-		return this.transaction.startTransaction(async (t) => {
+		return this.transaction.startTransaction(async () => {
 			await this.reminderRepository.create(data);
 			return "リマインドの投稿を予約したよ！っ";
 		});
 	}
 	list(userId: DiscordUserId): Promise<string> {
-		return this.transaction.startTransaction(async (t) => {
+		return this.transaction.startTransaction(async () => {
 			const reminders = await this.reminderRepository.findByUserId(userId);
 			if (!reminders || reminders.length <= 0) {
 				return "リマインドは予約されていないよ！っ";
@@ -36,7 +36,7 @@ export class ReminderLogic implements IReminderLogic {
 		});
 	}
 	delete(id: ReminderId, userId: DiscordUserId): Promise<string> {
-		return this.transaction.startTransaction(async (t) => {
+		return this.transaction.startTransaction(async () => {
 			const success = await this.reminderRepository.deleteReminder(id, userId);
 			if (!success) return "リマインドの予約はされていなかったよ！っ";
 			return "リマインドの予約を削除したよ！っ";

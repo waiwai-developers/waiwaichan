@@ -1,4 +1,3 @@
-import { log } from "node:console";
 import type { CloudProviderInstanceDto } from "@/entities/dto/CloudProviderInstanceDto";
 import type { IVirtualMachineAPI } from "@/logics/Interfaces/repositories/cloudprovider/IVirtualMachineAPI";
 import { InstancesClient } from "@google-cloud/compute";
@@ -26,7 +25,7 @@ export class GCPComputeEngineInstanceRepositoryImpl
 			});
 	}
 
-	state(target: CloudProviderInstanceDto): Promise<boolean> {
+	state(_target: CloudProviderInstanceDto): Promise<boolean> {
 		throw new Error("not implemented");
 	}
 
