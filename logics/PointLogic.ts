@@ -3,7 +3,7 @@ import {
 	ID_HIT,
 	ID_JACKPOT,
 	PROBABILITY_HIT,
-	PROBABILITY_JACKPOD,
+	PROBABILITY_JACKPOT,
 } from "@/entities/constants/Items";
 import { PointDto } from "@/entities/dto/PointDto";
 import { UserPointItemDto } from "@/entities/dto/UserPointItemDto";
@@ -75,12 +75,12 @@ export class PointLogic implements IPointLogic {
 				}
 
 				// NOTE:todo より良い乱数生成に変える
-				const randomNum = Math.floor(Math.random() * PROBABILITY_JACKPOD + 1);
+				const randomNum = Math.floor(Math.random() * PROBABILITY_JACKPOT + 1);
 				if (randomNum % PROBABILITY_HIT !== 0) {
 					return "ハズレちゃったよ！っ";
 				}
 				const hitId = new PointItemId(
-					randomNum % PROBABILITY_JACKPOD === 0 ? ID_JACKPOT : ID_HIT,
+					randomNum % PROBABILITY_JACKPOT === 0 ? ID_JACKPOT : ID_HIT,
 				);
 				//TODO: this creation require just user and hit id
 				await this.userPointItemRepository.create(
@@ -93,7 +93,7 @@ export class PointLogic implements IPointLogic {
 					),
 				);
 				const item = await this.pointItemRepository.findById(hitId);
-				return `${item?.name}が当たったよ${randomNum % PROBABILITY_JACKPOD === 0 ? "👕" : "🍭"}！っ`;
+				return `${item?.name}が当たったよ${randomNum % PROBABILITY_JACKPOT === 0 ? "👕" : "🍭"}！っ`;
 			});
 	}
 
