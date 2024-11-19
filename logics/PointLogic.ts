@@ -47,21 +47,25 @@ export class PointLogic implements IPointLogic {
 		userId: DiscordUserId,
 		userPointItemId: UserPointItemId,
 	): Promise<string> {
-		return this.transaction.startTransaction(async (t) => {
-			return this.userPointItemRepository
-				.exchangeById(userPointItemId, userId)
-				.then(async (updated) => {
-					if (!updated) {
-						await t.rollback();
-						return "アイテムは持ってないよ！っ";
-					}
-					const item = await this.pointItemRepository.findById(updated.itemId);
-					if (item == null) {
-						return "アイテムは持ってないよ！っ";
-					}
-					return `${item.name.getValue()}と交換したよ！っ`;
-				});
-		});
+		return this.transaction
+			.startTransaction(async (t) => {
+				return this.userPointItemRepository
+					.exchangeById(userPointItemId, userId)
+					.then(async (updated) => {
+						if (!updated) {
+							await t.rollback();
+							return "アイテムは持ってないよ！っ";
+						}
+						const item = await this.pointItemRepository.findById(
+							updated.itemId,
+						);
+						if (item == null) {
+							return "アイテムは持ってないよ！っ";
+						}
+						return `${item.name.getValue()}と交換したよ！っ`;
+					});
+			})
+			.catch((_err) => "アイテムは持ってないよ！っ");
 	}
 
 	async drawItem(userId: DiscordUserId): Promise<string> {
