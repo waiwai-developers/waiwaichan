@@ -109,12 +109,16 @@
 		// "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
 		"skipLibCheck": true /* Skip type checking all .d.ts files. */
 	},
-
 	"tsc-alias": {
 		"resolveFullPaths": true,
 		"fileExtensions": {
 			"inputGlob": "{js,jsx,mjs}",
 			"outputCheck": ["js", "json", "jsx", "mjs"]
 		}
+	},
+	"ts-node": {
+		"esm": true,
+		"require": ["tsconfig-paths/register"]
+		"experimentalSpecifierResolution": "node"
 	}
 }

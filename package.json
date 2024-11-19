@@ -6,8 +6,10 @@
 	"type": "module",
 	"scripts": {
 		"build": "tsc && tsc-alias",
-		"dev": "nodemon ./dist/app.js",
-		"dev:scheduler": "nodemon ./dist/scheduler.js",
+		"production:app": "node ./dist/app.js",
+		"production:scheduler": "node ./dist/scheduler.js",
+		"dev": "tsx watch ./app.ts",
+		"dev:scheduler": "tsx watch ./scheduler.ts",
 		"dev:app:debug": "INSPECT=true nodemon --inspect ./dist/app.js",
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"lint": "biome check --write && biome format --write",
@@ -40,6 +42,7 @@
 		"@octokit/types": "^13.6.1",
 		"@types/node": "^22.9.0",
 		"@types/node-cron": "^3.0.11",
-		"nodemon": "^3.1.7"
+		"nodemon": "^3.1.7",
+		"tsx": "^4.19.2"
 	}
 }
