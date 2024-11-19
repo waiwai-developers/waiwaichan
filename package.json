@@ -6,14 +6,14 @@
 	"type": "module",
 	"scripts": {
 		"build": "tsc && tsc-alias",
-		"dev": "nodemon ./app.js",
-		"migrate": "node_modules/.bin/sequelize db:migrate",
+		"dev": "nodemon ./dist/app.js",
+		"dev:scheduler": "nodemon ./dist/scheduler.js",
+		"dev:app:debug": "INSPECT=true nodemon --inspect ./dist/app.js",
 		"test": "echo \"Error: no test specified\" && exit 1",
-		"debug": "INSPECT=true nodemon --inspect app.js",
 		"lint": "biome check --write && biome format --write",
 		"lint:unsafe": "biome check --write --unsafe && biome format --write",
-		"seed": "node_modules/.bin/sequelize-cli db:seed:all",
-		"dev:scheduler": "nodemon ./scheduler.js"
+		"migrate": "node_modules/.bin/sequelize db:migrate",
+		"seed": "node_modules/.bin/sequelize-cli db:seed:all"
 	},
 	"author": "",
 	"license": "ISC",
