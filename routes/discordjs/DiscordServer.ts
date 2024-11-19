@@ -21,7 +21,7 @@ import { MessageReplyRouter } from "@/routes/discordjs/events/MessageReplyRouter
 import { ReactionRouter } from "@/routes/discordjs/events/ReactionRouter";
 import { ReadyStateRouter } from "@/routes/discordjs/events/ReadyStateRouter";
 import { SlashCommandRouter } from "@/routes/discordjs/events/SlashCommandRouter";
-import { Client, GatewayIntentBits } from "discord.js";
+import { Client, GatewayIntentBits, Partials } from "discord.js";
 import type { DiscordEventRouter } from "./events/DiscordEventRouter";
 
 export class DiscordServer {
@@ -33,6 +33,7 @@ export class DiscordServer {
 				(all, intent) => (Number.isNaN(intent) ? all : all | Number(intent)),
 				0,
 			),
+			partials: [Partials.Message, Partials.Reaction, Partials.Channel],
 		});
 
 		// resolve DI

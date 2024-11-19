@@ -9,25 +9,43 @@ export class ReactionRouter implements DiscordEventRouter {
 	constructor(private pointLogic: IPointLogic) {}
 	register(client: Client): void {
 		client.on("messageReactionAdd", async (reaction, user) => {
-			if (user.bot) return;
+			console.log(`reaction: ${reaction} partial: ${reaction.partial}`);
+			console.log();
+			if (reaction.partial) {
+				try {
+					await reaction.fetch();
+					await reaction.message.fetch();
+				} catch (err) {
+					console.log("fail to fetch old message");
+					return;
+				}
+			}
+			console.log(reaction.message);
+			if (user.bot) {
+				console.log("reaction by bot");
+				return;
+			}
+
 			if (
 				(reaction.message.author?.bot ?? true) ||
 				(reaction.message.author?.id ?? null) == null
-			)
+			) {
+				console.log("some data is null");
 				return;
-			if (
-				reaction.message.author?.id
-					? user.id === reaction.message.author?.id
-					: true
-			)
-				return;
+			}
 
-			if (reaction.emoji.name === AppConfig.backend.pointEmoji) {
+			if (reaction.message.author?.id == null) {
+				console.log("author id is null");
+				return;
+			}
+
+			if (reaction.emoji.name !== AppConfig.backend.pointEmoji) {
+				console.log("not peer bonus emoji");
+				return;
 			}
 
 			const res = await this.pointLogic.givePoint(
-				// absolutely non null
-				new DiscordUserId(reaction.message.author?.id ?? ""),
+				new DiscordUserId(reaction.message.author.id),
 				new DiscordUserId(user.id),
 				new DiscordMessageId(reaction.message.id),
 			);
