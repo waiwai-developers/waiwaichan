@@ -1,4 +1,3 @@
-import "./routes/discordjs/replyRemaind.js";
 import config from "@/config.json" with { type: "json" };
 import type { IReminderSchedulerRepository } from "@/logics/Interfaces/repositories/database/IReminderSchedulerRepository";
 import { ReminderSchedulerRepositoryImpl } from "@/repositories/sequelize-mysql/";
