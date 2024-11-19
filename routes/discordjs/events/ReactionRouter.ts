@@ -1,4 +1,4 @@
-import config from "@/config.json";
+import { AppConfig } from "@/entities/config/AppConfig";
 import { DiscordMessageId } from "@/entities/vo/DiscordMessageId";
 import { DiscordUserId } from "@/entities/vo/DiscordUserId";
 import type { IPointLogic } from "@/logics/Interfaces/logics/IPointLogic";
@@ -22,7 +22,7 @@ export class ReactionRouter implements DiscordEventRouter {
 			)
 				return;
 
-			if (reaction.emoji.name === config.backend.pointEmoji) {
+			if (reaction.emoji.name === AppConfig.backend.pointEmoji) {
 			}
 
 			const res = await this.pointLogic.givePoint(

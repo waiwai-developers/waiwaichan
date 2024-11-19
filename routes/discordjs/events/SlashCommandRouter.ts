@@ -45,6 +45,7 @@ export class SlashCommandRouter implements DiscordEventRouter {
 		client.on("interactionCreate", async (interaction) => {
 			try {
 				if (!interaction.isChatInputCommand()) return;
+				console.log(interaction.commandName);
 				switch (interaction.commandName) {
 					case "help":
 						await interaction.reply(

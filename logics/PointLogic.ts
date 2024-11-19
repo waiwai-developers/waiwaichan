@@ -1,4 +1,4 @@
-import config from "@/config.json";
+import { AppConfig } from "@/entities/config/AppConfig";
 import {
 	ID_HIT,
 	ID_JACKPOT,
@@ -144,6 +144,6 @@ export class PointLogic implements IPointLogic {
 			),
 		);
 
-		return `<@${giver.getValue()}>さんが${config.backend.pointEmoji}スタンプを押したよ！！っ`;
+		return `<@${giver.getValue()}>さんが${AppConfig.backend.pointEmoji}スタンプを押したよ！！っ`;
 	}
 }

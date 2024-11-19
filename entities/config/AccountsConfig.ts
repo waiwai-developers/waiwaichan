@@ -1,4 +1,4 @@
-import json from "@/config/accounts.json";
+import json from "@/config/accounts.json" with { type: "json" };
 interface UserAssociation {
 	githubId: string;
 	discordId: string;

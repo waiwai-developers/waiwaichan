@@ -1,4 +1,3 @@
-import config from "@/config.json";
 import { AppConfig } from "@/entities/config/AppConfig";
 import type { ChatAIMessageDto } from "@/entities/dto/ChatAIMessageDto";
 import { ChatAIContent } from "@/entities/vo/ChatAIContent";
@@ -10,7 +9,7 @@ export class ChatGPTRepositoryImpl implements IChatAIRepository {
 	async generate(messages: Array<ChatAIMessageDto>): Promise<ChatAIContent> {
 		return this.openai.chat.completions
 			.create({
-				model: config.openai.gptModel,
+				model: AppConfig.openai.gptModel,
 				messages: messages.map(({ role, content }) => {
 					return { role: role.getValue(), content: content.getValue() };
 				}),

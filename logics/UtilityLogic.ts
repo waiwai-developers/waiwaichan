@@ -1,4 +1,4 @@
-import config from "@/config/commands.json";
+import { CommandsConfig } from "@/entities/config/CommandsConfig";
 import type { ChoiceContent } from "@/entities/vo/ChoiceContent";
 import type { DiceSides } from "@/entities/vo/DiceSides";
 import type { HelpCategory } from "@/entities/vo/HelpCategory";
@@ -10,7 +10,7 @@ export class UtilityLogic implements IUtilityLogic {
 		return "waiwai";
 	}
 	async help(type: HelpCategory): Promise<string> {
-		const texts = config.categories
+		const texts = CommandsConfig.categories
 			.filter((c) => type.getValue() === "all" || c.name === type.getValue())
 			.flatMap((c) => [
 				`## ${c.name}`,

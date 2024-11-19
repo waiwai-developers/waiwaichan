@@ -1,4 +1,4 @@
-import config from "@/config.json";
+import { AppConfig } from "@/entities/config/AppConfig";
 import { ChatAIMessageDto } from "@/entities/dto/ChatAIMessageDto";
 import { ChatAIContent } from "@/entities/vo/ChatAIContent";
 import { ChatAIRole } from "@/entities/vo/ChatAIRole";
@@ -13,7 +13,7 @@ export class MessageReplyRouter implements DiscordEventRouter {
 			try {
 				if (message.author.bot) return;
 				if (!message.channel.isThread()) return;
-				if (!(message.channel.ownerId === config.discord.clientId)) return;
+				if (!(message.channel.ownerId === AppConfig.discord.clientId)) return;
 
 				message.channel.sendTyping();
 
