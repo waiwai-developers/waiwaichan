@@ -51,14 +51,16 @@ export class PullRequestLogic implements IPullRequestLogic {
 
 	async findAssignedPullRequest(userId: DiscordUserId): Promise<string> {
 		const reviewerGithubId = AccountsConfig.users.find(
-			(u) => u.discordId === userId.toString(),
+			(u) => u.discordId === userId.getValue(),
 		)?.githubId;
 		if (!reviewerGithubId) {
 			return "Githubのユーザー情報が紐づいてないよ！っ";
 		}
-		const list = await this.pullRequestRepository.getAssigneeList(userId);
-		if (!list || list.length <= 0) {
-			return "アイテムは持ってないよ！っ";
+		const list = await this.pullRequestRepository.getAssigneeList(
+			new GitHubUserId(reviewerGithubId),
+		);
+		if (list.length <= 0) {
+			return "アサインされているpull reqはないよ！っ";
 		}
 		return [
 			"以下のpull reqのreviewerにアサインされているよ！っ",
