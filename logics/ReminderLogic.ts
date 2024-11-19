@@ -12,7 +12,7 @@ export class ReminderLogic implements IReminderLogic {
 	) {}
 
 	async create(data: ReminderDto): Promise<string> {
-		if (dayjs().isBefore(dayjs(data.remindAt.getValue()))) {
+		if (dayjs(data.remindAt.getValue()).isBefore(dayjs())) {
 			return "過去の日付のリマインドは設定できないよ！っ";
 		}
 		return this.transaction.startTransaction(async () => {

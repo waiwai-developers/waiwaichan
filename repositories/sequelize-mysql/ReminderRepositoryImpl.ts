@@ -22,7 +22,7 @@ class ReminderRepositoryImpl extends Model implements IReminderRepository {
 			id: data.id.getValue(),
 			channelId: data.channelId.getValue(),
 			userId: data.userId.getValue(),
-			messageId: data.message.getValue(),
+			message: data.message.getValue(),
 			remindAt: data.remindAt.getValue(),
 		}).then((res) => !!res);
 	}

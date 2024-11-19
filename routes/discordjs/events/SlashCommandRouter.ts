@@ -123,8 +123,8 @@ export class SlashCommandRouter implements DiscordEventRouter {
 							await this.reminderLogic.create(
 								new ReminderDto(
 									new ReminderId(0),
-									new DiscordUserId(interaction.user.id),
 									new DiscordChannelId(interaction.channelId),
+									new DiscordUserId(interaction.user.id),
 									new ReminderMessage(
 										interaction.options.getString("message") ?? "",
 									),
