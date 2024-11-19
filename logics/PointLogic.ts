@@ -119,6 +119,9 @@ export class PointLogic implements IPointLogic {
 		giver: DiscordUserId,
 		messageId: DiscordMessageId,
 	): Promise<string | undefined> {
+		if (receiver.getValue() === giver.getValue()) {
+			return;
+		}
 		const todayCount = await this.pointRepository.countByToday(giver);
 		// reaction limit
 		// todo reaction limit to constant
