@@ -87,7 +87,7 @@ export class DiscordCommandRegister {
 			new SlashCommandBuilder()
 				.setName("reminderdelete")
 				.setDescription("reminder string")
-				.addStringOption((option) =>
+				.addIntegerOption((option) =>
 					option.setName("id").setDescription("string").setRequired(true),
 				),
 			new SlashCommandBuilder()
