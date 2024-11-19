@@ -43,8 +43,8 @@ export class PullRequestLogic implements IPullRequestLogic {
 			selectReviewers.map((r) => `<@${r.discordId}>`).join(" "),
 			"review依頼が来たよ！っ",
 			"",
-			`${pr.title}`,
-			`pullreq: <${pr.url}>`,
+			`${pr.title.getValue()}`,
+			`pullreq: <${pr.url.getValue()}>`,
 		];
 		return texts.join("\n");
 	}
