@@ -17,6 +17,11 @@
 		"owner": "",
 		"repo": ""
 	},
+	"gcp": {
+		"project": "",
+		"zone": "",
+		"instance": ""
+	},
 	"backend": {
 		"pointEmoji": ""
 	}
