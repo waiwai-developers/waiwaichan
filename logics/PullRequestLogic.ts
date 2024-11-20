@@ -63,7 +63,7 @@ export class PullRequestLogic implements IPullRequestLogic {
 			return "アサインされているpull reqはないよ！っ";
 		}
 		return [
-			"以下のpull reqのreviewerにアサインされているよ！っ",
+			"以下のpull reqのreviewerにアサインされているよ！っ\n",
 			...list.flatMap((dto) => {
 				return [dto.title.getValue(), `pullreq: <${dto.url.getValue()}>`];
 			}),
