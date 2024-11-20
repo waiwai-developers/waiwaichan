@@ -10,6 +10,9 @@ services:
       - type: bind
         source: .
         target: /app
+      - type: volume
+        source: backend_node_modules
+        target: /app/node_modules
     depends_on:
       database:
         condition: service_healthy
@@ -28,6 +31,9 @@ services:
       - type: bind
         source: .
         target: /app
+      - type: volume
+        source: scheduler_node_modules
+        target: /app/node_modules
     depends_on:
       database:
         condition: service_healthy
@@ -44,6 +50,9 @@ services:
       - type: bind
         source: .
         target: /app
+      - type: volume
+        source: migrate_node_modules
+        target: /app/node_modules
     depends_on:
       database:
         condition: service_healthy
@@ -75,3 +84,6 @@ networks:
     driver: bridge
 volumes:
   mysql_data:
+  backend_node_modules:
+  scheduler_node_modules:
+  migrate_node_modules:
