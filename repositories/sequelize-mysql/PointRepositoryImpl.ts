@@ -49,7 +49,7 @@ class PointRepositoryImpl extends Model implements IPointRepository {
 	async countByToday(userId: DiscordUserId): Promise<PointCount> {
 		return PointRepositoryImpl.count({
 			where: {
-				receiveUserId: userId,
+				receiveUserId: userId.getValue(),
 				status: PointStatus.UNUSED.getValue(),
 				expiredAt: { [Op.gte]: dayjs().toDate() },
 			},
