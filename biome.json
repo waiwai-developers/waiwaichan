@@ -29,5 +29,13 @@
 		"formatter": {
 			"quoteStyle": "double"
 		}
-	}
+	},
+	"overrides": [
+		{
+			"include": ["./di.config.ts"],
+			"formatter": {
+				"lineWidth": 200
+			}
+		}
+	]
 }
