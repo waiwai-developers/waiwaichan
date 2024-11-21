@@ -1,4 +1,4 @@
-import config from "@/config.json" with { type: "json" };
+import config from "@/config/config.json" with { type: "json" };
 import type { IReminderSchedulerRepository } from "@/logics/Interfaces/repositories/database/IReminderSchedulerRepository";
 import { ReminderSchedulerRepositoryImpl } from "@/repositories/sequelize-mysql/";
 import { Client, GatewayIntentBits, TextChannel } from "discord.js";

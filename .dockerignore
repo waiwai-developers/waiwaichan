@@ -1,5 +1,5 @@
 .env
-config.json
+config/config.json
 config/config.json
 config/accounts.json
 config/key.json
