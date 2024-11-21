@@ -1,15 +1,7 @@
 steps:
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/waiwaichan/image:$COMMIT_SHA', '.']
+    args: ['build', '-t', 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/waiwaichan/image:$SHORT_SHA', '.']
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/waiwaichan/image:$COMMIT_SHA']
-  - name: 'gcr.io/cloud-builders/gcloud'
-    args: ['compute', 'instances',
-           'create-with-container', 'waiwaichan',
-           '--project', '$PROJECT_ID',
-           '--zone', 'asia-northeast1-a',
-           '--machine-type', 'e2-micro',
-           '--container-image', 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/waiwaichan/image:$COMMIT_SHA',
-           '--container-restart-policy', 'always']
+    args: ['push', 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/waiwaichan/image:$SHORT_SHA']
 images:
-  - 'gcr.io/$PROJECT_ID//waiwaichan/image:$COMMIT_SHA'
+  - 'gcr.io/$PROJECT_ID//waiwaichan/image:$SHORT_SHA'
