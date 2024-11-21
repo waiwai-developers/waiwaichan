@@ -11,7 +11,7 @@ const client = new Client({
 		0,
 	),
 });
-cron.schedule("* * * * * *", async () => {
+cron.schedule("* * * * *", async () => {
 	try {
 		const reminder = schedulerContainer.get<IReminderSchedulerRepository>(
 			SchedulerRepoTypes.ReminderSchedulerRepository,
