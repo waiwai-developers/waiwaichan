@@ -1,5 +1,5 @@
 import "@abraham/reflection";
-import { LogicTypes, RepoTypes, RouteTypes } from "@/entities/constants/DIContainerTypes";
+import { LogicTypes, RepoTypes, RouteTypes, SchedulerRepoTypes } from "@/entities/constants/DIContainerTypes";
 import { ChatAILogic } from "@/logics/ChatAILogic";
 import type { IChatAILogic } from "@/logics/Interfaces/logics/IChatAILogic";
 import type { IMinecraftServerLogic } from "@/logics/Interfaces/logics/IMinecraftServerLogic";
@@ -13,6 +13,7 @@ import type { IVirtualMachineAPI } from "@/logics/Interfaces/repositories/cloudp
 import type { IPointItemRepository } from "@/logics/Interfaces/repositories/database/IPointItemRepository";
 import type { IPointRepository } from "@/logics/Interfaces/repositories/database/IPointRepository";
 import type { IReminderRepository } from "@/logics/Interfaces/repositories/database/IReminderRepository";
+import type { IReminderSchedulerRepository } from "@/logics/Interfaces/repositories/database/IReminderSchedulerRepository";
 import type { IUserPointItemRepository } from "@/logics/Interfaces/repositories/database/IUserPointItemRepository";
 import type { IPullRequestRepository } from "@/logics/Interfaces/repositories/githubapi/IPullRequestRepository";
 import type { ITranslatorRepository } from "@/logics/Interfaces/repositories/translator/ITranslatorRepository";
@@ -26,7 +27,7 @@ import { ChatGPTRepositoryImpl } from "@/repositories/chatgptapi/ChatGPTReposito
 import { DeepLTranslateRepositoryImpl } from "@/repositories/deeplapi/DeepLTranslateRepositoryImpl";
 import { GCPComputeEngineInstanceRepositoryImpl } from "@/repositories/gcpapi/GCPComputeEngineInstanceRepositoryImpl";
 import { GithubPullRequestRepositoryImpl } from "@/repositories/githubapi/GithubPullRequestRepositoryImpl";
-import { PointItemRepositoryImpl, PointRepositoryImpl, ReminderRepositoryImpl, UserPointItemRepositoryImpl } from "@/repositories/sequelize-mysql";
+import { PointItemRepositoryImpl, PointRepositoryImpl, ReminderRepositoryImpl, ReminderSchedulerRepositoryImpl, UserPointItemRepositoryImpl } from "@/repositories/sequelize-mysql";
 import { SequelizeTransaction } from "@/repositories/sequelize-mysql/SequelizeTransaction";
 import type { DiscordEventRouter } from "@/routes/discordjs/events/DiscordEventRouter";
 import { MessageReplyRouter } from "@/routes/discordjs/events/MessageReplyRouter";
@@ -35,6 +36,7 @@ import { ReadyStateRouter } from "@/routes/discordjs/events/ReadyStateRouter";
 import { SlashCommandRouter } from "@/routes/discordjs/events/SlashCommandRouter";
 import { Container } from "inversify";
 
+// for app
 const appContainer = new Container();
 
 // Repositories
@@ -68,4 +70,8 @@ appContainer.bind<DiscordEventRouter>(RouteTypes.MessageReplyRoute).to(MessageRe
 appContainer.bind<DiscordEventRouter>(RouteTypes.ReadyStateRoute).to(ReadyStateRouter);
 appContainer.bind<DiscordEventRouter>(RouteTypes.ReactionRoute).to(ReactionRouter);
 
-export { appContainer };
+// for scheduler
+const schedulerContainer = new Container();
+schedulerContainer.bind<IReminderSchedulerRepository>(SchedulerRepoTypes.ReminderSchedulerRepository).to(ReminderSchedulerRepositoryImpl);
+
+export { appContainer, schedulerContainer };

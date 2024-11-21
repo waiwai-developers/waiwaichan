@@ -25,3 +25,7 @@ export const RouteTypes = {
 	ReadyStateRoute: Symbol.for("ReadyStateRoute"),
 	ReactionRoute: Symbol.for("ReactionRoute"),
 };
+
+export const SchedulerRepoTypes = {
+	ReminderSchedulerRepository: Symbol.for("ReminderSchedulerRepository"),
+};
