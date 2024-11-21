@@ -1,4 +1,4 @@
-import json from "@/config.json" with { type: "json" };
+import json from "@/config/config.json" with { type: "json" };
 interface DiscordConfig {
 	token: string;
 	clientId: string;
