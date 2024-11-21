@@ -12,4 +12,4 @@ steps:
            '--container-image', 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/waiwaichan/image:$COMMIT_SHA',
            '--container-restart-policy', 'always']
 images:
-  - 'gcr.io/$PROJECT_ID/image:$COMMIT_SHA'
+  - 'gcr.io/$PROJECT_ID//waiwaichan/image:$COMMIT_SHA'
