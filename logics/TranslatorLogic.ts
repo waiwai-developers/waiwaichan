@@ -1,12 +1,14 @@
+import { RepoTypes } from "@/entities/constants/DIContainerTypes";
 import { TranslateDto } from "@/entities/dto/TranslateDto";
 import { TranslateText } from "@/entities/vo/TranslateText";
 import type { ITranslatorLogic } from "@/logics/Interfaces/logics/ITranslatorLogic";
 import type { ITranslatorRepository } from "@/logics/Interfaces/repositories/translator/ITranslatorRepository";
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 
 @injectable()
 export class TranslatorLogic implements ITranslatorLogic {
-	constructor(private readonly translatorRepository: ITranslatorRepository) {}
+	@inject(RepoTypes.TranslateRepository)
+	private readonly translatorRepository!: ITranslatorRepository;
 
 	async translate(data: TranslateDto): Promise<string> {
 		const { text, source, target } = data;

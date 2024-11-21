@@ -1,14 +1,16 @@
 import { AccountsConfig } from "@/entities/config/AccountsConfig";
+import { RepoTypes } from "@/entities/constants/DIContainerTypes";
 import type { DiscordUserId } from "@/entities/vo/DiscordUserId";
 import { GitHubUserId } from "@/entities/vo/GitHubUserId";
 import type { GithubPullRequestId } from "@/entities/vo/GithubPullRequestId";
 import type { IPullRequestLogic } from "@/logics/Interfaces/logics/IPullRequestLogic";
 import type { IPullRequestRepository } from "@/logics/Interfaces/repositories/githubapi/IPullRequestRepository";
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 
 @injectable()
 export class PullRequestLogic implements IPullRequestLogic {
-	constructor(private readonly pullRequestRepository: IPullRequestRepository) {}
+	@inject(RepoTypes.PullRequestRepository)
+	private readonly pullRequestRepository!: IPullRequestRepository;
 
 	async randomAssign(
 		pullRequestId: GithubPullRequestId,

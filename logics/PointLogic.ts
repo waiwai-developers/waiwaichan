@@ -1,4 +1,5 @@
 import { AppConfig } from "@/entities/config/AppConfig";
+import { RepoTypes } from "@/entities/constants/DIContainerTypes";
 import {
 	ID_HIT,
 	ID_JACKPOT,
@@ -20,16 +21,21 @@ import type { IPointItemRepository } from "@/logics/Interfaces/repositories/data
 import type { IPointRepository } from "@/logics/Interfaces/repositories/database/IPointRepository";
 import type { IUserPointItemRepository } from "@/logics/Interfaces/repositories/database/IUserPointItemRepository";
 import dayjs from "dayjs";
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 
 @injectable()
 export class PointLogic implements IPointLogic {
-	constructor(
-		private readonly pointRepository: IPointRepository,
-		private readonly pointItemRepository: IPointItemRepository,
-		private readonly userPointItemRepository: IUserPointItemRepository,
-		private readonly transaction: ITransaction<TransactionLike>,
-	) {}
+	@inject(RepoTypes.PointRepository)
+	private readonly pointRepository!: IPointRepository;
+
+	@inject(RepoTypes.PointItemRepository)
+	private readonly pointItemRepository!: IPointItemRepository;
+
+	@inject(RepoTypes.UserPointItemRepository)
+	private readonly userPointItemRepository!: IUserPointItemRepository;
+
+	@inject(RepoTypes.Transaction)
+	private readonly transaction!: ITransaction<TransactionLike>;
 
 	async check(userId: DiscordUserId): Promise<string> {
 		return this.transaction

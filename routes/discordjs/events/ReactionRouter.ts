@@ -1,12 +1,16 @@
 import { AppConfig } from "@/entities/config/AppConfig";
+import { LogicTypes } from "@/entities/constants/DIContainerTypes";
 import { DiscordMessageId } from "@/entities/vo/DiscordMessageId";
 import { DiscordUserId } from "@/entities/vo/DiscordUserId";
 import type { IPointLogic } from "@/logics/Interfaces/logics/IPointLogic";
 import type { DiscordEventRouter } from "@/routes/discordjs/events/DiscordEventRouter";
 import type { Client } from "discord.js";
+import { inject, injectable } from "inversify";
 
+@injectable()
 export class ReactionRouter implements DiscordEventRouter {
-	constructor(private pointLogic: IPointLogic) {}
+	@inject(LogicTypes.PointLogic)
+	private pointLogic!: IPointLogic;
 	register(client: Client): void {
 		client.on("messageReactionAdd", async (reaction, user) => {
 			if (reaction.partial) {

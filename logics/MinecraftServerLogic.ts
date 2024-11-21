@@ -1,11 +1,12 @@
 import { AppConfig } from "@/entities/config/AppConfig";
+import { RepoTypes } from "@/entities/constants/DIContainerTypes";
 import { CloudProviderInstanceDto } from "@/entities/dto/CloudProviderInstanceDto";
 import { CloudProviderInstanceId } from "@/entities/vo/CloudProviderInstanceId";
 import { CloudProviderProjectId } from "@/entities/vo/CloudProviderProjectId";
 import { CloudProviderZoneId } from "@/entities/vo/CloudProviderZoneId";
 import type { IMinecraftServerLogic } from "@/logics/Interfaces/logics/IMinecraftServerLogic";
 import type { IVirtualMachineAPI } from "@/logics/Interfaces/repositories/cloudprovider/IVirtualMachineAPI";
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 
 @injectable()
 export class MinecraftServerLogic implements IMinecraftServerLogic {
@@ -15,7 +16,9 @@ export class MinecraftServerLogic implements IMinecraftServerLogic {
 			new CloudProviderZoneId(AppConfig.gcp.zone),
 			new CloudProviderInstanceId(AppConfig.gcp.instance),
 		);
-	constructor(private readonly virtualMachineAPI: IVirtualMachineAPI) {}
+
+	@inject(RepoTypes.VMInstanceRepository)
+	private readonly virtualMachineAPI!: IVirtualMachineAPI;
 
 	async startServer(): Promise<string> {
 		const success = await this.virtualMachineAPI.start(this.vmInstance);

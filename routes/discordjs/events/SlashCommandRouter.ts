@@ -1,10 +1,10 @@
+import { LogicTypes } from "@/entities/constants/DIContainerTypes";
 import { ReminderDto } from "@/entities/dto/ReminderDto";
 import { TranslateDto } from "@/entities/dto/TranslateDto";
 import { ChoiceContent } from "@/entities/vo/ChoiceContent";
 import { DiceSides } from "@/entities/vo/DiceSides";
 import { DiscordChannelId } from "@/entities/vo/DiscordChannelId";
 import { DiscordUserId } from "@/entities/vo/DiscordUserId";
-import { GitHubUserId } from "@/entities/vo/GitHubUserId";
 import { GithubPullRequestId } from "@/entities/vo/GithubPullRequestId";
 import { HelpCategory } from "@/entities/vo/HelpCategory";
 import { ParrotMessage } from "@/entities/vo/ParrotMessage";
@@ -25,17 +25,31 @@ import type { IUtilityLogic } from "@/logics/Interfaces/logics/IUtilityLogic";
 import type { DiscordEventRouter } from "@/routes/discordjs/events/DiscordEventRouter";
 import dayjs from "dayjs";
 import type { Client, TextChannel } from "discord.js";
+import { inject, injectable } from "inversify";
 
+@injectable()
 export class SlashCommandRouter implements DiscordEventRouter {
-	constructor(
-		private utilLogic: IUtilityLogic,
-		private translateLogic: ITranslatorLogic,
-		private chatAILogic: IChatAILogic,
-		private reminderLogic: IReminderLogic,
-		private pointLogic: IPointLogic,
-		private pullRequestLogic: IPullRequestLogic,
-		private mineCraftLogic: IMinecraftServerLogic,
-	) {}
+	@inject(LogicTypes.UtilityLogic)
+	private utilLogic!: IUtilityLogic;
+
+	@inject(LogicTypes.TranslateLogic)
+	private translateLogic!: ITranslatorLogic;
+
+	@inject(LogicTypes.ChatAILogic)
+	private chatAILogic!: IChatAILogic;
+
+	@inject(LogicTypes.ReminderLogic)
+	private reminderLogic!: IReminderLogic;
+
+	@inject(LogicTypes.PointLogic)
+	private pointLogic!: IPointLogic;
+
+	@inject(LogicTypes.PullRequestLogic)
+	private pullRequestLogic!: IPullRequestLogic;
+
+	@inject(LogicTypes.MinecraftServerLogic)
+	private mineCraftLogic!: IMinecraftServerLogic;
+
 	register(client: Client<boolean>): void {
 		client.on("interactionCreate", async (interaction) => {
 			try {
