@@ -8,7 +8,7 @@ import { UtilityLogic } from "@/logics/UtilityLogic";
 import { ChatGPTRepositoryImpl } from "@/repositories/chatgptapi/ChatGPTRepositoryImpl";
 import { DeepLTranslateRepositoryImpl } from "@/repositories/deeplapi/DeepLTranslateRepositoryImpl";
 import { GCPComputeEngineInstanceRepositoryImpl } from "@/repositories/gcpapi/GCPComputeEngineInstanceRepositoryImpl";
-import { PullRequestRepositoryImpl } from "@/repositories/githubapi/PullRequestRepositoryImpl";
+import { GithubPullRequestRepositoryImpl } from "@/repositories/githubapi/GithubPullRequestRepositoryImpl";
 import {
 	PointItemRepositoryImpl,
 	PointRepositoryImpl,
@@ -46,7 +46,7 @@ export class DiscordServer {
 
 		const chatGPTRepository = new ChatGPTRepositoryImpl();
 		const gcpVMRepository = new GCPComputeEngineInstanceRepositoryImpl();
-		const pullRequestRepository = new PullRequestRepositoryImpl();
+		const pullRequestRepository = new GithubPullRequestRepositoryImpl();
 		const translateRepository = new DeepLTranslateRepositoryImpl();
 
 		const utilityLogic = new UtilityLogic();

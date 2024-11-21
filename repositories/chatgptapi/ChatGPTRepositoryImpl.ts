@@ -2,8 +2,10 @@ import { AppConfig } from "@/entities/config/AppConfig";
 import type { ChatAIMessageDto } from "@/entities/dto/ChatAIMessageDto";
 import { ChatAIContent } from "@/entities/vo/ChatAIContent";
 import type { IChatAIRepository } from "@/logics/Interfaces/repositories/chataiapi/IChatAIRepository";
+import { injectable } from "inversify";
 import OpenAI from "openai";
 
+@injectable()
 export class ChatGPTRepositoryImpl implements IChatAIRepository {
 	openai = new OpenAI({ apiKey: AppConfig.openai.openaiApiKey });
 	async generate(messages: Array<ChatAIMessageDto>): Promise<ChatAIContent> {

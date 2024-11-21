@@ -2,7 +2,9 @@ import { TranslateDto } from "@/entities/dto/TranslateDto";
 import { TranslateText } from "@/entities/vo/TranslateText";
 import type { ITranslatorLogic } from "@/logics/Interfaces/logics/ITranslatorLogic";
 import type { ITranslatorRepository } from "@/logics/Interfaces/repositories/translator/ITranslatorRepository";
+import { injectable } from "inversify";
 
+@injectable()
 export class TranslatorLogic implements ITranslatorLogic {
 	constructor(private readonly translatorRepository: ITranslatorRepository) {}
 

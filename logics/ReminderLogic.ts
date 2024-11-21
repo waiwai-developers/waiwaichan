@@ -4,7 +4,9 @@ import type { ReminderId } from "@/entities/vo/ReminderId";
 import type { IReminderLogic } from "@/logics/Interfaces/logics/IReminderLogic";
 import type { IReminderRepository } from "@/logics/Interfaces/repositories/database/IReminderRepository";
 import dayjs from "dayjs";
+import { injectable } from "inversify";
 
+@injectable()
 export class ReminderLogic implements IReminderLogic {
 	constructor(
 		private readonly reminderRepository: IReminderRepository,

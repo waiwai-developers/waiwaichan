@@ -20,7 +20,9 @@ import type { IPointItemRepository } from "@/logics/Interfaces/repositories/data
 import type { IPointRepository } from "@/logics/Interfaces/repositories/database/IPointRepository";
 import type { IUserPointItemRepository } from "@/logics/Interfaces/repositories/database/IUserPointItemRepository";
 import dayjs from "dayjs";
+import { injectable } from "inversify";
 
+@injectable()
 export class PointLogic implements IPointLogic {
 	constructor(
 		private readonly pointRepository: IPointRepository,

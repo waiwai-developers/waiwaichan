@@ -6,10 +6,12 @@ import { ReminderId } from "@/entities/vo/ReminderId";
 import { ReminderMessage } from "@/entities/vo/ReminderMessage";
 import type { IReminderRepository } from "@/logics/Interfaces/repositories/database/IReminderRepository";
 import { MysqlConnector } from "@/repositories/sequelize-mysql/mysqlConnector";
+import { injectable } from "inversify";
 import { DataTypes, Model } from "sequelize";
 
 const sequelize = MysqlConnector.getInstance();
 
+@injectable()
 class ReminderRepositoryImpl extends Model implements IReminderRepository {
 	declare id: number;
 	declare channelId: string;

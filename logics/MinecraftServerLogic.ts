@@ -5,7 +5,9 @@ import { CloudProviderProjectId } from "@/entities/vo/CloudProviderProjectId";
 import { CloudProviderZoneId } from "@/entities/vo/CloudProviderZoneId";
 import type { IMinecraftServerLogic } from "@/logics/Interfaces/logics/IMinecraftServerLogic";
 import type { IVirtualMachineAPI } from "@/logics/Interfaces/repositories/cloudprovider/IVirtualMachineAPI";
+import { injectable } from "inversify";
 
+@injectable()
 export class MinecraftServerLogic implements IMinecraftServerLogic {
 	private readonly vmInstance: CloudProviderInstanceDto =
 		new CloudProviderInstanceDto(

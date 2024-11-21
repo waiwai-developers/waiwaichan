@@ -4,7 +4,9 @@ import { ChatAIContent } from "@/entities/vo/ChatAIContent";
 import { ChatAIRole } from "@/entities/vo/ChatAIRole";
 import type { IChatAILogic } from "@/logics/Interfaces/logics/IChatAILogic";
 import type { IChatAIRepository } from "@/logics/Interfaces/repositories/chataiapi/IChatAIRepository";
+import { injectable } from "inversify";
 
+@injectable()
 export class ChatAILogic implements IChatAILogic {
 	constructor(private readonly chatAIRepository: IChatAIRepository) {}
 

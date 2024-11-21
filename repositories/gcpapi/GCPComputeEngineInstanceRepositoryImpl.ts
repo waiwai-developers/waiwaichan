@@ -2,7 +2,9 @@ import type { CloudProviderInstanceDto } from "@/entities/dto/CloudProviderInsta
 import type { IVirtualMachineAPI } from "@/logics/Interfaces/repositories/cloudprovider/IVirtualMachineAPI";
 import { InstancesClient } from "@google-cloud/compute";
 import type * as protos from "@google-cloud/compute/build/protos/protos";
+import { injectable } from "inversify";
 
+@injectable()
 export class GCPComputeEngineInstanceRepositoryImpl
 	implements IVirtualMachineAPI
 {
