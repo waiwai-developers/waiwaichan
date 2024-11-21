@@ -20,7 +20,7 @@ services:
       - db-net
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: config/key.json
-    command: sh -c "npm run dev"
+    command: sh -c "npm i && npm run dev"
   scheduler:
     container_name: waiwai-scheduler
     restart: "always"
