@@ -1,15 +1,19 @@
+import { RepoTypes } from "@/entities/constants/DIContainerTypes";
 import type { ReminderDto } from "@/entities/dto/ReminderDto";
 import type { DiscordUserId } from "@/entities/vo/DiscordUserId";
 import type { ReminderId } from "@/entities/vo/ReminderId";
 import type { IReminderLogic } from "@/logics/Interfaces/logics/IReminderLogic";
 import type { IReminderRepository } from "@/logics/Interfaces/repositories/database/IReminderRepository";
 import dayjs from "dayjs";
+import { inject, injectable } from "inversify";
 
+@injectable()
 export class ReminderLogic implements IReminderLogic {
-	constructor(
-		private readonly reminderRepository: IReminderRepository,
-		private readonly transaction: ITransaction<TransactionLike>,
-	) {}
+	@inject(RepoTypes.ReminderRepository)
+	private readonly reminderRepository!: IReminderRepository;
+
+	@inject(RepoTypes.Transaction)
+	private readonly transaction!: ITransaction<TransactionLike>;
 
 	async create(data: ReminderDto): Promise<string> {
 		if (dayjs(data.remindAt.getValue()).isBefore(dayjs())) {

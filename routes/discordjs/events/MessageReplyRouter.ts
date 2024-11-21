@@ -1,13 +1,17 @@
 import { AppConfig } from "@/entities/config/AppConfig";
+import { LogicTypes } from "@/entities/constants/DIContainerTypes";
 import { ChatAIMessageDto } from "@/entities/dto/ChatAIMessageDto";
 import { ChatAIContent } from "@/entities/vo/ChatAIContent";
 import { ChatAIRole } from "@/entities/vo/ChatAIRole";
 import type { IChatAILogic } from "@/logics/Interfaces/logics/IChatAILogic";
 import type { DiscordEventRouter } from "@/routes/discordjs/events/DiscordEventRouter";
 import type { Client, Message } from "discord.js";
+import { inject, injectable } from "inversify";
 
+@injectable()
 export class MessageReplyRouter implements DiscordEventRouter {
-	constructor(private chatAILogic: IChatAILogic) {}
+	@inject(LogicTypes.ChatAILogic)
+	private chatAILogic!: IChatAILogic;
 	register(client: Client): void {
 		client.on("messageCreate", async (message: Message) => {
 			try {

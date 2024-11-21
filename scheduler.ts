@@ -1,6 +1,7 @@
-import config from "@/config/config.json" with { type: "json" };
+import { schedulerContainer } from "@/di.config";
+import { AppConfig } from "@/entities/config/AppConfig";
+import { SchedulerRepoTypes } from "@/entities/constants/DIContainerTypes";
 import type { IReminderSchedulerRepository } from "@/logics/Interfaces/repositories/database/IReminderSchedulerRepository";
-import { ReminderSchedulerRepositoryImpl } from "@/repositories/sequelize-mysql/";
 import { Client, GatewayIntentBits, TextChannel } from "discord.js";
 import cron from "node-cron";
 
@@ -12,8 +13,10 @@ const client = new Client({
 });
 cron.schedule("* * * * *", async () => {
 	try {
-		const reminder: IReminderSchedulerRepository =
-			new ReminderSchedulerRepositoryImpl();
+		const reminder = schedulerContainer.get<IReminderSchedulerRepository>(
+			SchedulerRepoTypes.ReminderSchedulerRepository,
+		);
+
 		const remainders = await reminder.findByRemindTime();
 
 		if (remainders.length === 0) return;
@@ -33,5 +36,5 @@ cron.schedule("* * * * *", async () => {
 });
 
 (async () => {
-	await client.login(config.discord.token);
+	await client.login(AppConfig.discord.token);
 })();

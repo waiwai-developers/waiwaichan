@@ -7,8 +7,10 @@ import { GithubPullRequestUrl } from "@/entities/vo/GithubPullRequestUrl";
 import { GithubPullRequestStatus } from "@/entities/vo/GtihubPullRequestStatus";
 import type { IPullRequestRepository } from "@/logics/Interfaces/repositories/githubapi/IPullRequestRepository";
 import { Octokit } from "@octokit/core";
+import { injectable } from "inversify";
 
-export class PullRequestRepositoryImpl implements IPullRequestRepository {
+@injectable()
+export class GithubPullRequestRepositoryImpl implements IPullRequestRepository {
 	private octokit: Octokit;
 	constructor() {
 		this.octokit = new Octokit({

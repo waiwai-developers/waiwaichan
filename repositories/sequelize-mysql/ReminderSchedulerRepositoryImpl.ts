@@ -7,10 +7,12 @@ import { ReminderMessage } from "@/entities/vo/ReminderMessage";
 import type { IReminderSchedulerRepository } from "@/logics/Interfaces/repositories/database/IReminderSchedulerRepository";
 import { MysqlConnector } from "@/repositories/sequelize-mysql/mysqlConnector";
 import dayjs from "dayjs";
+import { injectable } from "inversify";
 import { DataTypes, Model, Op } from "sequelize";
 
 const sequelize = MysqlConnector.getInstance();
 
+@injectable()
 class ReminderSchedulerRepositoryImpl
 	extends Model
 	implements IReminderSchedulerRepository

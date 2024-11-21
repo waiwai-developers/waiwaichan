@@ -4,7 +4,9 @@ import type { DiceSides } from "@/entities/vo/DiceSides";
 import type { HelpCategory } from "@/entities/vo/HelpCategory";
 import type { ParrotMessage } from "@/entities/vo/ParrotMessage";
 import type { IUtilityLogic } from "@/logics/Interfaces/logics/IUtilityLogic";
+import { injectable } from "inversify";
 
+@injectable()
 export class UtilityLogic implements IUtilityLogic {
 	async waiwai(): Promise<string> {
 		return "waiwai";

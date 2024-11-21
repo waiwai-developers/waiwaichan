@@ -7,7 +7,9 @@ import {
 	type TargetLanguageCode,
 	Translator,
 } from "deepl-node";
+import { injectable } from "inversify";
 
+@injectable()
 export class DeepLTranslateRepositoryImpl implements ITranslatorRepository {
 	translator: Translator;
 	constructor() {

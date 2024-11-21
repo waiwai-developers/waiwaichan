@@ -4,11 +4,13 @@ import { PointItemDescription } from "@/entities/vo/PointItemDescription";
 import { PointItemId } from "@/entities/vo/PointItemId";
 import { PointItemName } from "@/entities/vo/PointItemName";
 import type { IPointItemRepository } from "@/logics/Interfaces/repositories/database/IPointItemRepository";
+import { injectable } from "inversify";
 import { DataTypes, Model } from "sequelize";
 import { MysqlConnector } from "./mysqlConnector";
 
 const sequelize = MysqlConnector.getInstance();
 
+@injectable()
 class PointItemRepositoryImpl extends Model implements IPointItemRepository {
 	declare id: number;
 	declare userId: string;

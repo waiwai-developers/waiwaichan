@@ -7,12 +7,14 @@ import { PointExpire } from "@/entities/vo/PointExpire";
 import { PointStatus } from "@/entities/vo/PointStatus";
 import type { IPointRepository } from "@/logics/Interfaces/repositories/database/IPointRepository";
 import dayjs from "dayjs";
+import { injectable } from "inversify";
 import { DataTypes, Model, Op } from "sequelize";
 import { PointItemRepositoryImpl } from "./PointItemRepositoryImpl";
 import { MysqlConnector } from "./mysqlConnector";
 
 const sequelize = MysqlConnector.getInstance();
 
+@injectable()
 class PointRepositoryImpl extends Model implements IPointRepository {
 	declare id: number;
 	declare receiveUserId: string;

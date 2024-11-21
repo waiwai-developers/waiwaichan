@@ -1,26 +1,6 @@
-import { ChatAILogic } from "@/logics/ChatAILogic";
-import { MinecraftServerLogic } from "@/logics/MinecraftServerLogic";
-import { PointLogic } from "@/logics/PointLogic";
-import { PullRequestLogic } from "@/logics/PullRequestLogic";
-import { ReminderLogic } from "@/logics/ReminderLogic";
-import { TranslatorLogic } from "@/logics/TranslatorLogic";
-import { UtilityLogic } from "@/logics/UtilityLogic";
-import { ChatGPTRepositoryImpl } from "@/repositories/chatgptapi/ChatGPTRepositoryImpl";
-import { DeepLTranslateRepositoryImpl } from "@/repositories/deeplapi/DeepLTranslateRepositoryImpl";
-import { GCPComputeEngineInstanceRepositoryImpl } from "@/repositories/gcpapi/GCPComputeEngineInstanceRepositoryImpl";
-import { PullRequestRepositoryImpl } from "@/repositories/githubapi/PullRequestRepositoryImpl";
-import {
-	PointItemRepositoryImpl,
-	PointRepositoryImpl,
-	ReminderRepositoryImpl,
-	UserPointItemRepositoryImpl,
-} from "@/repositories/sequelize-mysql";
-import { SequelizeTransaction } from "@/repositories/sequelize-mysql/SequelizeTransaction";
+import { appContainer } from "@/di.config";
+import { RouteTypes } from "@/entities/constants/DIContainerTypes";
 import { DiscordCommandRegister } from "@/routes/discordjs/DiscordCommandRegister";
-import { MessageReplyRouter } from "@/routes/discordjs/events/MessageReplyRouter";
-import { ReactionRouter } from "@/routes/discordjs/events/ReactionRouter";
-import { ReadyStateRouter } from "@/routes/discordjs/events/ReadyStateRouter";
-import { SlashCommandRouter } from "@/routes/discordjs/events/SlashCommandRouter";
 import { Client, GatewayIntentBits, Partials } from "discord.js";
 import type { DiscordEventRouter } from "./events/DiscordEventRouter";
 
@@ -36,44 +16,11 @@ export class DiscordServer {
 			partials: [Partials.Message, Partials.Reaction, Partials.Channel],
 		});
 
-		// resolve DI
-		// TODO resolve DI with DI Container
-		const pointRepository = new PointRepositoryImpl();
-		const pointItemRepository = new PointItemRepositoryImpl();
-		const userPointItemRepository = new UserPointItemRepositoryImpl();
-		const reminderRepository = new ReminderRepositoryImpl();
-		const transaction = new SequelizeTransaction();
-
-		const chatGPTRepository = new ChatGPTRepositoryImpl();
-		const gcpVMRepository = new GCPComputeEngineInstanceRepositoryImpl();
-		const pullRequestRepository = new PullRequestRepositoryImpl();
-		const translateRepository = new DeepLTranslateRepositoryImpl();
-
-		const utilityLogic = new UtilityLogic();
-		const translatorLogic = new TranslatorLogic(translateRepository);
-		const chatAILogic = new ChatAILogic(chatGPTRepository);
-		const reminderLogic = new ReminderLogic(reminderRepository, transaction);
-		const pointLogic = new PointLogic(
-			pointRepository,
-			pointItemRepository,
-			userPointItemRepository,
-			transaction,
-		);
-		const pullRequestLogic = new PullRequestLogic(pullRequestRepository);
-		const minecraftServerLogic = new MinecraftServerLogic(gcpVMRepository);
 		this.EventRoutes = [
-			new SlashCommandRouter(
-				utilityLogic,
-				translatorLogic,
-				chatAILogic,
-				reminderLogic,
-				pointLogic,
-				pullRequestLogic,
-				minecraftServerLogic,
-			),
-			new ReactionRouter(pointLogic),
-			new MessageReplyRouter(chatAILogic),
-			new ReadyStateRouter(),
+			appContainer.get<DiscordEventRouter>(RouteTypes.ReadyStateRoute),
+			appContainer.get<DiscordEventRouter>(RouteTypes.SlashCommandRoute),
+			appContainer.get<DiscordEventRouter>(RouteTypes.MessageReplyRoute),
+			appContainer.get<DiscordEventRouter>(RouteTypes.ReactionRoute),
 		];
 	}
 
