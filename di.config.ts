@@ -1,3 +1,4 @@
+import "@abraham/reflection";
 import { LogicTypes, RepoTypes, RouteTypes } from "@/entities/constants/DIContainerTypes";
 import { ChatAILogic } from "@/logics/ChatAILogic";
 import type { IChatAILogic } from "@/logics/Interfaces/logics/IChatAILogic";
