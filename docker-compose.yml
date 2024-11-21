@@ -10,6 +10,9 @@ services:
       - type: bind
         source: .
         target: /app
+      - type: volume
+        source: backend_node_modules
+        target: /app/node_modules
     depends_on:
       database:
         condition: service_healthy
@@ -17,7 +20,7 @@ services:
       - db-net
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: config/key.json
-    command: sh -c "npm run dev"
+    command: sh -c "npm i && npm run dev"
   scheduler:
     container_name: waiwai-scheduler
     restart: "always"
@@ -28,12 +31,15 @@ services:
       - type: bind
         source: .
         target: /app
+      - type: volume
+        source: scheduler_node_modules
+        target: /app/node_modules
     depends_on:
       database:
         condition: service_healthy
     networks:
       - db-net
-    command: sh -c "npm run dev:scheduler"
+    command: sh -c "npm i && npm run dev:scheduler"
   migrate:
     container_name: waiwai-migrate
     restart: "no"
@@ -44,12 +50,15 @@ services:
       - type: bind
         source: .
         target: /app
+      - type: volume
+        source: migrate_node_modules
+        target: /app/node_modules
     depends_on:
       database:
         condition: service_healthy
     networks:
       - db-net
-    command: sh -c "npm run migrate && npm run seed"
+    command: sh -c "npm i && npm run migrate && npm run seed"
   database:
     container_name: waiwai-database
     env_file:
@@ -75,3 +84,6 @@ networks:
     driver: bridge
 volumes:
   mysql_data:
+  backend_node_modules:
+  scheduler_node_modules:
+  migrate_node_modules:
