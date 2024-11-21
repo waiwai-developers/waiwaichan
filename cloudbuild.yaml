@@ -8,7 +8,7 @@ steps:
            'create-with-container', 'waiwaichan',
            '--project', '$PROJECT_ID',
            '--zone', 'asia-northeast1-a',
-           '--machine-type', 'e2-medium',
+           '--machine-type', 'e2-micro',
            '--tags', 'http-server,https-server',
            '--image-family', 'cos-stable',
            '--image-project', 'cos-cloud',
