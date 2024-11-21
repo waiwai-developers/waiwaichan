@@ -7,6 +7,6 @@ steps:
     args: ['run', 'deploy', 'image',
            '--image', 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/waiwaichan/image:$COMMIT_SHA',
            '--region', 'asia-northeast1',
-           '--platform', 'linux/amd64']
+           '--platform', 'managed']
 images:
   - 'gcr.io/$PROJECT_ID/image:$COMMIT_SHA'
