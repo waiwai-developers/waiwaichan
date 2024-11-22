@@ -1,6 +1,6 @@
 import type { Seed } from "@/migrator/umzug";
 import { MigratePointItemModel } from "./models/MigratePointItemModel";
-export const up: Seed = async ({ context: sequelize }) => {
+export const up: Seed = async () => {
 	await new MigratePointItemModel().bulkFindOrCreate([
 		{
 			id: 1,
