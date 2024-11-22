@@ -14,8 +14,8 @@
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"lint": "biome check --write && biome format --write",
 		"lint:unsafe": "biome check --write --unsafe && biome format --write",
-		"migrate": "sequelize db:migrate",
-		"seed": "sequelize-cli db:seed:all"
+		"migrate": "tsx migrator/migrator.ts",
+		"seed": "tsx migrator/seeder.ts"
 	},
 	"author": "",
 	"license": "ISC",
