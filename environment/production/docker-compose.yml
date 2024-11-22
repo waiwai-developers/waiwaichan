@@ -47,6 +47,17 @@ services:
         target: /app/node_modules
     working_dir: /app
     command: sh -c "npm i && npm run migrate up && npm run seed up"
+  sqlproxy:
+    container_name: waiwai-sqlproxy
+    restart: always
+    image: gcr.io/cloudsql-docker/gce-proxy:latest
+    volumes:
+      - type: bind
+        source: ../../config
+        target: /app/config
+    ports:
+      - "3306:3306"
+    command: /cloud_sql_proxy -instances=waiwai-406106:asia-northeast1:waiwiachan-database=tcp:10.229.32.3:3306 -credential_file=/config/key.json
 volumes:
   backend_node_modules:
   scheduler_node_modules:
