@@ -1,4 +1,7 @@
-const getRecord = async (s) => {
+import type { Seed } from "@/migrator/umzug";
+import type { Sequelize } from "sequelize";
+
+const getRecord = async (s: Sequelize) => {
 	const existingData1 =
 		(await s.query("SELECT id FROM Items WHERE id = 1"))[0].length > 0;
 	const existingData2 =
@@ -25,17 +28,14 @@ const getRecord = async (s) => {
 	].filter((it) => it != null);
 };
 
-/** @type {import('sequelize-cli').Migration} */
-module.exports = {
-	async up(queryInterface, Sequelize) {
-		const records = await getRecord(queryInterface.sequelize);
-		if (records.length <= 0) {
-			return;
-		}
-		await queryInterface.bulkInsert("Items", records, {});
-	},
+const up: Seed = async ({ context: sequelize }) => {
+	const records = await getRecord(sequelize);
+	if (records.length <= 0) {
+		return;
+	}
+	await sequelize.getQueryInterface().bulkInsert("Items", records, {});
+};
 
-	async down(queryInterface, Sequelize) {
-		await queryInterface.bulkDelete("Items", null, {});
-	},
+const down: Seed = async ({ context: sequelize }) => {
+	await sequelize.getQueryInterface().bulkDelete("Items", {}, {});
 };
