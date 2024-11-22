@@ -5,7 +5,7 @@ const sequelize = MysqlConnector.getInstance();
 
 export const migrator = new Umzug({
 	migrations: {
-		glob: "migrations/*.ts",
+		glob: "migrator/migrations/*.ts",
 	},
 	context: sequelize,
 	storage: new SequelizeStorage({
@@ -19,12 +19,12 @@ export type Migration = typeof migrator._types.migration;
 
 export const seeder = new Umzug({
 	migrations: {
-		glob: "seeds/*.ts",
+		glob: "migrator/seeds/*.ts",
 	},
 	context: sequelize,
 	storage: new SequelizeStorage({
 		sequelize,
-		modelName: "migrator_meta",
+		modelName: "seeder_meta",
 	}),
 	logger: console,
 });
