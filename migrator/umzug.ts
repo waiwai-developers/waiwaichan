@@ -10,7 +10,7 @@ export const migrator = new Umzug({
 	context: sequelize,
 	storage: new SequelizeStorage({
 		sequelize,
-		modelName: "SequelizeMeta",
+		modelName: "umzug_migrator_meta",
 	}),
 	logger: console,
 });
@@ -24,7 +24,7 @@ export const seeder = new Umzug({
 	context: sequelize,
 	storage: new SequelizeStorage({
 		sequelize,
-		modelName: "seeder_meta",
+		modelName: "umzug_seeder_meta",
 	}),
 	logger: console,
 });
