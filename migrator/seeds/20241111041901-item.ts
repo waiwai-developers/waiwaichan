@@ -14,7 +14,7 @@ const records = [
 	},
 ];
 export const up: Seed = async () => {
-	await new MigratePointItemModel().bulkFindOrCreate(records);
+	await new MigratePointItemModel().bulkUpsert(records);
 };
 
 export const down: Seed = async ({ context: sequelize }) => {

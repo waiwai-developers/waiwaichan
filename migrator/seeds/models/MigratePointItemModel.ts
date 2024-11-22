@@ -8,7 +8,7 @@ class MigratePointItemModel extends Model {
 	declare name: string;
 	declare description: string;
 
-	async bulkFindOrCreate(
+	async bulkUpsert(
 		data: Array<{ id: number; name: string; description: string }>,
 	) {
 		await Promise.all(
