@@ -28,7 +28,7 @@ services:
         source: ../../.
         target: /app
       - type: volume
-        source: backend_node_modules
+        source: scheduler_node_modules
         target: /app/node_modules
     working_dir: /app
     command: sh -c "npm i && npm run dev:scheduler"
@@ -43,7 +43,7 @@ services:
         source: ../../.
         target: /app
       - type: volume
-        source: backend_node_modules
+        source: migrate_node_modules
         target: /app/node_modules
     working_dir: /app
     command: sh -c "npm i && npm run migrate up && npm run seed up"
