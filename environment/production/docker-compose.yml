@@ -1,0 +1,53 @@
+services:
+  backend:
+    container_name: waiwai-backend
+    restart: always
+    tty: true
+    build:
+      context: ../../.
+      dockerfile: ./Dockerfile
+    volumes:
+      - type: bind
+        source: ../../.
+        target: /app
+      - type: volume
+        source: backend_node_modules
+        target: /app/node_modules
+    environment:
+      GOOGLE_APPLICATION_CREDENTIALS: config/key.json
+    working_dir: /app
+    command: sh -c "npm i && npm run dev"
+  scheduler:
+    container_name: waiwai-scheduler
+    restart: "always"
+    build:
+      context: ../../.
+      dockerfile: ./Dockerfile
+    volumes:
+      - type: bind
+        source: ../../.
+        target: /app
+      - type: volume
+        source: backend_node_modules
+        target: /app/node_modules
+    working_dir: /app
+    command: sh -c "npm i && npm run dev:scheduler"
+  migrate:
+    container_name: waiwai-migrate
+    restart: "no"
+    build:
+      context: ../../.
+      dockerfile: ./Dockerfile
+    volumes:
+      - type: bind
+        source: ../../.
+        target: /app
+      - type: volume
+        source: backend_node_modules
+        target: /app/node_modules
+    working_dir: /app
+    command: sh -c "npm i && npm run migrate up && npm run seed up"
+volumes:
+  backend_node_modules:
+  scheduler_node_modules:
+  migrate_node_modules:
