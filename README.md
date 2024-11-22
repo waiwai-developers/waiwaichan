@@ -12,12 +12,12 @@ docker-compose exec backend sh
 
 Execute the migration
 ```
-npm run migrate
+npm run migrate up
 ```
 
 Insert seed data
 ```
-npm run seed
+npm run seed up
 ```
 
 Running formatter && linter
