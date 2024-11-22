@@ -40,6 +40,7 @@
 		"umzug": "^3.8.2"
 	},
 	"devDependencies": {
+		"esbuild": "^0.24.0",
 		"@biomejs/biome": "1.9.4",
 		"@octokit/types": "^13.6.1",
 		"@types/node": "^22.9.0",
