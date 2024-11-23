@@ -2,7 +2,7 @@
 
 Start the server locally
 ```
-docker-compose up
+docker compose -f ./environment/development/docker-compose.yml up
 ```
 
 How to enter the environment
