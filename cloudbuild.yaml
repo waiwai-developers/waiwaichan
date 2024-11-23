@@ -14,3 +14,4 @@ steps:
           sudo git pull origin main && \
           sudo docker compose -f ./environment/production/docker-compose.yml up -d
         "
+
