@@ -5,7 +5,7 @@ services:
     tty: true
     build:
       context: ../../.
-      dockerfile: ./Dockerfile
+      dockerfile: environment/production/Dockerfile
     volumes:
       - type: bind
         source: ../../.
@@ -22,7 +22,7 @@ services:
     restart: "always"
     build:
       context: ../../.
-      dockerfile: ./Dockerfile
+      dockerfile: environment/production/Dockerfile
     volumes:
       - type: bind
         source: ../../.
@@ -37,7 +37,7 @@ services:
     restart: "no"
     build:
       context: ../../.
-      dockerfile: ./Dockerfile
+      dockerfile: environment/production/Dockerfile
     volumes:
       - type: bind
         source: ../../.
