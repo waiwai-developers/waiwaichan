@@ -1,5 +1,17 @@
 steps:
-  - name: 'gcr.io/cloud-builders/docker'
+  - name: 'image build'
     args: ['build', '-t', 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/waiwaichan/image:$SHORT_SHA', '.']
-  - name: 'gcr.io/cloud-builders/docker'
+  - name: 'image push'
     args: ['push', 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/waiwaichan/image:$SHORT_SHA']
+  - name: 'deploy instance'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        gcloud compute ssh waiwaichan-server --zone=asia-northeast1-a --command="
+          cd waiwaichan/environment/production && \
+          sudo docker compose down && \
+          git pull origin main && \
+          sudo docker compose up -d
+        "
+
