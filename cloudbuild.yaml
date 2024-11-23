@@ -1,8 +1,8 @@
 steps:
   - name: 'image build'
-    args: ['build', '-t', 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/waiwaichan/image:$SHORT_SHA', '.']
+    args: ['build', '-f', '/environment/production/Dockerfile', '-t', 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/waiwaichan/image:$SHORT_SHA', '.']
   - name: 'image push'
-    args: ['push', 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/waiwaichan/image:$SHORT_SHA']
+    args: ['push', '-f', '/environment/production/Dockerfile', 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/waiwaichan/image:$SHORT_SHA']
   - name: 'deploy instance'
     entrypoint: 'bash'
     args:
