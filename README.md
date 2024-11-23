@@ -7,7 +7,7 @@ docker compose -f ./environment/development/docker-compose.yml up
 
 How to enter the environment
 ```
-docker-compose exec backend sh
+docker compose -f ./environment/development/docker-compose.yml backend sh
 ```
 
 Execute the migration
