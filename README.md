@@ -12,20 +12,20 @@ docker compose -f ./environment/development/docker-compose.yml backend sh
 
 Execute the migration
 ```
-npm run migrate up
+pnpm migrate up
 ```
 
 Insert seed data
 ```
-npm run seed up
+pnpm seed up
 ```
 
 Running formatter && linter
 ```
-npm run lint
+pnpm lint
 ```
 
 Running formatter && linter (unsafe) https://biomejs.dev/linter/#unsafe-fixes
 ```
-npm run lint:unsafe
+pnpm lint:unsafe
 ```
