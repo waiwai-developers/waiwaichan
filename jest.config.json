@@ -1,0 +1,8 @@
+{
+	"roots": ["<rootDir>/tests"],
+	"transform": {
+		"^.+\\.(t|j)sx?$": ["@swc/jest"]
+	},
+	"testEnvironment": "node",
+	"extensionsToTreatAsEsm": [".ts", ".tsx", ".jsx"]
+}
