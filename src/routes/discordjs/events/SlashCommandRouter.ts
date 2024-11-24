@@ -15,7 +15,7 @@ export class SlashCommandRouter implements DiscordEventRouter {
 				const matched = this.handlers.find((h) =>
 					h.isHandle(interaction.commandName),
 				);
-				if (!matched) {
+				if (matched == null) {
 					await interaction.reply("そんなコマンドはないよ！っ");
 					return;
 				}

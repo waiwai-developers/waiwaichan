@@ -48,7 +48,7 @@ export class PointItemCommandHandlers implements SlashCommandHandler {
 	private pointLogic!: IPointLogic;
 
 	isHandle(commandName: string): boolean {
-		return commandName === "pointItem";
+		return commandName === "pointitem";
 	}
 
 	async handle(
