@@ -29,12 +29,6 @@ import { inject, injectable } from "inversify";
 
 @injectable()
 export class SlashCommandRouter implements DiscordEventRouter {
-	@inject(LogicTypes.UtilityLogic)
-	private utilLogic!: IUtilityLogic;
-
-	@inject(LogicTypes.TranslateLogic)
-	private translateLogic!: ITranslatorLogic;
-
 	@inject(LogicTypes.ChatAILogic)
 	private chatAILogic!: IChatAILogic;
 
@@ -55,83 +49,6 @@ export class SlashCommandRouter implements DiscordEventRouter {
 			try {
 				if (!interaction.isChatInputCommand()) return;
 				switch (interaction.commandName) {
-					case "help":
-						await interaction.reply(
-							await this.utilLogic.help(
-								new HelpCategory(
-									interaction.options?.getString("category") ?? "",
-								),
-							),
-						);
-						break;
-					case "waiwai":
-						await interaction.reply(await this.utilLogic.waiwai());
-						break;
-					case "parrot":
-						await interaction.reply(
-							await this.utilLogic.parrot(
-								new ParrotMessage(
-									interaction.options?.getString("message") ?? "",
-								),
-							),
-						);
-						break;
-					case "dice":
-						await interaction.reply(
-							await this.utilLogic.dice(
-								new DiceSides(
-									interaction.options?.getInteger("parameter") ?? 0,
-								),
-							),
-						);
-						break;
-					case "choice":
-						await interaction.reply(
-							await this.utilLogic.choice(
-								(interaction.options?.getString("items")?.split(" ") ?? []).map(
-									(r) => new ChoiceContent(r),
-								),
-							),
-						);
-						break;
-					case "translate": {
-						await interaction.deferReply();
-						const dto = new TranslateDto(
-							new TranslateText(
-								interaction.options?.getString("messages") ?? "",
-							),
-							new TranslateSourceLanguage(
-								interaction.options?.getString("source") ?? "",
-							),
-							new TranslateTargetLanguage(
-								interaction.options?.getString("target") ?? "",
-							),
-						);
-						await interaction.editReply(
-							await this.translateLogic.translate(dto),
-						);
-						break;
-					}
-					case "talk": {
-						const title = interaction.options?.getString("title");
-						if (interaction.channel == null) {
-							return;
-						}
-						if (title == null) {
-							await interaction.reply("titleパラメーターがないよ！っ");
-							return;
-						}
-						if (!this.isTextChannel(interaction.channel)) {
-							return;
-						}
-
-						await interaction.reply("以下にお話する場を用意したよ！っ");
-						await interaction.channel.threads.create({
-							name: title,
-							autoArchiveDuration: 60,
-						});
-						break;
-					}
 					case "reminderset":
 						await interaction.reply(
 							await this.reminderLogic.create(
@@ -232,8 +149,5 @@ export class SlashCommandRouter implements DiscordEventRouter {
 				console.log(error);
 			}
 		});
-	}
-	isTextChannel(channel: unknown): channel is TextChannel {
-		return (channel as TextChannel).threads !== undefined;
 	}
 }
