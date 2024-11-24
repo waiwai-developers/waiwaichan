@@ -9,7 +9,6 @@ import type { IPointRepository } from "@/src/logics/Interfaces/repositories/data
 import dayjs from "dayjs";
 import { injectable } from "inversify";
 import { DataTypes, Model, Op } from "sequelize";
-import { PointItemRepositoryImpl } from "./PointItemRepositoryImpl";
 import { MysqlConnector } from "./mysqlConnector";
 
 const sequelize = MysqlConnector.getInstance();
@@ -51,9 +50,8 @@ class PointRepositoryImpl extends Model implements IPointRepository {
 	async countByToday(userId: DiscordUserId): Promise<PointCount> {
 		return PointRepositoryImpl.count({
 			where: {
-				receiveUserId: userId.getValue(),
-				status: PointStatus.UNUSED.getValue(),
-				expiredAt: { [Op.gte]: dayjs().toDate() },
+				giveUserId: userId.getValue(),
+				createdAt: { [Op.gte]: dayjs().subtract(1, "day").toDate() },
 			},
 		}).then((c) => new PointCount(c));
 	}
