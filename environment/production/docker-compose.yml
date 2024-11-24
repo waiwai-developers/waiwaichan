@@ -13,9 +13,10 @@ services:
       - type: volume
         source: backend_node_modules
         target: /app/node_modules
+    networks:
+      - server-network
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: config/key.json
-    working_dir: /app
     command: sh -c "npm i && pnpm run dev"
   scheduler:
     container_name: waiwai-scheduler
@@ -30,7 +31,8 @@ services:
       - type: volume
         source: scheduler_node_modules
         target: /app/node_modules
-    working_dir: /app
+    networks:
+      - server-network
     command: sh -c "npm i && pnpm run dev:scheduler"
   migrate:
     container_name: waiwai-migrate
@@ -45,8 +47,12 @@ services:
       - type: volume
         source: migrate_node_modules
         target: /app/node_modules
-    working_dir: /app
+    networks:
+      - server-network
     command: sh -c "npm i && pnpm run migrate up && pnpm run seed up"
+networks:
+  server-network:
+    driver: bridge
 volumes:
   backend_node_modules:
   scheduler_node_modules:
