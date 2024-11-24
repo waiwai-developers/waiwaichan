@@ -1,15 +1,15 @@
 steps:
   - name: 'gcr.io/cloud-builders/docker'
-    id: 'image build'
+    id: 'image build add commit id tag'
     args: ['build', '-f', './environment/production/Dockerfile', '-t', 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/waiwaichan/image:$SHORT_SHA', '.']
   - name: 'gcr.io/cloud-builders/docker'
-    id: 'image build'
+    id: 'image build add latest tag'
     args: ['build', '-f', './environment/production/Dockerfile', '-t', 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/waiwaichan/image:latest', '.']
   - name: 'gcr.io/cloud-builders/docker'
-    id: 'image push'
+    id: 'image push add commit id tag'
     args: ['push', 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/waiwaichan/image:$SHORT_SHA']
   - name: 'gcr.io/cloud-builders/docker'
-    id: 'image push'
+    id: 'image push add latest tag'
     args: ['push', 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/waiwaichan/image:latest']
   - name: 'google/cloud-sdk'
     id: 'instance deploy'
