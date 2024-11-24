@@ -19,7 +19,6 @@ steps:
       - |
         gcloud compute ssh waiwaichan-server --zone=asia-northeast1-a --command="
           cd /app/waiwaichan && \
-          source createconfig.sh \
           sudo docker compose -f ./environment/production/docker-compose.yml down && \
           sudo docker compose -f ./environment/production/docker-compose.yml up -d
         "
