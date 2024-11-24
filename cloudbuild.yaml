@@ -10,6 +10,7 @@ steps:
       - |
         gcloud compute ssh waiwaichan-server --zone=asia-northeast1-a --command="
           cd /app/waiwaichan && \
+          sudo git config --global --add safe.directory /app/waiwaichan
           sudo docker compose -f ./environment/production/docker-compose.yml down && \
           sudo git pull origin main && \
           sudo docker compose -f ./environment/production/docker-compose.yml up -d
