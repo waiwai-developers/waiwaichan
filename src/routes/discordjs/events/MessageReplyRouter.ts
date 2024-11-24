@@ -1,7 +1,7 @@
+import { HandlerTypes } from "@/src/entities/constants/DIContainerTypes";
 import type { DiscordEventRouter } from "@/src/routes/discordjs/events/DiscordEventRouter";
 import type { Client, Message } from "discord.js";
 import { injectable, multiInject } from "inversify";
-import { HandlerTypes } from "../../../entities/constants/DIContainerTypes";
 import type { DiscordEventHandler } from "../handler/DiscordEventHandler";
 
 @injectable()
