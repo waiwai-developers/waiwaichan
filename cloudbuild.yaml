@@ -1,9 +1,12 @@
 steps:
   - name: 'gcr.io/cloud-builders/docker'
+    id: 'image build'
     args: ['build', '-f', './environment/production/Dockerfile', '-t', 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/waiwaichan/image:$SHORT_SHA', '.']
   - name: 'gcr.io/cloud-builders/docker'
+    id: 'image push'
     args: ['push', 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/waiwaichan/image:$SHORT_SHA']
   - name: 'google/cloud-sdk'
+    id: 'instance deploy'
     entrypoint: 'bash'
     args:
       - '-c'
