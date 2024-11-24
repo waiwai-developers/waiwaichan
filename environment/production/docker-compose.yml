@@ -49,7 +49,7 @@ services:
         target: /app/node_modules
     networks:
       - server-network
-    command: sh -c "npm i && pnpm run migrate && npm run seed"
+    command: sh -c "npm i && pnpm run migrate up && pnpm run seed up"
 networks:
   server-network:
     driver: bridge
