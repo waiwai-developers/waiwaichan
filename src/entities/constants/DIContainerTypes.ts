@@ -29,3 +29,9 @@ export const RouteTypes = {
 export const SchedulerRepoTypes = {
 	ReminderSchedulerRepository: Symbol.for("ReminderSchedulerRepository"),
 };
+
+export const HandlerTypes = {
+	SlashCommandHandler: Symbol.for("SlashCommandHandler"),
+	ReactionHandler: Symbol.for("ReactionHandler"),
+	MessageHandler: Symbol.for("MessageHandler"),
+};

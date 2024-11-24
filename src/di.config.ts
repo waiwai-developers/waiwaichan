@@ -34,7 +34,11 @@ import { MessageReplyRouter } from "@/src/routes/discordjs/events/MessageReplyRo
 import { ReactionRouter } from "@/src/routes/discordjs/events/ReactionRouter";
 import { ReadyStateRouter } from "@/src/routes/discordjs/events/ReadyStateRouter";
 import { SlashCommandRouter } from "@/src/routes/discordjs/events/SlashCommandRouter";
+import type { Message } from "discord.js";
 import { Container } from "inversify";
+import { HandlerTypes } from "./entities/constants/DIContainerTypes";
+import { AIReplyHandler } from "./routes/discordjs/handler/AIReplyHandler";
+import type { DiscordEventHandler } from "./routes/discordjs/handler/DiscordEventHandler";
 
 // for app
 const appContainer = new Container();
@@ -63,6 +67,9 @@ appContainer.bind<IReminderLogic>(LogicTypes.ReminderLogic).to(ReminderLogic);
 appContainer.bind<IPullRequestLogic>(LogicTypes.PullRequestLogic).to(PullRequestLogic);
 appContainer.bind<ITranslatorLogic>(LogicTypes.TranslateLogic).to(TranslatorLogic);
 appContainer.bind<IUtilityLogic>(LogicTypes.UtilityLogic).to(UtilityLogic);
+
+// Handlers
+appContainer.bind<DiscordEventHandler<Message>>(HandlerTypes.MessageHandler).to(AIReplyHandler);
 
 // Routes
 appContainer.bind<DiscordEventRouter>(RouteTypes.SlashCommandRoute).to(SlashCommandRouter);
