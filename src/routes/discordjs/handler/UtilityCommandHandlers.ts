@@ -1,4 +1,8 @@
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
+import { ChoiceContent } from "@/src/entities/vo/ChoiceContent";
+import { DiceSides } from "@/src/entities/vo/DiceSides";
+import { HelpCategory } from "@/src/entities/vo/HelpCategory";
+import { ParrotMessage } from "@/src/entities/vo/ParrotMessage";
 import type { IUtilityLogic } from "@/src/logics/Interfaces/logics/IUtilityLogic";
 import type {
 	CacheType,
@@ -6,10 +10,6 @@ import type {
 	TextChannel,
 } from "discord.js";
 import { inject, injectable } from "inversify";
-import { ChoiceContent } from "../../../entities/vo/ChoiceContent";
-import { DiceSides } from "../../../entities/vo/DiceSides";
-import { HelpCategory } from "../../../entities/vo/HelpCategory";
-import { ParrotMessage } from "../../../entities/vo/ParrotMessage";
 import type { SlashCommandHandler } from "./SlashCommandHandler";
 
 @injectable()
