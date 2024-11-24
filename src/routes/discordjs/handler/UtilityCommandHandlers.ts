@@ -13,7 +13,7 @@ import { inject, injectable } from "inversify";
 import type { SlashCommandHandler } from "./SlashCommandHandler";
 
 @injectable()
-class HelpCommandHandler implements SlashCommandHandler {
+export class HelpCommandHandler implements SlashCommandHandler {
 	@inject(LogicTypes.UtilityLogic)
 	private utilLogic!: IUtilityLogic;
 	isHandle(commandName: string): boolean {
@@ -31,7 +31,7 @@ class HelpCommandHandler implements SlashCommandHandler {
 }
 
 @injectable()
-class WaiwaiCommandHandler implements SlashCommandHandler {
+export class WaiwaiCommandHandler implements SlashCommandHandler {
 	@inject(LogicTypes.UtilityLogic)
 	private utilLogic!: IUtilityLogic;
 	isHandle(commandName: string): boolean {
@@ -46,7 +46,7 @@ class WaiwaiCommandHandler implements SlashCommandHandler {
 }
 
 @injectable()
-class ParrotCommandHandler implements SlashCommandHandler {
+export class ParrotCommandHandler implements SlashCommandHandler {
 	@inject(LogicTypes.UtilityLogic)
 	private utilLogic!: IUtilityLogic;
 	isHandle(commandName: string): boolean {
@@ -65,7 +65,7 @@ class ParrotCommandHandler implements SlashCommandHandler {
 }
 
 @injectable()
-class DiceCommandHandler implements SlashCommandHandler {
+export class DiceCommandHandler implements SlashCommandHandler {
 	@inject(LogicTypes.UtilityLogic)
 	private utilLogic!: IUtilityLogic;
 	isHandle(commandName: string): boolean {
@@ -84,7 +84,7 @@ class DiceCommandHandler implements SlashCommandHandler {
 }
 
 @injectable()
-class ChoiceCommandHandler implements SlashCommandHandler {
+export class ChoiceCommandHandler implements SlashCommandHandler {
 	@inject(LogicTypes.UtilityLogic)
 	private utilLogic!: IUtilityLogic;
 	isHandle(commandName: string): boolean {
@@ -105,7 +105,7 @@ class ChoiceCommandHandler implements SlashCommandHandler {
 }
 
 @injectable()
-class TalkThreadHandler implements SlashCommandHandler {
+export class TalkThreadHandler implements SlashCommandHandler {
 	isHandle(commandName: string): boolean {
 		return commandName === "talk";
 	}

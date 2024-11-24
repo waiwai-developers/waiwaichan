@@ -11,7 +11,7 @@ import type {
 } from "./DiscordEventHandler";
 
 @injectable()
-export class AIReplyHandler
+export class CandyReactionHandler
 	implements DiscordEventHandler<ReactionInteraction>
 {
 	@inject(LogicTypes.PointLogic)

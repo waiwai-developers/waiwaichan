@@ -1,5 +1,6 @@
 import "@abraham/reflection";
 import { LogicTypes, RepoTypes, RouteTypes, SchedulerRepoTypes } from "@/src/entities/constants/DIContainerTypes";
+import { HandlerTypes } from "@/src/entities/constants/DIContainerTypes";
 import { ChatAILogic } from "@/src/logics/ChatAILogic";
 import type { IChatAILogic } from "@/src/logics/Interfaces/logics/IChatAILogic";
 import type { IMinecraftServerLogic } from "@/src/logics/Interfaces/logics/IMinecraftServerLogic";
@@ -34,11 +35,18 @@ import { MessageReplyRouter } from "@/src/routes/discordjs/events/MessageReplyRo
 import { ReactionRouter } from "@/src/routes/discordjs/events/ReactionRouter";
 import { ReadyStateRouter } from "@/src/routes/discordjs/events/ReadyStateRouter";
 import { SlashCommandRouter } from "@/src/routes/discordjs/events/SlashCommandRouter";
+import { AIReplyHandler } from "@/src/routes/discordjs/handler/AIReplyHandler";
+import { CandyReactionHandler } from "@/src/routes/discordjs/handler/CandyReactionHandler";
+import type { DiscordEventHandler } from "@/src/routes/discordjs/handler/DiscordEventHandler";
+import type { ReactionInteraction } from "@/src/routes/discordjs/handler/DiscordEventHandler";
+import { MinecraftStartCommandHandler, MinecraftStopCommandHandler } from "@/src/routes/discordjs/handler/MinecraftCommandHandlers";
+import { PointCheckCommandHandlers, PointDrawCommandHandlers, PointExchangeCommandHandlers, PointItemCommandHandlers } from "@/src/routes/discordjs/handler/PointCommandHandlers";
+import { ReminderDeleteCommandHandlers, ReminderListCommandHandlers, ReminderSetCommandHandlers } from "@/src/routes/discordjs/handler/ReminderCommandHandlers";
+import { ReviewGachaCommandHandler, ReviewListCommandHandler } from "@/src/routes/discordjs/handler/ReviewCommandHandlers";
+import type { SlashCommandHandler } from "@/src/routes/discordjs/handler/SlashCommandHandler";
+import { ChoiceCommandHandler, DiceCommandHandler, HelpCommandHandler, ParrotCommandHandler, TalkThreadHandler, WaiwaiCommandHandler } from "@/src/routes/discordjs/handler/UtilityCommandHandlers";
 import type { Message } from "discord.js";
 import { Container } from "inversify";
-import { HandlerTypes } from "./entities/constants/DIContainerTypes";
-import { AIReplyHandler } from "./routes/discordjs/handler/AIReplyHandler";
-import type { DiscordEventHandler } from "./routes/discordjs/handler/DiscordEventHandler";
 
 // for app
 const appContainer = new Container();
@@ -70,6 +78,24 @@ appContainer.bind<IUtilityLogic>(LogicTypes.UtilityLogic).to(UtilityLogic);
 
 // Handlers
 appContainer.bind<DiscordEventHandler<Message>>(HandlerTypes.MessageHandler).to(AIReplyHandler);
+appContainer.bind<DiscordEventHandler<ReactionInteraction>>(HandlerTypes.ReactionHandler).to(CandyReactionHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(HelpCommandHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(WaiwaiCommandHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(ParrotCommandHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(DiceCommandHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(ChoiceCommandHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(TalkThreadHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(ReminderSetCommandHandlers);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(ReminderListCommandHandlers);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(ReminderDeleteCommandHandlers);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(PointCheckCommandHandlers);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(PointDrawCommandHandlers);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(PointItemCommandHandlers);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(PointExchangeCommandHandlers);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(ReviewGachaCommandHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(ReviewListCommandHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(MinecraftStartCommandHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(MinecraftStopCommandHandler);
 
 // Routes
 appContainer.bind<DiscordEventRouter>(RouteTypes.SlashCommandRoute).to(SlashCommandRouter);

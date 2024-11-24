@@ -9,7 +9,7 @@ import { inject, injectable } from "inversify";
 import type { SlashCommandHandler } from "./SlashCommandHandler";
 
 @injectable()
-class TranslateCommandHandlers implements SlashCommandHandler {
+export class TranslateCommandHandlers implements SlashCommandHandler {
 	@inject(LogicTypes.TranslateLogic)
 	private translateLogic!: ITranslatorLogic;
 

@@ -5,7 +5,7 @@ import { inject, injectable } from "inversify";
 import type { SlashCommandHandler } from "./SlashCommandHandler";
 
 @injectable()
-class MinecraftStartCommandHandler implements SlashCommandHandler {
+export class MinecraftStartCommandHandler implements SlashCommandHandler {
 	@inject(LogicTypes.MinecraftServerLogic)
 	private mineCraftLogic!: IMinecraftServerLogic;
 
@@ -22,7 +22,7 @@ class MinecraftStartCommandHandler implements SlashCommandHandler {
 }
 
 @injectable()
-class MinecraftStopCommandHandler implements SlashCommandHandler {
+export class MinecraftStopCommandHandler implements SlashCommandHandler {
 	@inject(LogicTypes.MinecraftServerLogic)
 	private mineCraftLogic!: IMinecraftServerLogic;
 

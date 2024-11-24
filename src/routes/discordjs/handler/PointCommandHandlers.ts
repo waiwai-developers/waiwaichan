@@ -7,7 +7,7 @@ import { inject, injectable } from "inversify";
 import type { SlashCommandHandler } from "./SlashCommandHandler";
 
 @injectable()
-class PointCheckCommandHandlers implements SlashCommandHandler {
+export class PointCheckCommandHandlers implements SlashCommandHandler {
 	@inject(LogicTypes.PointLogic)
 	private pointLogic!: IPointLogic;
 
@@ -25,7 +25,7 @@ class PointCheckCommandHandlers implements SlashCommandHandler {
 }
 
 @injectable()
-class PointDrawCommandHandlers implements SlashCommandHandler {
+export class PointDrawCommandHandlers implements SlashCommandHandler {
 	@inject(LogicTypes.PointLogic)
 	private pointLogic!: IPointLogic;
 
@@ -43,7 +43,7 @@ class PointDrawCommandHandlers implements SlashCommandHandler {
 }
 
 @injectable()
-class PointItemCommandHandlers implements SlashCommandHandler {
+export class PointItemCommandHandlers implements SlashCommandHandler {
 	@inject(LogicTypes.PointLogic)
 	private pointLogic!: IPointLogic;
 
@@ -61,7 +61,7 @@ class PointItemCommandHandlers implements SlashCommandHandler {
 }
 
 @injectable()
-class PointExchangeCommandHandlers implements SlashCommandHandler {
+export class PointExchangeCommandHandlers implements SlashCommandHandler {
 	@inject(LogicTypes.PointLogic)
 	private pointLogic!: IPointLogic;
 

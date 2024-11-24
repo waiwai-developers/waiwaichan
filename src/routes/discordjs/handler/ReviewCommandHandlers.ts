@@ -7,7 +7,7 @@ import { inject, injectable } from "inversify";
 import type { SlashCommandHandler } from "./SlashCommandHandler";
 
 @injectable()
-class ReviewGachaCommandHandler implements SlashCommandHandler {
+export class ReviewGachaCommandHandler implements SlashCommandHandler {
 	@inject(LogicTypes.PullRequestLogic)
 	private pullRequestLogic!: IPullRequestLogic;
 
@@ -29,7 +29,7 @@ class ReviewGachaCommandHandler implements SlashCommandHandler {
 }
 
 @injectable()
-class ReviewListCommandHandler implements SlashCommandHandler {
+export class ReviewListCommandHandler implements SlashCommandHandler {
 	@inject(LogicTypes.PullRequestLogic)
 	private pullRequestLogic!: IPullRequestLogic;
 
