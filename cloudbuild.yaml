@@ -28,6 +28,7 @@ steps:
           sudo docker system prune -f && \
           gcloud auth activate-service-account --key-file=config/key.json && \
           cat config/key.json | docker login -u _json_key --password-stdin asia-northeast1-docker.pkg.dev && \
+          sudo docker pull asia-northeast1-docker.pkg.dev/waiwai-406106/waiwaichan/image:latest && \
           sudo docker compose -f ./environment/production/docker-compose.yml pull && \
           sudo docker compose -f ./environment/production/docker-compose.yml up -d
         "
