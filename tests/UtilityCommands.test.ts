@@ -62,4 +62,15 @@ describe("Test UtilityCommand", () => {
 		await waitUntilReply(commandMock);
 		verify(commandMock.reply(message)).once();
 	});
+
+	test("Test /parrot message:null", async () => {
+		const commandMock = mockSlashCommand("parrot");
+		const TEST_CLIENT = await TestDiscordServer.getClient();
+
+		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+		await waitUntilReply(commandMock);
+		verify(commandMock.reply(anything())).once();
+		verify(commandMock.reply("")).never();
+		verify(commandMock.reply(InternalErrorMessage)).once();
+	});
 });
