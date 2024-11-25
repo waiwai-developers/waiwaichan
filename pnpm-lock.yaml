@@ -53,6 +53,9 @@ importers:
       sequelize:
         specifier: ^6.37.5
         version: 6.37.5(mysql2@3.11.4)
+      ts-mockito:
+        specifier: ^2.6.1
+        version: 2.6.1
       tsc-alias:
         specifier: ^1.8.10
         version: 1.8.10
@@ -2154,6 +2157,9 @@ packages:
 
   ts-mixer@6.0.4:
     resolution: {integrity: sha512-ufKpbmrugz5Aou4wcr5Wc1UUFWOLhq+Fm6qa6P0w0K5Qw2yhaUoiWszhCVuNQyNwrlGiscHOmqYoAox1PtvgjA==}
+
+  ts-mockito@2.6.1:
+    resolution: {integrity: sha512-qU9m/oEBQrKq5hwfbJ7MgmVN5Gu6lFnIGWvpxSjrqq6YYEVv+RwVFWySbZMBgazsWqv6ctAyVBpo9TmAxnOEKw==}
 
   tsc-alias@1.8.10:
     resolution: {integrity: sha512-Ibv4KAWfFkFdKJxnWfVtdOmB0Zi1RJVxcbPGiCDsFpCQSsmpWyuzHG3rQyI5YkobWwxFPEyQfu1hdo4qLG2zPw==}
@@ -4619,6 +4625,10 @@ snapshots:
   tr46@0.0.3: {}
 
   ts-mixer@6.0.4: {}
+
+  ts-mockito@2.6.1:
+    dependencies:
+      lodash: 4.17.21
 
   tsc-alias@1.8.10:
     dependencies:
