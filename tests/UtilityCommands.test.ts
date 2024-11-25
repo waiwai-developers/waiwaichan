@@ -31,4 +31,12 @@ describe("Test UtilityCommand", () => {
 		verify(commandMock.reply("")).never();
 		verify(commandMock.reply(InternalErrorMessage)).never();
 	});
+	test("Test /help category:null", async () => {
+		const commandMock = mockSlashCommand("help");
+		const TEST_CLIENT = await TestDiscordServer.getClient();
+
+		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+		await waitUntilReply(commandMock);
+		verify(commandMock.reply(InternalErrorMessage)).once();
+	});
 });
