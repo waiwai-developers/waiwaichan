@@ -1,3 +1,4 @@
+import { InternalErrorMessage } from "@/src/entities/DiscordErrorMessages";
 import { HandlerTypes } from "@/src/entities/constants/DIContainerTypes";
 import type { DiscordEventRouter } from "@/src/routes/discordjs/events/DiscordEventRouter";
 import type { SlashCommandHandler } from "@/src/routes/discordjs/handler/SlashCommandHandler";
@@ -21,7 +22,10 @@ export class SlashCommandRouter implements DiscordEventRouter {
 				}
 				await matched.handle(interaction);
 			} catch (error) {
-				console.log(error);
+				console.error(error);
+				if (interaction.isChatInputCommand()) {
+					interaction.reply(InternalErrorMessage);
+				}
 			}
 		});
 	}
