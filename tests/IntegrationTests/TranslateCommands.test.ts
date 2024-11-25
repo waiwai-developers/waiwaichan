@@ -20,7 +20,7 @@ const ENGLISH_TARGET = TranslateConst.target.find(
 	(it) => it.value === "EN-US",
 )?.value;
 
-describe("Test Translate", () => {
+describe("Test Translate Command", () => {
 	test("Test /translate source:EN target:JA messages:Hello World! ", async () => {
 		const commandMock = mockSlashCommand("translate", {
 			source: ENGLISH_SOURCE,

@@ -1,4 +1,3 @@
-import { after, afterEach, before, beforeEach } from "node:test";
 import { appContainer } from "@/src/di.config";
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import type { IVirtualMachineAPI } from "@/src/logics/Interfaces/repositories/cloudprovider/IVirtualMachineAPI";
@@ -15,10 +14,12 @@ import {
 import { anyString, instance, mock, verify, when } from "ts-mockito";
 
 describe("Test Minecraft Commands", () => {
-	test("Test /minecraftstart", async () => {
+	beforeEach(() => {
 		appContainer
 			.rebind<IVirtualMachineAPI>(RepoTypes.VMInstanceRepository)
 			.toConstantValue(MockVirtualMachineAPI());
+	});
+	test("Test /minecraftstart", async () => {
 		const commandMock = mockSlashCommand("minecraftstart");
 
 		const TEST_CLIENT = await TestDiscordServer.getClient();
@@ -28,9 +29,6 @@ describe("Test Minecraft Commands", () => {
 	});
 
 	test("Test /minecraftstop", async () => {
-		appContainer
-			.rebind<IVirtualMachineAPI>(RepoTypes.VMInstanceRepository)
-			.toConstantValue(MockVirtualMachineAPI());
 		const commandMock = mockSlashCommand("minecraftstop");
 		const TEST_CLIENT = await TestDiscordServer.getClient();
 
@@ -66,7 +64,7 @@ describe("Test Minecraft Commands", () => {
 			commandMock.editReply("インスタンスを停止できなかったよ！っ"),
 		).once();
 	});
-	after(() => {
+	afterAll(() => {
 		appContainer
 			.rebind<IVirtualMachineAPI>(RepoTypes.VMInstanceRepository)
 			.to(GCPComputeEngineInstanceRepositoryImpl);
