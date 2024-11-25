@@ -44,6 +44,7 @@ import { PointCheckCommandHandlers, PointDrawCommandHandlers, PointExchangeComma
 import { ReminderDeleteCommandHandlers, ReminderListCommandHandlers, ReminderSetCommandHandlers } from "@/src/routes/discordjs/handler/ReminderCommandHandlers";
 import { ReviewGachaCommandHandler, ReviewListCommandHandler } from "@/src/routes/discordjs/handler/ReviewCommandHandlers";
 import type { SlashCommandHandler } from "@/src/routes/discordjs/handler/SlashCommandHandler";
+import { TranslateCommandHandler } from "@/src/routes/discordjs/handler/TranslateCommandHandlers";
 import { ChoiceCommandHandler, DiceCommandHandler, HelpCommandHandler, ParrotCommandHandler, TalkThreadHandler, WaiwaiCommandHandler } from "@/src/routes/discordjs/handler/UtilityCommandHandlers";
 import type { Message } from "discord.js";
 import { Container } from "inversify";
@@ -84,6 +85,7 @@ appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(Waiw
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(ParrotCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(DiceCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(ChoiceCommandHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(TranslateCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(TalkThreadHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(ReminderSetCommandHandlers);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(ReminderListCommandHandlers);
