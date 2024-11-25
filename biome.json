@@ -32,9 +32,20 @@
 	},
 	"overrides": [
 		{
-			"include": ["./di.config.ts"],
+			"include": ["./src/di.config.ts"],
 			"formatter": {
 				"lineWidth": 200
+			}
+		},
+		{
+			"include": ["./tests/*.ts"],
+			"linter": {
+				"enabled": true,
+				"rules": {
+					"suspicious": {
+						"noExplicitAny": "off"
+					}
+				}
 			}
 		}
 	]
