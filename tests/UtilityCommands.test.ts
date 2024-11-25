@@ -19,6 +19,7 @@ describe("Test UtilityCommand", () => {
 		verify(commandMock.reply("")).never();
 		verify(commandMock.reply(InternalErrorMessage)).never();
 	});
+
 	test("Test /help category:mainコマンド", async () => {
 		const commandMock = mockSlashCommand("help", {
 			category: "mainコマンド",
@@ -31,6 +32,7 @@ describe("Test UtilityCommand", () => {
 		verify(commandMock.reply("")).never();
 		verify(commandMock.reply(InternalErrorMessage)).never();
 	});
+
 	test("Test /help category:null", async () => {
 		const commandMock = mockSlashCommand("help");
 		const TEST_CLIENT = await TestDiscordServer.getClient();
@@ -38,5 +40,14 @@ describe("Test UtilityCommand", () => {
 		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 		await waitUntilReply(commandMock);
 		verify(commandMock.reply(InternalErrorMessage)).once();
+	});
+
+	test("Test /waiwai", async () => {
+		const commandMock = mockSlashCommand("waiwai");
+		const TEST_CLIENT = await TestDiscordServer.getClient();
+
+		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+		await waitUntilReply(commandMock);
+		verify(commandMock.reply("waiwai")).once();
 	});
 });
