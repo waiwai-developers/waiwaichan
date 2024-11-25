@@ -6,8 +6,8 @@ services:
     image: asia-northeast1-docker.pkg.dev/waiwai-406106/waiwaichan/image:latest
     volumes:
       - type: bind
-        source: ../../.
-        target: /app
+        source: ../../config
+        target: /app/config
       - type: volume
         source: backend_node_modules
         target: /app/node_modules
@@ -22,8 +22,8 @@ services:
     image: asia-northeast1-docker.pkg.dev/waiwai-406106/waiwaichan/image:latest
     volumes:
       - type: bind
-        source: ../../.
-        target: /app
+        source: ../../config
+        target: /app/config
       - type: volume
         source: scheduler_node_modules
         target: /app/node_modules
@@ -36,8 +36,8 @@ services:
     image: asia-northeast1-docker.pkg.dev/waiwai-406106/waiwaichan/image:latest
     volumes:
       - type: bind
-        source: ../../.
-        target: /app
+        source: ../../config
+        target: /app/config
       - type: volume
         source: migrate_node_modules
         target: /app/node_modules
