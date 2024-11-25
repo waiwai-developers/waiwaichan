@@ -73,4 +73,24 @@ describe("Test UtilityCommand", () => {
 		verify(commandMock.reply("")).never();
 		verify(commandMock.reply(InternalErrorMessage)).once();
 	});
+
+	test("Test /dice parameter:ramdom", async () => {
+		for (let i = 0; i < 10; i++) {
+			const sides = Math.round(Math.random() * Number.MAX_SAFE_INTEGER);
+
+			const commandMock = mockSlashCommand("dice", {
+				parameter: sides,
+			});
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			let value = 0;
+			when(commandMock.reply(anything())).thenCall((args) => {
+				value = args;
+			});
+			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+			await waitUntilReply(commandMock);
+			verify(commandMock.reply(anything())).once();
+			verify(commandMock.reply(InternalErrorMessage)).never();
+			expect(Number(value)).toBeLessThanOrEqual(sides);
+		}
+	}, 20_000);
 });
