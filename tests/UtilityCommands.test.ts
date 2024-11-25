@@ -124,4 +124,19 @@ describe("Test UtilityCommand", () => {
 		verify(commandMock.reply(anything())).once();
 		verify(commandMock.reply("パラメーターが整数じゃないよ！っ")).once();
 	});
+
+	test("Test /dice parameter:-1", async () => {
+		const commandMock = mockSlashCommand("dice", {
+			parameter: -1,
+		});
+		const TEST_CLIENT = await TestDiscordServer.getClient();
+		let value = 0;
+		when(commandMock.reply(anything())).thenCall((args) => {
+			value = args;
+		});
+		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+		await waitUntilReply(commandMock);
+		verify(commandMock.reply(anything())).once();
+		verify(commandMock.reply("パラメーターが0以下の数だよ！っ")).once();
+	});
 });
