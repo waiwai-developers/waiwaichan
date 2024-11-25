@@ -15,7 +15,7 @@ services:
       - server-network
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: config/key.json
-    command: sh -c "source createconfig.sh && npm i && pnpm run dev"
+    command: sh -c "npm i && pnpm run dev"
   scheduler:
     container_name: waiwai-scheduler
     restart: "always"
@@ -29,7 +29,7 @@ services:
         target: /app/node_modules
     networks:
       - server-network
-    command: sh -c "source createconfig.sh && npm i && pnpm run dev:scheduler"
+    command: sh -c "npm i && pnpm run dev:scheduler"
   migrate:
     container_name: waiwai-migrate
     restart: "no"
@@ -43,7 +43,7 @@ services:
         target: /app/node_modules
     networks:
       - server-network
-    command: sh -c "source createconfig.sh && npm i && pnpm run migrate up && pnpm run seed up"
+    command: sh -c "npm i && pnpm run migrate up && pnpm run seed up"
 networks:
   server-network:
     driver: bridge
