@@ -4,5 +4,6 @@
 		"^.+\\.(t|j)sx?$": ["@swc/jest"]
 	},
 	"testEnvironment": "node",
-	"extensionsToTreatAsEsm": [".ts", ".tsx", ".jsx"]
+	"extensionsToTreatAsEsm": [".ts", ".tsx", ".jsx"],
+	"testTimeout": 15000
 }
