@@ -19,4 +19,16 @@ describe("Test UtilityCommand", () => {
 		verify(commandMock.reply("")).never();
 		verify(commandMock.reply(InternalErrorMessage)).never();
 	});
+	test("Test /help category:mainコマンド", async () => {
+		const commandMock = mockSlashCommand("help", {
+			category: "mainコマンド",
+		});
+		const TEST_CLIENT = await TestDiscordServer.getClient();
+
+		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+		await waitUntilReply(commandMock);
+		verify(commandMock.reply(anything())).once();
+		verify(commandMock.reply("")).never();
+		verify(commandMock.reply(InternalErrorMessage)).never();
+	});
 });
