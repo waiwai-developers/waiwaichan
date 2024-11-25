@@ -1,4 +1,4 @@
-FROM asia-northeast1-docker.pkg.dev/waiwai-406106/waiwaichan/image:latest
+FROM node:22.5.1-alpine
 WORKDIR /app
 COPY . .
 RUN apk update && apk add mysql-client
