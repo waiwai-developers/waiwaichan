@@ -1,3 +1,4 @@
+import { InternalErrorMessage } from "@/src/entities/DiscordErrorMessages";
 import { TranslateConst } from "@/src/entities/constants/translate";
 import {
 	mockSlashCommand,
@@ -36,5 +37,23 @@ describe("Test Translate", () => {
 		await waitUntilReply(commandMock);
 		verify(commandMock.editReply(anything())).once();
 		verify(commandMock.editReply("")).never();
+	});
+
+	test("Test /translate source:null target:JA messages:Hello World! ", async () => {
+		const commandMock = mockSlashCommand("translate", {
+			source: null,
+			target: JAPANESE_TARGET,
+			messages: "Hello World!",
+		});
+		const TEST_CLIENT = await TestDiscordServer.getClient();
+		let result = "";
+		when(commandMock.editReply(anything())).thenCall((arg) => {
+			result = arg;
+		});
+
+		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+		await waitUntilReply(commandMock);
+		verify(commandMock.editReply(anything())).never();
+		verify(commandMock.reply(InternalErrorMessage)).once();
 	});
 });
