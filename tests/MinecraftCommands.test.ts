@@ -1,4 +1,4 @@
-import { after, before, beforeEach } from "node:test";
+import { after, afterEach, before, beforeEach } from "node:test";
 import { appContainer } from "@/src/di.config";
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import type { IVirtualMachineAPI } from "@/src/logics/Interfaces/repositories/cloudprovider/IVirtualMachineAPI";
@@ -70,17 +70,9 @@ describe("Test Minecraft Commands", () => {
 			commandInteractionMock.editReply("インスタンスを停止できなかったよ！っ"),
 		).once();
 	});
-
 	after(() => {
 		appContainer
 			.rebind<IVirtualMachineAPI>(RepoTypes.VMInstanceRepository)
 			.to(GCPComputeEngineInstanceRepositoryImpl);
 	});
 });
-
-class MyService {
-	doSomething(str: string): void {
-		// 実際の処理
-		console.log("Doing something!");
-	}
-}

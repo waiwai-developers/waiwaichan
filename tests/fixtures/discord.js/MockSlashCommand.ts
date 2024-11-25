@@ -8,6 +8,7 @@ export const mockSlashCommand = (commandName: string) => {
 	);
 	when(commandInteractionMock.commandName).thenReturn(commandName);
 	when(commandInteractionMock.isChatInputCommand()).thenReturn(true);
+	when(commandInteractionMock.deferReply()).thenResolve();
 	return commandInteractionMock;
 };
 
