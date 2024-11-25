@@ -92,4 +92,23 @@ describe("Test Translate", () => {
 		verify(commandMock.editReply(anything())).never();
 		verify(commandMock.reply(InternalErrorMessage)).once();
 	});
+
+	test("Test /translate source:JA target:JA messages:Hello World!", async () => {
+		const commandMock = mockSlashCommand("translate", {
+			source: JAPANESE_SOURCE,
+			target: JAPANESE_TARGET,
+			messages: "Hello World!",
+		});
+		const TEST_CLIENT = await TestDiscordServer.getClient();
+		let result = "";
+		when(commandMock.editReply(anything())).thenCall((arg) => {
+			result = arg;
+		});
+
+		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+		await waitUntilReply(commandMock);
+		verify(commandMock.reply(anything())).never();
+		verify(commandMock.editReply(anything())).once();
+		verify(commandMock.editReply("sourceとtargetが同じだよ！っ")).once();
+	});
 });
