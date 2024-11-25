@@ -90,7 +90,7 @@ describe("Test UtilityCommand", () => {
 			await waitUntilReply(commandMock);
 			verify(commandMock.reply(anything())).once();
 			verify(commandMock.reply(InternalErrorMessage)).never();
-			expect(sides).toBeGreaterThanOrEqual(value);
+			expect(Number(value)).toBeLessThanOrEqual(sides);
 		}
 	}, 20_000);
 
@@ -159,6 +159,21 @@ describe("Test UtilityCommand", () => {
 				notChoices = notChoices.toSpliced(notChoices.indexOf(value), 1);
 			}
 		} while (notChoices.length !== 0);
-		expect([]).toStrictEqual(notChoices);
+		expect(notChoices).toStrictEqual([]);
+	});
+
+	test("Test /choice parameter:null", async () => {
+		const commandMock = mockSlashCommand("choice");
+		const TEST_CLIENT = await TestDiscordServer.getClient();
+		let value = "";
+		when(commandMock.reply(anything())).thenCall((args) => {
+			value = args;
+		});
+
+		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+		await waitUntilReply(commandMock);
+
+		verify(commandMock.reply(anything())).once();
+		verify(commandMock.reply(InternalErrorMessage)).once();
 	});
 });
