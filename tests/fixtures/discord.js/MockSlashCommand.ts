@@ -6,8 +6,8 @@ import {
 	type CommandInteractionOptionResolver,
 } from "discord.js";
 import { anything, instance, mock, verify, when } from "ts-mockito";
-const commandInteractionMock = mock(ChatInputCommandInteraction);
 export const mockSlashCommand = (commandName: string, options: any = {}) => {
+	const commandInteractionMock = mock(ChatInputCommandInteraction);
 	const found = new DiscordCommandRegister().commands.find(
 		(b) => b.name === commandName,
 	);
@@ -69,7 +69,6 @@ export const mockSlashCommand = (commandName: string, options: any = {}) => {
 					when(optionsMock.getString(it.toJSON().name, true)).thenReturn(
 						options[it.toJSON().name],
 					);
-					console.log(it.toJSON().name, "->", options[it.toJSON().name]);
 					break;
 				case ApplicationCommandOptionType.Integer:
 					when(optionsMock.getInteger(it.toJSON().name)).thenReturn(
@@ -104,7 +103,9 @@ export const mockSlashCommand = (commandName: string, options: any = {}) => {
 	return commandInteractionMock;
 };
 
-export const waitUntilReply = async (): Promise<void> => {
+export const waitUntilReply = async (
+	commandInteractionMock: ChatInputCommandInteraction<CacheType>,
+): Promise<void> => {
 	const startTime = Date.now();
 	return new Promise((resolve, reject) => {
 		const interval = setInterval(async () => {

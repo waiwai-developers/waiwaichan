@@ -19,41 +19,37 @@ describe("Test Minecraft Commands", () => {
 		appContainer
 			.rebind<IVirtualMachineAPI>(RepoTypes.VMInstanceRepository)
 			.toConstantValue(MockVirtualMachineAPI());
-		const commandInteractionMock = mockSlashCommand("minecraftstart");
+		const commandMock = mockSlashCommand("minecraftstart");
 
 		const TEST_CLIENT = await TestDiscordServer.getClient();
-		TEST_CLIENT.emit("interactionCreate", instance(commandInteractionMock));
-		await waitUntilReply();
-		verify(
-			commandInteractionMock.editReply("インスタンスを起動したよ！っ"),
-		).once();
+		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+		await waitUntilReply(commandMock);
+		verify(commandMock.editReply("インスタンスを起動したよ！っ")).once();
 	});
 
 	test("Test /minecraftstop", async () => {
 		appContainer
 			.rebind<IVirtualMachineAPI>(RepoTypes.VMInstanceRepository)
 			.toConstantValue(MockVirtualMachineAPI());
-		const commandInteractionMock = mockSlashCommand("minecraftstop");
+		const commandMock = mockSlashCommand("minecraftstop");
 		const TEST_CLIENT = await TestDiscordServer.getClient();
 
-		TEST_CLIENT.emit("interactionCreate", instance(commandInteractionMock));
-		await waitUntilReply();
-		verify(
-			commandInteractionMock.editReply("インスタンスを停止したよ！っ"),
-		).once();
+		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+		await waitUntilReply(commandMock);
+		verify(commandMock.editReply("インスタンスを停止したよ！っ")).once();
 	});
 
 	test("Test /minecraftstart fail", async () => {
 		appContainer
 			.rebind<IVirtualMachineAPI>(RepoTypes.VMInstanceRepository)
 			.toConstantValue(MockFailVirtualMachineAPI());
-		const commandInteractionMock = mockSlashCommand("minecraftstart");
+		const commandMock = mockSlashCommand("minecraftstart");
 		const TEST_CLIENT = await TestDiscordServer.getClient();
 
-		TEST_CLIENT.emit("interactionCreate", instance(commandInteractionMock));
-		await waitUntilReply();
+		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+		await waitUntilReply(commandMock);
 		verify(
-			commandInteractionMock.editReply("インスタンスを起動できなかったよ！っ"),
+			commandMock.editReply("インスタンスを起動できなかったよ！っ"),
 		).once();
 	});
 
@@ -61,13 +57,13 @@ describe("Test Minecraft Commands", () => {
 		appContainer
 			.rebind<IVirtualMachineAPI>(RepoTypes.VMInstanceRepository)
 			.toConstantValue(MockFailVirtualMachineAPI());
-		const commandInteractionMock = mockSlashCommand("minecraftstop");
+		const commandMock = mockSlashCommand("minecraftstop");
 		const TEST_CLIENT = await TestDiscordServer.getClient();
 
-		TEST_CLIENT.emit("interactionCreate", instance(commandInteractionMock));
-		await waitUntilReply();
+		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+		await waitUntilReply(commandMock);
 		verify(
-			commandInteractionMock.editReply("インスタンスを停止できなかったよ！っ"),
+			commandMock.editReply("インスタンスを停止できなかったよ！っ"),
 		).once();
 	});
 	after(() => {

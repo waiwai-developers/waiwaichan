@@ -4,7 +4,6 @@ import { DiscordServer } from "@/src/routes/discordjs/DiscordServer";
 import type { DiscordEventRouter } from "@/src/routes/discordjs/events/DiscordEventRouter";
 
 export class TestDiscordServer extends DiscordServer {
-	private static instance: TestDiscordServer;
 	private constructor() {
 		super();
 		this.EventRoutes.forEach((event) => {
@@ -23,13 +22,9 @@ export class TestDiscordServer extends DiscordServer {
 		this.EventRoutes.forEach((event) => {
 			event.register(this.client);
 		});
+		return this;
 	}
 	static async getClient() {
-		if (TestDiscordServer.instance) {
-			await TestDiscordServer.instance.reRegister();
-			return TestDiscordServer.instance.client;
-		}
-		TestDiscordServer.instance = new TestDiscordServer();
-		return TestDiscordServer.instance.client;
+		return new TestDiscordServer().reRegister().then((t) => t.client);
 	}
 }
