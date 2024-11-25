@@ -99,10 +99,7 @@ describe("Test UtilityCommand", () => {
 			parameter: null,
 		});
 		const TEST_CLIENT = await TestDiscordServer.getClient();
-		let value = 0;
-		when(commandMock.reply(anything())).thenCall((args) => {
-			value = args;
-		});
+
 		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 		await waitUntilReply(commandMock);
 		verify(commandMock.reply(anything())).once();
@@ -115,10 +112,7 @@ describe("Test UtilityCommand", () => {
 			parameter: Math.PI,
 		});
 		const TEST_CLIENT = await TestDiscordServer.getClient();
-		let value = 0;
-		when(commandMock.reply(anything())).thenCall((args) => {
-			value = args;
-		});
+
 		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 		await waitUntilReply(commandMock);
 		verify(commandMock.reply(anything())).once();
@@ -130,10 +124,7 @@ describe("Test UtilityCommand", () => {
 			parameter: -1,
 		});
 		const TEST_CLIENT = await TestDiscordServer.getClient();
-		let value = 0;
-		when(commandMock.reply(anything())).thenCall((args) => {
-			value = args;
-		});
+
 		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 		await waitUntilReply(commandMock);
 		verify(commandMock.reply(anything())).once();
