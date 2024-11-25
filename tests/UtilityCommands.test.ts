@@ -93,4 +93,20 @@ describe("Test UtilityCommand", () => {
 			expect(Number(value)).toBeLessThanOrEqual(sides);
 		}
 	}, 20_000);
+
+	test("Test /dice parameter:null", async () => {
+		const commandMock = mockSlashCommand("dice", {
+			parameter: null,
+		});
+		const TEST_CLIENT = await TestDiscordServer.getClient();
+		let value = 0;
+		when(commandMock.reply(anything())).thenCall((args) => {
+			value = args;
+		});
+		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+		await waitUntilReply(commandMock);
+		verify(commandMock.reply(anything())).once();
+		verify(commandMock.reply("")).never();
+		verify(commandMock.reply(InternalErrorMessage)).once();
+	});
 });
