@@ -26,6 +26,7 @@ steps:
           sudo docker image prune -f && \
           sudo docker volume prune -f && \
           sudo docker system prune -f && \
+          gcloud auth activate-service-account --key-file=config/key.json && \
           cat config/key.json | docker login -u _json_key --password-stdin asia-northeast1-docker.pkg.dev && \
           sudo docker compose -f ./environment/production/docker-compose.yml pull && \
           sudo docker compose -f ./environment/production/docker-compose.yml up -d
