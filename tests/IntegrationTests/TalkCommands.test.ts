@@ -13,12 +13,17 @@ import { anything, instance, mock, verify, when } from "ts-mockito";
 
 describe("Test Talk Command", () => {
 	test("Test /talk title:test title", async () => {
+		const title = "test title";
 		const commandMock = mockSlashCommand("talk", {
-			title: "test title",
+			title: title,
 		});
 		const channelMock = mock<TextChannel>();
 		const threadManagerMock =
 			mock<GuildTextThreadManager<AllowedThreadTypeForTextChannel>>();
+		let createdTitle = "";
+		when(threadManagerMock.create(anything())).thenCall((args) => {
+			createdTitle = args.name;
+		});
 		when(channelMock.threads).thenReturn(instance(threadManagerMock));
 		when(commandMock.channel).thenReturn(instance(channelMock));
 		const TEST_CLIENT = await TestDiscordServer.getClient();
@@ -29,5 +34,6 @@ describe("Test Talk Command", () => {
 		verify(commandMock.reply("")).never();
 		verify(commandMock.reply("以下にお話する場を用意したよ！っ")).once();
 		verify(threadManagerMock.create(anything())).once();
+		expect(createdTitle).toEqual(title);
 	});
 });
