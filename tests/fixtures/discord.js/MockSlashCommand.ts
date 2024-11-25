@@ -1,12 +1,11 @@
 import { DiscordCommandRegister } from "@/src/routes/discordjs/DiscordCommandRegister";
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import {
-	ApplicationCommandOption,
 	type CacheType,
 	ChatInputCommandInteraction,
 	type CommandInteractionOptionResolver,
 } from "discord.js";
-import { anything, mock, verify, when } from "ts-mockito";
+import { anything, instance, mock, verify, when } from "ts-mockito";
 const commandInteractionMock = mock(ChatInputCommandInteraction);
 export const mockSlashCommand = (commandName: string, options: any = {}) => {
 	const found = new DiscordCommandRegister().commands.find(
@@ -19,8 +18,46 @@ export const mockSlashCommand = (commandName: string, options: any = {}) => {
 				"getMessage" | "getFocused"
 			>
 		>();
+
 	found?.options.forEach((it) => {
-		if (options[it.toJSON().name] != null) {
+		if (options[it.toJSON().name] == null && it.toJSON().required) {
+			switch (it.toJSON().type) {
+				case ApplicationCommandOptionType.Subcommand:
+				case ApplicationCommandOptionType.SubcommandGroup:
+					break;
+				case ApplicationCommandOptionType.String:
+					when(optionsMock.getString(it.toJSON().name)).thenThrow(
+						new Error(`null is not allowed for ${it.toJSON().name}`),
+					);
+					when(optionsMock.getString(it.toJSON().name, true)).thenThrow(
+						new Error(`null is not allowed for ${it.toJSON().name}`),
+					);
+					break;
+				case ApplicationCommandOptionType.Integer:
+					when(optionsMock.getInteger(it.toJSON().name)).thenThrow(
+						new Error(`null is not allowed for ${it.toJSON().name}`),
+					);
+					when(optionsMock.getInteger(it.toJSON().name, true)).thenThrow(
+						new Error(`null is not allowed for ${it.toJSON().name}`),
+					);
+					break;
+				case ApplicationCommandOptionType.Boolean:
+					when(optionsMock.getBoolean(it.toJSON().name)).thenThrow(
+						new Error(`null is not allowed for ${it.toJSON().name}`),
+					);
+					when(optionsMock.getBoolean(it.toJSON().name, true)).thenThrow(
+						new Error(`null is not allowed for ${it.toJSON().name}`),
+					);
+					break;
+				case ApplicationCommandOptionType.User:
+				case ApplicationCommandOptionType.Channel:
+				case ApplicationCommandOptionType.Role:
+				case ApplicationCommandOptionType.Mentionable:
+				case ApplicationCommandOptionType.Number:
+				case ApplicationCommandOptionType.Attachment:
+					break;
+			}
+		} else {
 			switch (it.toJSON().type) {
 				case ApplicationCommandOptionType.Subcommand:
 				case ApplicationCommandOptionType.SubcommandGroup:
@@ -29,14 +66,24 @@ export const mockSlashCommand = (commandName: string, options: any = {}) => {
 					when(optionsMock.getString(it.toJSON().name)).thenReturn(
 						options[it.toJSON().name],
 					);
+					when(optionsMock.getString(it.toJSON().name, true)).thenReturn(
+						options[it.toJSON().name],
+					);
+					console.log(it.toJSON().name, "->", options[it.toJSON().name]);
 					break;
 				case ApplicationCommandOptionType.Integer:
 					when(optionsMock.getInteger(it.toJSON().name)).thenReturn(
 						options[it.toJSON().name],
 					);
+					when(optionsMock.getString(it.toJSON().name, true)).thenReturn(
+						options[it.toJSON().name],
+					);
 					break;
 				case ApplicationCommandOptionType.Boolean:
 					when(optionsMock.getBoolean(it.toJSON().name)).thenReturn(
+						options[it.toJSON().name],
+					);
+					when(optionsMock.getBoolean(it.toJSON().name, true)).thenReturn(
 						options[it.toJSON().name],
 					);
 					break;
@@ -50,7 +97,7 @@ export const mockSlashCommand = (commandName: string, options: any = {}) => {
 			}
 		}
 	});
-	when(commandInteractionMock.options).thenReturn(optionsMock);
+	when(commandInteractionMock.options).thenReturn(instance(optionsMock));
 	when(commandInteractionMock.commandName).thenReturn(commandName);
 	when(commandInteractionMock.isChatInputCommand()).thenReturn(true);
 	when(commandInteractionMock.deferReply()).thenResolve();
