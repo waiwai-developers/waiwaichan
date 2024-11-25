@@ -90,7 +90,7 @@ describe("Test UtilityCommand", () => {
 			await waitUntilReply(commandMock);
 			verify(commandMock.reply(anything())).once();
 			verify(commandMock.reply(InternalErrorMessage)).never();
-			expect(Number(value)).toBeLessThanOrEqual(sides);
+			expect(sides).toBeGreaterThanOrEqual(value);
 		}
 	}, 20_000);
 
@@ -129,5 +129,36 @@ describe("Test UtilityCommand", () => {
 		await waitUntilReply(commandMock);
 		verify(commandMock.reply(anything())).once();
 		verify(commandMock.reply("パラメーターが0以下の数だよ！っ")).once();
+	});
+
+	test("Test /choice parameter:ああああ いいいい うううう ええええ おおおお", async () => {
+		const choices = [
+			"ああああ",
+			"いいいい",
+			"うううう",
+			"ええええ",
+			"おおおお",
+		];
+		let notChoices = choices;
+		do {
+			const commandMock = mockSlashCommand("choice", {
+				items: choices.join(" "),
+			});
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			let value = "";
+			when(commandMock.reply(anything())).thenCall((args) => {
+				value = args;
+			});
+
+			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+			await waitUntilReply(commandMock);
+
+			verify(commandMock.reply(anything())).once();
+			expect(choices).toContain(value);
+			if (notChoices.includes(value)) {
+				notChoices = notChoices.toSpliced(notChoices.indexOf(value), 1);
+			}
+		} while (notChoices.length !== 0);
+		expect([]).toStrictEqual(notChoices);
 	});
 });
