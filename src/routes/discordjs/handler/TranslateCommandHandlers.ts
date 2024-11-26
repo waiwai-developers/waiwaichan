@@ -22,12 +22,12 @@ export class TranslateCommandHandler implements SlashCommandHandler {
 	): Promise<void> {
 		await interaction.deferReply();
 		const dto = new TranslateDto(
-			new TranslateText(interaction.options?.getString("messages") ?? ""),
+			new TranslateText(interaction.options?.getString("messages", true)),
 			new TranslateSourceLanguage(
-				interaction.options?.getString("source") ?? "",
+				interaction.options?.getString("source", true),
 			),
 			new TranslateTargetLanguage(
-				interaction.options?.getString("target") ?? "",
+				interaction.options?.getString("target", true),
 			),
 		);
 		await interaction.editReply(await this.translateLogic.translate(dto));

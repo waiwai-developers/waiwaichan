@@ -75,7 +75,7 @@ export class PointExchangeCommandHandlers implements SlashCommandHandler {
 		await interaction.reply(
 			await this.pointLogic.exchange(
 				new DiscordUserId(interaction.user.id),
-				new UserPointItemId(interaction.options.getInteger("id") ?? 0),
+				new UserPointItemId(interaction.options.getInteger("id", true)),
 			),
 		);
 	}

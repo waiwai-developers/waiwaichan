@@ -21,7 +21,7 @@ export class ReviewGachaCommandHandler implements SlashCommandHandler {
 		await interaction.deferReply();
 		await interaction.editReply(
 			await this.pullRequestLogic.randomAssign(
-				new GithubPullRequestId(interaction.options?.getInteger("id") ?? 0),
+				new GithubPullRequestId(interaction.options?.getInteger("id", true)),
 				new DiscordUserId(interaction.user.id),
 			),
 		);

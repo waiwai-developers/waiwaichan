@@ -24,7 +24,7 @@ export class HelpCommandHandler implements SlashCommandHandler {
 	): Promise<void> {
 		await interaction.reply(
 			await this.utilLogic.help(
-				new HelpCategory(interaction.options?.getString("category") ?? ""),
+				new HelpCategory(interaction.options?.getString("category", true)),
 			),
 		);
 	}
@@ -58,7 +58,7 @@ export class ParrotCommandHandler implements SlashCommandHandler {
 	): Promise<void> {
 		await interaction.reply(
 			await this.utilLogic.parrot(
-				new ParrotMessage(interaction.options?.getString("message") ?? ""),
+				new ParrotMessage(interaction.options?.getString("message", true)),
 			),
 		);
 	}
@@ -77,7 +77,7 @@ export class DiceCommandHandler implements SlashCommandHandler {
 	): Promise<void> {
 		await interaction.reply(
 			await this.utilLogic.dice(
-				new DiceSides(interaction.options?.getInteger("parameter") ?? 0),
+				new DiceSides(interaction.options?.getInteger("parameter", true)),
 			),
 		);
 	}
@@ -96,9 +96,10 @@ export class ChoiceCommandHandler implements SlashCommandHandler {
 	): Promise<void> {
 		await interaction.reply(
 			await this.utilLogic.choice(
-				(interaction.options?.getString("items")?.split(" ") ?? []).map(
-					(r) => new ChoiceContent(r),
-				),
+				interaction.options
+					.getString("items", true)
+					.split(" ")
+					.map((r) => new ChoiceContent(r)),
 			),
 		);
 	}
@@ -117,17 +118,14 @@ export class TalkThreadHandler implements SlashCommandHandler {
 	async handle(
 		interaction: ChatInputCommandInteraction<CacheType>,
 	): Promise<void> {
-		const title = interaction.options?.getString("title");
 		if (interaction.channel == null) {
-			return;
-		}
-		if (title == null) {
-			await interaction.reply("titleパラメーターがないよ！っ");
 			return;
 		}
 		if (!this.isTextChannel(interaction.channel)) {
 			return;
 		}
+
+		const title = interaction.options.getString("title", true);
 
 		await interaction.reply("以下にお話する場を用意したよ！っ");
 		await interaction.channel.threads.create({

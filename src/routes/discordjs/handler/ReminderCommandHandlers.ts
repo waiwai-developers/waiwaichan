@@ -29,7 +29,7 @@ export class ReminderSetCommandHandlers implements SlashCommandHandler {
 					new ReminderId(0),
 					new DiscordChannelId(interaction.channelId),
 					new DiscordUserId(interaction.user.id),
-					new ReminderMessage(interaction.options.getString("message") ?? ""),
+					new ReminderMessage(interaction.options.getString("message", true)),
 					new RemindTime(
 						dayjs(interaction.options.getString("datetime"))
 							.subtract(9, "h")
@@ -55,7 +55,7 @@ export class ReminderDeleteCommandHandlers implements SlashCommandHandler {
 	): Promise<void> {
 		await interaction.reply(
 			await this.reminderLogic.delete(
-				new ReminderId(interaction.options?.getInteger("id") ?? 0),
+				new ReminderId(interaction.options?.getInteger("id", true)),
 				new DiscordUserId(interaction.user.id),
 			),
 		);
