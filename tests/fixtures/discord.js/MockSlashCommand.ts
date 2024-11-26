@@ -74,7 +74,7 @@ export const mockSlashCommand = (commandName: string, options: any = {}) => {
 					when(optionsMock.getInteger(it.toJSON().name)).thenReturn(
 						options[it.toJSON().name],
 					);
-					when(optionsMock.getString(it.toJSON().name, true)).thenReturn(
+					when(optionsMock.getInteger(it.toJSON().name, true)).thenReturn(
 						options[it.toJSON().name],
 					);
 					break;
