@@ -8,18 +8,26 @@ import { PointStatus } from "@/src/entities/vo/PointStatus";
 import type { IPointRepository } from "@/src/logics/Interfaces/repositories/database/IPointRepository";
 import dayjs from "dayjs";
 import { injectable } from "inversify";
-import { DataTypes, Model, Op } from "sequelize";
-import { MysqlConnector } from "./mysqlConnector";
-
-const sequelize = MysqlConnector.getInstance();
+import { Op } from "sequelize";
+import { Column, Model, Table } from "sequelize-typescript";
 
 @injectable()
+@Table({
+	tableName: "Points",
+	timestamps: true,
+})
 class PointRepositoryImpl extends Model implements IPointRepository {
+	@Column
 	declare id: number;
+	@Column
 	declare receiveUserId: string;
+	@Column
 	declare giveUserId: string;
+	@Column
 	declare messageId: string;
+	@Column
 	declare status: boolean;
+	@Column
 	declare expiredAt: Date;
 
 	async createPoint(data: PointDto): Promise<boolean> {
@@ -98,19 +106,4 @@ class PointRepositoryImpl extends Model implements IPointRepository {
 		);
 	}
 }
-
-PointRepositoryImpl.init(
-	{
-		receiveUserId: DataTypes.BIGINT,
-		giveUserId: DataTypes.BIGINT,
-		messageId: DataTypes.BIGINT,
-		status: DataTypes.BOOLEAN,
-		expiredAt: DataTypes.DATE,
-	},
-	{
-		sequelize,
-		modelName: "Point",
-	},
-);
-
 export { PointRepositoryImpl };

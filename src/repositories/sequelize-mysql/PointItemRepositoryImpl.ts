@@ -8,7 +8,7 @@ import { Column, ForeignKey, Model, Table } from "sequelize-typescript";
 
 @injectable()
 @Table({
-	tableName: "Item",
+	tableName: "Items",
 	timestamps: true,
 })
 class PointItemRepositoryImpl extends Model implements IPointItemRepository {
