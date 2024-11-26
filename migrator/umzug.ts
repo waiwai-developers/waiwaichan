@@ -1,38 +1,32 @@
 import { MysqlConnector } from "@/src/repositories/sequelize-mysql/mysqlConnector";
-import type { Sequelize } from "sequelize";
-import { SequelizeStorage, SequelizeType, Umzug } from "umzug";
+import { SequelizeStorage, Umzug } from "umzug";
 
-const s = MysqlConnector.getInstance();
+const sequelize = MysqlConnector.getInstance();
 
-export const migrator = (sequelize: Sequelize = s) => {
-	return new Umzug({
-		migrations: {
-			glob: "migrator/migrations/*.ts",
-		},
-		context: sequelize,
-		storage: new SequelizeStorage({
-			sequelize,
-			modelName: "umzug_migrator_meta",
-		}),
-		logger: console,
-	});
-};
-const migrationInterface = migrator()._types.migration;
-export type Migration = typeof migrationInterface;
+export const migrator = new Umzug({
+	migrations: {
+		glob: "migrator/migrations/*.ts",
+	},
+	context: sequelize,
+	storage: new SequelizeStorage({
+		sequelize,
+		modelName: "umzug_migrator_meta",
+	}),
+	logger: console,
+});
 
-export const seeder = (sequelize: Sequelize = s) => {
-	return new Umzug({
-		migrations: {
-			glob: "migrator/seeds/*.ts",
-		},
-		context: sequelize,
-		storage: new SequelizeStorage({
-			sequelize,
-			modelName: "umzug_seeder_meta",
-		}),
-		logger: console,
-	});
-};
+export type Migration = typeof migrator._types.migration;
 
-const seedInterface = seeder()._types.migration;
-export type Seed = typeof seedInterface;
+export const seeder = new Umzug({
+	migrations: {
+		glob: "migrator/seeds/*.ts",
+	},
+	context: sequelize,
+	storage: new SequelizeStorage({
+		sequelize,
+		modelName: "umzug_seeder_meta",
+	}),
+	logger: console,
+});
+
+export type Seed = typeof seeder._types.migration;
