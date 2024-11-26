@@ -56,6 +56,9 @@ importers:
       sequelize:
         specifier: ^6.37.5
         version: 6.37.5(mysql2@3.11.4)
+      sequelize-typescript:
+        specifier: ^2.1.6
+        version: 2.1.6(@types/node@22.9.0)(@types/validator@13.12.2)(reflect-metadata@0.2.2)(sequelize@6.37.5(mysql2@3.11.4))
       ts-mockito:
         specifier: ^2.6.1
         version: 2.6.1
@@ -1570,6 +1573,10 @@ packages:
     resolution: {integrity: sha512-7Bv8RF0k6xjo7d4A/PxYLbUCfb6c+Vpd2/mB2yRDlew7Jb5hEXiCD9ibfO7wpk8i4sevK6DFny9h7EYbM3/sHg==}
     hasBin: true
 
+  glob@7.2.0:
+    resolution: {integrity: sha512-lmLf6gtyrPq8tTjSmrO94wBeQbFR3HbLHbuyD69wuyQkImp2hWqMGB47OX65FBkPffO641IP9jWa1z4ivqG26Q==}
+    deprecated: Glob versions prior to v9 are no longer supported
+
   glob@7.2.3:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
     deprecated: Glob versions prior to v9 are no longer supported
@@ -2383,6 +2390,15 @@ packages:
   sequelize-pool@7.1.0:
     resolution: {integrity: sha512-G9c0qlIWQSK29pR/5U2JF5dDQeqqHRragoyahj/Nx4KOOQ3CPPfzxnfqFPCSB7x5UgjOgnZ61nSxz+fjDpRlJg==}
     engines: {node: '>= 10.0.0'}
+
+  sequelize-typescript@2.1.6:
+    resolution: {integrity: sha512-Vc2N++3en346RsbGjL3h7tgAl2Y7V+2liYTAOZ8XL0KTw3ahFHsyAUzOwct51n+g70I1TOUDgs06Oh6+XGcFkQ==}
+    engines: {node: '>=10.0.0'}
+    peerDependencies:
+      '@types/node': '*'
+      '@types/validator': '*'
+      reflect-metadata: '*'
+      sequelize: '>=6.20.1'
 
   sequelize@6.37.5:
     resolution: {integrity: sha512-10WA4poUb3XWnUROThqL2Apq9C2NhyV1xHPMZuybNMCucDsbbFuKg51jhmyvvAUyUqCiimwTZamc3AHhMoBr2Q==}
@@ -4407,6 +4423,15 @@ snapshots:
       package-json-from-dist: 1.0.1
       path-scurry: 1.11.1
 
+  glob@7.2.0:
+    dependencies:
+      fs.realpath: 1.0.0
+      inflight: 1.0.6
+      inherits: 2.0.4
+      minimatch: 3.1.2
+      once: 1.4.0
+      path-is-absolute: 1.0.1
+
   glob@7.2.3:
     dependencies:
       fs.realpath: 1.0.0
@@ -5417,6 +5442,14 @@ snapshots:
   seq-queue@0.0.5: {}
 
   sequelize-pool@7.1.0: {}
+
+  sequelize-typescript@2.1.6(@types/node@22.9.0)(@types/validator@13.12.2)(reflect-metadata@0.2.2)(sequelize@6.37.5(mysql2@3.11.4)):
+    dependencies:
+      '@types/node': 22.9.0
+      '@types/validator': 13.12.2
+      glob: 7.2.0
+      reflect-metadata: 0.2.2
+      sequelize: 6.37.5(mysql2@3.11.4)
 
   sequelize@6.37.5(mysql2@3.11.4):
     dependencies:
