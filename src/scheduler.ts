@@ -4,30 +4,10 @@ import {
 	RepoTypes,
 	SchedulerRepoTypes,
 } from "@/src/entities/constants/DIContainerTypes";
-import type { IDataBaseConnector } from "@/src/logics/Interfaces/repositories/database/IDataBaseConnector";
 import type { IReminderSchedulerRepository } from "@/src/logics/Interfaces/repositories/database/IReminderSchedulerRepository";
-import { ReminderSchedulerRepositoryImpl } from "@/src/repositories/sequelize-mysql";
-import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnector";
-import { MysqlSchedulerConnector } from "@/src/repositories/sequelize-mysql/MysqlSchedulerConnector";
-import { SequelizeTransaction } from "@/src/repositories/sequelize-mysql/SequelizeTransaction";
+import { schedulerContainer } from "@/src/scheduler.di.config";
 import { Client, GatewayIntentBits, TextChannel } from "discord.js";
-import { Container } from "inversify";
 import cron from "node-cron";
-import type { Sequelize } from "sequelize-typescript";
-
-const schedulerContainer = new Container();
-schedulerContainer
-	.bind<IDataBaseConnector<Sequelize, "mysql">>(RepoTypes.DatabaseConnector)
-	.to(MysqlSchedulerConnector)
-	.inSingletonScope();
-schedulerContainer
-	.bind<ITransaction<TransactionLike>>(RepoTypes.Transaction)
-	.to(SequelizeTransaction);
-schedulerContainer
-	.bind<IReminderSchedulerRepository>(
-		SchedulerRepoTypes.ReminderSchedulerRepository,
-	)
-	.to(ReminderSchedulerRepositoryImpl);
 
 const client = new Client({
 	intents: Object.values(GatewayIntentBits).reduce(
@@ -36,12 +16,11 @@ const client = new Client({
 	),
 });
 
-const t = schedulerContainer.get<ITransaction<TransactionLike>>(
-	RepoTypes.Transaction,
-);
-
-cron.schedule("* * * * *", async () => {
+const reminderNotifyHandler = async () => {
 	try {
+		const t = schedulerContainer.get<ITransaction<TransactionLike>>(
+			RepoTypes.Transaction,
+		);
 		await t.startTransaction(async (_t) => {
 			const reminder = schedulerContainer.get<IReminderSchedulerRepository>(
 				SchedulerRepoTypes.ReminderSchedulerRepository,
@@ -65,8 +44,7 @@ cron.schedule("* * * * *", async () => {
 	} catch (e) {
 		console.error("Error:", e);
 	}
-});
+};
 
-(async () => {
-	await client.login(AppConfig.discord.token);
-})();
+cron.schedule("* * * * *", reminderNotifyHandler);
+await client.login(AppConfig.discord.token);

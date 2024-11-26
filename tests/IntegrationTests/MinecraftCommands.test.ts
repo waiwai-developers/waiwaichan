@@ -1,4 +1,4 @@
-import { appContainer } from "@/src/di.config";
+import { appContainer } from "@/src/app.di.config";
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import type { IVirtualMachineAPI } from "@/src/logics/Interfaces/repositories/cloudprovider/IVirtualMachineAPI";
 import { GCPComputeEngineInstanceRepositoryImpl } from "@/src/repositories/gcpapi/GCPComputeEngineInstanceRepositoryImpl";
