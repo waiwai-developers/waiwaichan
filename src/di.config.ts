@@ -1,4 +1,3 @@
-import "@abraham/reflection";
 import { LogicTypes, RepoTypes, RouteTypes, SchedulerRepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import { HandlerTypes } from "@/src/entities/constants/DIContainerTypes";
 import { ChatAILogic } from "@/src/logics/ChatAILogic";
@@ -111,8 +110,4 @@ appContainer.bind<DiscordEventRouter>(RouteTypes.MessageReplyRoute).to(MessageRe
 appContainer.bind<DiscordEventRouter>(RouteTypes.ReadyStateRoute).to(ReadyStateRouter);
 appContainer.bind<DiscordEventRouter>(RouteTypes.ReactionRoute).to(ReactionRouter);
 
-// for scheduler
-const schedulerContainer = new Container();
-schedulerContainer.bind<IReminderSchedulerRepository>(SchedulerRepoTypes.ReminderSchedulerRepository).to(ReminderSchedulerRepositoryImpl);
-
-export { appContainer, schedulerContainer };
+export { appContainer };

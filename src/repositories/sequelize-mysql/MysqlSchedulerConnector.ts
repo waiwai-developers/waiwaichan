@@ -4,13 +4,16 @@ import type { IDataBaseConnector } from "@/src/logics/Interfaces/repositories/da
 import { PointItemRepositoryImpl } from "@/src/repositories/sequelize-mysql/PointItemRepositoryImpl";
 import { PointRepositoryImpl } from "@/src/repositories/sequelize-mysql/PointRepositoryImpl";
 import { ReminderRepositoryImpl } from "@/src/repositories/sequelize-mysql/ReminderRepositoryImpl";
+import { ReminderSchedulerRepositoryImpl } from "@/src/repositories/sequelize-mysql/ReminderSchedulerRepositoryImpl";
 import { UserPointItemRepositoryImpl } from "@/src/repositories/sequelize-mysql/UserPointItemRepositoryImpl";
 import { injectable } from "inversify";
 import type { Dialect } from "sequelize";
 import { Sequelize } from "sequelize-typescript";
 
 @injectable()
-export class MysqlConnector implements IDataBaseConnector<Sequelize, "mysql"> {
+export class MysqlSchedulerConnector
+	implements IDataBaseConnector<Sequelize, "mysql">
+{
 	instance: Sequelize;
 	constructor() {
 		const dbConfig = this.getDbConfig();
@@ -34,12 +37,7 @@ export class MysqlConnector implements IDataBaseConnector<Sequelize, "mysql"> {
 						console.log(sql);
 					}
 				},
-				models: [
-					PointRepositoryImpl,
-					PointItemRepositoryImpl,
-					UserPointItemRepositoryImpl,
-					ReminderRepositoryImpl,
-				],
+				models: [ReminderSchedulerRepositoryImpl],
 			},
 		);
 	}

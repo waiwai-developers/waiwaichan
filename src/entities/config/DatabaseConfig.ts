@@ -1,6 +1,6 @@
 import json from "@/config/database.json" with { type: "json" };
 
-interface DatabaseConfigType {
+export interface DatabaseConfigType {
 	username: string;
 	password: string;
 	database: string;
