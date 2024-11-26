@@ -56,4 +56,5 @@ describe("Test Talk Command", () => {
 		verify(commandMock.reply("")).never();
 		verify(commandMock.reply(InternalErrorMessage)).once();
 	});
+	//TODO add thread reply QA
 });
