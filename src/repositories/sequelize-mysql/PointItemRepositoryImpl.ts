@@ -4,7 +4,7 @@ import { PointItemId } from "@/src/entities/vo/PointItemId";
 import { PointItemName } from "@/src/entities/vo/PointItemName";
 import type { IPointItemRepository } from "@/src/logics/Interfaces/repositories/database/IPointItemRepository";
 import { injectable } from "inversify";
-import { Column, ForeignKey, Model, Table } from "sequelize-typescript";
+import { Column, Model, Table } from "sequelize-typescript";
 
 @injectable()
 @Table({

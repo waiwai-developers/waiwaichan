@@ -9,27 +9,36 @@ import { UserPointItemStatus } from "@/src/entities/vo/UserPointItemStatus";
 import type { IUserPointItemRepository } from "@/src/logics/Interfaces/repositories/database/IUserPointItemRepository";
 import dayjs from "dayjs";
 import { injectable } from "inversify";
-import Sequelize, { DataTypes, Model } from "sequelize";
+import { Op } from "sequelize";
+import {
+	BelongsTo,
+	Column,
+	ForeignKey,
+	Model,
+	Table,
+} from "sequelize-typescript";
 import { PointItemRepositoryImpl } from "./PointItemRepositoryImpl";
-import { MysqlConnector } from "./mysqlConnector";
-const sequelize = MysqlConnector.getInstance();
 
 @injectable()
+@Table
 class UserPointItemRepositoryImpl
 	extends Model
 	implements IUserPointItemRepository
 {
+	@Column
 	declare id: number;
+	@Column
 	declare userId: string;
-	declare itemId: number;
-	declare status: boolean;
-	declare expiredAt: Date;
-	declare dataValues: {
-		item: {
-			name: string;
-			description: string;
-		};
-	};
+	@Column
+	@ForeignKey(() => PointItemRepositoryImpl)
+	itemId!: number;
+	@Column
+	status!: boolean;
+	@Column
+	expiredAt!: Date;
+
+	@BelongsTo(() => PointItemRepositoryImpl)
+	item!: PointItemRepositoryImpl;
 
 	async create(data: UserPointItemDto): Promise<UserPointItemId> {
 		return UserPointItemRepositoryImpl.create({
@@ -39,23 +48,24 @@ class UserPointItemRepositoryImpl
 			expiredAt: data.expiredAt.getValue(),
 		}).then((res) => new UserPointItemId(res.id));
 	}
+
 	async findByNotUsed(
 		userId: DiscordUserId,
 		userStatus: UserPointItemStatus = UserPointItemStatus.UNUSED,
 	): Promise<UserPointItemWithItemDto[]> {
 		return UserPointItemRepositoryImpl.findAll({
-			include: { model: PointItemRepositoryImpl, as: "item" },
+			include: [PointItemRepositoryImpl],
 			where: {
 				userId: userId.getValue(),
 				status: userStatus.getValue(),
-				expiredAt: { [Sequelize.Op.gte]: dayjs().toDate() },
+				expiredAt: { [Op.gte]: dayjs().toDate() },
 			},
 		}).then((r) =>
 			r.map((it) => {
 				return {
 					...this.toDto(it),
-					name: new PointItemName(it.dataValues.item.name),
-					description: new PointItemName(it.dataValues.item.description),
+					name: new PointItemName(it.item.name),
+					description: new PointItemName(it.item.description),
 				};
 			}),
 		);
@@ -78,7 +88,7 @@ class UserPointItemRepositoryImpl
 					id: id.getValue(),
 					userId: userId.getValue(),
 					status: UserPointItemStatus.UNUSED.getValue(),
-					expiredAt: { [Sequelize.Op.gte]: dayjs().toDate() },
+					expiredAt: { [Op.gte]: dayjs().toDate() },
 				},
 				limit: 1,
 			},
@@ -108,17 +118,5 @@ class UserPointItemRepositoryImpl
 		);
 	}
 }
-UserPointItemRepositoryImpl.init(
-	{
-		userId: DataTypes.BIGINT,
-		itemId: DataTypes.INTEGER,
-		status: DataTypes.BOOLEAN,
-		expiredAt: DataTypes.DATE,
-	},
-	{
-		sequelize,
-		modelName: "UserItem",
-	},
-);
 
 export { UserPointItemRepositoryImpl };
