@@ -6,7 +6,14 @@ import { ReminderId } from "@/src/entities/vo/ReminderId";
 import { ReminderMessage } from "@/src/entities/vo/ReminderMessage";
 import type { IReminderRepository } from "@/src/logics/Interfaces/repositories/database/IReminderRepository";
 import { injectable } from "inversify";
-import { Column, Model, Table } from "sequelize-typescript";
+import {
+	AutoIncrement,
+	Column,
+	DataType,
+	Model,
+	PrimaryKey,
+	Table,
+} from "sequelize-typescript";
 
 @injectable()
 @Table({
@@ -14,15 +21,17 @@ import { Column, Model, Table } from "sequelize-typescript";
 	timestamps: true,
 })
 class ReminderRepositoryImpl extends Model implements IReminderRepository {
-	@Column
+	@PrimaryKey
+	@AutoIncrement
+	@Column(DataType.INTEGER)
 	declare id: number;
-	@Column
+	@Column(DataType.STRING)
 	declare channelId: string;
-	@Column
+	@Column(DataType.STRING)
 	declare userId: string;
-	@Column
+	@Column(DataType.STRING)
 	declare message: string;
-	@Column
+	@Column(DataType.DATE)
 	declare remindAt: Date;
 
 	async create(data: ReminderDto): Promise<boolean> {

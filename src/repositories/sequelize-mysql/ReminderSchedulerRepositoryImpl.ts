@@ -8,7 +8,14 @@ import type { IReminderSchedulerRepository } from "@/src/logics/Interfaces/repos
 import dayjs from "dayjs";
 import { injectable } from "inversify";
 import { Op } from "sequelize";
-import { Column, Model, Table } from "sequelize-typescript";
+import {
+	AutoIncrement,
+	Column,
+	DataType,
+	Model,
+	PrimaryKey,
+	Table,
+} from "sequelize-typescript";
 
 @injectable()
 @Table({
@@ -19,15 +26,17 @@ class ReminderSchedulerRepositoryImpl
 	extends Model
 	implements IReminderSchedulerRepository
 {
-	@Column
+	@PrimaryKey
+	@AutoIncrement
+	@Column(DataType.INTEGER)
 	declare id: number;
-	@Column
+	@Column(DataType.STRING)
 	declare channelId: string;
-	@Column
+	@Column(DataType.STRING)
 	declare userId: string;
-	@Column
+	@Column(DataType.STRING)
 	declare message: string;
-	@Column
+	@Column(DataType.DATE)
 	declare remindAt: Date;
 
 	async findByRemindTime(): Promise<ReminderDto[]> {

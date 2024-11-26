@@ -9,7 +9,14 @@ import type { IPointRepository } from "@/src/logics/Interfaces/repositories/data
 import dayjs from "dayjs";
 import { injectable } from "inversify";
 import { Op } from "sequelize";
-import { Column, Model, Table } from "sequelize-typescript";
+import {
+	AutoIncrement,
+	Column,
+	DataType,
+	Model,
+	PrimaryKey,
+	Table,
+} from "sequelize-typescript";
 
 @injectable()
 @Table({
@@ -17,17 +24,19 @@ import { Column, Model, Table } from "sequelize-typescript";
 	timestamps: true,
 })
 class PointRepositoryImpl extends Model implements IPointRepository {
-	@Column
+	@PrimaryKey
+	@AutoIncrement
+	@Column(DataType.INTEGER)
 	declare id: number;
-	@Column
+	@Column(DataType.STRING)
 	declare receiveUserId: string;
-	@Column
+	@Column(DataType.STRING)
 	declare giveUserId: string;
-	@Column
+	@Column(DataType.STRING)
 	declare messageId: string;
-	@Column
+	@Column(DataType.STRING)
 	declare status: boolean;
-	@Column
+	@Column(DataType.DATE)
 	declare expiredAt: Date;
 
 	async createPoint(data: PointDto): Promise<boolean> {

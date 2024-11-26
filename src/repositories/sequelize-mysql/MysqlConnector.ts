@@ -2,6 +2,7 @@ import * as process from "node:process";
 import { DatabaseConfig } from "@/src/entities/config/DatabaseConfig";
 import type { IDataBaseConnector } from "@/src/logics/Interfaces/repositories/database/IDataBaseConnector";
 import { PointItemRepositoryImpl } from "@/src/repositories/sequelize-mysql/PointItemRepositoryImpl";
+import { PointRepositoryImpl } from "@/src/repositories/sequelize-mysql/PointRepositoryImpl";
 import { ReminderRepositoryImpl } from "@/src/repositories/sequelize-mysql/ReminderRepositoryImpl";
 import { UserPointItemRepositoryImpl } from "@/src/repositories/sequelize-mysql/UserPointItemRepositoryImpl";
 import { injectable } from "inversify";
@@ -34,7 +35,7 @@ export class MysqlConnector implements IDataBaseConnector<Sequelize, "mysql"> {
 					}
 				},
 				models: [
-					PointItemRepositoryImpl,
+					PointRepositoryImpl,
 					PointItemRepositoryImpl,
 					UserPointItemRepositoryImpl,
 					ReminderRepositoryImpl,

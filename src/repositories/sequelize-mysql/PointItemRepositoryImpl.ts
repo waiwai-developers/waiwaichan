@@ -3,8 +3,17 @@ import { PointItemDescription } from "@/src/entities/vo/PointItemDescription";
 import { PointItemId } from "@/src/entities/vo/PointItemId";
 import { PointItemName } from "@/src/entities/vo/PointItemName";
 import type { IPointItemRepository } from "@/src/logics/Interfaces/repositories/database/IPointItemRepository";
+import { UserPointItemRepositoryImpl } from "@/src/repositories/sequelize-mysql/UserPointItemRepositoryImpl";
 import { injectable } from "inversify";
-import { Column, Model, Table } from "sequelize-typescript";
+import {
+	AutoIncrement,
+	Column,
+	DataType,
+	HasMany,
+	Model,
+	PrimaryKey,
+	Table,
+} from "sequelize-typescript";
 
 @injectable()
 @Table({
@@ -12,12 +21,17 @@ import { Column, Model, Table } from "sequelize-typescript";
 	timestamps: true,
 })
 class PointItemRepositoryImpl extends Model implements IPointItemRepository {
-	@Column
+	@PrimaryKey
+	@AutoIncrement
+	@Column(DataType.INTEGER)
 	declare id: number;
-	@Column
+	@Column(DataType.STRING)
 	declare name: string;
-	@Column
+	@Column(DataType.STRING)
 	declare description: string;
+
+	@HasMany(() => UserPointItemRepositoryImpl)
+	declare itemOwners: UserPointItemRepositoryImpl[];
 
 	async findById(id: PointItemId): Promise<PointItemDto | undefined> {
 		return await PointItemRepositoryImpl.findOne({

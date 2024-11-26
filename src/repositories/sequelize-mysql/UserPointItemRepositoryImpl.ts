@@ -1,6 +1,7 @@
 import { UserPointItemDto } from "@/src/entities/dto/UserPointItemDto";
 import type { UserPointItemWithItemDto } from "@/src/entities/dto/UserPointItemWithItemDto";
 import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
+import { PointItemDescription } from "@/src/entities/vo/PointItemDescription";
 import { PointItemId } from "@/src/entities/vo/PointItemId";
 import { PointItemName } from "@/src/entities/vo/PointItemName";
 import { UserPointItemExpire } from "@/src/entities/vo/UserPointItemExpire";
@@ -11,34 +12,41 @@ import dayjs from "dayjs";
 import { injectable } from "inversify";
 import { Op } from "sequelize";
 import {
+	AutoIncrement,
 	BelongsTo,
 	Column,
+	DataType,
 	ForeignKey,
 	Model,
+	PrimaryKey,
 	Table,
 } from "sequelize-typescript";
 import { PointItemRepositoryImpl } from "./PointItemRepositoryImpl";
 
 @injectable()
-@Table
+@Table({
+	tableName: "UserItems",
+})
 class UserPointItemRepositoryImpl
 	extends Model
 	implements IUserPointItemRepository
 {
-	@Column
+	@PrimaryKey
+	@AutoIncrement
+	@Column(DataType.INTEGER)
 	declare id: number;
-	@Column
+	@Column(DataType.STRING)
 	declare userId: string;
-	@Column
+	@Column(DataType.STRING)
 	@ForeignKey(() => PointItemRepositoryImpl)
 	declare itemId: number;
-	@Column
+	@Column(DataType.STRING)
 	declare status: boolean;
-	@Column
+	@Column(DataType.DATE)
 	declare expiredAt: Date;
 
 	@BelongsTo(() => PointItemRepositoryImpl)
-	item!: PointItemRepositoryImpl;
+	declare item: PointItemRepositoryImpl;
 
 	async create(data: UserPointItemDto): Promise<UserPointItemId> {
 		return UserPointItemRepositoryImpl.create({
@@ -65,7 +73,7 @@ class UserPointItemRepositoryImpl
 				return {
 					...this.toDto(it),
 					name: new PointItemName(it.item.name),
-					description: new PointItemName(it.item.description),
+					description: new PointItemDescription(it.item.description),
 				};
 			}),
 		);
