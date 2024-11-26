@@ -1,4 +1,4 @@
-import { MysqlConnector } from "@/src/repositories/sequelize-mysql/mysqlConnector";
+import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnector";
 import { DataTypes, Model } from "sequelize";
 
 const sequelize = MysqlConnector.getInstance();

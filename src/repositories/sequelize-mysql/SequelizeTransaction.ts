@@ -1,17 +1,15 @@
-import { MysqlConnector } from "@/src/repositories/sequelize-mysql/mysqlConnector";
-import { createNamespace } from "cls-hooked";
-import { injectable } from "inversify";
-import { Sequelize, type Transaction } from "sequelize";
-
-const namespace = createNamespace("transaction");
-Sequelize.useCLS(namespace);
-const mysql = MysqlConnector.getInstance();
+import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
+import type { IDataBaseConnector } from "@/src/logics/Interfaces/repositories/database/IDataBaseConnector";
+import { inject, injectable } from "inversify";
+import type { Sequelize, Transaction } from "sequelize";
 
 @injectable()
 export class SequelizeTransaction implements ITransaction<Transaction> {
+	@inject(RepoTypes.DatabaseConnector)
+	declare mysql: IDataBaseConnector<Sequelize, "mysql">;
 	async startTransaction<R>(
 		cb: (t: Transaction) => PromiseLike<R>,
 	): Promise<R> {
-		return mysql.transaction(cb);
+		return this.mysql.getDBInstance().transaction(cb);
 	}
 }

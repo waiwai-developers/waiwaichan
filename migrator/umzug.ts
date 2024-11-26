@@ -1,7 +1,7 @@
-import { MysqlConnector } from "@/src/repositories/sequelize-mysql/mysqlConnector";
+import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnector";
 import { SequelizeStorage, Umzug } from "umzug";
 
-const sequelize = MysqlConnector.getInstance();
+const sequelize = new MysqlConnector().getDBInstance();
 
 export const migrator = new Umzug({
 	migrations: {

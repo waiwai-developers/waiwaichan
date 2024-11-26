@@ -11,6 +11,7 @@ import type { ITranslatorLogic } from "@/src/logics/Interfaces/logics/ITranslato
 import type { IUtilityLogic } from "@/src/logics/Interfaces/logics/IUtilityLogic";
 import type { IChatAIRepository } from "@/src/logics/Interfaces/repositories/chataiapi/IChatAIRepository";
 import type { IVirtualMachineAPI } from "@/src/logics/Interfaces/repositories/cloudprovider/IVirtualMachineAPI";
+import type { IDataBaseConnector } from "@/src/logics/Interfaces/repositories/database/IDataBaseConnector";
 import type { IPointItemRepository } from "@/src/logics/Interfaces/repositories/database/IPointItemRepository";
 import type { IPointRepository } from "@/src/logics/Interfaces/repositories/database/IPointRepository";
 import type { IReminderRepository } from "@/src/logics/Interfaces/repositories/database/IReminderRepository";
@@ -29,6 +30,7 @@ import { DeepLTranslateRepositoryImpl } from "@/src/repositories/deeplapi/DeepLT
 import { GCPComputeEngineInstanceRepositoryImpl } from "@/src/repositories/gcpapi/GCPComputeEngineInstanceRepositoryImpl";
 import { GithubPullRequestRepositoryImpl } from "@/src/repositories/githubapi/GithubPullRequestRepositoryImpl";
 import { PointItemRepositoryImpl, PointRepositoryImpl, ReminderRepositoryImpl, ReminderSchedulerRepositoryImpl, UserPointItemRepositoryImpl } from "@/src/repositories/sequelize-mysql";
+import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnector";
 import { SequelizeTransaction } from "@/src/repositories/sequelize-mysql/SequelizeTransaction";
 import type { DiscordEventRouter } from "@/src/routes/discordjs/events/DiscordEventRouter";
 import { MessageReplyRouter } from "@/src/routes/discordjs/events/MessageReplyRouter";
@@ -48,17 +50,21 @@ import { TranslateCommandHandler } from "@/src/routes/discordjs/handler/Translat
 import { ChoiceCommandHandler, DiceCommandHandler, HelpCommandHandler, ParrotCommandHandler, TalkThreadHandler, WaiwaiCommandHandler } from "@/src/routes/discordjs/handler/UtilityCommandHandlers";
 import type { Message } from "discord.js";
 import { Container } from "inversify";
+import type { Sequelize } from "sequelize";
+import type { Model } from "sequelize-typescript";
 
 // for app
 const appContainer = new Container();
 
 // Repositories
 // Database
+appContainer.bind<IDataBaseConnector<Sequelize, "mysql">>(RepoTypes.DatabaseConnector).to(MysqlConnector).inSingletonScope();
 appContainer.bind<ITransaction<TransactionLike>>(RepoTypes.Transaction).to(SequelizeTransaction);
 appContainer.bind<IPointRepository>(RepoTypes.PointRepository).to(PointRepositoryImpl);
 appContainer.bind<IPointItemRepository>(RepoTypes.PointItemRepository).to(PointItemRepositoryImpl);
 appContainer.bind<IUserPointItemRepository>(RepoTypes.UserPointItemRepository).to(UserPointItemRepositoryImpl);
 appContainer.bind<IReminderRepository>(RepoTypes.ReminderRepository).to(ReminderRepositoryImpl);
+
 // ChatGPT
 appContainer.bind<IChatAIRepository>(RepoTypes.ChatAIRepository).to(ChatGPTRepositoryImpl);
 // DeepL

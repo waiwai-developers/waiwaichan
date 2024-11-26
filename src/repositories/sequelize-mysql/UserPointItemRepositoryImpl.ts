@@ -31,11 +31,11 @@ class UserPointItemRepositoryImpl
 	declare userId: string;
 	@Column
 	@ForeignKey(() => PointItemRepositoryImpl)
-	itemId!: number;
+	declare itemId: number;
 	@Column
-	status!: boolean;
+	declare status: boolean;
 	@Column
-	expiredAt!: Date;
+	declare expiredAt: Date;
 
 	@BelongsTo(() => PointItemRepositoryImpl)
 	item!: PointItemRepositoryImpl;
