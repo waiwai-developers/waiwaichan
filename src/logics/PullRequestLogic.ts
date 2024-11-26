@@ -16,7 +16,13 @@ export class PullRequestLogic implements IPullRequestLogic {
 		pullRequestId: GithubPullRequestId,
 		userId: DiscordUserId,
 	): Promise<string> {
+
+		const reviewers = AccountsConfig.users
+			.filter((u) => u.discordId !== userId.getValue());
+
 		const pr = await this.pullRequestRepository.getById(pullRequestId);
+
+		// NOTE:todo 機能していないのでerror responseに応じて直す必要がある
 		if (pr == null) {
 			return "pull requestが存在しないよ！っ";
 		}
@@ -33,11 +39,11 @@ export class PullRequestLogic implements IPullRequestLogic {
 		}
 
 		// NOTE:todo より良い乱数生成に変える
-		const randomNum = Math.floor(Math.random() * AccountsConfig.users.length);
+		const randomNum = Math.floor(Math.random() * reviewers.length);
 
 		// NOTE:todo そのうち複数人に対応できるロジックに変える
+		const selectReviewers = [reviewers[randomNum]];
 
-		const selectReviewers = [AccountsConfig.users[randomNum]];
 		await this.pullRequestRepository.assignReviewer(
 			new GitHubUserId(selectReviewers[0].githubId),
 			pullRequestId,

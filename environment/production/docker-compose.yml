@@ -3,13 +3,11 @@ services:
     container_name: waiwai-backend
     restart: always
     tty: true
-    build:
-      context: ../../.
-      dockerfile: environment/production/Dockerfile
+    image: asia-northeast1-docker.pkg.dev/waiwai-406106/waiwaichan/image:latest
     volumes:
       - type: bind
-        source: ../../.
-        target: /app
+        source: ../../config
+        target: /app/config
       - type: volume
         source: backend_node_modules
         target: /app/node_modules
@@ -21,13 +19,11 @@ services:
   scheduler:
     container_name: waiwai-scheduler
     restart: "always"
-    build:
-      context: ../../.
-      dockerfile: environment/production/Dockerfile
+    image: asia-northeast1-docker.pkg.dev/waiwai-406106/waiwaichan/image:latest
     volumes:
       - type: bind
-        source: ../../.
-        target: /app
+        source: ../../config
+        target: /app/config
       - type: volume
         source: scheduler_node_modules
         target: /app/node_modules
@@ -37,13 +33,11 @@ services:
   migrate:
     container_name: waiwai-migrate
     restart: "no"
-    build:
-      context: ../../.
-      dockerfile: environment/production/Dockerfile
+    image: asia-northeast1-docker.pkg.dev/waiwai-406106/waiwaichan/image:latest
     volumes:
       - type: bind
-        source: ../../.
-        target: /app
+        source: ../../config
+        target: /app/config
       - type: volume
         source: migrate_node_modules
         target: /app/node_modules
