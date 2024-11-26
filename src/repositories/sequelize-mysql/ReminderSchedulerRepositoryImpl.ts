@@ -5,22 +5,29 @@ import { RemindTime } from "@/src/entities/vo/RemindTime";
 import { ReminderId } from "@/src/entities/vo/ReminderId";
 import { ReminderMessage } from "@/src/entities/vo/ReminderMessage";
 import type { IReminderSchedulerRepository } from "@/src/logics/Interfaces/repositories/database/IReminderSchedulerRepository";
-import { MysqlConnector } from "@/src/repositories/sequelize-mysql/mysqlConnector";
 import dayjs from "dayjs";
 import { injectable } from "inversify";
-import { DataTypes, Model, Op } from "sequelize";
-
-const sequelize = MysqlConnector.getInstance();
+import { Op } from "sequelize";
+import { Column, Model, Table } from "sequelize-typescript";
 
 @injectable()
+@Table({
+	tableName: "Reminders",
+	timestamps: true,
+})
 class ReminderSchedulerRepositoryImpl
 	extends Model
 	implements IReminderSchedulerRepository
 {
+	@Column
 	declare id: number;
+	@Column
 	declare channelId: string;
+	@Column
 	declare userId: string;
+	@Column
 	declare message: string;
+	@Column
 	declare remindAt: Date;
 
 	async findByRemindTime(): Promise<ReminderDto[]> {
@@ -45,16 +52,4 @@ class ReminderSchedulerRepositoryImpl
 		);
 	}
 }
-ReminderSchedulerRepositoryImpl.init(
-	{
-		channelId: DataTypes.BIGINT,
-		userId: DataTypes.BIGINT,
-		message: DataTypes.STRING,
-		remindAt: DataTypes.DATE,
-	},
-	{
-		sequelize,
-		modelName: "Reminder",
-	},
-);
 export { ReminderSchedulerRepositoryImpl };
