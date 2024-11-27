@@ -11,12 +11,10 @@ import {
 	MySqlContainer,
 	type StartedMySqlContainer,
 } from "@testcontainers/mysql";
-import type { Sequelize } from "sequelize-typescript";
 import { anything, instance, verify, when } from "ts-mockito";
 
 describe("Test Reminder Commands", () => {
 	let container: StartedMySqlContainer;
-	let testSequelize: Sequelize;
 	beforeAll(async () => {
 		container = await new MySqlContainer()
 			.withDatabase(DatabaseConfig.test.database)
@@ -32,9 +30,7 @@ describe("Test Reminder Commands", () => {
 		};
 		await migrator(DatabaseConfig.test).up();
 	}, 60_000);
-	it("test /reminderset datetime:2999/12/31 23:59:59 message:feature reminder", async () => {
-		testSequelize = new MysqlConnector().getDBInstance();
-
+	test("test /reminderset datetime:2999/12/31 23:59:59 message:feature reminder", async () => {
 		const commandMock = mockSlashCommand("reminderset", {
 			datetime: "2999/12/31 23:59:59",
 			message: "test reminder",
@@ -48,12 +44,12 @@ describe("Test Reminder Commands", () => {
 		await waitUntilReply(commandMock);
 		verify(commandMock.reply("リマインドの投稿を予約したよ！っ")).once();
 		const res = await ReminderRepositoryImpl.findAll();
-		console.log(res);
 		expect(res.length).toBe(1);
+
 		expect(res[0].id).toBe(1);
 		expect(res[0].userId).toBe(1234);
 		expect(res[0].channelId).toBe(5678);
-		expect(res[0].id).toBe("test reminder");
+		expect(res[0].message).toBe("test reminder");
 	});
 
 	afterAll(async () => {
