@@ -32,7 +32,7 @@
 	},
 	"overrides": [
 		{
-			"include": ["./src/di.config.ts"],
+			"include": ["./src/*.di.config.ts"],
 			"formatter": {
 				"lineWidth": 200
 			}
