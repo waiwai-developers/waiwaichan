@@ -4,6 +4,7 @@ import {
 	type CacheType,
 	ChatInputCommandInteraction,
 	type CommandInteractionOptionResolver,
+	User,
 } from "discord.js";
 import { anything, instance, mock, verify, when } from "ts-mockito";
 export const mockSlashCommand = (commandName: string, options: any = {}) => {
@@ -100,6 +101,10 @@ export const mockSlashCommand = (commandName: string, options: any = {}) => {
 	when(commandInteractionMock.commandName).thenReturn(commandName);
 	when(commandInteractionMock.isChatInputCommand()).thenReturn(true);
 	when(commandInteractionMock.deferReply()).thenResolve();
+	const userMock = mock(User);
+	when(userMock.id).thenReturn("1234");
+	when(commandInteractionMock.user).thenReturn(instance(userMock));
+	when(commandInteractionMock.channelId).thenReturn("5678");
 	return commandInteractionMock;
 };
 

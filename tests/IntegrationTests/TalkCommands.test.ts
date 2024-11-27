@@ -4,12 +4,10 @@ import {
 	waitUntilReply,
 } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { TestDiscordServer } from "@/tests/fixtures/discord.js/TestDiscordServer";
-import {
-	type AllowedThreadTypeForTextChannel,
-	ForumChannel,
-	type GuildTextThreadManager,
-	type TextChannel,
-	type VoiceChannel,
+import type {
+	AllowedThreadTypeForTextChannel,
+	GuildTextThreadManager,
+	TextChannel,
 } from "discord.js";
 import { anything, instance, mock, verify, when } from "ts-mockito";
 

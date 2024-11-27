@@ -10,7 +10,7 @@
 		"production:scheduler": "node ./dist/scheduler.js",
 		"dev": "tsx watch src/app.ts",
 		"dev:scheduler": "tsx watch src/scheduler.ts",
-		"test": "NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" pnpx jest",
+		"test": "jest",
 		"lint": "biome check --write && biome format --write",
 		"lint:unsafe": "biome check --write --unsafe && biome format --write",
 		"migrate": "tsx migrator/migrator.ts",
