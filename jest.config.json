@@ -3,9 +3,11 @@
 	"transform": {
 		"^.+\\.(t|j)sx?$": ["@swc/jest"]
 	},
+	"transformIgnorePatterns": [],
 	"testEnvironment": "node",
 	"extensionsToTreatAsEsm": [".ts", ".tsx", ".jsx"],
 	"testTimeout": 15000,
 
-	"coverageReporters": ["json"]
+	"coverageReporters": ["json"],
+	"setupFilesAfterEnv": ["./tests/jest.setup.ts"]
 }
