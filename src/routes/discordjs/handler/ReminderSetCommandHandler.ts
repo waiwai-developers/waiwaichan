@@ -12,7 +12,7 @@ import { inject, injectable } from "inversify";
 import type { SlashCommandHandler } from "./SlashCommandHandler";
 
 @injectable()
-export class ReminderSetCommandHandlers implements SlashCommandHandler {
+export class ReminderSetCommandHandler implements SlashCommandHandler {
 	@inject(LogicTypes.ReminderLogic)
 	private reminderLogic!: IReminderLogic;
 
@@ -42,7 +42,7 @@ export class ReminderSetCommandHandlers implements SlashCommandHandler {
 }
 
 @injectable()
-export class ReminderDeleteCommandHandlers implements SlashCommandHandler {
+export class ReminderDeleteCommandHandler implements SlashCommandHandler {
 	@inject(LogicTypes.ReminderLogic)
 	private reminderLogic!: IReminderLogic;
 
@@ -63,7 +63,7 @@ export class ReminderDeleteCommandHandlers implements SlashCommandHandler {
 }
 
 @injectable()
-export class ReminderListCommandHandlers implements SlashCommandHandler {
+export class ReminderListCommandHandler implements SlashCommandHandler {
 	@inject(LogicTypes.ReminderLogic)
 	private reminderLogic!: IReminderLogic;
 
