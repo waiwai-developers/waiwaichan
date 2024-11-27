@@ -4,7 +4,7 @@ import type {
 	TextChannel,
 } from "discord.js";
 import { injectable } from "inversify";
-import type { SlashCommandHandler } from "./SlashCommandHandler";
+import type { SlashCommandHandler } from "src/routes/discordjs/handler/commands/SlashCommandHandler";
 
 @injectable()
 export class TalkCommandHandler implements SlashCommandHandler {

@@ -1,24 +1,20 @@
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
-import { HelpCategory } from "@/src/entities/vo/HelpCategory";
 import type { IUtilityLogic } from "@/src/logics/Interfaces/logics/IUtilityLogic";
 import type { CacheType, ChatInputCommandInteraction } from "discord.js";
 import { inject, injectable } from "inversify";
-import type { SlashCommandHandler } from "./SlashCommandHandler";
+import type { SlashCommandHandler } from "src/routes/discordjs/handler/commands/SlashCommandHandler";
 
 @injectable()
-export class HelpCommandHandler implements SlashCommandHandler {
+export class WaiwaiCommandHandler implements SlashCommandHandler {
 	@inject(LogicTypes.UtilityLogic)
 	private utilLogic!: IUtilityLogic;
 	isHandle(commandName: string): boolean {
-		return commandName === "help";
+		return commandName === "waiwai";
 	}
+
 	async handle(
 		interaction: ChatInputCommandInteraction<CacheType>,
 	): Promise<void> {
-		await interaction.reply(
-			await this.utilLogic.help(
-				new HelpCategory(interaction.options?.getString("category", true)),
-			),
-		);
+		await interaction.reply(await this.utilLogic.waiwai());
 	}
 }

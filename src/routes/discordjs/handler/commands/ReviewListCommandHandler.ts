@@ -3,7 +3,7 @@ import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
 import type { IPullRequestLogic } from "@/src/logics/Interfaces/logics/IPullRequestLogic";
 import type { CacheType, ChatInputCommandInteraction } from "discord.js";
 import { inject, injectable } from "inversify";
-import type { SlashCommandHandler } from "./SlashCommandHandler";
+import type { SlashCommandHandler } from "src/routes/discordjs/handler/commands/SlashCommandHandler";
 
 @injectable()
 export class ReviewListCommandHandler implements SlashCommandHandler {

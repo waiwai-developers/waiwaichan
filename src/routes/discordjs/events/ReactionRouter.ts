@@ -5,7 +5,7 @@ import { injectable, multiInject } from "inversify";
 import type {
 	DiscordEventHandler,
 	ReactionInteraction,
-} from "../handler/DiscordEventHandler";
+} from "src/routes/discordjs/handler/events/DiscordEventHandler";
 
 @injectable()
 export class ReactionRouter implements DiscordEventRouter {

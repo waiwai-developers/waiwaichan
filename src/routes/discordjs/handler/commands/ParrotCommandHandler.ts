@@ -3,7 +3,7 @@ import { ParrotMessage } from "@/src/entities/vo/ParrotMessage";
 import type { IUtilityLogic } from "@/src/logics/Interfaces/logics/IUtilityLogic";
 import type { CacheType, ChatInputCommandInteraction } from "discord.js";
 import { inject, injectable } from "inversify";
-import type { SlashCommandHandler } from "./SlashCommandHandler";
+import type { SlashCommandHandler } from "src/routes/discordjs/handler/commands/SlashCommandHandler";
 
 @injectable()
 export class ParrotCommandHandler implements SlashCommandHandler {

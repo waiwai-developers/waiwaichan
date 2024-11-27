@@ -9,7 +9,7 @@ import type { IReminderLogic } from "@/src/logics/Interfaces/logics/IReminderLog
 import dayjs from "dayjs";
 import type { CacheType, ChatInputCommandInteraction } from "discord.js";
 import { inject, injectable } from "inversify";
-import type { SlashCommandHandler } from "./SlashCommandHandler";
+import type { SlashCommandHandler } from "src/routes/discordjs/handler/commands/SlashCommandHandler";
 
 @injectable()
 export class ReminderSetCommandHandler implements SlashCommandHandler {

@@ -4,9 +4,9 @@ import { ChatAIMessageDto } from "@/src/entities/dto/ChatAIMessageDto";
 import { ChatAIContent } from "@/src/entities/vo/ChatAIContent";
 import { ChatAIRole } from "@/src/entities/vo/ChatAIRole";
 import type { IChatAILogic } from "@/src/logics/Interfaces/logics/IChatAILogic";
+import type { DiscordEventHandler } from "@/src/routes/discordjs/handler/events/DiscordEventHandler";
 import type { Message } from "discord.js";
 import { inject, injectable } from "inversify";
-import type { DiscordEventHandler } from "./DiscordEventHandler";
 
 @injectable()
 export class AIReplyHandler implements DiscordEventHandler<Message> {
