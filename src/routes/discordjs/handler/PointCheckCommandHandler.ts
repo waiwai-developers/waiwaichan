@@ -7,7 +7,7 @@ import { inject, injectable } from "inversify";
 import type { SlashCommandHandler } from "./SlashCommandHandler";
 
 @injectable()
-export class PointCheckCommandHandlers implements SlashCommandHandler {
+export class PointCheckCommandHandler implements SlashCommandHandler {
 	@inject(LogicTypes.PointLogic)
 	private pointLogic!: IPointLogic;
 
@@ -25,25 +25,7 @@ export class PointCheckCommandHandlers implements SlashCommandHandler {
 }
 
 @injectable()
-export class PointDrawCommandHandlers implements SlashCommandHandler {
-	@inject(LogicTypes.PointLogic)
-	private pointLogic!: IPointLogic;
-
-	isHandle(commandName: string): boolean {
-		return commandName === "pointdraw";
-	}
-
-	async handle(
-		interaction: ChatInputCommandInteraction<CacheType>,
-	): Promise<void> {
-		await interaction.reply(
-			await this.pointLogic.drawItem(new DiscordUserId(interaction.user.id)),
-		);
-	}
-}
-
-@injectable()
-export class PointItemCommandHandlers implements SlashCommandHandler {
+export class PointItemCommandHandler implements SlashCommandHandler {
 	@inject(LogicTypes.PointLogic)
 	private pointLogic!: IPointLogic;
 
@@ -61,7 +43,7 @@ export class PointItemCommandHandlers implements SlashCommandHandler {
 }
 
 @injectable()
-export class PointExchangeCommandHandlers implements SlashCommandHandler {
+export class PointExchangeCommandHandler implements SlashCommandHandler {
 	@inject(LogicTypes.PointLogic)
 	private pointLogic!: IPointLogic;
 
