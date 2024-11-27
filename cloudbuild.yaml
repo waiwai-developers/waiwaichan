@@ -22,14 +22,8 @@ steps:
           sudo docker compose -f ./environment/production/docker-compose.yml down
           git config --global --add safe.directory /app/waiwaichan
           sudo git pull origin main
-          containerList=$(docker ps -aq)
-          if [ ${containerList} ]; then
-            sudo docker rm $containerList
-          fi
-          imageList=$(docker images -q)
-          if [ ${imageList} ]; then
-            sudo docker rmi $imageList
-          fi
+          sudo docker rm $(docker ps -aq)
+          sudo docker rmi $(docker images -q)
           gcloud auth activate-service-account --key-file=config/key.json
           cat config/key.json | docker login -u _json_key --password-stdin asia-northeast1-docker.pkg.dev
           sudo docker pull asia-northeast1-docker.pkg.dev/waiwai-406106/waiwaichan/image:latest
