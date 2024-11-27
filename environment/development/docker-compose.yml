@@ -1,18 +1,8 @@
 services:
-  backend:
-    container_name: waiwai-backend
-    restart: always
-    tty: true
+  base_service: &base-service
     build:
       context: ../../.
       dockerfile: environment/development/Dockerfile
-    volumes:
-      - type: bind
-        source: ../../.
-        target: /app
-      - type: volume
-        source: backend_node_modules
-        target: /app/node_modules
     depends_on:
       database:
         condition: service_healthy
@@ -20,14 +10,23 @@ services:
       - db-net
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: config/key.json
-    working_dir: /app
+  backend:
+    <<: *base-service
+    container_name: waiwai-backend
+    restart: always
+    tty: true
+    volumes:
+      - type: bind
+        source: ../../.
+        target: /app
+      - type: volume
+        source: backend_node_modules
+        target: /app/node_modules
     command: sh -c "npm i && pnpm run dev"
   scheduler:
+    <<: *base-service
     container_name: waiwai-scheduler
     restart: "always"
-    build:
-      context: ../../.
-      dockerfile: environment/development/Dockerfile
     volumes:
       - type: bind
         source: ../../.
@@ -35,19 +34,13 @@ services:
       - type: volume
         source: scheduler_node_modules
         target: /app/node_modules
-    depends_on:
-      database:
-        condition: service_healthy
     networks:
       - db-net
-    working_dir: /app
     command: sh -c "npm i && pnpm run dev:scheduler"
   migrate:
+    <<: *base-service
     container_name: waiwai-migrate
     restart: "no"
-    build:
-      context: ../../.
-      dockerfile: environment/development/Dockerfile
     volumes:
       - type: bind
         source: ../../.
@@ -55,12 +48,6 @@ services:
       - type: volume
         source: migrate_node_modules
         target: /app/node_modules
-    depends_on:
-      database:
-        condition: service_healthy
-    networks:
-      - db-net
-    working_dir: /app
     command: sh -c "npm i && pnpm run migrate up && pnpm run seed up"
   database:
     container_name: waiwai-database
