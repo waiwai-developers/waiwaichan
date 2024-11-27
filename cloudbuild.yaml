@@ -29,3 +29,4 @@ steps:
           sudo docker pull asia-northeast1-docker.pkg.dev/waiwai-406106/waiwaichan/image:latest && \
           sudo docker compose -f ./environment/production/docker-compose.yml up -d
         "
+
