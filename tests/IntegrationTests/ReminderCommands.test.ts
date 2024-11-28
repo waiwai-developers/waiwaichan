@@ -106,6 +106,53 @@ describe("Test Reminder Commands", () => {
 		);
 	});
 
+	test("test /reminderdelete when id exist", async () => {
+		new MysqlConnector();
+		const [forDeleteObj, forNotDeleteObjSameUserId, forNotDeleteObjDifferentUserId] = await ReminderRepositoryImpl.bulkCreate([
+			{
+				userId: 1234,
+				channelId: 5678,
+				message: "reminderlist test 1",
+				remindAt: "2999/12/31 23:59:59",
+			},
+			{
+				userId: 1234,
+				channelId: 5678,
+				message: "reminderlist test 2",
+				remindAt: "2999/12/31 23:59:59",
+			},
+			{
+				userId: 9012,
+				channelId: 3456,
+				message: "reminderlist test 3",
+				remindAt: "2000/12/31 23:59:59",
+			},
+		]);
+
+		const commandMock = mockSlashCommand("reminderdelete", {
+			id: forDeleteObj.id,
+		});
+
+		const TEST_CLIENT = await TestDiscordServer.getClient();
+		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+		await waitUntilReply(commandMock);
+		verify(commandMock.reply(anything())).once();
+		verify(commandMock.reply("リマインドの予約を削除したよ！っ")).once();
+
+		const res = await ReminderRepositoryImpl.findAll();
+		expect(res.length).toBe(2);
+
+		expect(res[0].id).toBe(forNotDeleteObjSameUserId.id);
+		expect(res[0].userId).toBe(forNotDeleteObjSameUserId.userId);
+		expect(res[0].channelId).toBe(forNotDeleteObjSameUserId.channelId);
+		expect(res[0].message).toBe(forNotDeleteObjSameUserId.message);
+
+		expect(res[1].id).toBe(forNotDeleteObjDifferentUserId.id);
+		expect(res[1].userId).toBe(forNotDeleteObjDifferentUserId.userId);
+		expect(res[1].channelId).toBe(forNotDeleteObjDifferentUserId.channelId);
+		expect(res[1].message).toBe(forNotDeleteObjDifferentUserId.message);
+	});
+
 	test("test /reminderdelete when id not exist", async () => {
 		const commandMock = mockSlashCommand("reminderdelete", {
 			id: 0,
