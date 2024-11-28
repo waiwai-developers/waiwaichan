@@ -115,10 +115,5 @@
 			"inputGlob": "{js,jsx,mjs}",
 			"outputCheck": ["js", "json", "jsx", "mjs"]
 		}
-	},
-	"ts-node": {
-		"esm": true,
-		"require": ["tsconfig-paths/register"],
-		"experimentalSpecifierResolution": "node"
 	}
 }
