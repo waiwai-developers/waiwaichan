@@ -4,6 +4,7 @@ import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
 import { RemindTime } from "@/src/entities/vo/RemindTime";
 import { ReminderId } from "@/src/entities/vo/ReminderId";
 import { ReminderMessage } from "@/src/entities/vo/ReminderMessage";
+import { ReminderUser } from "@/src/entities/vo/ReminderUser";
 import type { IReminderSchedulerRepository } from "@/src/logics/Interfaces/repositories/database/IReminderSchedulerRepository";
 import { MysqlConnector } from "@/src/repositories/sequelize-mysql/mysqlConnector";
 import dayjs from "dayjs";
@@ -21,6 +22,7 @@ class ReminderSchedulerRepositoryImpl
 	declare channelId: string;
 	declare userId: string;
 	declare message: string;
+	declare user: string;
 	declare remindAt: Date;
 
 	async findByRemindTime(): Promise<ReminderDto[]> {
@@ -41,6 +43,7 @@ class ReminderSchedulerRepositoryImpl
 			new DiscordChannelId(this.channelId),
 			new DiscordUserId(this.userId),
 			new ReminderMessage(this.message),
+			new ReminderUser(this.user),
 			new RemindTime(this.remindAt),
 		);
 	}
@@ -50,6 +53,7 @@ ReminderSchedulerRepositoryImpl.init(
 		channelId: DataTypes.BIGINT,
 		userId: DataTypes.BIGINT,
 		message: DataTypes.STRING,
+		user: DataTypes.STRING,
 		remindAt: DataTypes.DATE,
 	},
 	{

@@ -83,6 +83,9 @@ export class DiscordCommandRegister {
 				)
 				.addStringOption((option) =>
 					option.setName("message").setDescription("string").setRequired(true),
+				)
+				.addStringOption((option) =>
+					option.setName("user").setDescription("string").setRequired(true),
 				),
 			new SlashCommandBuilder()
 				.setName("reminderdelete")
