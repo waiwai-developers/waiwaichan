@@ -54,6 +54,23 @@ describe("Test Point Commands", () => {
 		expect(res.length).toEqual(3);
 	});
 
+	test("test /point not add same user", async () => {
+		const giverId = "1234";
+		const receiverId = "1234";
+
+		const { reaction, user, messageMock } = mockReaction(AppConfig.backend.pointEmoji, giverId, receiverId);
+		const TEST_CLIENT = await TestDiscordServer.getClient();
+		TEST_CLIENT.emit("messageReactionAdd", instance(reaction), instance(user), instance(mock<MessageReactionEventDetails>()));
+
+		try {
+			await waitUntilReply(messageMock, 300);
+		} catch (e) {
+			verify(messageMock.reply(anything())).never();
+			return;
+		}
+		expect("expect not reach here").toBe(false);
+	});
+
 	afterEach(async () => {
 		await PointRepositoryImpl.destroy({
 			truncate: true,
