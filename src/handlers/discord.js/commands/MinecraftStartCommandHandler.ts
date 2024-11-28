@@ -20,20 +20,3 @@ export class MinecraftStartCommandHandler implements SlashCommandHandler {
 		await interaction.editReply(await this.mineCraftLogic.startServer());
 	}
 }
-
-@injectable()
-export class MinecraftStopCommandHandler implements SlashCommandHandler {
-	@inject(LogicTypes.MinecraftServerLogic)
-	private mineCraftLogic!: IMinecraftServerLogic;
-
-	isHandle(commandName: string): boolean {
-		return commandName === "minecraftstop";
-	}
-
-	async handle(
-		interaction: ChatInputCommandInteraction<CacheType>,
-	): Promise<void> {
-		await interaction.deferReply();
-		await interaction.editReply(await this.mineCraftLogic.stopServer());
-	}
-}

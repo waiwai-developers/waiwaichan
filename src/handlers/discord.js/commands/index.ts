@@ -1,6 +1,6 @@
 export { ReminderSetCommandHandler } from "@/src/handlers/discord.js/commands/ReminderSetCommandHandler";
-export { ReminderListCommandHandler } from "@/src/handlers/discord.js/commands/ReminderSetCommandHandler";
-export { ReminderDeleteCommandHandler } from "@/src/handlers/discord.js/commands/ReminderSetCommandHandler";
+export { ReminderListCommandHandler } from "@/src/handlers/discord.js/commands/ReminderListCommandHandler";
+export { ReminderDeleteCommandHandler } from "@/src/handlers/discord.js/commands/ReminderDeleteCommandHandler";
 export { ReviewGachaCommandHandler } from "@/src/handlers/discord.js/commands/ReviewGachaCommandHandler";
 export { ReviewListCommandHandler } from "@/src/handlers/discord.js/commands/ReviewListCommandHandler";
 export { TranslateCommandHandler } from "@/src/handlers/discord.js/commands/TranslateCommandHandlers";
@@ -8,7 +8,7 @@ export { ChoiceCommandHandler } from "@/src/handlers/discord.js/commands/ChoiceC
 export { DiceCommandHandler } from "@/src/handlers/discord.js/commands/DiceCommandHandler";
 export { HelpCommandHandler } from "@/src/handlers/discord.js/commands/HelpCommandHandler";
 export { MinecraftStartCommandHandler } from "@/src/handlers/discord.js/commands/MinecraftStartCommandHandler";
-export { MinecraftStopCommandHandler } from "@/src/handlers/discord.js/commands/MinecraftStartCommandHandler";
+export { MinecraftStopCommandHandler } from "@/src/handlers/discord.js/commands/MinecraftStopCommandHandler";
 export { ParrotCommandHandler } from "@/src/handlers/discord.js/commands/ParrotCommandHandler";
 export { PointCheckCommandHandler } from "@/src/handlers/discord.js/commands/PointCheckCommandHandler";
 export { PointExchangeCommandHandler } from "@/src/handlers/discord.js/commands/PointExchangeCommandHandler";
