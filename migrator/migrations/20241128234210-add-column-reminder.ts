@@ -11,5 +11,5 @@ export const up: Migration = async ({ context: sequelize }) => {
 	});
 };
 export const down: Migration = async ({ context: sequelize }) => {
-	await sequelize.removeColumn(TABLE_NAME, COLUMN_NAME)
+	await sequelize.removeColumn(TABLE_NAME, COLUMN_NAME);
 };
