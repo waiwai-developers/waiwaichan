@@ -1,7 +1,12 @@
-import type { DatabaseConfigType } from "@/src/entities/config/DatabaseConfig";
+import { MigratePointItemModel } from "@/migrator/seeds/models/MigratePointItemModel";
+import {
+	type DatabaseConfigType,
+	GetEnvDBConfig,
+} from "@/src/entities/config/DatabaseConfig";
 import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnector";
 import { Sequelize } from "sequelize-typescript";
 import { SequelizeStorage, Umzug } from "umzug";
+import type { MigrationParams } from "umzug/lib/types";
 
 export const migrator = (dbConfig?: DatabaseConfigType | undefined) => {
 	const sequelize =
@@ -25,15 +30,19 @@ export const migrator = (dbConfig?: DatabaseConfigType | undefined) => {
 	});
 };
 
-export const seeder = (dbConfig?: DatabaseConfigType | undefined) => {
-	const sequelize =
-		dbConfig != null
-			? new Sequelize(dbConfig.database, dbConfig.username, dbConfig.password, {
-					host: dbConfig.host,
-					port: dbConfig.port,
-					dialect: "mysql",
-				})
-			: new MysqlConnector().getDBInstance();
+export const seeder = (dbConfig: DatabaseConfigType = GetEnvDBConfig()) => {
+	const sequelize = new Sequelize(
+		dbConfig.database,
+		dbConfig.username,
+		dbConfig.password,
+		{
+			host: dbConfig.host,
+			port: dbConfig.port,
+			dialect: "mysql",
+			models: [MigratePointItemModel],
+		},
+	);
+
 	return new Umzug({
 		migrations: {
 			glob: "migrator/seeds/*.ts",
@@ -47,5 +56,7 @@ export const seeder = (dbConfig?: DatabaseConfigType | undefined) => {
 	});
 };
 
-export type Migration = typeof Umzug.prototype._types.migration;
+export type Migration = (
+	params: MigrationParams<Sequelize>,
+) => Promise<unknown>;
 export type Seed = Migration;

@@ -1,5 +1,8 @@
-import { InternalErrorMessage } from "@/src/entities/DiscordErrorMessages";
 import { ReminderRepositoryImpl } from "@/src/repositories/sequelize-mysql";
+import {
+	ContainerDown,
+	ContainerUp,
+} from "@/tests/fixtures/database/ContainerTest";
 import {
 	mockSlashCommand,
 	waitUntilReply,
@@ -8,6 +11,8 @@ import { TestDiscordServer } from "@/tests/fixtures/discord.js/TestDiscordServer
 import { anything, instance, verify, when } from "ts-mockito";
 
 describe("Test Reminder Commands", () => {
+	beforeAll(ContainerUp);
+	afterAll(ContainerDown);
 	test("test /reminderset datetime:2999/12/31 23:59:59 message:feature reminder", async () => {
 		const commandMock = mockSlashCommand("reminderset", {
 			datetime: "2999/12/31 23:59:59",

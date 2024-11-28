@@ -1,5 +1,4 @@
-import * as process from "node:process";
-import { DatabaseConfig } from "@/src/entities/config/DatabaseConfig";
+import { GetEnvDBConfig } from "@/src/entities/config/DatabaseConfig";
 import type { IDataBaseConnector } from "@/src/logics/Interfaces/repositories/database/IDataBaseConnector";
 import { PointItemRepositoryImpl } from "@/src/repositories/sequelize-mysql/PointItemRepositoryImpl";
 import { PointRepositoryImpl } from "@/src/repositories/sequelize-mysql/PointRepositoryImpl";
@@ -13,7 +12,7 @@ import { Sequelize } from "sequelize-typescript";
 export class MysqlConnector implements IDataBaseConnector<Sequelize, "mysql"> {
 	instance: Sequelize;
 	constructor() {
-		const dbConfig = this.getDbConfig();
+		const dbConfig = GetEnvDBConfig();
 		this.instance = new Sequelize(
 			dbConfig.database,
 			dbConfig.username,
@@ -42,16 +41,6 @@ export class MysqlConnector implements IDataBaseConnector<Sequelize, "mysql"> {
 				],
 			},
 		);
-	}
-	private getDbConfig() {
-		switch (process.env.NODE_ENV || "development") {
-			case "test":
-				return DatabaseConfig.test;
-			case "production":
-				return DatabaseConfig.production;
-			default:
-				return DatabaseConfig.development;
-		}
 	}
 	getDBInstance(): Sequelize {
 		return this.instance;
