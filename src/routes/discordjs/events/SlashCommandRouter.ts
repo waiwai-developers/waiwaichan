@@ -141,7 +141,7 @@ export class SlashCommandRouter implements DiscordEventRouter {
 									new DiscordChannelId(interaction.channelId),
 									new DiscordUserId(interaction.user.id),
 									new ReceiveDiscordUserName(
-										interaction.options.getString("receiveUserName") ?? "",
+										interaction.options.getString("username") ?? "",
 									),
 									new ReminderMessage(
 										interaction.options.getString("message") ?? "",
