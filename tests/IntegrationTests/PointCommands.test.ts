@@ -8,7 +8,7 @@ import type { MessageReactionEventDetails } from "discord.js";
 import { anything, instance, mock, verify, when } from "ts-mockito";
 
 describe("Test Point Commands", () => {
-	test("test /point adding", async () => {
+	test("test point give adding", async () => {
 		const giverId = "1234";
 		const receiverId = "5678";
 		const creationDate = dayjs().add(1, "month").subtract(1, "second");
@@ -34,7 +34,7 @@ describe("Test Point Commands", () => {
 		expect(finishedDate.isAfter(dayjs(res[0].expiredAt))).toBe(true);
 	});
 
-	test("test /point adding limit", async () => {
+	test("test point give adding limit", async () => {
 		const reaction = mockReaction(AppConfig.backend.pointEmoji, "1234", "5678");
 		const TEST_CLIENT = await TestDiscordServer.getClient();
 		for (let i = 0; i < 4; i++) {
@@ -54,7 +54,7 @@ describe("Test Point Commands", () => {
 		expect(res.length).toEqual(3);
 	});
 
-	test("test /point not add same user", async () => {
+	test("test point give not add same user", async () => {
 		const giverId = "1234";
 		const receiverId = "1234";
 
@@ -71,7 +71,7 @@ describe("Test Point Commands", () => {
 		expect("expect not reach here").toBe(false);
 	});
 
-	test("test /point not adding for same message", async () => {
+	test("test point give not adding for same message", async () => {
 		const giverId = "1234";
 		const receiverId = "5678";
 		const { reaction, user, messageMock } = mockReaction(AppConfig.backend.pointEmoji, giverId, receiverId);
