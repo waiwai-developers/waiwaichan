@@ -1,7 +1,9 @@
+import { InternalErrorMessage } from "@/src/entities/DiscordErrorMessages";
 import { AppConfig } from "@/src/entities/config/AppConfig";
 import { PointRepositoryImpl } from "@/src/repositories/sequelize-mysql";
 import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnector";
 import { mockReaction, waitUntilReply } from "@/tests/fixtures/discord.js/MockReaction";
+import { mockSlashCommand, waitUntilReply as waitSlashUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { TestDiscordServer } from "@/tests/fixtures/discord.js/TestDiscordServer";
 import dayjs from "dayjs";
 import type { MessageReactionEventDetails } from "discord.js";
@@ -84,6 +86,16 @@ describe("Test Point Commands", () => {
 
 		verify(messageMock.reply(anything())).once();
 		verify(messageMock.reply(`<@${instance(user).id}>さんが${AppConfig.backend.pointEmoji}スタンプを押したよ！！っ`)).once();
+	});
+
+	test("test /pointcheck when no points", async () => {
+		const commandMock = mockSlashCommand("pointcheck");
+
+		const TEST_CLIENT = await TestDiscordServer.getClient();
+		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+		await waitSlashUntilReply(commandMock);
+		verify(commandMock.reply(anything())).once();
+		verify(commandMock.reply("ポイントがないよ！っ")).once();
 	});
 
 	afterEach(async () => {
