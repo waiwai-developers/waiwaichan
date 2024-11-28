@@ -20,7 +20,7 @@ import type { IPointLogic } from "@/src/logics/Interfaces/logics/IPointLogic";
 import type { IPointItemRepository } from "@/src/logics/Interfaces/repositories/database/IPointItemRepository";
 import type { IPointRepository } from "@/src/logics/Interfaces/repositories/database/IPointRepository";
 import type { IUserPointItemRepository } from "@/src/logics/Interfaces/repositories/database/IUserPointItemRepository";
-import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnector";
+import type { IMutex } from "@/src/logics/Interfaces/repositories/mutex/IMutex";
 import dayjs from "dayjs";
 import { inject, injectable } from "inversify";
 
@@ -37,6 +37,9 @@ export class PointLogic implements IPointLogic {
 
 	@inject(RepoTypes.Transaction)
 	private readonly transaction!: ITransaction<TransactionLike>;
+
+	@inject(RepoTypes.Mutex)
+	private readonly mutex!: IMutex;
 
 	async check(userId: DiscordUserId): Promise<string> {
 		return this.transaction
@@ -133,33 +136,34 @@ export class PointLogic implements IPointLogic {
 		if (receiver.getValue() === giver.getValue()) {
 			return;
 		}
-		return await this.transaction.startTransaction(async () => {
-			const todayCount = await this.pointRepository.countByToday(giver);
-			console.error(todayCount);
-			// reaction limit
-			// todo reaction limit to constant
-			if (todayCount.getValue() > 2) {
-				return "今はスタンプを押してもポイントをあげられないよ！っ";
-			}
+		return this.mutex.useMutex("GivePoint", async () => {
+			return this.transaction.startTransaction(async () => {
+				const todayCount = await this.pointRepository.countByToday(giver);
+				// reaction limit
+				// todo reaction limit to constant
+				if (todayCount.getValue() > 2) {
+					return "今はスタンプを押してもポイントをあげられないよ！っ";
+				}
 
-			const points = await this.pointRepository.findByGiverAndMessageId(
-				giver,
-				messageId,
-			);
-			// duplicate reaction
-			if (points.length > 0) {
-				return;
-			}
-			await this.pointRepository.createPoint(
-				new PointDto(
-					receiver,
+				const points = await this.pointRepository.findByGiverAndMessageId(
 					giver,
 					messageId,
-					PointStatus.UNUSED,
-					new PointExpire(dayjs().add(1, "month").toDate()),
-				),
-			);
-			return `<@${giver.getValue()}>さんが${AppConfig.backend.pointEmoji}スタンプを押したよ！！っ`;
+				);
+				// duplicate reaction
+				if (points.length > 0) {
+					return;
+				}
+				await this.pointRepository.createPoint(
+					new PointDto(
+						receiver,
+						giver,
+						messageId,
+						PointStatus.UNUSED,
+						new PointExpire(dayjs().add(1, "month").toDate()),
+					),
+				);
+				return `<@${giver.getValue()}>さんが${AppConfig.backend.pointEmoji}スタンプを押したよ！！っ`;
+			});
 		});
 	}
 }

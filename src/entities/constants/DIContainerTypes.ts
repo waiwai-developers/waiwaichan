@@ -1,4 +1,5 @@
 export const RepoTypes = {
+	Mutex: Symbol.for("Mutex"),
 	DatabaseConnector: Symbol.for("DatabaseConnector"),
 	Transaction: Symbol.for("Transaction"),
 	PointRepository: Symbol.for("PointRepository"),
