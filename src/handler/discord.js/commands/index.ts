@@ -11,7 +11,7 @@ export { MinecraftStartCommandHandler } from "@/src/handler/discord.js/commands/
 export { MinecraftStopCommandHandler } from "@/src/handler/discord.js/commands/MinecraftStartCommandHandler";
 export { ParrotCommandHandler } from "@/src/handler/discord.js/commands/ParrotCommandHandler";
 export { PointCheckCommandHandler } from "@/src/handler/discord.js/commands/PointCheckCommandHandler";
-export { PointExchangeCommandHandler } from "@/src/handler/discord.js/commands/PointCheckCommandHandler";
+export { PointExchangeCommandHandler } from "@/src/handler/discord.js/commands/PointExchangeCommandHandler";
 export { PointDrawCommandHandler } from "@/src/handler/discord.js/commands/PointDrawCommandHandler";
 export { PointItemCommandHandler } from "@/src/handler/discord.js/commands/PointItemCommandHandler";
 export { TalkCommandHandler } from "@/src/handler/discord.js/commands/TalkCommandHandler";
