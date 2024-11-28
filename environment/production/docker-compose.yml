@@ -1,9 +1,15 @@
 services:
+  base_service: &base-service
+    image: asia-northeast1-docker.pkg.dev/waiwai-406106/waiwaichan/image:latest
+    networks:
+      - server-network
+    environment:
+      GOOGLE_APPLICATION_CREDENTIALS: config/key.json
   backend:
+    <<: *base-service
     container_name: waiwai-backend
     restart: always
     tty: true
-    image: asia-northeast1-docker.pkg.dev/waiwai-406106/waiwaichan/image:latest
     volumes:
       - type: bind
         source: ../../config
@@ -11,15 +17,11 @@ services:
       - type: volume
         source: backend_node_modules
         target: /app/node_modules
-    networks:
-      - server-network
-    environment:
-      GOOGLE_APPLICATION_CREDENTIALS: config/key.json
     command: sh -c "npm i && pnpm run dev"
   scheduler:
+    <<: *base-service
     container_name: waiwai-scheduler
     restart: "always"
-    image: asia-northeast1-docker.pkg.dev/waiwai-406106/waiwaichan/image:latest
     volumes:
       - type: bind
         source: ../../config
@@ -27,13 +29,11 @@ services:
       - type: volume
         source: scheduler_node_modules
         target: /app/node_modules
-    networks:
-      - server-network
     command: sh -c "npm i && pnpm run dev:scheduler"
   migrate:
+    <<: *base-service
     container_name: waiwai-migrate
     restart: "no"
-    image: asia-northeast1-docker.pkg.dev/waiwai-406106/waiwaichan/image:latest
     volumes:
       - type: bind
         source: ../../config
@@ -41,8 +41,6 @@ services:
       - type: volume
         source: migrate_node_modules
         target: /app/node_modules
-    networks:
-      - server-network
     command: sh -c "npm i && pnpm run migrate up && pnpm run seed up"
 networks:
   server-network:

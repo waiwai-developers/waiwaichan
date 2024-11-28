@@ -16,9 +16,9 @@ export class PullRequestLogic implements IPullRequestLogic {
 		pullRequestId: GithubPullRequestId,
 		userId: DiscordUserId,
 	): Promise<string> {
-
-		const reviewers = AccountsConfig.users
-			.filter((u) => u.discordId !== userId.getValue());
+		const reviewers = AccountsConfig.users.filter(
+			(u) => u.discordId !== userId.getValue(),
+		);
 
 		const pr = await this.pullRequestRepository.getById(pullRequestId);
 
