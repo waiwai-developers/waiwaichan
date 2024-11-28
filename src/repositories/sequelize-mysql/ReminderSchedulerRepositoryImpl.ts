@@ -53,7 +53,7 @@ ReminderSchedulerRepositoryImpl.init(
 		channelId: DataTypes.BIGINT,
 		userId: DataTypes.BIGINT,
 		message: DataTypes.STRING,
-		receiveUserId: DataTypes.STRING,
+		receiveUserName: DataTypes.STRING,
 		remindAt: DataTypes.DATE,
 	},
 	{
