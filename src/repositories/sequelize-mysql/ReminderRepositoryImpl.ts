@@ -52,8 +52,8 @@ class ReminderRepositoryImpl extends Model implements IReminderRepository {
 			new ReminderId(this.id),
 			new DiscordChannelId(this.channelId),
 			new DiscordUserId(this.userId),
-			new ReminderMessage(this.message),
 			new ReceiveDiscordUserName(this.receiveUserName),
+			new ReminderMessage(this.message),
 			new RemindTime(this.remindAt),
 		);
 	}
