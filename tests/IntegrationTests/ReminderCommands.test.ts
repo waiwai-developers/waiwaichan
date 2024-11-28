@@ -106,6 +106,18 @@ describe("Test Reminder Commands", () => {
 		);
 	});
 
+	test("test /reminderdelete when id not exist", async () => {
+		const commandMock = mockSlashCommand("reminderdelete", {
+			id: 0,
+		});
+
+		const TEST_CLIENT = await TestDiscordServer.getClient();
+		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+		await waitUntilReply(commandMock);
+		verify(commandMock.reply(anything())).once();
+		verify(commandMock.reply("リマインドの予約はされていなかったよ！っ")).once();
+	});
+
 	afterEach(async () => {
 		await ReminderRepositoryImpl.destroy({
 			truncate: true,
