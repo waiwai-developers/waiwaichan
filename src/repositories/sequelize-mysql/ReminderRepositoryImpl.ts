@@ -1,6 +1,7 @@
 import { ReminderDto } from "@/src/entities/dto/ReminderDto";
 import { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
 import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
+import { ReceiveDiscordUserName } from "@/src/entities/vo/ReceiveDiscordUserName";
 import { RemindTime } from "@/src/entities/vo/RemindTime";
 import { ReminderId } from "@/src/entities/vo/ReminderId";
 import { ReminderMessage } from "@/src/entities/vo/ReminderMessage";
@@ -16,6 +17,7 @@ class ReminderRepositoryImpl extends Model implements IReminderRepository {
 	declare id: number;
 	declare channelId: string;
 	declare userId: string;
+	declare receiveUserName: string;
 	declare message: string;
 	declare remindAt: Date;
 
@@ -24,6 +26,7 @@ class ReminderRepositoryImpl extends Model implements IReminderRepository {
 			id: data.id.getValue(),
 			channelId: data.channelId.getValue(),
 			userId: data.userId.getValue(),
+			receiveUserName: data.receiveUserName.getValue(),
 			message: data.message.getValue(),
 			remindAt: data.remindAt.getValue(),
 		}).then((res) => !!res);
@@ -49,6 +52,7 @@ class ReminderRepositoryImpl extends Model implements IReminderRepository {
 			new ReminderId(this.id),
 			new DiscordChannelId(this.channelId),
 			new DiscordUserId(this.userId),
+			new ReceiveDiscordUserName(this.receiveUserName),
 			new ReminderMessage(this.message),
 			new RemindTime(this.remindAt),
 		);
@@ -58,6 +62,7 @@ ReminderRepositoryImpl.init(
 	{
 		channelId: DataTypes.BIGINT,
 		userId: DataTypes.BIGINT,
+		receiveUserName: DataTypes.STRING,
 		message: DataTypes.STRING,
 		remindAt: DataTypes.DATE,
 	},

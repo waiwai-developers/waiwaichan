@@ -82,6 +82,9 @@ export class DiscordCommandRegister {
 					option.setName("datetime").setDescription("string").setRequired(true),
 				)
 				.addStringOption((option) =>
+					option.setName("username").setDescription("string").setRequired(true),
+				)
+				.addStringOption((option) =>
 					option.setName("message").setDescription("string").setRequired(true),
 				),
 			new SlashCommandBuilder()
