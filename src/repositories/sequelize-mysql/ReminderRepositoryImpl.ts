@@ -17,8 +17,8 @@ class ReminderRepositoryImpl extends Model implements IReminderRepository {
 	declare id: number;
 	declare channelId: string;
 	declare userId: string;
-	declare message: string;
 	declare receiveUserName: string;
+	declare message: string;
 	declare remindAt: Date;
 
 	async create(data: ReminderDto): Promise<boolean> {
@@ -26,8 +26,8 @@ class ReminderRepositoryImpl extends Model implements IReminderRepository {
 			id: data.id.getValue(),
 			channelId: data.channelId.getValue(),
 			userId: data.userId.getValue(),
-			message: data.message.getValue(),
 			receiveUserName: data.receiveUserName.getValue(),
+			message: data.message.getValue(),
 			remindAt: data.remindAt.getValue(),
 		}).then((res) => !!res);
 	}
@@ -62,8 +62,8 @@ ReminderRepositoryImpl.init(
 	{
 		channelId: DataTypes.BIGINT,
 		userId: DataTypes.BIGINT,
-		message: DataTypes.STRING,
 		receiveUserName: DataTypes.STRING,
+		message: DataTypes.STRING,
 		remindAt: DataTypes.DATE,
 	},
 	{

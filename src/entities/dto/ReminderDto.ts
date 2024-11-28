@@ -10,8 +10,8 @@ export class ReminderDto {
 		public id: UserPointItemId,
 		public channelId: DiscordChannelId,
 		public userId: DiscordUserId,
-		public message: ReminderMessage,
 		public receiveUserName: ReceiveDiscordUserName,
+		public message: ReminderMessage,
 		public remindAt: RemindTime,
 	) {}
 }
