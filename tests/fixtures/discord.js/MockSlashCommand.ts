@@ -1,24 +1,11 @@
 import { DiscordCommandRegister } from "@/src/routes/discordjs/DiscordCommandRegister";
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
-import {
-	type CacheType,
-	ChatInputCommandInteraction,
-	type CommandInteractionOptionResolver,
-	User,
-} from "discord.js";
+import { type CacheType, ChatInputCommandInteraction, type CommandInteractionOptionResolver, User } from "discord.js";
 import { anything, instance, mock, verify, when } from "ts-mockito";
 export const mockSlashCommand = (commandName: string, options: any = {}) => {
 	const commandInteractionMock = mock(ChatInputCommandInteraction);
-	const found = new DiscordCommandRegister().commands.find(
-		(b) => b.name === commandName,
-	);
-	const optionsMock =
-		mock<
-			Omit<
-				CommandInteractionOptionResolver<CacheType>,
-				"getMessage" | "getFocused"
-			>
-		>();
+	const found = new DiscordCommandRegister().commands.find((b) => b.name === commandName);
+	const optionsMock = mock<Omit<CommandInteractionOptionResolver<CacheType>, "getMessage" | "getFocused">>();
 
 	found?.options.forEach((it) => {
 		if (options[it.toJSON().name] == null && it.toJSON().required) {
@@ -27,28 +14,16 @@ export const mockSlashCommand = (commandName: string, options: any = {}) => {
 				case ApplicationCommandOptionType.SubcommandGroup:
 					break;
 				case ApplicationCommandOptionType.String:
-					when(optionsMock.getString(it.toJSON().name)).thenThrow(
-						new Error(`null is not allowed for ${it.toJSON().name}`),
-					);
-					when(optionsMock.getString(it.toJSON().name, true)).thenThrow(
-						new Error(`null is not allowed for ${it.toJSON().name}`),
-					);
+					when(optionsMock.getString(it.toJSON().name)).thenThrow(new Error(`null is not allowed for ${it.toJSON().name}`));
+					when(optionsMock.getString(it.toJSON().name, true)).thenThrow(new Error(`null is not allowed for ${it.toJSON().name}`));
 					break;
 				case ApplicationCommandOptionType.Integer:
-					when(optionsMock.getInteger(it.toJSON().name)).thenThrow(
-						new Error(`null is not allowed for ${it.toJSON().name}`),
-					);
-					when(optionsMock.getInteger(it.toJSON().name, true)).thenThrow(
-						new Error(`null is not allowed for ${it.toJSON().name}`),
-					);
+					when(optionsMock.getInteger(it.toJSON().name)).thenThrow(new Error(`null is not allowed for ${it.toJSON().name}`));
+					when(optionsMock.getInteger(it.toJSON().name, true)).thenThrow(new Error(`null is not allowed for ${it.toJSON().name}`));
 					break;
 				case ApplicationCommandOptionType.Boolean:
-					when(optionsMock.getBoolean(it.toJSON().name)).thenThrow(
-						new Error(`null is not allowed for ${it.toJSON().name}`),
-					);
-					when(optionsMock.getBoolean(it.toJSON().name, true)).thenThrow(
-						new Error(`null is not allowed for ${it.toJSON().name}`),
-					);
+					when(optionsMock.getBoolean(it.toJSON().name)).thenThrow(new Error(`null is not allowed for ${it.toJSON().name}`));
+					when(optionsMock.getBoolean(it.toJSON().name, true)).thenThrow(new Error(`null is not allowed for ${it.toJSON().name}`));
 					break;
 				case ApplicationCommandOptionType.User:
 				case ApplicationCommandOptionType.Channel:
@@ -64,28 +39,16 @@ export const mockSlashCommand = (commandName: string, options: any = {}) => {
 				case ApplicationCommandOptionType.SubcommandGroup:
 					break;
 				case ApplicationCommandOptionType.String:
-					when(optionsMock.getString(it.toJSON().name)).thenReturn(
-						options[it.toJSON().name],
-					);
-					when(optionsMock.getString(it.toJSON().name, true)).thenReturn(
-						options[it.toJSON().name],
-					);
+					when(optionsMock.getString(it.toJSON().name)).thenReturn(options[it.toJSON().name]);
+					when(optionsMock.getString(it.toJSON().name, true)).thenReturn(options[it.toJSON().name]);
 					break;
 				case ApplicationCommandOptionType.Integer:
-					when(optionsMock.getInteger(it.toJSON().name)).thenReturn(
-						options[it.toJSON().name],
-					);
-					when(optionsMock.getInteger(it.toJSON().name, true)).thenReturn(
-						options[it.toJSON().name],
-					);
+					when(optionsMock.getInteger(it.toJSON().name)).thenReturn(options[it.toJSON().name]);
+					when(optionsMock.getInteger(it.toJSON().name, true)).thenReturn(options[it.toJSON().name]);
 					break;
 				case ApplicationCommandOptionType.Boolean:
-					when(optionsMock.getBoolean(it.toJSON().name)).thenReturn(
-						options[it.toJSON().name],
-					);
-					when(optionsMock.getBoolean(it.toJSON().name, true)).thenReturn(
-						options[it.toJSON().name],
-					);
+					when(optionsMock.getBoolean(it.toJSON().name)).thenReturn(options[it.toJSON().name]);
+					when(optionsMock.getBoolean(it.toJSON().name, true)).thenReturn(options[it.toJSON().name]);
 					break;
 				case ApplicationCommandOptionType.User:
 				case ApplicationCommandOptionType.Channel:
@@ -108,9 +71,7 @@ export const mockSlashCommand = (commandName: string, options: any = {}) => {
 	return commandInteractionMock;
 };
 
-export const waitUntilReply = async (
-	commandInteractionMock: ChatInputCommandInteraction<CacheType>,
-): Promise<void> => {
+export const waitUntilReply = async (commandInteractionMock: ChatInputCommandInteraction<CacheType>, timeout = 15000): Promise<void> => {
 	const startTime = Date.now();
 	return new Promise((resolve, reject) => {
 		const interval = setInterval(async () => {
@@ -125,13 +86,9 @@ export const waitUntilReply = async (
 					resolve(e);
 				})
 				.catch((e) => {
-					if (Date.now() - startTime > 15000) {
+					if (Date.now() - startTime > timeout) {
 						clearInterval(interval);
-						reject(
-							new Error(
-								"Timeout: Method was not called within the time limit.",
-							),
-						);
+						reject(new Error("Timeout: Method was not called within the time limit."));
 					}
 				});
 		}, 100);

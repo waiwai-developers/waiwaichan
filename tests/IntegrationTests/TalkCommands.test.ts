@@ -1,14 +1,7 @@
 import { InternalErrorMessage } from "@/src/entities/DiscordErrorMessages";
-import {
-	mockSlashCommand,
-	waitUntilReply,
-} from "@/tests/fixtures/discord.js/MockSlashCommand";
+import { mockSlashCommand, waitUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { TestDiscordServer } from "@/tests/fixtures/discord.js/TestDiscordServer";
-import type {
-	AllowedThreadTypeForTextChannel,
-	GuildTextThreadManager,
-	TextChannel,
-} from "discord.js";
+import type { AllowedThreadTypeForTextChannel, GuildTextThreadManager, TextChannel } from "discord.js";
 import { anything, instance, mock, verify, when } from "ts-mockito";
 
 describe("Test Talk Command", () => {
@@ -18,8 +11,7 @@ describe("Test Talk Command", () => {
 			title: title,
 		});
 		const channelMock = mock<TextChannel>();
-		const threadManagerMock =
-			mock<GuildTextThreadManager<AllowedThreadTypeForTextChannel>>();
+		const threadManagerMock = mock<GuildTextThreadManager<AllowedThreadTypeForTextChannel>>();
 		let createdTitle = "";
 		when(threadManagerMock.create(anything())).thenCall((args) => {
 			createdTitle = args.name;
@@ -42,8 +34,7 @@ describe("Test Talk Command", () => {
 			title: null,
 		});
 		const channelMock = mock<TextChannel>();
-		const threadManagerMock =
-			mock<GuildTextThreadManager<AllowedThreadTypeForTextChannel>>();
+		const threadManagerMock = mock<GuildTextThreadManager<AllowedThreadTypeForTextChannel>>();
 		when(channelMock.threads).thenReturn(instance(threadManagerMock));
 		when(commandMock.channel).thenReturn(instance(channelMock));
 		const TEST_CLIENT = await TestDiscordServer.getClient();
@@ -53,6 +44,49 @@ describe("Test Talk Command", () => {
 		verify(commandMock.reply(anything())).once();
 		verify(commandMock.reply("")).never();
 		verify(commandMock.reply(InternalErrorMessage)).once();
+	});
+
+	test("Test /talk channel is null", async () => {
+		const commandMock = mockSlashCommand("talk", {
+			title: "Test /talk channel is null",
+		});
+		const channelMock = mock<TextChannel>();
+		const threadManagerMock = mock<GuildTextThreadManager<AllowedThreadTypeForTextChannel>>();
+		when(channelMock.threads).thenReturn(instance(threadManagerMock));
+		when(commandMock.channel).thenReturn(null);
+		const TEST_CLIENT = await TestDiscordServer.getClient();
+
+		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+		try {
+			await waitUntilReply(commandMock, 500);
+		} catch (_) {
+			// wait until
+			verify(commandMock.reply(anything())).never();
+			return;
+		}
+		expect("expect not reach here").toBe(false);
+	});
+
+	test("Test /talk in not test channel", async () => {
+		const commandMock = mockSlashCommand("talk", {
+			title: "Test /talk in not test channel",
+		});
+		const channelMock = mock<TextChannel>();
+		const threadManagerMock = mock<GuildTextThreadManager<AllowedThreadTypeForTextChannel>>();
+		when(channelMock.threads).thenReturn(instance(threadManagerMock));
+		when(commandMock.channel).thenReturn(channelMock);
+		const TEST_CLIENT = await TestDiscordServer.getClient();
+
+		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+		try {
+			await waitUntilReply(commandMock, 500);
+		} catch (_) {
+			// wait until
+			verify(commandMock.reply(anything())).never();
+			return;
+		}
+		// expect not reach here
+		expect("expect not reach here").toBe(false);
 	});
 	//TODO add thread reply QA
 });
