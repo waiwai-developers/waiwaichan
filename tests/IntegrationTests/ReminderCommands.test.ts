@@ -25,6 +25,19 @@ describe("Test Reminder Commands", () => {
 		expect(res[0].message).toBe("test reminder");
 	});
 
+	test("test /reminderset when old datetime", async () => {
+		const commandMock = mockSlashCommand("reminderset", {
+			datetime: "1000/12/31 23:59:59",
+			message: "test reminder",
+		});
+
+		const TEST_CLIENT = await TestDiscordServer.getClient();
+		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+		await waitUntilReply(commandMock);
+		verify(commandMock.reply(anything())).once();
+		verify(commandMock.reply("過去の日付のリマインドは設定できないよ！っ")).once();
+	});
+
 	test("test /reminderlist with no remind", async () => {
 		const commandMock = mockSlashCommand("reminderlist");
 
