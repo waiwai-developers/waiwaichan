@@ -38,6 +38,19 @@ describe("Test Reminder Commands", () => {
 		verify(commandMock.reply("過去の日付のリマインドは設定できないよ！っ")).once();
 	});
 
+	test("test /reminderset with null datetime", async () => {
+		const commandMock = mockSlashCommand("reminderset", {
+			datetime: null,
+			message: "test reminder",
+		});
+
+		const TEST_CLIENT = await TestDiscordServer.getClient();
+		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+		await waitUntilReply(commandMock);
+		verify(commandMock.reply(anything())).once();
+		verify(commandMock.reply("過去の日付のリマインドは設定できないよ！っ")).once();
+	});
+
 	test("test /reminderlist with no remind", async () => {
 		const commandMock = mockSlashCommand("reminderlist");
 
