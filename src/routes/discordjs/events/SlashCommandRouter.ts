@@ -11,7 +11,7 @@ import { ParrotMessage } from "@/src/entities/vo/ParrotMessage";
 import { RemindTime } from "@/src/entities/vo/RemindTime";
 import { ReminderId } from "@/src/entities/vo/ReminderId";
 import { ReminderMessage } from "@/src/entities/vo/ReminderMessage";
-import { ReceiveDiscordUserId } from "@/src/entities/vo/ReceiveDiscordUserId";
+import { ReceiveDiscordUserName } from "@/src/entities/vo/ReceiveDiscordUserName";
 import { TranslateSourceLanguage } from "@/src/entities/vo/TranslateSourceLanguage";
 import { TranslateTargetLanguage } from "@/src/entities/vo/TranslateTargetLanguage";
 import { TranslateText } from "@/src/entities/vo/TranslateText";
@@ -140,8 +140,8 @@ export class SlashCommandRouter implements DiscordEventRouter {
 									new ReminderId(0),
 									new DiscordChannelId(interaction.channelId),
 									new DiscordUserId(interaction.user.id),
-									new ReceiveDiscordUserId(
-										interaction.options.getString("user") ?? "",
+									new ReceiveDiscordUserName(
+										interaction.options.getString("receiveUserName") ?? "",
 									),
 									new ReminderMessage(
 										interaction.options.getString("message") ?? "",
