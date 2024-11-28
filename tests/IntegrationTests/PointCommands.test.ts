@@ -1,5 +1,5 @@
-import { InternalErrorMessage } from "@/src/entities/DiscordErrorMessages";
 import { AppConfig } from "@/src/entities/config/AppConfig";
+import { PointStatus } from "@/src/entities/vo/PointStatus";
 import { PointRepositoryImpl } from "@/src/repositories/sequelize-mysql";
 import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnector";
 import { mockReaction, waitUntilReply } from "@/tests/fixtures/discord.js/MockReaction";
@@ -86,6 +86,25 @@ describe("Test Point Commands", () => {
 
 		verify(messageMock.reply(anything())).once();
 		verify(messageMock.reply(`<@${instance(user).id}>さんが${AppConfig.backend.pointEmoji}スタンプを押したよ！！っ`)).once();
+	});
+
+	test("test /pointcheck when points exists", async () => {
+		new MysqlConnector();
+		const insertData = new Array(Math.round(Math.random() * 100)).fill({
+			receiveUserId: 1234,
+			giveUserId: 12345,
+			messageId: 5678,
+			status: PointStatus.UNUSED.getValue(),
+			expiredAt: "2999/12/31 23:59:59",
+		});
+		const inserted = await PointRepositoryImpl.bulkCreate(insertData);
+		const commandMock = mockSlashCommand("pointcheck");
+
+		const TEST_CLIENT = await TestDiscordServer.getClient();
+		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+		await waitSlashUntilReply(commandMock);
+		verify(commandMock.reply(anything())).once();
+		verify(commandMock.reply(`${inserted.length}ポイントあるよ！っ`)).once();
 	});
 
 	test("test /pointcheck when no points", async () => {
