@@ -1,7 +1,7 @@
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
 import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
 import { ReminderId } from "@/src/entities/vo/ReminderId";
-import type { SlashCommandHandler } from "@/src/handler/discord.js/commands/SlashCommandHandler";
+import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
 import type { IReminderLogic } from "@/src/logics/Interfaces/logics/IReminderLogic";
 import type { CacheType, ChatInputCommandInteraction } from "discord.js";
 import { inject, injectable } from "inversify";

@@ -1,6 +1,6 @@
 import { InternalErrorMessage } from "@/src/entities/DiscordErrorMessages";
 import { HandlerTypes } from "@/src/entities/constants/DIContainerTypes";
-import type { SlashCommandHandler } from "@/src/handler/discord.js/commands/SlashCommandHandler";
+import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
 import type { DiscordEventRouter } from "@/src/routes/discordjs/events/DiscordEventRouter";
 import type { Client } from "discord.js";
 import { injectable, multiInject } from "inversify";

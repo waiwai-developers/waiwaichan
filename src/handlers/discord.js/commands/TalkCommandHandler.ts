@@ -1,4 +1,4 @@
-import type { SlashCommandHandler } from "@/src/handler/discord.js/commands/SlashCommandHandler";
+import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
 import type {
 	CacheType,
 	ChatInputCommandInteraction,

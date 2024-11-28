@@ -5,7 +5,7 @@ import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
 import type {
 	DiscordEventHandler,
 	ReactionInteraction,
-} from "@/src/handler/discord.js/events/DiscordEventHandler";
+} from "@/src/handlers/discord.js/events/DiscordEventHandler";
 import type { IChatAILogic } from "@/src/logics/Interfaces/logics/IChatAILogic";
 import type { IPointLogic } from "@/src/logics/Interfaces/logics/IPointLogic";
 import { inject, injectable } from "inversify";

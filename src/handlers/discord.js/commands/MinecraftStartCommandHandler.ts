@@ -1,5 +1,5 @@
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
-import type { SlashCommandHandler } from "@/src/handler/discord.js/commands/SlashCommandHandler";
+import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
 import type { IMinecraftServerLogic } from "@/src/logics/Interfaces/logics/IMinecraftServerLogic";
 import type { CacheType, ChatInputCommandInteraction } from "discord.js";
 import { inject, injectable } from "inversify";

@@ -18,13 +18,13 @@ import {
 	ReviewListCommandHandler,
 	TalkCommandHandler,
 	WaiwaiCommandHandler,
-} from "@/src/handler/discord.js/commands/";
-import type { SlashCommandHandler } from "@/src/handler/discord.js/commands/SlashCommandHandler";
-import { TranslateCommandHandler } from "@/src/handler/discord.js/commands/TranslateCommandHandlers";
-import { AIReplyHandler } from "@/src/handler/discord.js/events/AIReplyHandler";
-import { CandyReactionHandler } from "@/src/handler/discord.js/events/CandyReactionHandler";
-import type { DiscordEventHandler } from "@/src/handler/discord.js/events/DiscordEventHandler";
-import type { ReactionInteraction } from "@/src/handler/discord.js/events/DiscordEventHandler";
+} from "@/src/handlers/discord.js/commands/";
+import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
+import { TranslateCommandHandler } from "@/src/handlers/discord.js/commands/TranslateCommandHandlers";
+import { AIReplyHandler } from "@/src/handlers/discord.js/events/AIReplyHandler";
+import { CandyReactionHandler } from "@/src/handlers/discord.js/events/CandyReactionHandler";
+import type { DiscordEventHandler } from "@/src/handlers/discord.js/events/DiscordEventHandler";
+import type { ReactionInteraction } from "@/src/handlers/discord.js/events/DiscordEventHandler";
 import { ChatAILogic } from "@/src/logics/ChatAILogic";
 import type { IChatAILogic } from "@/src/logics/Interfaces/logics/IChatAILogic";
 import type { IMinecraftServerLogic } from "@/src/logics/Interfaces/logics/IMinecraftServerLogic";

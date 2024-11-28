@@ -3,7 +3,7 @@ import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
 import { ChatAIMessageDto } from "@/src/entities/dto/ChatAIMessageDto";
 import { ChatAIContent } from "@/src/entities/vo/ChatAIContent";
 import { ChatAIRole } from "@/src/entities/vo/ChatAIRole";
-import type { DiscordEventHandler } from "@/src/handler/discord.js/events/DiscordEventHandler";
+import type { DiscordEventHandler } from "@/src/handlers/discord.js/events/DiscordEventHandler";
 import type { IChatAILogic } from "@/src/logics/Interfaces/logics/IChatAILogic";
 import type { Message } from "discord.js";
 import { inject, injectable } from "inversify";
