@@ -25,7 +25,7 @@ cron.schedule("* * * * *", async () => {
 			const channel = client.channels.cache.get(remainder.channelId.getValue());
 			if (channel != null && channel instanceof TextChannel) {
 				await channel.send(
-					`<@${remainder.userId.getValue()}>\n${remainder.message.getValue()}`,
+					`<@${remainder.receiveUserName.getValue()}>\n${remainder.message.getValue()}`,
 				);
 			}
 			await reminder.deleteReminder(remainder.id);
