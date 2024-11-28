@@ -5,7 +5,6 @@ export const mockReaction = (
 	reaction: string,
 	giverId: string,
 	receiverId: string,
-	messageId = "7890",
 	isPartial = false,
 	isBotReacted = false,
 	isBotMessage = false,
@@ -29,15 +28,15 @@ export const mockReaction = (
 	when(AuthorMock.bot).thenReturn(isBotMessage);
 	when(AuthorMock.id).thenReturn(receiverId);
 
-	when(MessageMock.id).thenReturn(messageId);
+	when(MessageMock.id).thenReturn("7890");
 	when(ReactionMock.emoji).thenReturn(instance(EmojiMock));
 	when(MessageMock.author).thenReturn(instance(AuthorMock));
 
 	when(ReactionMock.message).thenReturn(instance(MessageMock));
 
 	return {
-		reaction: instance(ReactionMock),
-		user: instance(UserMock),
+		reaction: ReactionMock,
+		user: UserMock,
 		messageMock: MessageMock,
 	};
 };

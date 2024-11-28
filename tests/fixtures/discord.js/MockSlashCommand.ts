@@ -71,17 +71,17 @@ export const mockSlashCommand = (commandName: string, options: any = {}) => {
 	return commandInteractionMock;
 };
 
-export const waitUntilReply = async (commandInteractionMock: ChatInputCommandInteraction<CacheType>, timeout = 15000): Promise<void> => {
+export const waitUntilReply = async (commandInteractionMock: ChatInputCommandInteraction<CacheType>, timeout = 15000, atLeast = 1): Promise<void> => {
 	const startTime = Date.now();
 	return new Promise((resolve, reject) => {
 		const interval = setInterval(async () => {
 			await new Promise(() => {
-				verify(commandInteractionMock.reply(anything())).atLeast(1);
+				verify(commandInteractionMock.reply(anything())).atLeast(atLeast);
 				clearInterval(interval);
 				resolve();
 			})
 				.catch((e) => {
-					verify(commandInteractionMock.editReply(anything())).atLeast(1);
+					verify(commandInteractionMock.editReply(anything())).atLeast(atLeast);
 					clearInterval(interval);
 					resolve(e);
 				})

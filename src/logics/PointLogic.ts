@@ -136,8 +136,8 @@ export class PointLogic implements IPointLogic {
 		if (receiver.getValue() === giver.getValue()) {
 			return;
 		}
-		return this.mutex.useMutex("GivePoint", async () => {
-			return this.transaction.startTransaction(async () => {
+		return this.mutex.useMutex("GivePoint", async () =>
+			this.transaction.startTransaction(async () => {
 				const todayCount = await this.pointRepository.countByToday(giver);
 				// reaction limit
 				// todo reaction limit to constant
@@ -163,7 +163,7 @@ export class PointLogic implements IPointLogic {
 					),
 				);
 				return `<@${giver.getValue()}>さんが${AppConfig.backend.pointEmoji}スタンプを押したよ！！っ`;
-			});
-		});
+			}),
+		);
 	}
 }
