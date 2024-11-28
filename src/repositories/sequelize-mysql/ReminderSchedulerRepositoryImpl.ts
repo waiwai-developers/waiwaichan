@@ -21,8 +21,8 @@ class ReminderSchedulerRepositoryImpl
 	declare id: number;
 	declare channelId: string;
 	declare userId: string;
-	declare message: string;
 	declare receiveUserName: string;
+	declare message: string;
 	declare remindAt: Date;
 
 	async findByRemindTime(): Promise<ReminderDto[]> {
@@ -42,8 +42,8 @@ class ReminderSchedulerRepositoryImpl
 			new ReminderId(this.id),
 			new DiscordChannelId(this.channelId),
 			new DiscordUserId(this.userId),
-			new ReminderMessage(this.message),
 			new ReceiveDiscordUserName(this.receiveUserName),
+			new ReminderMessage(this.message),
 			new RemindTime(this.remindAt),
 		);
 	}
@@ -52,8 +52,8 @@ ReminderSchedulerRepositoryImpl.init(
 	{
 		channelId: DataTypes.BIGINT,
 		userId: DataTypes.BIGINT,
-		message: DataTypes.STRING,
 		receiveUserName: DataTypes.STRING,
+		message: DataTypes.STRING,
 		remindAt: DataTypes.DATE,
 	},
 	{
