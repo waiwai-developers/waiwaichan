@@ -4,7 +4,7 @@ import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
 import { RemindTime } from "@/src/entities/vo/RemindTime";
 import { ReminderId } from "@/src/entities/vo/ReminderId";
 import { ReminderMessage } from "@/src/entities/vo/ReminderMessage";
-import { ReminderUser } from "@/src/entities/vo/ReminderUser";
+import { ReceiveDiscordUserId } from "@/src/entities/vo/ReceiveDiscordUserId";
 import type { IReminderSchedulerRepository } from "@/src/logics/Interfaces/repositories/database/IReminderSchedulerRepository";
 import { MysqlConnector } from "@/src/repositories/sequelize-mysql/mysqlConnector";
 import dayjs from "dayjs";
@@ -43,7 +43,7 @@ class ReminderSchedulerRepositoryImpl
 			new DiscordChannelId(this.channelId),
 			new DiscordUserId(this.userId),
 			new ReminderMessage(this.message),
-			new ReminderUser(this.user),
+			new ReceiveDiscordUserId(this.user),
 			new RemindTime(this.remindAt),
 		);
 	}
