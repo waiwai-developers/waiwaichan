@@ -1,23 +1,17 @@
+import { DatabaseConfig, GetEnvDBConfig } from "@/src/entities/config/DatabaseConfig";
 import { ReminderRepositoryImpl } from "@/src/repositories/sequelize-mysql";
-import {
-	ContainerDown,
-	ContainerUp,
-} from "@/tests/fixtures/database/ContainerTest";
-import {
-	mockSlashCommand,
-	waitUntilReply,
-} from "@/tests/fixtures/discord.js/MockSlashCommand";
+import { ContainerDown, ContainerUp } from "@/tests/fixtures/database/ContainerTest";
+import { mockSlashCommand, waitUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { TestDiscordServer } from "@/tests/fixtures/discord.js/TestDiscordServer";
 import { anything, instance, verify, when } from "ts-mockito";
 
 describe("Test Reminder Commands", () => {
-	beforeAll(ContainerUp);
-	afterAll(ContainerDown);
 	test("test /reminderset datetime:2999/12/31 23:59:59 message:feature reminder", async () => {
 		const commandMock = mockSlashCommand("reminderset", {
 			datetime: "2999/12/31 23:59:59",
 			message: "test reminder",
 		});
+		console.log(GetEnvDBConfig());
 		when(commandMock.reply(anything())).thenCall((args) => {
 			console.log(args);
 		});
@@ -47,8 +41,8 @@ describe("Test Reminder Commands", () => {
 		verify(commandMock.reply("リマインドは予約されていないよ！っ")).once();
 	});
 
-	afterEach(() => {
-		ReminderRepositoryImpl.destroy({
+	afterEach(async () => {
+		await ReminderRepositoryImpl.destroy({
 			truncate: true,
 		});
 	});

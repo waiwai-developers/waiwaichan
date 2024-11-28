@@ -1,13 +1,10 @@
 import { InternalErrorMessage } from "@/src/entities/DiscordErrorMessages";
-import {
-	mockSlashCommand,
-	waitUntilReply,
-} from "@/tests/fixtures/discord.js/MockSlashCommand";
+import { mockSlashCommand, waitUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { TestDiscordServer } from "@/tests/fixtures/discord.js/TestDiscordServer";
 import { anything, instance, verify, when } from "ts-mockito";
 
 describe("Test UtilityCommand", () => {
-	test("Test /help category:all", async () => {
+	test.concurrent("Test /help category:all", async () => {
 		const commandMock = mockSlashCommand("help", {
 			category: "all",
 		});
@@ -20,7 +17,7 @@ describe("Test UtilityCommand", () => {
 		verify(commandMock.reply(InternalErrorMessage)).never();
 	});
 
-	test("Test /help category:mainコマンド", async () => {
+	test.concurrent("Test /help category:mainコマンド", async () => {
 		const commandMock = mockSlashCommand("help", {
 			category: "mainコマンド",
 		});
@@ -33,7 +30,7 @@ describe("Test UtilityCommand", () => {
 		verify(commandMock.reply(InternalErrorMessage)).never();
 	});
 
-	test("Test /help category:null", async () => {
+	test.concurrent("Test /help category:null", async () => {
 		const commandMock = mockSlashCommand("help");
 		const TEST_CLIENT = await TestDiscordServer.getClient();
 
@@ -42,7 +39,7 @@ describe("Test UtilityCommand", () => {
 		verify(commandMock.reply(InternalErrorMessage)).once();
 	});
 
-	test("Test /waiwai", async () => {
+	test.concurrent("Test /waiwai", async () => {
 		const commandMock = mockSlashCommand("waiwai");
 		const TEST_CLIENT = await TestDiscordServer.getClient();
 
@@ -51,7 +48,7 @@ describe("Test UtilityCommand", () => {
 		verify(commandMock.reply("waiwai")).once();
 	});
 
-	test("Test /parrot message:あああああ", async () => {
+	test.concurrent("Test /parrot message:あああああ", async () => {
 		const message = "あああああ";
 		const commandMock = mockSlashCommand("parrot", {
 			message: message,
@@ -63,7 +60,7 @@ describe("Test UtilityCommand", () => {
 		verify(commandMock.reply(message)).once();
 	});
 
-	test("Test /parrot message:null", async () => {
+	test.concurrent("Test /parrot message:null", async () => {
 		const commandMock = mockSlashCommand("parrot");
 		const TEST_CLIENT = await TestDiscordServer.getClient();
 
@@ -74,27 +71,32 @@ describe("Test UtilityCommand", () => {
 		verify(commandMock.reply(InternalErrorMessage)).once();
 	});
 
-	test("Test /dice parameter:ramdom", async () => {
-		for (let i = 0; i < 10; i++) {
-			const sides = Math.round(Math.random() * Number.MAX_SAFE_INTEGER);
-
-			const commandMock = mockSlashCommand("dice", {
-				parameter: sides,
-			});
+	test.concurrent(
+		"Test /dice parameter:ramdom",
+		async () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			let value = 0;
-			when(commandMock.reply(anything())).thenCall((args) => {
-				value = args;
-			});
-			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-			await waitUntilReply(commandMock);
-			verify(commandMock.reply(anything())).once();
-			verify(commandMock.reply(InternalErrorMessage)).never();
-			expect(Number(value)).toBeLessThanOrEqual(sides);
-		}
-	}, 20_000);
+			for (let i = 0; i < 10; i++) {
+				const sides = Math.round(Math.random() * Number.MAX_SAFE_INTEGER);
+				const commandMock = mockSlashCommand("dice", {
+					parameter: sides,
+				});
 
-	test("Test /dice parameter:null", async () => {
+				when(commandMock.reply(anything())).thenCall((args) => {
+					value = args;
+				});
+
+				TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+				await waitUntilReply(commandMock);
+				verify(commandMock.reply(anything())).once();
+				verify(commandMock.reply(InternalErrorMessage)).never();
+				expect(Number(value)).toBeLessThanOrEqual(sides);
+			}
+		},
+		20_000,
+	);
+
+	test.concurrent("Test /dice parameter:null", async () => {
 		const commandMock = mockSlashCommand("dice", {
 			parameter: null,
 		});
@@ -107,7 +109,7 @@ describe("Test UtilityCommand", () => {
 		verify(commandMock.reply(InternalErrorMessage)).once();
 	});
 
-	test("Test /dice parameter:3.14159265", async () => {
+	test.concurrent("Test /dice parameter:3.14159265", async () => {
 		const commandMock = mockSlashCommand("dice", {
 			parameter: Math.PI,
 		});
@@ -119,7 +121,7 @@ describe("Test UtilityCommand", () => {
 		verify(commandMock.reply("パラメーターが整数じゃないよ！っ")).once();
 	});
 
-	test("Test /dice parameter:-1", async () => {
+	test.concurrent("Test /dice parameter:-1", async () => {
 		const commandMock = mockSlashCommand("dice", {
 			parameter: -1,
 		});
@@ -131,14 +133,8 @@ describe("Test UtilityCommand", () => {
 		verify(commandMock.reply("パラメーターが0以下の数だよ！っ")).once();
 	});
 
-	test("Test /choice parameter:ああああ いいいい うううう ええええ おおおお", async () => {
-		const choices = [
-			"ああああ",
-			"いいいい",
-			"うううう",
-			"ええええ",
-			"おおおお",
-		];
+	test.concurrent("Test /choice parameter:ああああ いいいい うううう ええええ おおおお", async () => {
+		const choices = ["ああああ", "いいいい", "うううう", "ええええ", "おおおお"];
 		let notChoices = choices;
 		do {
 			const commandMock = mockSlashCommand("choice", {
@@ -162,7 +158,7 @@ describe("Test UtilityCommand", () => {
 		expect(notChoices).toStrictEqual([]);
 	});
 
-	test("Test /choice parameter:null", async () => {
+	test.concurrent("Test /choice parameter:null", async () => {
 		const commandMock = mockSlashCommand("choice");
 		const TEST_CLIENT = await TestDiscordServer.getClient();
 		let value = "";

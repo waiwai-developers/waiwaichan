@@ -46,6 +46,10 @@
 						"noExplicitAny": "off"
 					}
 				}
+			},
+			"formatter": {
+				"enabled": true,
+				"lineWidth": 150
 			}
 		}
 	]
