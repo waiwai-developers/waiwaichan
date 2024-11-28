@@ -71,6 +71,21 @@ describe("Test Point Commands", () => {
 		expect("expect not reach here").toBe(false);
 	});
 
+	test("test /point not adding for same message", async () => {
+		const giverId = "1234";
+		const receiverId = "5678";
+		const { reaction, user, messageMock } = mockReaction(AppConfig.backend.pointEmoji, giverId, receiverId);
+
+		const TEST_CLIENT = await TestDiscordServer.getClient();
+		TEST_CLIENT.emit("messageReactionAdd", instance(reaction), instance(user), instance(mock<MessageReactionEventDetails>()));
+		TEST_CLIENT.emit("messageReactionAdd", instance(reaction), instance(user), instance(mock<MessageReactionEventDetails>()));
+
+		await new Promise((resolve) => setTimeout(resolve, 1000));
+
+		verify(messageMock.reply(anything())).once();
+		verify(messageMock.reply(`<@${instance(user).id}>さんが${AppConfig.backend.pointEmoji}スタンプを押したよ！！っ`)).once();
+	});
+
 	afterEach(async () => {
 		await PointRepositoryImpl.destroy({
 			truncate: true,
