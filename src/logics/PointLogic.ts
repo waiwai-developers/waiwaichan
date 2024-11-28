@@ -20,6 +20,7 @@ import type { IPointLogic } from "@/src/logics/Interfaces/logics/IPointLogic";
 import type { IPointItemRepository } from "@/src/logics/Interfaces/repositories/database/IPointItemRepository";
 import type { IPointRepository } from "@/src/logics/Interfaces/repositories/database/IPointRepository";
 import type { IUserPointItemRepository } from "@/src/logics/Interfaces/repositories/database/IUserPointItemRepository";
+import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnector";
 import dayjs from "dayjs";
 import { inject, injectable } from "inversify";
 
@@ -132,31 +133,33 @@ export class PointLogic implements IPointLogic {
 		if (receiver.getValue() === giver.getValue()) {
 			return;
 		}
-		const todayCount = await this.pointRepository.countByToday(giver);
-		// reaction limit
-		// todo reaction limit to constant
-		if (todayCount.getValue() > 2) {
-			return "今はスタンプを押してもポイントをあげられないよ！っ";
-		}
+		return await this.transaction.startTransaction(async () => {
+			const todayCount = await this.pointRepository.countByToday(giver);
+			console.error(todayCount);
+			// reaction limit
+			// todo reaction limit to constant
+			if (todayCount.getValue() > 2) {
+				return "今はスタンプを押してもポイントをあげられないよ！っ";
+			}
 
-		const points = await this.pointRepository.findByGiverAndMessageId(
-			giver,
-			messageId,
-		);
-		// duplicate reaction
-		if (points.length > 0) {
-			return;
-		}
-		await this.pointRepository.createPoint(
-			new PointDto(
-				receiver,
+			const points = await this.pointRepository.findByGiverAndMessageId(
 				giver,
 				messageId,
-				PointStatus.UNUSED,
-				new PointExpire(dayjs().add(1, "month").toDate()),
-			),
-		);
-
-		return `<@${giver.getValue()}>さんが${AppConfig.backend.pointEmoji}スタンプを押したよ！！っ`;
+			);
+			// duplicate reaction
+			if (points.length > 0) {
+				return;
+			}
+			await this.pointRepository.createPoint(
+				new PointDto(
+					receiver,
+					giver,
+					messageId,
+					PointStatus.UNUSED,
+					new PointExpire(dayjs().add(1, "month").toDate()),
+				),
+			);
+			return `<@${giver.getValue()}>さんが${AppConfig.backend.pointEmoji}スタンプを押したよ！！っ`;
+		});
 	}
 }
