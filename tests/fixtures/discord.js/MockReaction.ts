@@ -5,6 +5,7 @@ export const mockReaction = (
 	reaction: string,
 	giverId: string,
 	receiverId: string,
+	messageId = "7890",
 	isPartial = false,
 	isBotReacted = false,
 	isBotMessage = false,
@@ -28,7 +29,7 @@ export const mockReaction = (
 	when(AuthorMock.bot).thenReturn(isBotMessage);
 	when(AuthorMock.id).thenReturn(receiverId);
 
-	when(MessageMock.id).thenReturn("7890");
+	when(MessageMock.id).thenReturn(messageId);
 	when(ReactionMock.emoji).thenReturn(instance(EmojiMock));
 	when(MessageMock.author).thenReturn(instance(AuthorMock));
 
@@ -41,12 +42,12 @@ export const mockReaction = (
 	};
 };
 
-export const waitUntilReply = async (message: Message | PartialMessage, timeout = 15000): Promise<void> => {
+export const waitUntilReply = async (message: Message | PartialMessage, timeout = 15000, atLeast = 1): Promise<void> => {
 	const startTime = Date.now();
 	return new Promise((resolve, reject) => {
 		const interval = setInterval(async () => {
 			await new Promise(() => {
-				verify(message.reply(anything())).atLeast(1);
+				verify(message.reply(anything())).atLeast(atLeast);
 				clearInterval(interval);
 				resolve();
 			}).catch((e) => {
