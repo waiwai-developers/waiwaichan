@@ -1,10 +1,10 @@
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
 import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
 import { UserPointItemId } from "@/src/entities/vo/UserPointItemId";
+import type { SlashCommandHandler } from "@/src/handler/discord.js/commands/SlashCommandHandler";
 import type { IPointLogic } from "@/src/logics/Interfaces/logics/IPointLogic";
 import type { CacheType, ChatInputCommandInteraction } from "discord.js";
 import { inject, injectable } from "inversify";
-import type { SlashCommandHandler } from "src/routes/discordjs/handler/commands/SlashCommandHandler";
 
 @injectable()
 export class PointExchangeCommandHandler implements SlashCommandHandler {

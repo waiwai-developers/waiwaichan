@@ -3,10 +3,10 @@ import { TranslateDto } from "@/src/entities/dto/TranslateDto";
 import { TranslateSourceLanguage } from "@/src/entities/vo/TranslateSourceLanguage";
 import { TranslateTargetLanguage } from "@/src/entities/vo/TranslateTargetLanguage";
 import { TranslateText } from "@/src/entities/vo/TranslateText";
+import type { SlashCommandHandler } from "@/src/handler/discord.js/commands/SlashCommandHandler";
 import type { ITranslatorLogic } from "@/src/logics/Interfaces/logics/ITranslatorLogic";
 import type { CacheType, ChatInputCommandInteraction } from "discord.js";
 import { inject, injectable } from "inversify";
-import type { SlashCommandHandler } from "src/routes/discordjs/handler/commands/SlashCommandHandler";
 
 @injectable()
 export class TranslateCommandHandler implements SlashCommandHandler {

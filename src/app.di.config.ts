@@ -1,5 +1,30 @@
 import { LogicTypes, RepoTypes, RouteTypes } from "@/src/entities/constants/DIContainerTypes";
 import { HandlerTypes } from "@/src/entities/constants/DIContainerTypes";
+import {
+	ChoiceCommandHandler,
+	DiceCommandHandler,
+	HelpCommandHandler,
+	MinecraftStartCommandHandler,
+	MinecraftStopCommandHandler,
+	ParrotCommandHandler,
+	PointCheckCommandHandler,
+	PointDrawCommandHandler,
+	PointExchangeCommandHandler,
+	PointItemCommandHandler,
+	ReminderDeleteCommandHandler,
+	ReminderListCommandHandler,
+	ReminderSetCommandHandler,
+	ReviewGachaCommandHandler,
+	ReviewListCommandHandler,
+	TalkCommandHandler,
+	WaiwaiCommandHandler,
+} from "@/src/handler/discord.js/commands/";
+import type { SlashCommandHandler } from "@/src/handler/discord.js/commands/SlashCommandHandler";
+import { TranslateCommandHandler } from "@/src/handler/discord.js/commands/TranslateCommandHandlers";
+import { AIReplyHandler } from "@/src/handler/discord.js/events/AIReplyHandler";
+import { CandyReactionHandler } from "@/src/handler/discord.js/events/CandyReactionHandler";
+import type { DiscordEventHandler } from "@/src/handler/discord.js/events/DiscordEventHandler";
+import type { ReactionInteraction } from "@/src/handler/discord.js/events/DiscordEventHandler";
 import { ChatAILogic } from "@/src/logics/ChatAILogic";
 import type { IChatAILogic } from "@/src/logics/Interfaces/logics/IChatAILogic";
 import type { IMinecraftServerLogic } from "@/src/logics/Interfaces/logics/IMinecraftServerLogic";
@@ -35,31 +60,6 @@ import { MessageReplyRouter } from "@/src/routes/discordjs/events/MessageReplyRo
 import { ReactionRouter } from "@/src/routes/discordjs/events/ReactionRouter";
 import { ReadyStateRouter } from "@/src/routes/discordjs/events/ReadyStateRouter";
 import { SlashCommandRouter } from "@/src/routes/discordjs/events/SlashCommandRouter";
-import {
-	ChoiceCommandHandler,
-	DiceCommandHandler,
-	HelpCommandHandler,
-	MinecraftStartCommandHandler,
-	MinecraftStopCommandHandler,
-	ParrotCommandHandler,
-	PointCheckCommandHandler,
-	PointDrawCommandHandler,
-	PointExchangeCommandHandler,
-	PointItemCommandHandler,
-	ReminderDeleteCommandHandler,
-	ReminderListCommandHandler,
-	ReminderSetCommandHandler,
-	ReviewGachaCommandHandler,
-	ReviewListCommandHandler,
-	TalkCommandHandler,
-	WaiwaiCommandHandler,
-} from "@/src/routes/discordjs/handler/commands/";
-import type { SlashCommandHandler } from "@/src/routes/discordjs/handler/commands/SlashCommandHandler";
-import { TranslateCommandHandler } from "@/src/routes/discordjs/handler/commands/TranslateCommandHandlers";
-import { AIReplyHandler } from "@/src/routes/discordjs/handler/events/AIReplyHandler";
-import { CandyReactionHandler } from "@/src/routes/discordjs/handler/events/CandyReactionHandler";
-import type { DiscordEventHandler } from "@/src/routes/discordjs/handler/events/DiscordEventHandler";
-import type { ReactionInteraction } from "@/src/routes/discordjs/handler/events/DiscordEventHandler";
 import type { Message } from "discord.js";
 import { Container } from "inversify";
 import type { Sequelize } from "sequelize";

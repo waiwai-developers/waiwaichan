@@ -1,23 +1,24 @@
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
-import { HelpCategory } from "@/src/entities/vo/HelpCategory";
+import { ParrotMessage } from "@/src/entities/vo/ParrotMessage";
+import type { SlashCommandHandler } from "@/src/handler/discord.js/commands/SlashCommandHandler";
 import type { IUtilityLogic } from "@/src/logics/Interfaces/logics/IUtilityLogic";
-import type { SlashCommandHandler } from "@/src/routes/discordjs/handler/commands/SlashCommandHandler";
 import type { CacheType, ChatInputCommandInteraction } from "discord.js";
 import { inject, injectable } from "inversify";
 
 @injectable()
-export class HelpCommandHandler implements SlashCommandHandler {
+export class ParrotCommandHandler implements SlashCommandHandler {
 	@inject(LogicTypes.UtilityLogic)
 	private utilLogic!: IUtilityLogic;
 	isHandle(commandName: string): boolean {
-		return commandName === "help";
+		return commandName === "parrot";
 	}
+
 	async handle(
 		interaction: ChatInputCommandInteraction<CacheType>,
 	): Promise<void> {
 		await interaction.reply(
-			await this.utilLogic.help(
-				new HelpCategory(interaction.options?.getString("category", true)),
+			await this.utilLogic.parrot(
+				new ParrotMessage(interaction.options?.getString("message", true)),
 			),
 		);
 	}

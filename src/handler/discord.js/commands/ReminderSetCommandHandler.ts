@@ -5,11 +5,11 @@ import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
 import { RemindTime } from "@/src/entities/vo/RemindTime";
 import { ReminderId } from "@/src/entities/vo/ReminderId";
 import { ReminderMessage } from "@/src/entities/vo/ReminderMessage";
+import type { SlashCommandHandler } from "@/src/handler/discord.js/commands/SlashCommandHandler";
 import type { IReminderLogic } from "@/src/logics/Interfaces/logics/IReminderLogic";
 import dayjs from "dayjs";
 import type { CacheType, ChatInputCommandInteraction } from "discord.js";
 import { inject, injectable } from "inversify";
-import type { SlashCommandHandler } from "src/routes/discordjs/handler/commands/SlashCommandHandler";
 
 @injectable()
 export class ReminderSetCommandHandler implements SlashCommandHandler {

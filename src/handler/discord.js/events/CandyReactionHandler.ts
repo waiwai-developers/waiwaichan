@@ -2,12 +2,12 @@ import { AppConfig } from "@/src/entities/config/AppConfig";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
 import { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
 import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
-import type { IChatAILogic } from "@/src/logics/Interfaces/logics/IChatAILogic";
-import type { IPointLogic } from "@/src/logics/Interfaces/logics/IPointLogic";
 import type {
 	DiscordEventHandler,
 	ReactionInteraction,
-} from "@/src/routes/discordjs/handler/events/DiscordEventHandler";
+} from "@/src/handler/discord.js/events/DiscordEventHandler";
+import type { IChatAILogic } from "@/src/logics/Interfaces/logics/IChatAILogic";
+import type { IPointLogic } from "@/src/logics/Interfaces/logics/IPointLogic";
 import { inject, injectable } from "inversify";
 
 @injectable()

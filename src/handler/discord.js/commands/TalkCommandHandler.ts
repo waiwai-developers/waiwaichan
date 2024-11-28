@@ -1,10 +1,10 @@
+import type { SlashCommandHandler } from "@/src/handler/discord.js/commands/SlashCommandHandler";
 import type {
 	CacheType,
 	ChatInputCommandInteraction,
 	TextChannel,
 } from "discord.js";
 import { injectable } from "inversify";
-import type { SlashCommandHandler } from "src/routes/discordjs/handler/commands/SlashCommandHandler";
 
 @injectable()
 export class TalkCommandHandler implements SlashCommandHandler {

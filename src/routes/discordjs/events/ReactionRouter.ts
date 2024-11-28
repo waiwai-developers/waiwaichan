@@ -1,11 +1,11 @@
 import { HandlerTypes } from "@/src/entities/constants/DIContainerTypes";
-import type { DiscordEventRouter } from "@/src/routes/discordjs/events/DiscordEventRouter";
-import type { Client } from "discord.js";
-import { injectable, multiInject } from "inversify";
 import type {
 	DiscordEventHandler,
 	ReactionInteraction,
-} from "src/routes/discordjs/handler/events/DiscordEventHandler";
+} from "@/src/handler/discord.js/events/DiscordEventHandler";
+import type { DiscordEventRouter } from "@/src/routes/discordjs/events/DiscordEventRouter";
+import type { Client } from "discord.js";
+import { injectable, multiInject } from "inversify";
 
 @injectable()
 export class ReactionRouter implements DiscordEventRouter {

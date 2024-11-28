@@ -11,6 +11,7 @@
 		"dev": "tsx watch src/app.ts",
 		"dev:scheduler": "tsx watch src/scheduler.ts",
 		"test": "jest",
+		"test:coverage": "jest --coverage && nyc report",
 		"lint": "biome check --write && biome format --write",
 		"lint:unsafe": "biome check --write --unsafe && biome format --write",
 		"migrate": "tsx migrator/migrator.ts",

@@ -1,8 +1,8 @@
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
+import type { SlashCommandHandler } from "@/src/handler/discord.js/commands/SlashCommandHandler";
 import type { IUtilityLogic } from "@/src/logics/Interfaces/logics/IUtilityLogic";
 import type { CacheType, ChatInputCommandInteraction } from "discord.js";
 import { inject, injectable } from "inversify";
-import type { SlashCommandHandler } from "src/routes/discordjs/handler/commands/SlashCommandHandler";
 
 @injectable()
 export class WaiwaiCommandHandler implements SlashCommandHandler {
