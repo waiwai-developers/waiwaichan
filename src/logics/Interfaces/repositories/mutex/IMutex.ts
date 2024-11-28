@@ -1,4 +1,3 @@
-export interface IMutex<T> {
-	getMutex(key: string): T;
-	useMutex<R>(mutex: T, cb: () => Promise<R>): Promise<R>;
+export interface IMutex {
+	useMutex<R>(key: string, cb: () => Promise<R>): Promise<R>;
 }
