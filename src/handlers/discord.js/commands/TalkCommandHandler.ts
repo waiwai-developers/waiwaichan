@@ -13,7 +13,10 @@ export class TalkCommandHandler implements SlashCommandHandler {
 	}
 
 	isTextChannel(channel: unknown): channel is TextChannel {
-		return (channel as TextChannel).threads !== undefined;
+		return (
+			(channel as TextChannel).threads != null &&
+			(channel as TextChannel).threads.create != null
+		);
 	}
 
 	async handle(

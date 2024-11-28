@@ -1,7 +1,7 @@
 import { InternalErrorMessage } from "@/src/entities/DiscordErrorMessages";
 import { mockSlashCommand, waitUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { TestDiscordServer } from "@/tests/fixtures/discord.js/TestDiscordServer";
-import type { AllowedThreadTypeForTextChannel, GuildTextThreadManager, TextChannel } from "discord.js";
+import type { AllowedThreadTypeForTextChannel, GuildTextThreadManager, TextChannel, VoiceChannel } from "discord.js";
 import { anything, instance, mock, verify, when } from "ts-mockito";
 
 describe("Test Talk Command", () => {
@@ -71,10 +71,9 @@ describe("Test Talk Command", () => {
 		const commandMock = mockSlashCommand("talk", {
 			title: "Test /talk in not test channel",
 		});
-		const channelMock = mock<TextChannel>();
-		const threadManagerMock = mock<GuildTextThreadManager<AllowedThreadTypeForTextChannel>>();
-		when(channelMock.threads).thenReturn(instance(threadManagerMock));
+		const channelMock = instance(mock<VoiceChannel>());
 		when(commandMock.channel).thenReturn(channelMock);
+
 		const TEST_CLIENT = await TestDiscordServer.getClient();
 
 		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
