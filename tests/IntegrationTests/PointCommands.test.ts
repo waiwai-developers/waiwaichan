@@ -1,6 +1,4 @@
 import { ITEM_RECORDS } from "@/migrator/seeds/20241111041901-item";
-import { seeder } from "@/migrator/umzug";
-import { InternalErrorMessage } from "@/src/entities/DiscordErrorMessages";
 import { AppConfig } from "@/src/entities/config/AppConfig";
 import { ID_HIT, ID_JACKPOT } from "@/src/entities/constants/Items";
 import { PointStatus } from "@/src/entities/vo/PointStatus";
@@ -135,7 +133,6 @@ describe("Test Point Commands", () => {
 			expiredAt: "2999/12/31 23:59:59",
 		});
 		new MysqlConnector();
-		await seeder().up();
 		await PointRepositoryImpl.bulkCreate(insertData);
 
 		const commandMock = mockSlashCommand("pointdraw");
@@ -164,7 +161,6 @@ describe("Test Point Commands", () => {
 
 	test("test /pointitem", async () => {
 		new MysqlConnector();
-		await seeder().up();
 		const insertData = [
 			{
 				userId: 1234,
@@ -225,6 +221,24 @@ describe("Test Point Commands", () => {
 				`  - ${getItem(inserted[4].itemId).description}`,
 			].join("\n"),
 		);
+	});
+
+	test("test /pointitem when no item", async () => {
+		new MysqlConnector();
+
+		const commandMock = mockSlashCommand("pointitem");
+
+		let value = "";
+		when(commandMock.reply(anything())).thenCall((args) => {
+			value = args;
+		});
+
+		const TEST_CLIENT = await TestDiscordServer.getClient();
+		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+		await waitSlashUntilReply(commandMock);
+		verify(commandMock.reply(anything())).once();
+		expect(value).toBe("アイテムは持ってないよ！っ");
 	});
 
 	afterEach(async () => {
