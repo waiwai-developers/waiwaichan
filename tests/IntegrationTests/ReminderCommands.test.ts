@@ -314,41 +314,6 @@ describe("Test Reminder Commands", () => {
 			}, 100);
 		});
 
-		test("test reminder no post when no reminder registered", async () => {
-			const channelMock = mock<TextChannel>();
-			const mockedChannel = instance(channelMock);
-			Object.setPrototypeOf(mockedChannel, TextChannel.prototype);
-			const cacheMock = mock<Collection<Snowflake, Channel>>();
-			when(cacheMock.get(anything())).thenReturn(mockedChannel);
-			const channelManagerMock = mock<ChannelManager>();
-			when(channelManagerMock.cache).thenReturn(instance(cacheMock));
-			const clientMock = mock<Client>();
-			when(clientMock.channels).thenReturn(instance(channelManagerMock));
-			await ReminderNotifyHandler(instance(clientMock));
-			try {
-				await new Promise((resolve, reject) => {
-					const startTime = Date.now();
-					const timer = setInterval(() => {
-						try {
-							console.log("check");
-							verify(channelMock.send(anything())).atLeast(1);
-							clearInterval(timer);
-							return resolve(null);
-						} catch (_) {
-							if (Date.now() - startTime > 500) {
-								clearInterval(timer);
-								reject(new Error("Timeout: Method was not called within the time limit."));
-							}
-						}
-					}, 100);
-				});
-			} catch (e) {
-				verify(channelMock.send(anything())).never();
-				return;
-			}
-			expect("expect reach here").toBe(false);
-		});
-
 		const res = await ReminderRepositoryImpl.findAll();
 		expect(res.length).toBe(2);
 
@@ -361,6 +326,41 @@ describe("Test Reminder Commands", () => {
 		expect(res[1].userId).toBe(inserted2.userId);
 		expect(res[1].channelId).toBe(inserted2.channelId);
 		expect(res[1].message).toBe(inserted2.message);
+	});
+
+	test("test reminder no post when no reminder registered", async () => {
+		const channelMock = mock<TextChannel>();
+		const mockedChannel = instance(channelMock);
+		Object.setPrototypeOf(mockedChannel, TextChannel.prototype);
+		const cacheMock = mock<Collection<Snowflake, Channel>>();
+		when(cacheMock.get(anything())).thenReturn(mockedChannel);
+		const channelManagerMock = mock<ChannelManager>();
+		when(channelManagerMock.cache).thenReturn(instance(cacheMock));
+		const clientMock = mock<Client>();
+		when(clientMock.channels).thenReturn(instance(channelManagerMock));
+		await ReminderNotifyHandler(instance(clientMock));
+		try {
+			await new Promise((resolve, reject) => {
+				const startTime = Date.now();
+				const timer = setInterval(() => {
+					try {
+						console.log("check");
+						verify(channelMock.send(anything())).atLeast(1);
+						clearInterval(timer);
+						return resolve(null);
+					} catch (_) {
+						if (Date.now() - startTime > 500) {
+							clearInterval(timer);
+							reject(new Error("Timeout: Method was not called within the time limit."));
+						}
+					}
+				}, 100);
+			});
+		} catch (e) {
+			verify(channelMock.send(anything())).never();
+			return;
+		}
+		expect("expect reach here").toBe(false);
 	});
 
 	afterEach(async () => {
