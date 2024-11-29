@@ -1,3 +1,5 @@
+import { ITEM_RECORDS } from "@/migrator/seeds/20241111041901-item";
+import { seeder } from "@/migrator/umzug";
 import { AppConfig } from "@/src/entities/config/AppConfig";
 import { PointStatus } from "@/src/entities/vo/PointStatus";
 import { PointRepositoryImpl } from "@/src/repositories/sequelize-mysql";
@@ -115,6 +117,40 @@ describe("Test Point Commands", () => {
 		await waitSlashUntilReply(commandMock);
 		verify(commandMock.reply(anything())).once();
 		verify(commandMock.reply("ポイントがないよ！っ")).once();
+	});
+
+	test("test /pointdraw", async () => {
+		// P = 1-(1-p)^n
+		// → 0.9999(99.99%) = 1-(1-0.01(1%))^n
+		// → n = log(1-0.9999)/log(1-0.01) = 916.421 ≒ 917
+		const pointLength = 917;
+		const insertData = new Array(pointLength).fill({
+			receiveUserId: 1234,
+			giveUserId: 12345,
+			messageId: 5678,
+			status: PointStatus.UNUSED.getValue(),
+			expiredAt: "2999/12/31 23:59:59",
+		});
+		new MysqlConnector();
+		await seeder().up();
+		await PointRepositoryImpl.bulkCreate(insertData);
+
+		const commandMock = mockSlashCommand("pointdraw");
+
+		const TEST_CLIENT = await TestDiscordServer.getClient();
+		// +1 is checking for atomic
+		for (let i = 0; i < pointLength + 1; i++) {
+			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+		}
+		await waitSlashUntilReply(commandMock, 10_000, pointLength);
+		verify(commandMock.reply(anything())).times(pointLength + 1);
+		verify(commandMock.reply("ポイントがないよ！っ")).once();
+		verify(commandMock.reply("ハズレちゃったよ！っ")).atLeast(1);
+		verify(commandMock.reply("ハズレちゃったよ！っ")).atMost(pointLength);
+		const hitResult = `${ITEM_RECORDS[1].name}が当たったよ🍭！っ`;
+		verify(commandMock.reply(hitResult)).atLeast(1);
+		const jackpotResult = `${ITEM_RECORDS[0].name}が当たったよ👕！っ`;
+		verify(commandMock.reply(jackpotResult)).atLeast(1);
 	});
 
 	afterEach(async () => {
