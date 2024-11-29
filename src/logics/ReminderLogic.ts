@@ -1,7 +1,10 @@
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
-import type { ReminderDto } from "@/src/entities/dto/ReminderDto";
-import type { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
 import type { ReminderId } from "@/src/entities/vo/ReminderId";
+import type { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
+import type { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
+import type { ReceiveDiscordUserName } from "@/src/entities/vo/ReceiveDiscordUserName";
+import type { ReminderMessage } from "@/src/entities/vo/ReminderMessage";
+import type { RemindTime } from "@/src/entities/vo/RemindTime";
 import type { IReminderLogic } from "@/src/logics/Interfaces/logics/IReminderLogic";
 import type { IReminderRepository } from "@/src/logics/Interfaces/repositories/database/IReminderRepository";
 import dayjs from "dayjs";
@@ -15,12 +18,24 @@ export class ReminderLogic implements IReminderLogic {
 	@inject(RepoTypes.Transaction)
 	private readonly transaction!: ITransaction<TransactionLike>;
 
-	async create(data: ReminderDto): Promise<string> {
-		if (dayjs(data.remindAt.getValue()).isBefore(dayjs())) {
+	async create(
+		channelId: DiscordChannelId,
+		userId: DiscordUserId,
+		receiveUserName: ReceiveDiscordUserName,
+		message: ReminderMessage,
+		remindAt: RemindTime
+	): Promise<string> {
+		if (dayjs(remindAt.getValue()).isBefore(dayjs())) {
 			return "過去の日付のリマインドは設定できないよ！っ";
 		}
 		return this.transaction.startTransaction(async () => {
-			await this.reminderRepository.create(data);
+			await this.reminderRepository.create(
+				channelId,
+				userId,
+				receiveUserName,
+				message,
+				remindAt
+			);
 			return "リマインドの投稿を予約したよ！っ";
 		});
 	}
@@ -41,7 +56,10 @@ export class ReminderLogic implements IReminderLogic {
 	}
 	delete(id: ReminderId, userId: DiscordUserId): Promise<string> {
 		return this.transaction.startTransaction(async () => {
-			const success = await this.reminderRepository.deleteReminder(id, userId);
+
+
+
+			const success = await this.reminderRepository.updateReminder(id, userId);
 			if (!success) return "リマインドの予約はされていなかったよ！っ";
 			return "リマインドの予約を削除したよ！っ";
 		});
