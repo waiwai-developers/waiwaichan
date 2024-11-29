@@ -1,11 +1,6 @@
-import * as process from "node:process";
-import { DatabaseConfig } from "@/src/entities/config/DatabaseConfig";
+import { GetEnvDBConfig } from "@/src/entities/config/DatabaseConfig";
 import type { IDataBaseConnector } from "@/src/logics/Interfaces/repositories/database/IDataBaseConnector";
-import { PointItemRepositoryImpl } from "@/src/repositories/sequelize-mysql/PointItemRepositoryImpl";
-import { PointRepositoryImpl } from "@/src/repositories/sequelize-mysql/PointRepositoryImpl";
-import { ReminderRepositoryImpl } from "@/src/repositories/sequelize-mysql/ReminderRepositoryImpl";
 import { ReminderSchedulerRepositoryImpl } from "@/src/repositories/sequelize-mysql/ReminderSchedulerRepositoryImpl";
-import { UserPointItemRepositoryImpl } from "@/src/repositories/sequelize-mysql/UserPointItemRepositoryImpl";
 import { injectable } from "inversify";
 import type { Dialect } from "sequelize";
 import { Sequelize } from "sequelize-typescript";
@@ -16,7 +11,7 @@ export class MysqlSchedulerConnector
 {
 	instance: Sequelize;
 	constructor() {
-		const dbConfig = this.getDbConfig();
+		const dbConfig = GetEnvDBConfig();
 		this.instance = new Sequelize(
 			dbConfig.database,
 			dbConfig.username,
@@ -40,16 +35,6 @@ export class MysqlSchedulerConnector
 				models: [ReminderSchedulerRepositoryImpl],
 			},
 		);
-	}
-	private getDbConfig() {
-		switch (process.env.NODE_ENV || "development") {
-			case "test":
-				return DatabaseConfig.test;
-			case "production":
-				return DatabaseConfig.production;
-			default:
-				return DatabaseConfig.development;
-		}
 	}
 	getDBInstance(): Sequelize {
 		return this.instance;

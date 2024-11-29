@@ -1,6 +1,5 @@
 import process from "node:process";
 import json from "@/config/database.json" with { type: "json" };
-import { GetContainerDBConfig } from "@/tests/fixtures/database/ContainerTest";
 
 export interface DatabaseConfigType {
 	username: string;
@@ -19,9 +18,6 @@ interface DatabaseJsonType {
 export const GetEnvDBConfig = () => {
 	switch (process.env.NODE_ENV || "development") {
 		case "test":
-			if (GetContainerDBConfig() != null) {
-				return GetContainerDBConfig();
-			}
 			return DatabaseConfig.test;
 		case "production":
 			return DatabaseConfig.production;
