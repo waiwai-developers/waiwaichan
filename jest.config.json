@@ -12,5 +12,10 @@
 	"setupFilesAfterEnv": ["./tests/import_reflect.ts"],
 	"globalSetup": "./tests/jest.setup.ts",
 	"globalTeardown": "./tests/jest.teardown.ts",
-	"collectCoverageFrom": ["./src/**/*"]
+	"collectCoverageFrom": [
+		"./src/**/*",
+		"!./src/entities/config/DatabaseConfig.ts",
+		"!./src/app.ts",
+		"!./src/scheduler.ts"
+	]
 }
