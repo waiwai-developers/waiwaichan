@@ -1,6 +1,6 @@
 import * as fs from "node:fs";
 import path from "node:path";
-import { migrator } from "@/migrator/umzug";
+import { migrator, seeder } from "@/migrator/umzug";
 import { DatabaseConfig, type DatabaseConfigType } from "@/src/entities/config/DatabaseConfig";
 import { MySqlContainer, type StartedMySqlContainer } from "@testcontainers/mysql";
 const dirname = __dirname;
@@ -20,6 +20,7 @@ export const ContainerUp = async () => {
 	};
 	fs.writeFileSync(TEMP_DATABASE_FILE, JSON.stringify(dbc));
 	await migrator(dbc).up();
+	await seeder(dbc).up();
 };
 
 export const GetContainerDBConfig = () => {

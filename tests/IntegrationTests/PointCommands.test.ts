@@ -245,5 +245,8 @@ describe("Test Point Commands", () => {
 		await PointRepositoryImpl.destroy({
 			truncate: true,
 		});
+		await UserPointItemRepositoryImpl.destroy({
+			truncate: true,
+		});
 	});
 });
