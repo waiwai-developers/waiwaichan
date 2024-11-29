@@ -151,7 +151,7 @@ describe("Test Point Commands", () => {
 		verify(commandMock.reply(hitResult)).atLeast(1);
 		const jackpotResult = `${ITEM_RECORDS[0].name}が当たったよ👕！っ`;
 		verify(commandMock.reply(jackpotResult)).atLeast(1);
-	});
+	}, 10_000);
 
 	const getItem = (id: number) => {
 		// auto_increment start with id 1

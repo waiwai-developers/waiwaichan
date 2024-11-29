@@ -363,6 +363,84 @@ describe("Test Reminder Commands", () => {
 		expect("expect reach here").toBe(false);
 	});
 
+	test("test reminder on error", async () => {
+		new MysqlConnector();
+		const [inserted0, inserted1, inserted2] = await ReminderRepositoryImpl.bulkCreate([
+			{
+				userId: 9012,
+				channelId: 5678,
+				receiveUserName: "username",
+				message: "reminderlist test 1",
+				remindAt: dayjs().subtract(1, "second"),
+			},
+			{
+				userId: 1234,
+				channelId: 5678,
+				receiveUserName: "username",
+				message: "reminderlist test 2",
+				remindAt: "2999/12/31 23:59:59",
+			},
+			{
+				userId: 9012,
+				channelId: 3456,
+				receiveUserName: "username",
+				message: "reminderlist test 3",
+				remindAt: "2999/12/31 23:59:59",
+			},
+		]);
+
+		const channelMock = mock<TextChannel>();
+		const mockedChannel = instance(channelMock);
+		Object.setPrototypeOf(mockedChannel, TextChannel.prototype);
+		const cacheMock = mock<Collection<Snowflake, Channel>>();
+		when(cacheMock.get(anything())).thenReturn(mockedChannel);
+		const channelManagerMock = mock<ChannelManager>();
+		when(channelManagerMock.cache).thenReturn(instance(cacheMock));
+		const clientMock = mock<Client>();
+		when(clientMock.channels).thenReturn(instance(channelManagerMock));
+		await ReminderNotifyHandler(instance(clientMock));
+		try {
+			await new Promise((resolve, reject) => {
+				const startTime = Date.now();
+				const timer = setInterval(() => {
+					try {
+						console.log("check");
+						verify(channelMock.send(anything())).atLeast(1);
+						clearInterval(timer);
+						return resolve(null);
+					} catch (_) {
+						if (Date.now() - startTime > 500) {
+							clearInterval(timer);
+							reject(new Error("Timeout: Method was not called within the time limit."));
+						}
+					}
+				}, 100);
+			});
+		} catch (e) {
+			verify(channelMock.send(anything())).never();
+
+			const res = await ReminderRepositoryImpl.findAll();
+			expect(res.length).toBe(3);
+
+			expect(res[0].id).toBe(inserted0.id);
+			expect(res[0].userId).toBe(inserted0.userId);
+			expect(res[0].channelId).toBe(inserted0.channelId);
+			expect(res[0].message).toBe(inserted0.message);
+
+			expect(res[1].id).toBe(inserted1.id);
+			expect(res[1].userId).toBe(inserted1.userId);
+			expect(res[1].channelId).toBe(inserted1.channelId);
+			expect(res[1].message).toBe(inserted1.message);
+
+			expect(res[2].id).toBe(inserted2.id);
+			expect(res[2].userId).toBe(inserted2.userId);
+			expect(res[2].channelId).toBe(inserted2.channelId);
+			expect(res[2].message).toBe(inserted2.message);
+			return;
+		}
+		expect("expect reach here").toBe(false);
+	});
+
 	afterEach(async () => {
 		new MysqlConnector();
 		await ReminderRepositoryImpl.destroy({
