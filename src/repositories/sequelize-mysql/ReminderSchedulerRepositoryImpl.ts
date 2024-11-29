@@ -1,6 +1,7 @@
 import { ReminderDto } from "@/src/entities/dto/ReminderDto";
 import { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
 import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
+import { ReceiveDiscordUserName } from "@/src/entities/vo/ReceiveDiscordUserName";
 import { RemindTime } from "@/src/entities/vo/RemindTime";
 import { ReminderId } from "@/src/entities/vo/ReminderId";
 import { ReminderMessage } from "@/src/entities/vo/ReminderMessage";
@@ -34,6 +35,8 @@ class ReminderSchedulerRepositoryImpl
 	declare channelId: string;
 	@Column(DataType.STRING)
 	declare userId: string;
+    @Column(DataType.STRING)
+	declare receiveUserName: string;
 	@Column(DataType.STRING)
 	declare message: string;
 	@Column(DataType.DATE)
@@ -56,6 +59,7 @@ class ReminderSchedulerRepositoryImpl
 			new ReminderId(this.id),
 			new DiscordChannelId(this.channelId),
 			new DiscordUserId(this.userId),
+			new ReceiveDiscordUserName(this.receiveUserName),
 			new ReminderMessage(this.message),
 			new RemindTime(this.remindAt),
 		);

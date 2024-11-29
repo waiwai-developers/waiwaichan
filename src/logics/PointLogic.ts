@@ -91,7 +91,11 @@ export class PointLogic implements IPointLogic {
 
 					// NOTE:todo より良い乱数生成に変える
 					const randomNum = Math.floor(Math.random() * PROBABILITY_JACKPOT + 1);
-					if (randomNum % PROBABILITY_HIT !== 0) {
+					console.log(randomNum);
+					if (
+						randomNum % PROBABILITY_HIT !== 0 &&
+						randomNum % PROBABILITY_JACKPOT !== 0
+					) {
 						return "ハズレちゃったよ！っ";
 					}
 					const hitId = new PointItemId(
