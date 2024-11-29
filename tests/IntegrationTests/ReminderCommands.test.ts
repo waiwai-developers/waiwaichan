@@ -8,6 +8,7 @@ import { anything, instance, verify, when } from "ts-mockito";
 describe("Test Reminder Commands", () => {
 	test("test /reminderset datetime:2999/12/31 23:59:59 message:feature reminder", async () => {
 		const commandMock = mockSlashCommand("reminderset", {
+			username: "username",
 			datetime: "2999/12/31 23:59:59",
 			message: "test reminder",
 		});
@@ -27,6 +28,7 @@ describe("Test Reminder Commands", () => {
 
 	test("test /reminderset when old datetime", async () => {
 		const commandMock = mockSlashCommand("reminderset", {
+			username: "username",
 			datetime: "1000/12/31 23:59:59",
 			message: "test reminder",
 		});
@@ -40,6 +42,7 @@ describe("Test Reminder Commands", () => {
 
 	test("test /reminderset with null datetime", async () => {
 		const commandMock = mockSlashCommand("reminderset", {
+			username: "username",
 			datetime: null,
 			message: "test reminder",
 		});
@@ -53,6 +56,7 @@ describe("Test Reminder Commands", () => {
 
 	test("test /reminderset with null message", async () => {
 		const commandMock = mockSlashCommand("reminderset", {
+			username: "username",
 			datetime: "2999/12/31 23:59:59",
 			message: null,
 		});
@@ -79,12 +83,14 @@ describe("Test Reminder Commands", () => {
 			{
 				userId: 1234,
 				channelId: 5678,
+				receiveUserName: "username",
 				message: "reminderlist test 1",
 				remindAt: "2999/12/31 23:59:59",
 			},
 			{
 				userId: 1234,
 				channelId: 5678,
+				receiveUserName: "username",
 				message: "reminderlist test 2",
 				remindAt: "2999/12/31 23:59:59",
 			},
@@ -112,18 +118,21 @@ describe("Test Reminder Commands", () => {
 			{
 				userId: 1234,
 				channelId: 5678,
+				receiveUserName: "username",
 				message: "reminderlist test 1",
 				remindAt: "2999/12/31 23:59:59",
 			},
 			{
 				userId: 1234,
 				channelId: 5678,
+				receiveUserName: "username",
 				message: "reminderlist test 2",
 				remindAt: "2999/12/31 23:59:59",
 			},
 			{
 				userId: 9012,
 				channelId: 3456,
+				receiveUserName: "username",
 				message: "reminderlist test 3",
 				remindAt: "2000/12/31 23:59:59",
 			},
@@ -159,18 +168,21 @@ describe("Test Reminder Commands", () => {
 			{
 				userId: 9012,
 				channelId: 5678,
+				receiveUserName: "username",
 				message: "reminderlist test 1",
 				remindAt: "2999/12/31 23:59:59",
 			},
 			{
 				userId: 1234,
 				channelId: 5678,
+				receiveUserName: "username",
 				message: "reminderlist test 2",
 				remindAt: "2999/12/31 23:59:59",
 			},
 			{
 				userId: 9012,
 				channelId: 3456,
+				receiveUserName: "username",
 				message: "reminderlist test 3",
 				remindAt: "2000/12/31 23:59:59",
 			},
