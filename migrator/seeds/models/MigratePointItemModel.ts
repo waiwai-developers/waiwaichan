@@ -8,7 +8,7 @@ import {
 } from "sequelize-typescript";
 
 @Table({
-	tableName: "item",
+	tableName: "Items",
 	timestamps: true,
 })
 class MigratePointItemModel extends Model {
