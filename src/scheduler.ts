@@ -28,7 +28,7 @@ cron.schedule("* * * * *", async () => {
 					`${remainder.receiveUserName.getValue()}\n${remainder.message.getValue()}`,
 				);
 			}
-			await reminder.deleteReminder(remainder.id);
+			await reminder.updateReminder(remainder.id);
 		}
 	} catch (e) {
 		console.error("Error:", e);

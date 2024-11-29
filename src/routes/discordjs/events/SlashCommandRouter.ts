@@ -12,6 +12,7 @@ import { ReceiveDiscordUserName } from "@/src/entities/vo/ReceiveDiscordUserName
 import { RemindTime } from "@/src/entities/vo/RemindTime";
 import { ReminderId } from "@/src/entities/vo/ReminderId";
 import { ReminderMessage } from "@/src/entities/vo/ReminderMessage";
+import { ReminderStatus } from "@/src/entities/vo/ReminderStatus";
 import { TranslateSourceLanguage } from "@/src/entities/vo/TranslateSourceLanguage";
 import { TranslateTargetLanguage } from "@/src/entities/vo/TranslateTargetLanguage";
 import { TranslateText } from "@/src/entities/vo/TranslateText";
@@ -136,21 +137,18 @@ export class SlashCommandRouter implements DiscordEventRouter {
 					case "reminderset":
 						await interaction.reply(
 							await this.reminderLogic.create(
-								new ReminderDto(
-									new ReminderId(0),
-									new DiscordChannelId(interaction.channelId),
-									new DiscordUserId(interaction.user.id),
-									new ReceiveDiscordUserName(
-										interaction.options.getString("username") ?? "",
-									),
-									new ReminderMessage(
-										interaction.options.getString("message") ?? "",
-									),
-									new RemindTime(
-										dayjs(interaction.options.getString("datetime"))
-											.subtract(9, "h")
-											.toDate(),
-									),
+								new DiscordChannelId(interaction.channelId),
+								new DiscordUserId(interaction.user.id),
+								new ReceiveDiscordUserName(
+									interaction.options.getString("username") ?? "",
+								),
+								new ReminderMessage(
+									interaction.options.getString("message") ?? "",
+								),
+								new RemindTime(
+									dayjs(interaction.options.getString("datetime"))
+										.subtract(9, "h")
+										.toDate(),
 								),
 							),
 						);
