@@ -29,7 +29,10 @@ class ReminderSchedulerRepositoryImpl
 
 	async findByRemindTime(): Promise<ReminderDto[]> {
 		return ReminderSchedulerRepositoryImpl.findAll({
-			where: { remindAt: { [Op.lte]: dayjs().toDate() }, status: ReminderStatus.VALID.getValue() },
+			where: {
+				remindAt: { [Op.lte]: dayjs().toDate() },
+				status: ReminderStatus.VALID.getValue(),
+			},
 		}).then((res) => res.map((r) => r.toDto()));
 	}
 

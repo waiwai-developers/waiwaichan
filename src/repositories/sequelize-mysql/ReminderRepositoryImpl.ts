@@ -28,7 +28,7 @@ class ReminderRepositoryImpl extends Model implements IReminderRepository {
 		userId: DiscordUserId,
 		receiveUserName: ReceiveDiscordUserName,
 		message: ReminderMessage,
-		remindAt: RemindTime
+		remindAt: RemindTime,
 	): Promise<boolean> {
 		return ReminderRepositoryImpl.create({
 			channelId: channelId.getValue(),
@@ -47,7 +47,11 @@ class ReminderRepositoryImpl extends Model implements IReminderRepository {
 		return ReminderRepositoryImpl.update(
 			{ status: ReminderStatus.INVALID.getValue() },
 			{
-				where: { id: id.getValue(), userId: userId.getValue(), status: ReminderStatus.VALID.getValue() },
+				where: {
+					id: id.getValue(),
+					userId: userId.getValue(),
+					status: ReminderStatus.VALID.getValue(),
+				},
 				limit: 1,
 			},
 		).then((updated) => updated[0] > 0);
@@ -55,7 +59,10 @@ class ReminderRepositoryImpl extends Model implements IReminderRepository {
 
 	async findByUserId(userId: DiscordUserId): Promise<ReminderDto[]> {
 		return ReminderRepositoryImpl.findAll({
-			where: { userId: userId.getValue(), status: ReminderStatus.VALID.getValue() },
+			where: {
+				userId: userId.getValue(),
+				status: ReminderStatus.VALID.getValue(),
+			},
 		}).then((res) => res.map((r) => r.toDto()));
 	}
 

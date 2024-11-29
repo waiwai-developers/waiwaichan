@@ -1,10 +1,10 @@
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
-import type { ReminderId } from "@/src/entities/vo/ReminderId";
 import type { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
 import type { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
 import type { ReceiveDiscordUserName } from "@/src/entities/vo/ReceiveDiscordUserName";
-import type { ReminderMessage } from "@/src/entities/vo/ReminderMessage";
 import type { RemindTime } from "@/src/entities/vo/RemindTime";
+import type { ReminderId } from "@/src/entities/vo/ReminderId";
+import type { ReminderMessage } from "@/src/entities/vo/ReminderMessage";
 import type { IReminderLogic } from "@/src/logics/Interfaces/logics/IReminderLogic";
 import type { IReminderRepository } from "@/src/logics/Interfaces/repositories/database/IReminderRepository";
 import dayjs from "dayjs";
@@ -23,7 +23,7 @@ export class ReminderLogic implements IReminderLogic {
 		userId: DiscordUserId,
 		receiveUserName: ReceiveDiscordUserName,
 		message: ReminderMessage,
-		remindAt: RemindTime
+		remindAt: RemindTime,
 	): Promise<string> {
 		if (dayjs(remindAt.getValue()).isBefore(dayjs())) {
 			return "過去の日付のリマインドは設定できないよ！っ";
@@ -34,7 +34,7 @@ export class ReminderLogic implements IReminderLogic {
 				userId,
 				receiveUserName,
 				message,
-				remindAt
+				remindAt,
 			);
 			return "リマインドの投稿を予約したよ！っ";
 		});
@@ -56,9 +56,6 @@ export class ReminderLogic implements IReminderLogic {
 	}
 	delete(id: ReminderId, userId: DiscordUserId): Promise<string> {
 		return this.transaction.startTransaction(async () => {
-
-
-
 			const success = await this.reminderRepository.updateReminder(id, userId);
 			if (!success) return "リマインドの予約はされていなかったよ！っ";
 			return "リマインドの予約を削除したよ！っ";
