@@ -1,8 +1,11 @@
 import { ITEM_RECORDS } from "@/migrator/seeds/20241111041901-item";
 import { seeder } from "@/migrator/umzug";
+import { InternalErrorMessage } from "@/src/entities/DiscordErrorMessages";
 import { AppConfig } from "@/src/entities/config/AppConfig";
+import { ID_HIT, ID_JACKPOT } from "@/src/entities/constants/Items";
 import { PointStatus } from "@/src/entities/vo/PointStatus";
-import { PointRepositoryImpl } from "@/src/repositories/sequelize-mysql";
+import { UserPointItemStatus } from "@/src/entities/vo/UserPointItemStatus";
+import { PointRepositoryImpl, UserPointItemRepositoryImpl } from "@/src/repositories/sequelize-mysql";
 import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnector";
 import { mockReaction, waitUntilReply } from "@/tests/fixtures/discord.js/MockReaction";
 import { mockSlashCommand, waitUntilReply as waitSlashUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
@@ -12,7 +15,7 @@ import type { MessageReactionEventDetails } from "discord.js";
 import { anything, instance, mock, verify, when } from "ts-mockito";
 
 describe("Test Point Commands", () => {
-	test("test point give adding", async () => {
+	test("test  adding", async () => {
 		const giverId = "1234";
 		const receiverId = "5678";
 		const creationDate = dayjs().add(1, "month").subtract(1, "second");
@@ -38,7 +41,7 @@ describe("Test Point Commands", () => {
 		expect(finishedDate.isAfter(dayjs(res[0].expiredAt))).toBe(true);
 	});
 
-	test("test point give adding limit", async () => {
+	test("test  adding limit", async () => {
 		const reaction = mockReaction(AppConfig.backend.pointEmoji, "1234", "5678");
 		const TEST_CLIENT = await TestDiscordServer.getClient();
 		for (let i = 0; i < 4; i++) {
@@ -58,7 +61,7 @@ describe("Test Point Commands", () => {
 		expect(res.length).toEqual(3);
 	});
 
-	test("test point give not add same user", async () => {
+	test("test  not add same user", async () => {
 		const giverId = "1234";
 		const receiverId = "1234";
 
@@ -75,7 +78,7 @@ describe("Test Point Commands", () => {
 		expect("expect not reach here").toBe(false);
 	});
 
-	test("test point give not adding for same message", async () => {
+	test("test  not adding for same message", async () => {
 		const giverId = "1234";
 		const receiverId = "5678";
 		const { reaction, user, messageMock } = mockReaction(AppConfig.backend.pointEmoji, giverId, receiverId);
@@ -151,6 +154,77 @@ describe("Test Point Commands", () => {
 		verify(commandMock.reply(hitResult)).atLeast(1);
 		const jackpotResult = `${ITEM_RECORDS[0].name}が当たったよ👕！っ`;
 		verify(commandMock.reply(jackpotResult)).atLeast(1);
+	});
+
+	const getItem = (id: number) => {
+		// auto_increment start with id 1
+		// but first index of array is 0
+		return ITEM_RECORDS[id - 1];
+	};
+
+	test("test /pointitem", async () => {
+		new MysqlConnector();
+		await seeder().up();
+		const insertData = [
+			{
+				userId: 1234,
+				itemId: ID_HIT,
+				status: UserPointItemStatus.UNUSED.getValue(),
+				expiredAt: "2999/12/31 23:59:59",
+			},
+			{
+				userId: 1234,
+				itemId: ID_HIT,
+				status: UserPointItemStatus.UNUSED.getValue(),
+				expiredAt: "2999/12/31 23:59:59",
+			},
+			{
+				userId: 1234,
+				itemId: ID_JACKPOT,
+				status: UserPointItemStatus.USED.getValue(),
+				expiredAt: "2999/12/31 23:59:59",
+			},
+			{
+				userId: 1234,
+				itemId: ID_JACKPOT,
+				status: UserPointItemStatus.USED.getValue(),
+				expiredAt: "2999/12/31 23:59:59",
+			},
+			{
+				userId: 1234,
+				itemId: ID_JACKPOT,
+				status: UserPointItemStatus.UNUSED.getValue(),
+				expiredAt: "2999/12/31 23:59:59",
+			},
+		];
+		const inserted = await UserPointItemRepositoryImpl.bulkCreate(insertData);
+
+		const commandMock = mockSlashCommand("pointitem");
+
+		let value = "";
+		when(commandMock.reply(anything())).thenCall((args) => {
+			value = args;
+		});
+
+		const TEST_CLIENT = await TestDiscordServer.getClient();
+		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+		await waitSlashUntilReply(commandMock);
+		verify(commandMock.reply(anything())).once();
+		expect(value).toBe(
+			[
+				"以下のアイテムが交換できるよ！っ",
+				"- id: 1",
+				`  - ${getItem(inserted[0].itemId).name}`,
+				`  - ${getItem(inserted[0].itemId).description}`,
+				"- id: 2",
+				`  - ${getItem(inserted[1].itemId).name}`,
+				`  - ${getItem(inserted[1].itemId).description}`,
+				"- id: 5",
+				`  - ${getItem(inserted[4].itemId).name}`,
+				`  - ${getItem(inserted[4].itemId).description}`,
+			].join("\n"),
+		);
 	});
 
 	afterEach(async () => {
