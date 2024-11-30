@@ -3,5 +3,5 @@ import type { ReminderId } from "@/src/entities/vo/ReminderId";
 
 export interface IReminderSchedulerRepository {
 	findByRemindTime(): Promise<ReminderDto[]>;
-	destoryReminder(id: ReminderId): Promise<boolean>;
+	deleteReminder(id: ReminderId): Promise<boolean>;
 }

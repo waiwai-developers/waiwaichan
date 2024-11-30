@@ -36,7 +36,7 @@ class ReminderSchedulerRepositoryImpl
 		}).then((res) => res.map((r) => r.toDto()));
 	}
 
-	async destoryReminder(id: ReminderId): Promise<boolean> {
+	async deleteReminder(id: ReminderId): Promise<boolean> {
 		return ReminderSchedulerRepositoryImpl.destroy({
 			where: { id: id.getValue() },
 		}).then((res) => res > 0);

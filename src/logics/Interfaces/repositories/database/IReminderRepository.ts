@@ -14,6 +14,6 @@ export interface IReminderRepository {
 		message: ReminderMessage,
 		remindAt: RemindTime,
 	): Promise<boolean>;
-	destoryReminder(id: ReminderId, userId: DiscordUserId): Promise<boolean>;
+	deleteReminder(id: ReminderId, userId: DiscordUserId): Promise<boolean>;
 	findByUserId(userId: DiscordUserId): Promise<ReminderDto[]>;
 }
