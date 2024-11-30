@@ -40,18 +40,14 @@ class PointRepositoryImpl extends Model implements IPointRepository {
 	declare expiredAt: Date;
 
 	async createPoint(data: PointDto): Promise<boolean> {
-		try {
-			await PointRepositoryImpl.create({
-				receiveUserId: data.receiveUserId.getValue(),
-				giveUserId: data.giveUserId.getValue(),
-				messageId: data.messageId.getValue(),
-				status: data.status.getValue(),
-				expiredAt: data.expiredAt.getValue(),
-			});
-			return true;
-		} catch (err) {
-			return false;
-		}
+		await PointRepositoryImpl.create({
+			receiveUserId: data.receiveUserId.getValue(),
+			giveUserId: data.giveUserId.getValue(),
+			messageId: data.messageId.getValue(),
+			status: data.status.getValue(),
+			expiredAt: data.expiredAt.getValue(),
+		});
+		return true;
 	}
 
 	async pointCount(userId: DiscordUserId): Promise<PointCount> {
