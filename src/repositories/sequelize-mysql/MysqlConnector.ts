@@ -3,6 +3,7 @@ import type { IDataBaseConnector } from "@/src/logics/Interfaces/repositories/da
 import { PointItemRepositoryImpl } from "@/src/repositories/sequelize-mysql/PointItemRepositoryImpl";
 import { PointRepositoryImpl } from "@/src/repositories/sequelize-mysql/PointRepositoryImpl";
 import { ReminderRepositoryImpl } from "@/src/repositories/sequelize-mysql/ReminderRepositoryImpl";
+import { SequelizeLogger } from "@/src/repositories/sequelize-mysql/SequelizeLogger";
 import { UserPointItemRepositoryImpl } from "@/src/repositories/sequelize-mysql/UserPointItemRepositoryImpl";
 import { injectable } from "inversify";
 import type { Dialect } from "sequelize";
@@ -22,17 +23,7 @@ export class MysqlConnector implements IDataBaseConnector<Sequelize, "mysql"> {
 				host: dbConfig.host,
 				port: dbConfig.port,
 				dialect: dbConfig.dialect as Dialect,
-				logging: (sql, timing) => {
-					//
-					// @ts-ignore
-					if (typeof timing === "object" && timing?.bind) {
-						//@ts-ignore
-						const bind = timing.bind;
-						console.log(`${sql} params:{${bind}}`);
-					} else {
-						console.log(sql);
-					}
-				},
+				logging: SequelizeLogger,
 				models: [
 					PointRepositoryImpl,
 					PointItemRepositoryImpl,

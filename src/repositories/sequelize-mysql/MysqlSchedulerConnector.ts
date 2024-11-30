@@ -1,6 +1,7 @@
 import { GetEnvDBConfig } from "@/src/entities/config/DatabaseConfig";
 import type { IDataBaseConnector } from "@/src/logics/Interfaces/repositories/database/IDataBaseConnector";
 import { ReminderSchedulerRepositoryImpl } from "@/src/repositories/sequelize-mysql/ReminderSchedulerRepositoryImpl";
+import { SequelizeLogger } from "@/src/repositories/sequelize-mysql/SequelizeLogger";
 import { injectable } from "inversify";
 import type { Dialect } from "sequelize";
 import { Sequelize } from "sequelize-typescript";
@@ -21,17 +22,7 @@ export class MysqlSchedulerConnector
 				host: dbConfig.host,
 				port: dbConfig.port,
 				dialect: dbConfig.dialect as Dialect,
-				logging: (sql, timing) => {
-					//
-					// @ts-ignore
-					if (typeof timing === "object" && timing?.bind) {
-						//@ts-ignore
-						const bind = timing.bind;
-						console.log(`${sql} params:{${bind}}`);
-					} else {
-						console.log(sql);
-					}
-				},
+				logging: SequelizeLogger,
 				models: [ReminderSchedulerRepositoryImpl],
 			},
 		);
