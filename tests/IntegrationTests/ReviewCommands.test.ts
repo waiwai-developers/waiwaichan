@@ -10,7 +10,7 @@ import { ReminderRepositoryImpl } from "@/src/repositories/sequelize-mysql";
 import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnector";
 import { mockSlashCommand, waitUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { TestDiscordServer } from "@/tests/fixtures/discord.js/TestDiscordServer";
-import { DummyPullRequest, MockGithubAPI } from "@/tests/fixtures/repositories/MockGithubAPI";
+import { DummyPullRequest, MockGithubAPI, MockNotfoundGithubAPI } from "@/tests/fixtures/repositories/MockGithubAPI";
 import { MockVirtualMachineAPI } from "@/tests/fixtures/repositories/MockVirtualMachineAPI";
 import dayjs from "dayjs";
 import { type Channel, type ChannelManager, ChannelResolvable, type Client, type Collection, type Snowflake, TextChannel } from "discord.js";
@@ -100,5 +100,45 @@ describe("Test Reminder Commands", () => {
 		verify(commandMock.editReply(anything())).never();
 
 		expect(result).toBe(InternalErrorMessage);
+	});
+
+	test("/reviewlist", async () => {
+		const TEST_CLIENT = await TestDiscordServer.getClient();
+		const commandMock = mockSlashCommand("reviewlist", {}, AccountsConfig.users[0].discordId);
+
+		let result = "";
+		when(commandMock.editReply(anything())).thenCall((args) => {
+			result = args;
+		});
+
+		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+		await waitUntilReply(commandMock);
+		verify(commandMock.editReply(anything())).once();
+
+		expect(result).toBe(
+			[
+				"以下のpull reqのreviewerにアサインされているよ！っ",
+				"",
+				`${DummyPullRequest.title.getValue()}`,
+				`pullreq: <${DummyPullRequest.url.getValue()}>`,
+			].join("\n"),
+		);
+	});
+
+	test("/reviewlist not assigned", async () => {
+		appContainer.rebind<IPullRequestRepository>(RepoTypes.PullRequestRepository).toConstantValue(MockNotfoundGithubAPI());
+		const TEST_CLIENT = await TestDiscordServer.getClient();
+		const commandMock = mockSlashCommand("reviewlist", {}, AccountsConfig.users[0].discordId);
+
+		let result = "";
+		when(commandMock.editReply(anything())).thenCall((args) => {
+			result = args;
+		});
+
+		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+		await waitUntilReply(commandMock);
+		verify(commandMock.editReply(anything())).once();
+
+		expect(result).toBe("アサインされているpull reqはないよ！っ");
 	});
 });
