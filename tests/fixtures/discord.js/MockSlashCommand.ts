@@ -2,7 +2,7 @@ import { DiscordCommandRegister } from "@/src/routes/discordjs/DiscordCommandReg
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
 import { type CacheType, ChatInputCommandInteraction, type CommandInteractionOptionResolver, User } from "discord.js";
 import { anything, instance, mock, verify, when } from "ts-mockito";
-export const mockSlashCommand = (commandName: string, options: any = {}) => {
+export const mockSlashCommand = (commandName: string, options: any = {}, userId = "1234") => {
 	const commandInteractionMock = mock(ChatInputCommandInteraction);
 	const found = new DiscordCommandRegister().commands.find((b) => b.name === commandName);
 	const optionsMock = mock<Omit<CommandInteractionOptionResolver<CacheType>, "getMessage" | "getFocused">>();
@@ -65,7 +65,7 @@ export const mockSlashCommand = (commandName: string, options: any = {}) => {
 	when(commandInteractionMock.isChatInputCommand()).thenReturn(true);
 	when(commandInteractionMock.deferReply()).thenResolve();
 	const userMock = mock(User);
-	when(userMock.id).thenReturn("1234");
+	when(userMock.id).thenReturn(userId);
 	when(commandInteractionMock.user).thenReturn(instance(userMock));
 	when(commandInteractionMock.channelId).thenReturn("5678");
 	return commandInteractionMock;
