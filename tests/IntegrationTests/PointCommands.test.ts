@@ -9,7 +9,7 @@ import { mockReaction, waitUntilReply } from "@/tests/fixtures/discord.js/MockRe
 import { mockSlashCommand, waitUntilReply as waitSlashUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { TestDiscordServer } from "@/tests/fixtures/discord.js/TestDiscordServer";
 import dayjs from "dayjs";
-import type { MessageReactionEventDetails } from "discord.js";
+import { type MessageReactionEventDetails, Status } from "discord.js";
 import { anything, instance, mock, verify, when } from "ts-mockito";
 
 describe("Test Point Commands", () => {
@@ -239,6 +239,70 @@ describe("Test Point Commands", () => {
 		await waitSlashUntilReply(commandMock);
 		verify(commandMock.reply(anything())).once();
 		expect(value).toBe("アイテムは持ってないよ！っ");
+	});
+
+	const setupUserPointItemData = async () => {
+		new MysqlConnector();
+		return UserPointItemRepositoryImpl.bulkCreate([
+			{
+				// exchangeable
+				userId: 1234,
+				itemId: ID_HIT,
+				status: UserPointItemStatus.UNUSED.getValue(),
+				expiredAt: "2999/12/31 23:59:59",
+			},
+			{
+				// used
+				userId: 1234,
+				itemId: ID_HIT,
+				status: UserPointItemStatus.USED.getValue(),
+				expiredAt: "2999/12/31 23:59:59",
+			},
+			{
+				// expired
+				userId: 1234,
+				itemId: ID_HIT,
+				status: UserPointItemStatus.UNUSED.getValue(),
+				expiredAt: "1970/1/1 00:00:00",
+			},
+
+			{
+				// expired used
+				userId: 1234,
+				itemId: ID_HIT,
+				status: UserPointItemStatus.USED.getValue(),
+				expiredAt: "1970/1/1 00:00:00",
+			},
+		]);
+	};
+
+	test("test /pointchange", async () => {
+		const [insert0, insert1, insert2, insert3] = await setupUserPointItemData();
+
+		const commandMock = mockSlashCommand("pointchange", {
+			id: insert0.id,
+		});
+
+		let value = "";
+		when(commandMock.reply(anything())).thenCall((args) => {
+			value = args;
+		});
+
+		const TEST_CLIENT = await TestDiscordServer.getClient();
+		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+		await waitSlashUntilReply(commandMock);
+		verify(commandMock.reply(anything())).once();
+		expect(value).not.toBe("アイテムは持ってないよ！っ");
+		expect(value).toBe(`${ITEM_RECORDS[insert0.itemId - 1].name}と交換したよ！っ`);
+
+		const res = await UserPointItemRepositoryImpl.findAll({
+			where: {
+				status: UserPointItemStatus.UNUSED.getValue(),
+			},
+		});
+		expect(res.length).toBe(1);
+		expect(res[0].id).toBe(insert2.id);
 	});
 
 	test("test /pointchange when no item", async () => {
