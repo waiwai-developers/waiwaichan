@@ -49,7 +49,6 @@ class ReminderSchedulerRepositoryImpl
 			new DiscordUserId(this.userId),
 			new ReceiveDiscordUserName(this.receiveUserName),
 			new ReminderMessage(this.message),
-			new ReminderDeletedAt(this.deletedAt),
 			new RemindTime(this.remindAt),
 		);
 	}
