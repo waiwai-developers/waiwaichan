@@ -17,10 +17,10 @@ import {
 	ReviewGachaCommandHandler,
 	ReviewListCommandHandler,
 	TalkCommandHandler,
+	TranslateCommandHandler,
 	WaiwaiCommandHandler,
 } from "@/src/handlers/discord.js/commands/";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
-import { TranslateCommandHandler } from "@/src/handlers/discord.js/commands/TranslateCommandHandlers";
 import { AIReplyHandler } from "@/src/handlers/discord.js/events/AIReplyHandler";
 import { CandyReactionHandler } from "@/src/handlers/discord.js/events/CandyReactionHandler";
 import type { DiscordEventHandler } from "@/src/handlers/discord.js/events/DiscordEventHandler";
