@@ -12,7 +12,6 @@ import { ReceiveDiscordUserName } from "@/src/entities/vo/ReceiveDiscordUserName
 import { RemindTime } from "@/src/entities/vo/RemindTime";
 import { ReminderId } from "@/src/entities/vo/ReminderId";
 import { ReminderMessage } from "@/src/entities/vo/ReminderMessage";
-import { ReminderStatus } from "@/src/entities/vo/ReminderStatus";
 import { TranslateSourceLanguage } from "@/src/entities/vo/TranslateSourceLanguage";
 import { TranslateTargetLanguage } from "@/src/entities/vo/TranslateTargetLanguage";
 import { TranslateText } from "@/src/entities/vo/TranslateText";

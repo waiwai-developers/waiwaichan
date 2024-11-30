@@ -2,14 +2,13 @@ import type { Migration } from "@/migrator/umzug";
 import { DataTypes } from "sequelize";
 
 const TABLE_NAME = "Reminders";
-const COLUMN_NAME = "status";
+const COLUMN_NAME = "deletedAt";
 
 export const up: Migration = async ({ context: sequelize }) => {
 	await sequelize.getQueryInterface().addColumn(TABLE_NAME, COLUMN_NAME, {
-		allowNull: false,
-		type: DataTypes.BOOLEAN,
+		type: DataTypes.DATE,
 	});
 };
 export const down: Migration = async ({ context: sequelize }) => {
-	await sequelize.removeColumn(TABLE_NAME, COLUMN_NAME);
+	await sequelize.getQueryInterface().removeColumn(TABLE_NAME, COLUMN_NAME);
 };

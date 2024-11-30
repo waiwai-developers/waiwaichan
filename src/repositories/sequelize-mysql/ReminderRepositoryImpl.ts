@@ -5,7 +5,7 @@ import { ReceiveDiscordUserName } from "@/src/entities/vo/ReceiveDiscordUserName
 import { RemindTime } from "@/src/entities/vo/RemindTime";
 import { ReminderId } from "@/src/entities/vo/ReminderId";
 import { ReminderMessage } from "@/src/entities/vo/ReminderMessage";
-import { ReminderStatus } from "@/src/entities/vo/ReminderStatus";
+import { ReminderDeletedAt } from "@/src/entities/vo/ReminderDeletedAt";
 import type { IReminderRepository } from "@/src/logics/Interfaces/repositories/database/IReminderRepository";
 import { MysqlConnector } from "@/src/repositories/sequelize-mysql/mysqlConnector";
 import { injectable } from "inversify";
@@ -20,7 +20,7 @@ class ReminderRepositoryImpl extends Model implements IReminderRepository {
 	declare userId: string;
 	declare receiveUserName: string;
 	declare message: string;
-	declare status: boolean;
+	declare deletedAt: Date;
 	declare remindAt: Date;
 
 	async create(
@@ -35,33 +35,25 @@ class ReminderRepositoryImpl extends Model implements IReminderRepository {
 			userId: userId.getValue(),
 			receiveUserName: receiveUserName.getValue(),
 			message: message.getValue(),
-			status: ReminderStatus.VALID.getValue(),
+			deletedAt: null,
 			remindAt: remindAt.getValue(),
 		}).then((res) => !!res);
 	}
 
-	async updateReminder(
+	async destoryReminder(
 		id: ReminderId,
 		userId: DiscordUserId,
 	): Promise<boolean> {
-		return ReminderRepositoryImpl.update(
-			{ status: ReminderStatus.INVALID.getValue() },
-			{
-				where: {
-					id: id.getValue(),
-					userId: userId.getValue(),
-					status: ReminderStatus.VALID.getValue(),
-				},
-				limit: 1,
-			},
-		).then((updated) => updated[0] > 0);
+		return ReminderRepositoryImpl.destroy({
+			where: { id: id.getValue(), userID: userId.getValue() },
+		}).then((res) => res > 0);
 	}
 
 	async findByUserId(userId: DiscordUserId): Promise<ReminderDto[]> {
 		return ReminderRepositoryImpl.findAll({
 			where: {
 				userId: userId.getValue(),
-				status: ReminderStatus.VALID.getValue(),
+				deletedAt: null,
 			},
 		}).then((res) => res.map((r) => r.toDto()));
 	}
@@ -73,7 +65,7 @@ class ReminderRepositoryImpl extends Model implements IReminderRepository {
 			new DiscordUserId(this.userId),
 			new ReceiveDiscordUserName(this.receiveUserName),
 			new ReminderMessage(this.message),
-			new ReminderStatus(this.status),
+			new ReminderDeletedAt(this.deletedAt),
 			new RemindTime(this.remindAt),
 		);
 	}
@@ -84,12 +76,13 @@ ReminderRepositoryImpl.init(
 		userId: DataTypes.BIGINT,
 		receiveUserName: DataTypes.STRING,
 		message: DataTypes.STRING,
-		status: DataTypes.BOOLEAN,
+		deletedAt: DataTypes.DATE,
 		remindAt: DataTypes.DATE,
 	},
 	{
 		sequelize,
 		modelName: "Reminder",
+		paranoid: true,
 	},
 );
 export { ReminderRepositoryImpl };
