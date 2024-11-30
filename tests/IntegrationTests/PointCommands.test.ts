@@ -241,6 +241,24 @@ describe("Test Point Commands", () => {
 		expect(value).toBe("アイテムは持ってないよ！っ");
 	});
 
+	test("test /pointchange when no item", async () => {
+		const commandMock = mockSlashCommand("pointchange", {
+			id: 0,
+		});
+
+		let value = "";
+		when(commandMock.reply(anything())).thenCall((args) => {
+			value = args;
+		});
+
+		const TEST_CLIENT = await TestDiscordServer.getClient();
+		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+		await waitSlashUntilReply(commandMock);
+		verify(commandMock.reply(anything())).once();
+		expect(value).toBe("アイテムは持ってないよ！っ");
+	});
+
 	afterEach(async () => {
 		await PointRepositoryImpl.destroy({
 			truncate: true,
