@@ -56,7 +56,7 @@ export class ReminderLogic implements IReminderLogic {
 	}
 	delete(id: ReminderId, userId: DiscordUserId): Promise<string> {
 		return this.transaction.startTransaction(async () => {
-			const success = await this.reminderRepository.updateReminder(id, userId);
+			const success = await this.reminderRepository.destoryReminder(id, userId);
 			if (!success) return "リマインドの予約はされていなかったよ！っ";
 			return "リマインドの予約を削除したよ！っ";
 		});
