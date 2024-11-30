@@ -344,7 +344,6 @@ describe("Test Reminder Commands", () => {
 				const startTime = Date.now();
 				const timer = setInterval(() => {
 					try {
-						console.log("check");
 						verify(channelMock.send(anything())).atLeast(1);
 						clearInterval(timer);
 						return resolve(null);
@@ -404,7 +403,6 @@ describe("Test Reminder Commands", () => {
 				const startTime = Date.now();
 				const timer = setInterval(() => {
 					try {
-						console.log("check");
 						verify(channelMock.send(anything())).atLeast(1);
 						clearInterval(timer);
 						return resolve(null);

@@ -101,11 +101,4 @@ describe("Test Reminder Commands", () => {
 
 		expect(result).toBe(InternalErrorMessage);
 	});
-
-	afterEach(async () => {
-		new MysqlConnector();
-		await ReminderRepositoryImpl.destroy({
-			truncate: true,
-		});
-	});
 });
