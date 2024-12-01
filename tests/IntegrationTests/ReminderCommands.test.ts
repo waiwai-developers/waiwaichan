@@ -443,6 +443,7 @@ describe("Test Reminder Commands", () => {
 		new MysqlConnector();
 		await ReminderRepositoryImpl.destroy({
 			truncate: true,
+			force: true,
 		});
 	});
 });
