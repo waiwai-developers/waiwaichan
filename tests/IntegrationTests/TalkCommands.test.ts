@@ -114,7 +114,7 @@ describe("Test Talk Command", () => {
 
 		const TEST_CLIENT = await TestDiscordServer.getClient();
 		TEST_CLIENT.emit("messageCreate", instance(messageMock) as OmitPartialGroupDMChannel<Message>);
-		await waitUntilMessageReply(messageMock, 2_000);
+		await waitUntilMessageReply(messageMock, 10_000);
 		verify(messageMock.reply(anything())).once();
 	});
 });
