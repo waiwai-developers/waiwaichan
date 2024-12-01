@@ -27,7 +27,7 @@ export class ReminderSetCommandHandler implements SlashCommandHandler {
 		await interaction.reply(
 			await this.reminderLogic.create(
 				new ReminderDto(
-					new ReminderId(0),
+					undefined,
 					new DiscordChannelId(interaction.channelId),
 					new DiscordUserId(interaction.user.id),
 					new ReceiveDiscordUserName(
