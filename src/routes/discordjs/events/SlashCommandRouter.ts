@@ -136,18 +136,21 @@ export class SlashCommandRouter implements DiscordEventRouter {
 					case "reminderset":
 						await interaction.reply(
 							await this.reminderLogic.create(
-								new DiscordChannelId(interaction.channelId),
-								new DiscordUserId(interaction.user.id),
-								new ReceiveDiscordUserName(
-									interaction.options.getString("username") ?? "",
-								),
-								new ReminderMessage(
-									interaction.options.getString("message") ?? "",
-								),
-								new RemindTime(
-									dayjs(interaction.options.getString("datetime"))
-										.subtract(9, "h")
-										.toDate(),
+								new ReminderDto(
+									null,
+									new DiscordChannelId(interaction.channelId),
+									new DiscordUserId(interaction.user.id),
+									new ReceiveDiscordUserName(
+										interaction.options.getString("username") ?? "",
+									),
+									new ReminderMessage(
+										interaction.options.getString("message") ?? "",
+									),
+									new RemindTime(
+										dayjs(interaction.options.getString("datetime"))
+											.subtract(9, "h")
+											.toDate(),
+									),
 								),
 							),
 						);

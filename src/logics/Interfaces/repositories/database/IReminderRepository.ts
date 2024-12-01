@@ -7,13 +7,7 @@ import type { ReminderId } from "@/src/entities/vo/ReminderId";
 import type { ReminderMessage } from "@/src/entities/vo/ReminderMessage";
 
 export interface IReminderRepository {
-	create(
-		channelId: DiscordChannelId,
-		userId: DiscordUserId,
-		receiveUserName: ReceiveDiscordUserName,
-		message: ReminderMessage,
-		remindAt: RemindTime,
-	): Promise<boolean>;
+	create(data: ReminderDto): Promise<boolean>;
 	deleteReminder(id: ReminderId, userId: DiscordUserId): Promise<boolean>;
 	findByUserId(userId: DiscordUserId): Promise<ReminderDto[]>;
 }

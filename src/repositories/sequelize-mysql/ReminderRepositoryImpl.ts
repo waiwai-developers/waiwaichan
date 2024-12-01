@@ -23,20 +23,14 @@ class ReminderRepositoryImpl extends Model implements IReminderRepository {
 	declare deletedAt: Date;
 	declare remindAt: Date;
 
-	async create(
-		channelId: DiscordChannelId,
-		userId: DiscordUserId,
-		receiveUserName: ReceiveDiscordUserName,
-		message: ReminderMessage,
-		remindAt: RemindTime,
-	): Promise<boolean> {
+	async create(data: ReminderDto): Promise<boolean> {
 		return ReminderRepositoryImpl.create({
-			channelId: channelId.getValue(),
-			userId: userId.getValue(),
-			receiveUserName: receiveUserName.getValue(),
-			message: message.getValue(),
+			channelId: data.channelId.getValue(),
+			userId: data.userId.getValue(),
+			receiveUserName: data.receiveUserName.getValue(),
+			message: data.message.getValue(),
 			deletedAt: null,
-			remindAt: remindAt.getValue(),
+			remindAt: data.remindAt.getValue(),
 		}).then((res) => !!res);
 	}
 
