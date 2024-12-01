@@ -10,7 +10,7 @@ export class MessageReplyRouter implements DiscordEventRouter {
 	handler: DiscordEventHandler<Message>[] = [];
 	register(client: Client): void {
 		client.on("messageCreate", (message) => {
-			this.handler.map((h) => h.handle(message));
+			this.handler.forEach((h) => h.handle(message));
 		});
 	}
 }
