@@ -52,8 +52,8 @@
 			"commands": [
 				{
 					"name": "/reminderset",
-					"example": "/reminderset datetime: 2024-01-01 00:00:00 message: hello",
-					"parameter": "datetime: datetime, message: string",
+					"example": "/reminderset datetime: 2024-01-01 00:00:00 username: waiwaichan message: hello",
+					"parameter": "datetime: datetime, username: string, message: string",
 					"description": "新しくリマインダーを登録する"
 				},
 				{

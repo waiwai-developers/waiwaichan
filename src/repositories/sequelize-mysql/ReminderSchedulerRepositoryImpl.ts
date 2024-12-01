@@ -3,6 +3,7 @@ import { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
 import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
 import { ReceiveDiscordUserName } from "@/src/entities/vo/ReceiveDiscordUserName";
 import { RemindTime } from "@/src/entities/vo/RemindTime";
+import { ReminderDeletedAt } from "@/src/entities/vo/ReminderDeletedAt";
 import { ReminderId } from "@/src/entities/vo/ReminderId";
 import { ReminderMessage } from "@/src/entities/vo/ReminderMessage";
 import type { IReminderSchedulerRepository } from "@/src/logics/Interfaces/repositories/database/IReminderSchedulerRepository";
@@ -22,6 +23,7 @@ import {
 @Table({
 	tableName: "Reminders",
 	timestamps: true,
+    paranoid: true,
 })
 class ReminderSchedulerRepositoryImpl
 	extends Model
@@ -44,7 +46,9 @@ class ReminderSchedulerRepositoryImpl
 
 	async findByRemindTime(): Promise<ReminderDto[]> {
 		return ReminderSchedulerRepositoryImpl.findAll({
-			where: { remindAt: { [Op.lte]: dayjs().toDate() } },
+			where: {
+				remindAt: { [Op.lte]: dayjs().toDate() },
+			},
 		}).then((res) => res.map((r) => r.toDto()));
 	}
 
