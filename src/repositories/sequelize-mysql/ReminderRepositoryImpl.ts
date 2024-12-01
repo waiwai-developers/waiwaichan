@@ -29,7 +29,6 @@ class ReminderRepositoryImpl extends Model implements IReminderRepository {
 			userId: data.userId.getValue(),
 			receiveUserName: data.receiveUserName.getValue(),
 			message: data.message.getValue(),
-			deletedAt: null,
 			remindAt: data.remindAt.getValue(),
 		}).then((res) => !!res);
 	}
@@ -47,7 +46,6 @@ class ReminderRepositoryImpl extends Model implements IReminderRepository {
 		return ReminderRepositoryImpl.findAll({
 			where: {
 				userId: userId.getValue(),
-				deletedAt: null,
 			},
 		}).then((res) => res.map((r) => r.toDto()));
 	}

@@ -31,7 +31,6 @@ class ReminderSchedulerRepositoryImpl
 		return ReminderSchedulerRepositoryImpl.findAll({
 			where: {
 				remindAt: { [Op.lte]: dayjs().toDate() },
-				deletedAt: null,
 			},
 		}).then((res) => res.map((r) => r.toDto()));
 	}

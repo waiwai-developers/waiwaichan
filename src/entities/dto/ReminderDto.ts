@@ -7,7 +7,7 @@ import type { ReminderMessage } from "@/src/entities/vo/ReminderMessage";
 
 export class ReminderDto {
 	constructor(
-		public id: ReminderId | null,
+		public id: ReminderId | undefined,
 		public channelId: DiscordChannelId,
 		public userId: DiscordUserId,
 		public receiveUserName: ReceiveDiscordUserName,
