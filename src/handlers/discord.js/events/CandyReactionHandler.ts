@@ -61,6 +61,4 @@ export class CandyReactionHandler
 		}
 		await reaction.message.reply(res);
 	}
-	@inject(LogicTypes.ChatAILogic)
-	private chatAILogic!: IChatAILogic;
 }

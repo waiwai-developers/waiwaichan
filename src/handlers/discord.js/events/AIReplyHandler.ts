@@ -11,7 +11,7 @@ import { inject, injectable } from "inversify";
 @injectable()
 export class AIReplyHandler implements DiscordEventHandler<Message> {
 	@inject(LogicTypes.ChatAILogic)
-	private chatAILogic!: IChatAILogic;
+	private readonly chatAILogic!: IChatAILogic;
 	async handle(message: Message) {
 		try {
 			if (message.author.bot) return;
