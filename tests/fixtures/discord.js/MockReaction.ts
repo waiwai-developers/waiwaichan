@@ -40,21 +40,3 @@ export const mockReaction = (
 		messageMock: MessageMock,
 	};
 };
-
-export const waitUntilReply = async (message: Message | PartialMessage, timeout = 15000, atLeast = 1): Promise<void> => {
-	const startTime = Date.now();
-	return new Promise((resolve, reject) => {
-		const interval = setInterval(async () => {
-			await new Promise(() => {
-				verify(message.reply(anything())).atLeast(atLeast);
-				clearInterval(interval);
-				resolve();
-			}).catch((e) => {
-				if (Date.now() - startTime > timeout) {
-					clearInterval(interval);
-					reject(new Error("Timeout: Method was not called within the time limit."));
-				}
-			});
-		}, 100);
-	});
-};

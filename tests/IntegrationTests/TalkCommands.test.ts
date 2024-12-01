@@ -1,8 +1,22 @@
 import { InternalErrorMessage } from "@/src/entities/DiscordErrorMessages";
+import { AppConfig } from "@/src/entities/config/AppConfig";
+import { mockMessage, waitUntilMessageReply } from "@/tests/fixtures/discord.js/MockMessage";
 import { mockSlashCommand, waitUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { TestDiscordServer } from "@/tests/fixtures/discord.js/TestDiscordServer";
-import type { AllowedThreadTypeForTextChannel, GuildTextThreadManager, TextChannel, VoiceChannel } from "discord.js";
-import { anything, instance, mock, verify, when } from "ts-mockito";
+import { jest } from "@jest/globals";
+import {
+	type AllowedThreadTypeForTextChannel,
+	Collection,
+	FetchMessagesOptions,
+	type GuildMessageManager,
+	type GuildTextThreadManager,
+	type Message,
+	type OmitPartialGroupDMChannel,
+	type PublicThreadChannel,
+	type TextChannel,
+	type VoiceChannel,
+} from "discord.js";
+import { anyOfClass, anything, capture, deepEqual, instance, mock, verify, when } from "ts-mockito";
 
 describe("Test Talk Command", () => {
 	test("Test /talk title:test title", async () => {
@@ -87,5 +101,20 @@ describe("Test Talk Command", () => {
 		// expect not reach here
 		expect("expect not reach here").toBe(false);
 	});
-	//TODO add thread reply QA
+
+	test("test chat AI", async () => {
+		const messageMock = mockMessage("1234", false, false);
+		const channelMock = mock<PublicThreadChannel>();
+		const gmmMock = mock<GuildMessageManager>();
+		when(gmmMock.fetch(deepEqual({ limit: 11 }))).thenResolve(new Collection([["1", instance(mockMessage("1234", false, false))]]));
+		when(channelMock.isThread()).thenReturn(true);
+		when(channelMock.messages).thenReturn(instance(gmmMock));
+		when(channelMock.ownerId).thenReturn(AppConfig.discord.clientId);
+		when(messageMock.channel).thenReturn(instance(channelMock));
+
+		const TEST_CLIENT = await TestDiscordServer.getClient();
+		TEST_CLIENT.emit("messageCreate", instance(messageMock) as OmitPartialGroupDMChannel<Message>);
+		await waitUntilMessageReply(messageMock, 2_000);
+		verify(messageMock.reply(anything())).once();
+	});
 });

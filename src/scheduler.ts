@@ -15,5 +15,5 @@ const client = new Client({
 	),
 });
 
-cron.schedule("* * * * * *", () => ReminderNotifyHandler(client));
+cron.schedule("* * * * *", () => ReminderNotifyHandler(client));
 await client.login(AppConfig.discord.token);

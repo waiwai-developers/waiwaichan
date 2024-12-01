@@ -5,7 +5,8 @@ import { PointStatus } from "@/src/entities/vo/PointStatus";
 import { UserPointItemStatus } from "@/src/entities/vo/UserPointItemStatus";
 import { PointRepositoryImpl, UserPointItemRepositoryImpl } from "@/src/repositories/sequelize-mysql";
 import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnector";
-import { mockReaction, waitUntilReply } from "@/tests/fixtures/discord.js/MockReaction";
+import { waitUntilMessageReply } from "@/tests/fixtures/discord.js/MockMessage";
+import { mockReaction } from "@/tests/fixtures/discord.js/MockReaction";
 import { mockSlashCommand, waitUntilReply as waitSlashUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { TestDiscordServer } from "@/tests/fixtures/discord.js/TestDiscordServer";
 import dayjs from "dayjs";
@@ -21,7 +22,7 @@ describe("Test Point Commands", () => {
 		const TEST_CLIENT = await TestDiscordServer.getClient();
 		TEST_CLIENT.emit("messageReactionAdd", instance(reaction), instance(user), instance(mock<MessageReactionEventDetails>()));
 
-		await waitUntilReply(messageMock);
+		await waitUntilMessageReply(messageMock);
 
 		verify(messageMock.reply(anything())).once();
 		verify(messageMock.reply(`<@${instance(user).id}>さんが${AppConfig.backend.pointEmoji}スタンプを押したよ！！っ`)).once();
@@ -48,7 +49,7 @@ describe("Test Point Commands", () => {
 			TEST_CLIENT.emit("messageReactionAdd", instance(reaction.reaction), instance(reaction.user), instance(mock<MessageReactionEventDetails>()));
 		}
 
-		await waitUntilReply(reaction.messageMock, 15_000, 4);
+		await waitUntilMessageReply(reaction.messageMock, 15_000, 4);
 
 		verify(reaction.messageMock.reply(anything())).times(4);
 		verify(reaction.messageMock.reply(`<@${instance(reaction.user).id}>さんが${AppConfig.backend.pointEmoji}スタンプを押したよ！！っ`)).times(3);
@@ -68,7 +69,7 @@ describe("Test Point Commands", () => {
 		TEST_CLIENT.emit("messageReactionAdd", instance(reaction), instance(user), instance(mock<MessageReactionEventDetails>()));
 
 		try {
-			await waitUntilReply(messageMock, 300);
+			await waitUntilMessageReply(messageMock, 300);
 		} catch (e) {
 			verify(messageMock.reply(anything())).never();
 			return;

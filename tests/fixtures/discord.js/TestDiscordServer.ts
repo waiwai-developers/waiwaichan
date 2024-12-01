@@ -8,9 +8,6 @@ export class TestDiscordServer extends DiscordServer {
 	private constructor() {
 		new MysqlConnector();
 		super();
-		this.EventRoutes.forEach((event) => {
-			event.register(this.client);
-		});
 	}
 	async reRegister() {
 		this.client.removeAllListeners();

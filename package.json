@@ -45,6 +45,7 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4",
+		"@jest/globals": "^29.7.0",
 		"@octokit/types": "^13.6.1",
 		"@swc/core": "^1.9.3",
 		"@swc/jest": "^0.2.37",
