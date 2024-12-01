@@ -27,6 +27,8 @@ export const ReminderNotifyHandler = async (c: Client<boolean>) => {
 					await channel.send(
 						`${remainder.receiveUserName.getValue()}\n${remainder.message.getValue()}`,
 					);
+				}
+				if (remainder.id) {
 					await reminder.deleteReminder(remainder.id);
 				}
 			}
