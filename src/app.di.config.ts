@@ -1,5 +1,30 @@
-import "@abraham/reflection";
-import { LogicTypes, RepoTypes, RouteTypes, SchedulerRepoTypes } from "@/src/entities/constants/DIContainerTypes";
+import { LogicTypes, RepoTypes, RouteTypes } from "@/src/entities/constants/DIContainerTypes";
+import { HandlerTypes } from "@/src/entities/constants/DIContainerTypes";
+import {
+	ChoiceCommandHandler,
+	DiceCommandHandler,
+	HelpCommandHandler,
+	MinecraftStartCommandHandler,
+	MinecraftStopCommandHandler,
+	ParrotCommandHandler,
+	PointCheckCommandHandler,
+	PointDrawCommandHandler,
+	PointExchangeCommandHandler,
+	PointItemCommandHandler,
+	ReminderDeleteCommandHandler,
+	ReminderListCommandHandler,
+	ReminderSetCommandHandler,
+	ReviewGachaCommandHandler,
+	ReviewListCommandHandler,
+	TalkCommandHandler,
+	TranslateCommandHandler,
+	WaiwaiCommandHandler,
+} from "@/src/handlers/discord.js/commands/";
+import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
+import { AIReplyHandler } from "@/src/handlers/discord.js/events/AIReplyHandler";
+import { CandyReactionHandler } from "@/src/handlers/discord.js/events/CandyReactionHandler";
+import type { DiscordEventHandler } from "@/src/handlers/discord.js/events/DiscordEventHandler";
+import type { ReactionInteraction } from "@/src/handlers/discord.js/events/DiscordEventHandler";
 import { ChatAILogic } from "@/src/logics/ChatAILogic";
 import type { IChatAILogic } from "@/src/logics/Interfaces/logics/IChatAILogic";
 import type { IMinecraftServerLogic } from "@/src/logics/Interfaces/logics/IMinecraftServerLogic";
@@ -10,12 +35,13 @@ import type { ITranslatorLogic } from "@/src/logics/Interfaces/logics/ITranslato
 import type { IUtilityLogic } from "@/src/logics/Interfaces/logics/IUtilityLogic";
 import type { IChatAIRepository } from "@/src/logics/Interfaces/repositories/chataiapi/IChatAIRepository";
 import type { IVirtualMachineAPI } from "@/src/logics/Interfaces/repositories/cloudprovider/IVirtualMachineAPI";
+import type { IDataBaseConnector } from "@/src/logics/Interfaces/repositories/database/IDataBaseConnector";
 import type { IPointItemRepository } from "@/src/logics/Interfaces/repositories/database/IPointItemRepository";
 import type { IPointRepository } from "@/src/logics/Interfaces/repositories/database/IPointRepository";
 import type { IReminderRepository } from "@/src/logics/Interfaces/repositories/database/IReminderRepository";
-import type { IReminderSchedulerRepository } from "@/src/logics/Interfaces/repositories/database/IReminderSchedulerRepository";
 import type { IUserPointItemRepository } from "@/src/logics/Interfaces/repositories/database/IUserPointItemRepository";
 import type { IPullRequestRepository } from "@/src/logics/Interfaces/repositories/githubapi/IPullRequestRepository";
+import type { IMutex } from "@/src/logics/Interfaces/repositories/mutex/IMutex";
 import type { ITranslatorRepository } from "@/src/logics/Interfaces/repositories/translator/ITranslatorRepository";
 import { MinecraftServerLogic } from "@/src/logics/MinecraftServerLogic";
 import { PointLogic } from "@/src/logics/PointLogic";
@@ -27,25 +53,34 @@ import { ChatGPTRepositoryImpl } from "@/src/repositories/chatgptapi/ChatGPTRepo
 import { DeepLTranslateRepositoryImpl } from "@/src/repositories/deeplapi/DeepLTranslateRepositoryImpl";
 import { GCPComputeEngineInstanceRepositoryImpl } from "@/src/repositories/gcpapi/GCPComputeEngineInstanceRepositoryImpl";
 import { GithubPullRequestRepositoryImpl } from "@/src/repositories/githubapi/GithubPullRequestRepositoryImpl";
-import { PointItemRepositoryImpl, PointRepositoryImpl, ReminderRepositoryImpl, ReminderSchedulerRepositoryImpl, UserPointItemRepositoryImpl } from "@/src/repositories/sequelize-mysql";
+import { AwaitSemaphoreMutex } from "@/src/repositories/mutex/AwaitSemaphoreMutex";
+import { PointItemRepositoryImpl, PointRepositoryImpl, ReminderRepositoryImpl, UserPointItemRepositoryImpl } from "@/src/repositories/sequelize-mysql";
+import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnector";
 import { SequelizeTransaction } from "@/src/repositories/sequelize-mysql/SequelizeTransaction";
 import type { DiscordEventRouter } from "@/src/routes/discordjs/events/DiscordEventRouter";
 import { MessageReplyRouter } from "@/src/routes/discordjs/events/MessageReplyRouter";
 import { ReactionRouter } from "@/src/routes/discordjs/events/ReactionRouter";
 import { ReadyStateRouter } from "@/src/routes/discordjs/events/ReadyStateRouter";
 import { SlashCommandRouter } from "@/src/routes/discordjs/events/SlashCommandRouter";
+import type { Message } from "discord.js";
 import { Container } from "inversify";
+import type { Sequelize } from "sequelize";
 
 // for app
 const appContainer = new Container();
 
 // Repositories
+// Mutex
+appContainer.bind<IMutex>(RepoTypes.Mutex).to(AwaitSemaphoreMutex).inSingletonScope();
+
 // Database
+appContainer.bind<IDataBaseConnector<Sequelize, "mysql">>(RepoTypes.DatabaseConnector).to(MysqlConnector).inSingletonScope();
 appContainer.bind<ITransaction<TransactionLike>>(RepoTypes.Transaction).to(SequelizeTransaction);
 appContainer.bind<IPointRepository>(RepoTypes.PointRepository).to(PointRepositoryImpl);
 appContainer.bind<IPointItemRepository>(RepoTypes.PointItemRepository).to(PointItemRepositoryImpl);
 appContainer.bind<IUserPointItemRepository>(RepoTypes.UserPointItemRepository).to(UserPointItemRepositoryImpl);
 appContainer.bind<IReminderRepository>(RepoTypes.ReminderRepository).to(ReminderRepositoryImpl);
+
 // ChatGPT
 appContainer.bind<IChatAIRepository>(RepoTypes.ChatAIRepository).to(ChatGPTRepositoryImpl);
 // DeepL
@@ -64,14 +99,32 @@ appContainer.bind<IPullRequestLogic>(LogicTypes.PullRequestLogic).to(PullRequest
 appContainer.bind<ITranslatorLogic>(LogicTypes.TranslateLogic).to(TranslatorLogic);
 appContainer.bind<IUtilityLogic>(LogicTypes.UtilityLogic).to(UtilityLogic);
 
+// Handlers
+appContainer.bind<DiscordEventHandler<Message>>(HandlerTypes.MessageHandler).to(AIReplyHandler);
+appContainer.bind<DiscordEventHandler<ReactionInteraction>>(HandlerTypes.ReactionHandler).to(CandyReactionHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(HelpCommandHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(WaiwaiCommandHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(ParrotCommandHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(DiceCommandHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(ChoiceCommandHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(TranslateCommandHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(TalkCommandHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(ReminderSetCommandHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(ReminderListCommandHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(ReminderDeleteCommandHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(PointCheckCommandHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(PointDrawCommandHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(PointItemCommandHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(PointExchangeCommandHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(ReviewGachaCommandHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(ReviewListCommandHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(MinecraftStartCommandHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(MinecraftStopCommandHandler);
+
 // Routes
 appContainer.bind<DiscordEventRouter>(RouteTypes.SlashCommandRoute).to(SlashCommandRouter);
 appContainer.bind<DiscordEventRouter>(RouteTypes.MessageReplyRoute).to(MessageReplyRouter);
 appContainer.bind<DiscordEventRouter>(RouteTypes.ReadyStateRoute).to(ReadyStateRouter);
 appContainer.bind<DiscordEventRouter>(RouteTypes.ReactionRoute).to(ReactionRouter);
 
-// for scheduler
-const schedulerContainer = new Container();
-schedulerContainer.bind<IReminderSchedulerRepository>(SchedulerRepoTypes.ReminderSchedulerRepository).to(ReminderSchedulerRepositoryImpl);
-
-export { appContainer, schedulerContainer };
+export { appContainer };

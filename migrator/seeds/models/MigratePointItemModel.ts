@@ -1,11 +1,24 @@
-import { MysqlConnector } from "@/src/repositories/sequelize-mysql/mysqlConnector";
-import { DataTypes, Model } from "sequelize";
+import {
+	AutoIncrement,
+	Column,
+	DataType,
+	Model,
+	PrimaryKey,
+	Table,
+} from "sequelize-typescript";
 
-const sequelize = MysqlConnector.getInstance();
-
+@Table({
+	tableName: "Items",
+	timestamps: true,
+})
 class MigratePointItemModel extends Model {
+	@PrimaryKey
+	@AutoIncrement
+	@Column(DataType.INTEGER)
 	declare id: number;
+	@Column(DataType.STRING)
 	declare name: string;
+	@Column(DataType.STRING)
 	declare description: string;
 
 	async bulkUpsert(
@@ -16,16 +29,5 @@ class MigratePointItemModel extends Model {
 		);
 	}
 }
-
-MigratePointItemModel.init(
-	{
-		name: DataTypes.STRING,
-		description: DataTypes.STRING,
-	},
-	{
-		sequelize,
-		modelName: "Item",
-	},
-);
 
 export { MigratePointItemModel };

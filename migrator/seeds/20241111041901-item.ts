@@ -1,7 +1,7 @@
 import type { Seed } from "@/migrator/umzug";
 import { Op } from "sequelize";
 import { MigratePointItemModel } from "./models/MigratePointItemModel";
-const records = [
+export const ITEM_RECORDS = [
 	{
 		id: 1,
 		name: "waiwaiオリジナルTシャツ",
@@ -14,14 +14,14 @@ const records = [
 	},
 ];
 export const up: Seed = async () => {
-	await new MigratePointItemModel().bulkUpsert(records);
+	await new MigratePointItemModel().bulkUpsert(ITEM_RECORDS);
 };
 
 export const down: Seed = async ({ context: sequelize }) => {
 	await sequelize.getQueryInterface().bulkDelete(
 		"Items",
 		{
-			id: { [Op.in]: records.map((r) => r.id) },
+			id: { [Op.in]: ITEM_RECORDS.map((r) => r.id) },
 		},
 		{},
 	);

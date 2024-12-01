@@ -1,4 +1,6 @@
 export const RepoTypes = {
+	Mutex: Symbol.for("Mutex"),
+	DatabaseConnector: Symbol.for("DatabaseConnector"),
 	Transaction: Symbol.for("Transaction"),
 	PointRepository: Symbol.for("PointRepository"),
 	PointItemRepository: Symbol.for("PointItemRepository"),
@@ -8,6 +10,7 @@ export const RepoTypes = {
 	TranslateRepository: Symbol.for("TranslateRepository"),
 	VMInstanceRepository: Symbol.for("VMInstanceRepository"),
 	PullRequestRepository: Symbol.for("PullRequestRepository"),
+	SequelizeModels: Symbol.for("SequelizeModels"),
 };
 export const LogicTypes = {
 	ChatAILogic: Symbol.for("ChatAILogic"),
@@ -28,4 +31,10 @@ export const RouteTypes = {
 
 export const SchedulerRepoTypes = {
 	ReminderSchedulerRepository: Symbol.for("ReminderSchedulerRepository"),
+};
+
+export const HandlerTypes = {
+	SlashCommandHandler: Symbol.for("SlashCommandHandler"),
+	ReactionHandler: Symbol.for("ReactionHandler"),
+	MessageHandler: Symbol.for("MessageHandler"),
 };

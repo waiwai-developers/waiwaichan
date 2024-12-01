@@ -1,32 +1,62 @@
-import { MysqlConnector } from "@/src/repositories/sequelize-mysql/mysqlConnector";
+import { MigratePointItemModel } from "@/migrator/seeds/models/MigratePointItemModel";
+import {
+	type DatabaseConfigType,
+	GetEnvDBConfig,
+} from "@/src/entities/config/DatabaseConfig";
+import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnector";
+import { Sequelize } from "sequelize-typescript";
 import { SequelizeStorage, Umzug } from "umzug";
+import type { MigrationParams } from "umzug/lib/types";
 
-const sequelize = MysqlConnector.getInstance();
+export const migrator = (dbConfig?: DatabaseConfigType | undefined) => {
+	const sequelize =
+		dbConfig != null
+			? new Sequelize(dbConfig.database, dbConfig.username, dbConfig.password, {
+					host: dbConfig.host,
+					port: dbConfig.port,
+					dialect: "mysql",
+				})
+			: new MysqlConnector().getDBInstance();
+	return new Umzug({
+		migrations: {
+			glob: "migrator/migrations/*.ts",
+		},
+		context: sequelize,
+		storage: new SequelizeStorage({
+			sequelize,
+			modelName: "umzug_migrator_meta",
+		}),
+		logger: console,
+	});
+};
 
-export const migrator = new Umzug({
-	migrations: {
-		glob: "migrator/migrations/*.ts",
-	},
-	context: sequelize,
-	storage: new SequelizeStorage({
-		sequelize,
-		modelName: "umzug_migrator_meta",
-	}),
-	logger: console,
-});
+export const seeder = (dbConfig: DatabaseConfigType = GetEnvDBConfig()) => {
+	const sequelize = new Sequelize(
+		dbConfig.database,
+		dbConfig.username,
+		dbConfig.password,
+		{
+			host: dbConfig.host,
+			port: dbConfig.port,
+			dialect: "mysql",
+			models: [MigratePointItemModel],
+		},
+	);
 
-export type Migration = typeof migrator._types.migration;
+	return new Umzug({
+		migrations: {
+			glob: "migrator/seeds/*.ts",
+		},
+		context: sequelize,
+		storage: new SequelizeStorage({
+			sequelize,
+			modelName: "umzug_seeder_meta",
+		}),
+		logger: console,
+	});
+};
 
-export const seeder = new Umzug({
-	migrations: {
-		glob: "migrator/seeds/*.ts",
-	},
-	context: sequelize,
-	storage: new SequelizeStorage({
-		sequelize,
-		modelName: "umzug_seeder_meta",
-	}),
-	logger: console,
-});
-
-export type Seed = typeof seeder._types.migration;
+export type Migration = (
+	params: MigrationParams<Sequelize>,
+) => Promise<unknown>;
+export type Seed = Migration;

@@ -7,20 +7,36 @@ import { ReminderDeletedAt } from "@/src/entities/vo/ReminderDeletedAt";
 import { ReminderId } from "@/src/entities/vo/ReminderId";
 import { ReminderMessage } from "@/src/entities/vo/ReminderMessage";
 import type { IReminderRepository } from "@/src/logics/Interfaces/repositories/database/IReminderRepository";
-import { MysqlConnector } from "@/src/repositories/sequelize-mysql/mysqlConnector";
 import { injectable } from "inversify";
-import { DataTypes, Model } from "sequelize";
-
-const sequelize = MysqlConnector.getInstance();
+import {
+	AutoIncrement,
+	Column,
+	DataType,
+	Model,
+	PrimaryKey,
+	Table,
+} from "sequelize-typescript";
 
 @injectable()
+@Table({
+	tableName: "Reminders",
+	timestamps: true,
+    paranoid: true
+})
 class ReminderRepositoryImpl extends Model implements IReminderRepository {
+	@PrimaryKey
+	@AutoIncrement
+	@Column(DataType.INTEGER)
 	declare id: number;
+	@Column(DataType.STRING)
 	declare channelId: string;
+	@Column(DataType.STRING)
 	declare userId: string;
-	declare receiveUserName: string;
+    @Column(DataType.STRING)
+    declare receiveUserName: string;
+	@Column(DataType.STRING)
 	declare message: string;
-	declare deletedAt: Date;
+	@Column(DataType.DATE)
 	declare remindAt: Date;
 
 	async create(data: ReminderDto): Promise<boolean> {
@@ -61,19 +77,4 @@ class ReminderRepositoryImpl extends Model implements IReminderRepository {
 		);
 	}
 }
-ReminderRepositoryImpl.init(
-	{
-		channelId: DataTypes.BIGINT,
-		userId: DataTypes.BIGINT,
-		receiveUserName: DataTypes.STRING,
-		message: DataTypes.STRING,
-		deletedAt: DataTypes.DATE,
-		remindAt: DataTypes.DATE,
-	},
-	{
-		sequelize,
-		modelName: "Reminder",
-		paranoid: true,
-	},
-);
 export { ReminderRepositoryImpl };
