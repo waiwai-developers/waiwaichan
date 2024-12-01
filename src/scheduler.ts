@@ -1,40 +1,19 @@
-import { schedulerContainer } from "@/src/di.config";
+import "reflect-metadata";
 import { AppConfig } from "@/src/entities/config/AppConfig";
-import { SchedulerRepoTypes } from "@/src/entities/constants/DIContainerTypes";
-import type { IReminderSchedulerRepository } from "@/src/logics/Interfaces/repositories/database/IReminderSchedulerRepository";
-import { Client, GatewayIntentBits, TextChannel } from "discord.js";
+import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
+import { ReminderNotifyHandler } from "@/src/handlers/discord.js/events/ReminderNotifyHandler";
+import type { MysqlSchedulerConnector } from "@/src/repositories/sequelize-mysql/MysqlSchedulerConnector";
+import { schedulerContainer } from "@/src/scheduler.di.config";
+import { Client, GatewayIntentBits } from "discord.js";
 import cron from "node-cron";
 
+schedulerContainer.get<MysqlSchedulerConnector>(RepoTypes.DatabaseConnector);
 const client = new Client({
 	intents: Object.values(GatewayIntentBits).reduce(
 		(all, intent) => (Number.isNaN(intent) ? all : all | Number(intent)),
 		0,
 	),
 });
-cron.schedule("* * * * *", async () => {
-	try {
-		const reminder = schedulerContainer.get<IReminderSchedulerRepository>(
-			SchedulerRepoTypes.ReminderSchedulerRepository,
-		);
 
-		const remainders = await reminder.findByRemindTime();
-
-		if (remainders.length === 0) return;
-
-		for (const remainder of remainders) {
-			const channel = client.channels.cache.get(remainder.channelId.getValue());
-			if (channel != null && channel instanceof TextChannel) {
-				await channel.send(
-					`${remainder.receiveUserName.getValue()}\n${remainder.message.getValue()}`,
-				);
-			}
-			await reminder.deleteReminder(remainder.id);
-		}
-	} catch (e) {
-		console.error("Error:", e);
-	}
-});
-
-(async () => {
-	await client.login(AppConfig.discord.token);
-})();
+cron.schedule("* * * * *", () => ReminderNotifyHandler(client));
+await client.login(AppConfig.discord.token);

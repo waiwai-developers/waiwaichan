@@ -3,27 +3,44 @@ import { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
 import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
 import { ReceiveDiscordUserName } from "@/src/entities/vo/ReceiveDiscordUserName";
 import { RemindTime } from "@/src/entities/vo/RemindTime";
+import { ReminderDeletedAt } from "@/src/entities/vo/ReminderDeletedAt";
 import { ReminderId } from "@/src/entities/vo/ReminderId";
 import { ReminderMessage } from "@/src/entities/vo/ReminderMessage";
 import type { IReminderRepository } from "@/src/logics/Interfaces/repositories/database/IReminderRepository";
-import { MysqlConnector } from "@/src/repositories/sequelize-mysql/mysqlConnector";
 import { injectable } from "inversify";
-import { DataTypes, Model } from "sequelize";
-
-const sequelize = MysqlConnector.getInstance();
+import {
+	AutoIncrement,
+	Column,
+	DataType,
+	Model,
+	PrimaryKey,
+	Table,
+} from "sequelize-typescript";
 
 @injectable()
+@Table({
+	tableName: "Reminders",
+	timestamps: true,
+    paranoid: true
+})
 class ReminderRepositoryImpl extends Model implements IReminderRepository {
+	@PrimaryKey
+	@AutoIncrement
+	@Column(DataType.INTEGER)
 	declare id: number;
+	@Column(DataType.STRING)
 	declare channelId: string;
+	@Column(DataType.STRING)
 	declare userId: string;
-	declare receiveUserName: string;
+    @Column(DataType.STRING)
+    declare receiveUserName: string;
+	@Column(DataType.STRING)
 	declare message: string;
+	@Column(DataType.DATE)
 	declare remindAt: Date;
 
 	async create(data: ReminderDto): Promise<boolean> {
 		return ReminderRepositoryImpl.create({
-			id: data.id.getValue(),
 			channelId: data.channelId.getValue(),
 			userId: data.userId.getValue(),
 			receiveUserName: data.receiveUserName.getValue(),
@@ -43,7 +60,9 @@ class ReminderRepositoryImpl extends Model implements IReminderRepository {
 
 	async findByUserId(userId: DiscordUserId): Promise<ReminderDto[]> {
 		return ReminderRepositoryImpl.findAll({
-			where: { userId: userId.getValue() },
+			where: {
+				userId: userId.getValue(),
+			},
 		}).then((res) => res.map((r) => r.toDto()));
 	}
 
@@ -58,17 +77,4 @@ class ReminderRepositoryImpl extends Model implements IReminderRepository {
 		);
 	}
 }
-ReminderRepositoryImpl.init(
-	{
-		channelId: DataTypes.BIGINT,
-		userId: DataTypes.BIGINT,
-		receiveUserName: DataTypes.STRING,
-		message: DataTypes.STRING,
-		remindAt: DataTypes.DATE,
-	},
-	{
-		sequelize,
-		modelName: "Reminder",
-	},
-);
 export { ReminderRepositoryImpl };

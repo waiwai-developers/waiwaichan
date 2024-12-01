@@ -32,7 +32,7 @@ export class ReminderLogic implements IReminderLogic {
 			}
 			return reminders
 				.flatMap((r) => [
-					`- id: ${r.id.getValue()}`,
+					`- id: ${r.id?.getValue()}`,
 					`  - ${dayjs(r.remindAt.getValue().toLocaleString()).add(9, "h").format("YYYY-MM-DD HH:mm:ss")}`,
 					`  - ${r.message.getValue()}`,
 				])

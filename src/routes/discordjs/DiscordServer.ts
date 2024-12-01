@@ -1,4 +1,4 @@
-import { appContainer } from "@/src/di.config";
+import { appContainer } from "@/src/app.di.config";
 import { RouteTypes } from "@/src/entities/constants/DIContainerTypes";
 import { DiscordCommandRegister } from "@/src/routes/discordjs/DiscordCommandRegister";
 import { Client, GatewayIntentBits, Partials } from "discord.js";

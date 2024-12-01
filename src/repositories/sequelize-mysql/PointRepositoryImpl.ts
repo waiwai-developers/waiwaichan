@@ -8,33 +8,46 @@ import { PointStatus } from "@/src/entities/vo/PointStatus";
 import type { IPointRepository } from "@/src/logics/Interfaces/repositories/database/IPointRepository";
 import dayjs from "dayjs";
 import { injectable } from "inversify";
-import { DataTypes, Model, Op } from "sequelize";
-import { MysqlConnector } from "./mysqlConnector";
-
-const sequelize = MysqlConnector.getInstance();
+import { Op } from "sequelize";
+import {
+	AutoIncrement,
+	Column,
+	DataType,
+	Model,
+	PrimaryKey,
+	Table,
+} from "sequelize-typescript";
 
 @injectable()
+@Table({
+	tableName: "Points",
+	timestamps: true,
+})
 class PointRepositoryImpl extends Model implements IPointRepository {
+	@PrimaryKey
+	@AutoIncrement
+	@Column(DataType.INTEGER)
 	declare id: number;
+	@Column(DataType.STRING)
 	declare receiveUserId: string;
+	@Column(DataType.STRING)
 	declare giveUserId: string;
+	@Column(DataType.STRING)
 	declare messageId: string;
+	@Column(DataType.STRING)
 	declare status: boolean;
+	@Column(DataType.DATE)
 	declare expiredAt: Date;
 
 	async createPoint(data: PointDto): Promise<boolean> {
-		try {
-			await PointRepositoryImpl.create({
-				receiveUserId: data.receiveUserId.getValue(),
-				giveUserId: data.giveUserId.getValue(),
-				messageId: data.messageId.getValue(),
-				status: data.status.getValue(),
-				expiredAt: data.expiredAt.getValue(),
-			});
-			return true;
-		} catch (err) {
-			return false;
-		}
+		await PointRepositoryImpl.create({
+			receiveUserId: data.receiveUserId.getValue(),
+			giveUserId: data.giveUserId.getValue(),
+			messageId: data.messageId.getValue(),
+			status: data.status.getValue(),
+			expiredAt: data.expiredAt.getValue(),
+		});
+		return true;
 	}
 
 	async pointCount(userId: DiscordUserId): Promise<PointCount> {
@@ -98,19 +111,4 @@ class PointRepositoryImpl extends Model implements IPointRepository {
 		);
 	}
 }
-
-PointRepositoryImpl.init(
-	{
-		receiveUserId: DataTypes.BIGINT,
-		giveUserId: DataTypes.BIGINT,
-		messageId: DataTypes.BIGINT,
-		status: DataTypes.BOOLEAN,
-		expiredAt: DataTypes.DATE,
-	},
-	{
-		sequelize,
-		modelName: "Point",
-	},
-);
-
 export { PointRepositoryImpl };

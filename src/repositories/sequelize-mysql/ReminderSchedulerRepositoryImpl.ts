@@ -3,31 +3,52 @@ import { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
 import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
 import { ReceiveDiscordUserName } from "@/src/entities/vo/ReceiveDiscordUserName";
 import { RemindTime } from "@/src/entities/vo/RemindTime";
+import { ReminderDeletedAt } from "@/src/entities/vo/ReminderDeletedAt";
 import { ReminderId } from "@/src/entities/vo/ReminderId";
 import { ReminderMessage } from "@/src/entities/vo/ReminderMessage";
 import type { IReminderSchedulerRepository } from "@/src/logics/Interfaces/repositories/database/IReminderSchedulerRepository";
-import { MysqlConnector } from "@/src/repositories/sequelize-mysql/mysqlConnector";
 import dayjs from "dayjs";
 import { injectable } from "inversify";
-import { DataTypes, Model, Op } from "sequelize";
-
-const sequelize = MysqlConnector.getInstance();
+import { Op } from "sequelize";
+import {
+	AutoIncrement,
+	Column,
+	DataType,
+	Model,
+	PrimaryKey,
+	Table,
+} from "sequelize-typescript";
 
 @injectable()
+@Table({
+	tableName: "Reminders",
+	timestamps: true,
+    paranoid: true,
+})
 class ReminderSchedulerRepositoryImpl
 	extends Model
 	implements IReminderSchedulerRepository
 {
+	@PrimaryKey
+	@AutoIncrement
+	@Column(DataType.INTEGER)
 	declare id: number;
+	@Column(DataType.STRING)
 	declare channelId: string;
+	@Column(DataType.STRING)
 	declare userId: string;
+    @Column(DataType.STRING)
 	declare receiveUserName: string;
+	@Column(DataType.STRING)
 	declare message: string;
+	@Column(DataType.DATE)
 	declare remindAt: Date;
 
 	async findByRemindTime(): Promise<ReminderDto[]> {
 		return ReminderSchedulerRepositoryImpl.findAll({
-			where: { remindAt: { [Op.lte]: dayjs().toDate() } },
+			where: {
+				remindAt: { [Op.lte]: dayjs().toDate() },
+			},
 		}).then((res) => res.map((r) => r.toDto()));
 	}
 
@@ -48,17 +69,4 @@ class ReminderSchedulerRepositoryImpl
 		);
 	}
 }
-ReminderSchedulerRepositoryImpl.init(
-	{
-		channelId: DataTypes.BIGINT,
-		userId: DataTypes.BIGINT,
-		receiveUserName: DataTypes.STRING,
-		message: DataTypes.STRING,
-		remindAt: DataTypes.DATE,
-	},
-	{
-		sequelize,
-		modelName: "Reminder",
-	},
-);
 export { ReminderSchedulerRepositoryImpl };

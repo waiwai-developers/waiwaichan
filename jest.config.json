@@ -1,0 +1,21 @@
+{
+	"roots": ["<rootDir>/tests"],
+	"transform": {
+		"^.+\\.(t|j)sx?$": ["@swc/jest"]
+	},
+	"transformIgnorePatterns": [],
+	"testEnvironment": "node",
+	"extensionsToTreatAsEsm": [".ts", ".tsx", ".jsx"],
+	"testTimeout": 15000,
+
+	"coverageReporters": ["json"],
+	"setupFilesAfterEnv": ["./tests/import_reflect.ts"],
+	"globalSetup": "./tests/jest.setup.ts",
+	"globalTeardown": "./tests/jest.teardown.ts",
+	"collectCoverageFrom": [
+		"./src/**/*",
+		"!./src/entities/config/DatabaseConfig.ts",
+		"!./src/app.ts",
+		"!./src/scheduler.ts"
+	]
+}

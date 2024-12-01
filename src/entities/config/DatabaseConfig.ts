@@ -1,6 +1,7 @@
+import process from "node:process";
 import json from "@/config/database.json" with { type: "json" };
 
-interface DatabaseConfigType {
+export interface DatabaseConfigType {
 	username: string;
 	password: string;
 	database: string;
@@ -13,5 +14,16 @@ interface DatabaseJsonType {
 	test: DatabaseConfigType;
 	production: DatabaseConfigType;
 }
+
+export const GetEnvDBConfig = () => {
+	switch (process.env.NODE_ENV || "development") {
+		case "test":
+			return DatabaseConfig.test;
+		case "production":
+			return DatabaseConfig.production;
+		default:
+			return DatabaseConfig.development;
+	}
+};
 
 export const DatabaseConfig: DatabaseJsonType = json;

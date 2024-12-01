@@ -29,3 +29,13 @@ Running formatter && linter (unsafe) https://biomejs.dev/linter/#unsafe-fixes
 ```
 pnpm lint:unsafe
 ```
+
+Execute the QA
+```
+pnpm test
+```
+
+Execute the QA with Coverage
+```
+pnpm test:coverage
+```
