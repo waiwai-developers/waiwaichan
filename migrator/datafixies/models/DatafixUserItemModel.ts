@@ -24,10 +24,6 @@ class DatafixUserItemModel extends Model {
 	declare status: boolean;
 	@Column(DataType.DATE)
 	declare expiredAt: Date;
-
-	async findAll() {
-		return await DatafixUserItemModel.findAll();
-	}
 }
 
 export { DatafixUserItemModel };
