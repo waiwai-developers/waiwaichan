@@ -1,5 +1,6 @@
 import { MigratePointItemModel } from "@/migrator/seeds/models/MigratePointItemModel";
 import { DatafixUserItemModel } from "@/migrator/datafixies/models/DatafixUserItemModel";
+import { DatafixPointModel } from "@/migrator/datafixies/models/DatafixPointModel";
 import {
 	type DatabaseConfigType,
 	GetEnvDBConfig,
@@ -66,7 +67,7 @@ export const datafixer = (dbConfig: DatabaseConfigType = GetEnvDBConfig()) => {
 			host: dbConfig.host,
 			port: dbConfig.port,
 			dialect: "mysql",
-			models: [DatafixUserItemModel],
+			models: [DatafixUserItemModel, DatafixPointModel],
 		},
 	);
 
