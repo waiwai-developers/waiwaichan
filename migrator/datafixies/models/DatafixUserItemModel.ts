@@ -25,19 +25,6 @@ class DatafixUserItemModel extends Model {
 	@Column(DataType.DATE)
 	declare expiredAt: Date;
 
-	async bulkUpsert(
-		data: Array<{
-			id: number;
-			userId: number;
-			itemId: number;
-			status: boolean;
-			expiredAt: Date;
-		}>,
-	) {
-		return await Promise.all(
-			data.map(async (d) => await DatafixUserItemModel.upsert(d)),
-		);
-	}
 	async findAll() {
 		return await DatafixUserItemModel.findAll();
 	}
