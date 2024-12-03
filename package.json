@@ -15,7 +15,8 @@
 		"lint": "biome check --write && biome format --write",
 		"lint:unsafe": "biome check --write --unsafe && biome format --write",
 		"migrate": "tsx migrator/migrator.ts",
-		"seed": "tsx migrator/seeder.ts"
+		"seed": "tsx migrator/seeder.ts",
+		"datafix": "tsx migrator/datafixer.ts"
 	},
 	"author": "",
 	"license": "ISC",

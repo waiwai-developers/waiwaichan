@@ -1,4 +1,5 @@
 import { MigratePointItemModel } from "@/migrator/seeds/models/MigratePointItemModel";
+import { DatafixUserItemModel } from "@/migrator/datafixies/models/DatafixUserItemModel";
 import {
 	type DatabaseConfigType,
 	GetEnvDBConfig,
@@ -56,7 +57,34 @@ export const seeder = (dbConfig: DatabaseConfigType = GetEnvDBConfig()) => {
 	});
 };
 
+export const datafixer = (dbConfig: DatabaseConfigType = GetEnvDBConfig()) => {
+	const sequelize = new Sequelize(
+		dbConfig.database,
+		dbConfig.username,
+		dbConfig.password,
+		{
+			host: dbConfig.host,
+			port: dbConfig.port,
+			dialect: "mysql",
+			models: [DatafixUserItemModel],
+		},
+	);
+
+	return new Umzug({
+		migrations: {
+			glob: "migrator/datafixies/*.ts",
+		},
+		context: sequelize,
+		storage: new SequelizeStorage({
+			sequelize,
+			modelName: "umzug_datafixer_meta",
+		}),
+		logger: console,
+	});
+};
+
 export type Migration = (
 	params: MigrationParams<Sequelize>,
 ) => Promise<unknown>;
 export type Seed = Migration;
+export type Datafix = Migration;
