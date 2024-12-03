@@ -38,4 +38,3 @@ class DatafixUserItemModel extends Model {
 }
 
 export { DatafixUserItemModel };
-
