@@ -55,7 +55,7 @@ class PointRepositoryImpl extends Model implements IPointRepository {
 			where: {
 				receiveUserId: userId.getValue(),
 				status: PointStatus.UNUSED.getValue(),
-				expiredAt: { [Op.gte]: dayjs().toDate() },
+				expiredAt: { [Op.gt]: dayjs().toDate() },
 			},
 		}).then((c) => new PointCount(c));
 	}
