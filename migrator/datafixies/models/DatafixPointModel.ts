@@ -29,4 +29,3 @@ class DatafixPointModel extends Model {
 }
 
 export { DatafixPointModel };
-
