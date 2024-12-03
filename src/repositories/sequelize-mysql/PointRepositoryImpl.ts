@@ -64,7 +64,7 @@ class PointRepositoryImpl extends Model implements IPointRepository {
 		return PointRepositoryImpl.count({
 			where: {
 				giveUserId: userId.getValue(),
-				createdAt: { [Op.gte]: dayjs().subtract(1, "day").toDate() },
+				createdAt: { [Op.gte]: dayjs().startOf("day").toDate() },
 			},
 		}).then((c) => new PointCount(c));
 	}
