@@ -1,8 +1,4 @@
 {
-    "reporter": [
-        "text-summary",
-        "json",
-        "html"
-    ],
-    "temp-dir": "./coverage"
+	"reporter": ["text-summary", "json", "html"],
+	"temp-dir": "./coverage"
 }

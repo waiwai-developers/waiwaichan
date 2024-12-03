@@ -21,7 +21,7 @@ import {
 @Table({
 	tableName: "Reminders",
 	timestamps: true,
-    paranoid: true
+	paranoid: true,
 })
 class ReminderRepositoryImpl extends Model implements IReminderRepository {
 	@PrimaryKey
@@ -32,8 +32,8 @@ class ReminderRepositoryImpl extends Model implements IReminderRepository {
 	declare channelId: string;
 	@Column(DataType.STRING)
 	declare userId: string;
-    @Column(DataType.STRING)
-    declare receiveUserName: string;
+	@Column(DataType.STRING)
+	declare receiveUserName: string;
 	@Column(DataType.STRING)
 	declare message: string;
 	@Column(DataType.DATE)

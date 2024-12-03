@@ -1,6 +1,6 @@
-import { MigratePointItemModel } from "@/migrator/seeds/models/MigratePointItemModel";
-import { DatafixUserItemModel } from "@/migrator/datafixies/models/DatafixUserItemModel";
 import { DatafixPointModel } from "@/migrator/datafixies/models/DatafixPointModel";
+import { DatafixUserItemModel } from "@/migrator/datafixies/models/DatafixUserItemModel";
+import { MigratePointItemModel } from "@/migrator/seeds/models/MigratePointItemModel";
 import {
 	type DatabaseConfigType,
 	GetEnvDBConfig,

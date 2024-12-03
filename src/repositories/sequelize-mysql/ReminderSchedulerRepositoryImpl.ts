@@ -23,7 +23,7 @@ import {
 @Table({
 	tableName: "Reminders",
 	timestamps: true,
-    paranoid: true,
+	paranoid: true,
 })
 class ReminderSchedulerRepositoryImpl
 	extends Model
@@ -37,7 +37,7 @@ class ReminderSchedulerRepositoryImpl
 	declare channelId: string;
 	@Column(DataType.STRING)
 	declare userId: string;
-    @Column(DataType.STRING)
+	@Column(DataType.STRING)
 	declare receiveUserName: string;
 	@Column(DataType.STRING)
 	declare message: string;

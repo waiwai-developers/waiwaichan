@@ -28,14 +28,21 @@ class DatafixPointModel extends Model {
 	declare expiredAt: Date;
 
 	async bulkUpsert(
-		data: Array<{ id: number; receiveUserId: number; giveUserId: number; messageId: string; status: boolean; expiredAt: Date }>,
+		data: Array<{
+			id: number;
+			receiveUserId: number;
+			giveUserId: number;
+			messageId: string;
+			status: boolean;
+			expiredAt: Date;
+		}>,
 	) {
 		return await Promise.all(
 			data.map(async (d) => await DatafixPointModel.upsert(d)),
 		);
 	}
 	async findAll() {
-		return await DatafixPointModel.findAll()
+		return await DatafixPointModel.findAll();
 	}
 }
 
