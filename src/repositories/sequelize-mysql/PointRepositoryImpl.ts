@@ -22,6 +22,7 @@ import {
 @Table({
 	tableName: "Points",
 	timestamps: true,
+	paranoid: true,
 })
 class PointRepositoryImpl extends Model implements IPointRepository {
 	@PrimaryKey
@@ -54,7 +55,6 @@ class PointRepositoryImpl extends Model implements IPointRepository {
 		return PointRepositoryImpl.count({
 			where: {
 				receiveUserId: userId.getValue(),
-				status: PointStatus.UNUSED.getValue(),
 				expiredAt: { [Op.gt]: dayjs().toDate() },
 			},
 		}).then((c) => new PointCount(c));
@@ -73,16 +73,14 @@ class PointRepositoryImpl extends Model implements IPointRepository {
 		userId: DiscordUserId,
 		points: PointCount = new PointCount(1),
 	): Promise<boolean> {
-		return PointRepositoryImpl.update(
-			{ status: PointStatus.USED.getValue() },
+		return PointRepositoryImpl.destroy(
 			{
 				where: {
 					receiveUserId: userId.getValue(),
-					status: PointStatus.UNUSED.getValue(),
 				},
 				limit: points.getValue(),
 			},
-		).then((updated) => updated[0] > 0);
+		).then((res) => res > 0);
 	}
 	async findByGiverAndMessageId(
 		giver: DiscordChannelId,
