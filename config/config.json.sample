@@ -13,6 +13,9 @@
 		"gptPrompt": ""
 	},
 	"github": {
+		"appId": "",
+		"privateKey": "config/cert.pem",
+		"installationId": "",
 		"token": "",
 		"owner": "",
 		"repo": ""
