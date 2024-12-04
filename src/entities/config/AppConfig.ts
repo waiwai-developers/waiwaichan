@@ -14,7 +14,10 @@ interface OpenAIConfig {
 }
 
 interface GithubConfig {
-	token: string;
+	appId?: string;
+	privateKey?: string;
+	installationId?: string;
+	token?: string;
 	owner: string;
 	repo: string;
 }

@@ -24,7 +24,11 @@ export class SlashCommandRouter implements DiscordEventRouter {
 			} catch (error) {
 				console.error(error);
 				if (interaction.isChatInputCommand()) {
-					interaction.reply(InternalErrorMessage);
+					if (interaction.replied || interaction.deferred) {
+						interaction.editReply(InternalErrorMessage);
+					} else {
+						interaction.reply(InternalErrorMessage);
+					}
 				}
 			}
 		});
