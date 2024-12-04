@@ -91,17 +91,15 @@ class UserPointItemRepositoryImpl
 		id: UserPointItemId,
 		userId: DiscordUserId,
 	): Promise<UserPointItemDto | null> {
-		return await UserPointItemRepositoryImpl.destroy(
-			{
-				where: {
-					id: id.getValue(),
-					userId: userId.getValue(),
-					status: UserPointItemStatus.UNUSED.getValue(),
-					expiredAt: { [Op.gt]: dayjs().toDate() },
-				},
-				limit: 1,
+		return await UserPointItemRepositoryImpl.destroy({
+			where: {
+				id: id.getValue(),
+				userId: userId.getValue(),
+				status: UserPointItemStatus.UNUSED.getValue(),
+				expiredAt: { [Op.gt]: dayjs().toDate() },
 			},
-		)
+			limit: 1,
+		})
 			.then((res) => {
 				if (res > 0) {
 					throw Error("no item updated");

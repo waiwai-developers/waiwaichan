@@ -64,7 +64,13 @@ class PointRepositoryImpl extends Model implements IPointRepository {
 		return PointRepositoryImpl.count({
 			where: {
 				giveUserId: userId.getValue(),
-				createdAt: { [Op.gte]: dayjs().add(9, "h").startOf("day").subtract(9, "h").toDate() },
+				createdAt: {
+					[Op.gte]: dayjs()
+						.add(9, "h")
+						.startOf("day")
+						.subtract(9, "h")
+						.toDate(),
+				},
 			},
 		}).then((c) => new PointCount(c));
 	}
@@ -73,14 +79,12 @@ class PointRepositoryImpl extends Model implements IPointRepository {
 		userId: DiscordUserId,
 		points: PointCount = new PointCount(1),
 	): Promise<boolean> {
-		return PointRepositoryImpl.destroy(
-			{
-				where: {
-					receiveUserId: userId.getValue(),
-				},
-				limit: points.getValue(),
+		return PointRepositoryImpl.destroy({
+			where: {
+				receiveUserId: userId.getValue(),
 			},
-		).then((res) => res > 0);
+			limit: points.getValue(),
+		}).then((res) => res > 0);
 	}
 	async findByGiverAndMessageId(
 		giver: DiscordChannelId,
