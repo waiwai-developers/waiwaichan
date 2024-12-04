@@ -41,7 +41,7 @@ services:
       - type: volume
         source: migrate_node_modules
         target: /app/node_modules
-    command: sh -c "npm i && pnpm run migrate up && pnpm run seed up"
+    command: sh -c "npm i && pnpm run migrate up && pnpm run seed up && pnpm run datafix up"
 networks:
   server-network:
     driver: bridge

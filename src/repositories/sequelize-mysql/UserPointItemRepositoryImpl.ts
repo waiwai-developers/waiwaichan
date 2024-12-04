@@ -66,7 +66,7 @@ class UserPointItemRepositoryImpl
 			where: {
 				userId: userId.getValue(),
 				status: userStatus.getValue(),
-				expiredAt: { [Op.gte]: dayjs().toDate() },
+				expiredAt: { [Op.gt]: dayjs().toDate() },
 			},
 		}).then((r) =>
 			r.map((it) => {
@@ -96,7 +96,7 @@ class UserPointItemRepositoryImpl
 					id: id.getValue(),
 					userId: userId.getValue(),
 					status: UserPointItemStatus.UNUSED.getValue(),
-					expiredAt: { [Op.gte]: dayjs().toDate() },
+					expiredAt: { [Op.gt]: dayjs().toDate() },
 				},
 				limit: 1,
 			},

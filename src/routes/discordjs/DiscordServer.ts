@@ -6,7 +6,7 @@ import type { DiscordEventRouter } from "./events/DiscordEventRouter";
 
 export class DiscordServer {
 	client: Client;
-	EventRoutes: DiscordEventRouter[];
+	EventRoutes: DiscordEventRouter[] = [];
 	constructor() {
 		this.client = new Client({
 			intents: Object.values(GatewayIntentBits).reduce(
@@ -15,16 +15,15 @@ export class DiscordServer {
 			),
 			partials: [Partials.Message, Partials.Reaction, Partials.Channel],
 		});
-
-		this.EventRoutes = [
-			appContainer.get<DiscordEventRouter>(RouteTypes.ReadyStateRoute),
-			appContainer.get<DiscordEventRouter>(RouteTypes.SlashCommandRoute),
-			appContainer.get<DiscordEventRouter>(RouteTypes.MessageReplyRoute),
-			appContainer.get<DiscordEventRouter>(RouteTypes.ReactionRoute),
-		];
 	}
 
 	async start(token: string): Promise<void> {
+		this.EventRoutes = await Promise.all([
+			appContainer.get<DiscordEventRouter>(RouteTypes.ReadyStateRoute),
+			appContainer.getAsync<DiscordEventRouter>(RouteTypes.SlashCommandRoute),
+			appContainer.get<DiscordEventRouter>(RouteTypes.MessageReplyRoute),
+			appContainer.get<DiscordEventRouter>(RouteTypes.ReactionRoute),
+		]);
 		await new DiscordCommandRegister().register(token);
 		this.EventRoutes.forEach((event) => {
 			event.register(this.client);

@@ -15,13 +15,15 @@
 		"lint": "biome check --write && biome format --write",
 		"lint:unsafe": "biome check --write --unsafe && biome format --write",
 		"migrate": "tsx migrator/migrator.ts",
-		"seed": "tsx migrator/seeder.ts"
+		"seed": "tsx migrator/seeder.ts",
+		"datafix": "tsx migrator/datafixer.ts"
 	},
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
 		"@abraham/reflection": "^0.12.0",
 		"@google-cloud/compute": "^4.8.0",
+		"@octokit/app": "^15.1.1",
 		"@octokit/core": "^6.1.2",
 		"@types/cls-hooked": "^4.3.9",
 		"await-semaphore": "^0.1.3",

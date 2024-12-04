@@ -107,7 +107,9 @@ export class PointLogic implements IPointLogic {
 							userId,
 							hitId,
 							UserPointItemStatus.UNUSED,
-							new UserPointItemExpire(dayjs().add(1, "year").toDate()),
+							new UserPointItemExpire(
+								dayjs().add(1, "day").add(1, "year").startOf("day").toDate(),
+							),
 						),
 					);
 					const item = await this.pointItemRepository.findById(hitId);
@@ -162,7 +164,9 @@ export class PointLogic implements IPointLogic {
 						giver,
 						messageId,
 						PointStatus.UNUSED,
-						new PointExpire(dayjs().add(1, "month").toDate()),
+						new PointExpire(
+							dayjs().add(1, "day").add(1, "month").startOf("day").toDate(),
+						),
 					),
 				);
 				return `<@${giver.getValue()}>さんが${AppConfig.backend.pointEmoji}スタンプを押したよ！！っ`;

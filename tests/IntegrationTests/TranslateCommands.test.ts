@@ -1,24 +1,13 @@
 import { InternalErrorMessage } from "@/src/entities/DiscordErrorMessages";
 import { TranslateConst } from "@/src/entities/constants/translate";
-import {
-	mockSlashCommand,
-	waitUntilReply,
-} from "@/tests/fixtures/discord.js/MockSlashCommand";
+import { mockSlashCommand, waitUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { TestDiscordServer } from "@/tests/fixtures/discord.js/TestDiscordServer";
 import { anything, instance, verify, when } from "ts-mockito";
 
-const JAPANESE_SOURCE = TranslateConst.source.find(
-	(it) => it.value === "JA",
-)?.value;
-const JAPANESE_TARGET = TranslateConst.target.find(
-	(it) => it.value === "JA",
-)?.value;
-const ENGLISH_SOURCE = TranslateConst.source.find(
-	(it) => it.value === "EN",
-)?.value;
-const ENGLISH_TARGET = TranslateConst.target.find(
-	(it) => it.value === "EN-US",
-)?.value;
+const JAPANESE_SOURCE = TranslateConst.source.find((it) => it.value === "JA")?.value;
+const JAPANESE_TARGET = TranslateConst.target.find((it) => it.value === "JA")?.value;
+const ENGLISH_SOURCE = TranslateConst.source.find((it) => it.value === "EN")?.value;
+const ENGLISH_TARGET = TranslateConst.target.find((it) => it.value === "EN-US")?.value;
 
 describe("Test Translate Command", () => {
 	test("Test /translate source:EN target:JA messages:Hello World! ", async () => {
