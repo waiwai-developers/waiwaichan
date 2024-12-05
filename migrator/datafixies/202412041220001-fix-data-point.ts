@@ -10,6 +10,7 @@ export const up: Datafix = async () => {
 	await Promise.all(
 		points.map((point) => {
 			point.update({
+				updatedAt: point.updatedAt,
 				deletedAt: point.updatedAt,
 			});
 		}),

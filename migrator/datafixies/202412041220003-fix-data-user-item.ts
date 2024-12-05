@@ -10,6 +10,7 @@ export const up: Datafix = async () => {
 	await Promise.all(
 		userItems.map(async (item) => {
 			return item.update({
+				updatedAt: item.updatedAt,
 				deletedAt: item.updatedAt,
 			});
 		}),
