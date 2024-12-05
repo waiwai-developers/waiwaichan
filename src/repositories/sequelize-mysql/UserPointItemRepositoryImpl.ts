@@ -100,7 +100,7 @@ class UserPointItemRepositoryImpl
 			limit: 1,
 		})
 			.then((res) => {
-				if (res > 0) {
+				if (res <= 0) {
 					throw Error("no item updated");
 				}
 				return UserPointItemRepositoryImpl.findByPk(id.getValue());
