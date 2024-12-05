@@ -5,14 +5,10 @@ import {
 	Model,
 	PrimaryKey,
 	Table,
-	CreatedAt,
-	UpdatedAt,
-	DeletedAt,
 } from "sequelize-typescript";
 
 @Table({
 	tableName: "Points",
-	timestamps: true,
 })
 class DatafixPointModel extends Model {
 	@PrimaryKey
@@ -29,11 +25,11 @@ class DatafixPointModel extends Model {
 	declare status: boolean;
 	@Column(DataType.DATE)
 	declare expiredAt: Date;
-	@CreatedAt
+	@Column(DataType.DATE)
 	declare createdAt: Date;
-	@UpdatedAt
+	@Column(DataType.DATE)
 	declare updatedAt: Date;
-	@DeletedAt
+	@Column(DataType.DATE)
 	declare deletedAt: Date;
 }
 

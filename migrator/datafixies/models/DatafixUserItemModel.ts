@@ -5,14 +5,10 @@ import {
 	Model,
 	PrimaryKey,
 	Table,
-	CreatedAt,
-	UpdatedAt,
-	DeletedAt,
 } from "sequelize-typescript";
 
 @Table({
 	tableName: "UserItems",
-	timestamps: true,
 })
 class DatafixUserItemModel extends Model {
 	@PrimaryKey
@@ -27,11 +23,11 @@ class DatafixUserItemModel extends Model {
 	declare status: boolean;
 	@Column(DataType.DATE)
 	declare expiredAt: Date;
-	@CreatedAt
+	@Column(DataType.DATE)
 	declare createdAt: Date;
-	@UpdatedAt
+	@Column(DataType.DATE)
 	declare updatedAt: Date;
-	@DeletedAt
+	@Column(DataType.DATE)
 	declare deletedAt: Date;
 }
 export { DatafixUserItemModel };
