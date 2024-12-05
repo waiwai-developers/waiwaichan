@@ -32,9 +32,9 @@ class DatafixPointModel extends Model {
 	@CreatedAt
 	declare createdAt: Date;
 	@UpdatedAt
-	declare UpdatedAt: Date;
+	declare updatedAt: Date;
 	@DeletedAt
-	declare DeletedAt: Date;
+	declare deletedAt: Date;
 }
 
 export { DatafixPointModel };
