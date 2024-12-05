@@ -95,7 +95,6 @@ class UserPointItemRepositoryImpl
 			where: {
 				id: id.getValue(),
 				userId: userId.getValue(),
-				status: UserPointItemStatus.UNUSED.getValue(),
 				expiredAt: { [Op.gt]: dayjs().toDate() },
 			},
 			limit: 1,
