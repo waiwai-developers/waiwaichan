@@ -1,3 +1,4 @@
+import * as fs from "node:fs";
 import { AppConfig } from "@/src/entities/config/AppConfig";
 import { PullRequestDto } from "@/src/entities/dto/PullRequestDto";
 import { GitHubUserId } from "@/src/entities/vo/GitHubUserId";
@@ -6,19 +7,48 @@ import { GithubPullRequestTitle } from "@/src/entities/vo/GithubPullRequestTitle
 import { GithubPullRequestUrl } from "@/src/entities/vo/GithubPullRequestUrl";
 import { GithubPullRequestStatus } from "@/src/entities/vo/GtihubPullRequestStatus";
 import type { IPullRequestRepository } from "@/src/logics/Interfaces/repositories/githubapi/IPullRequestRepository";
+import { App } from "@octokit/app";
 import { Octokit } from "@octokit/core";
-import { injectable } from "inversify";
+import { injectable, postConstruct } from "inversify";
 
 @injectable()
 export class GithubPullRequestRepositoryImpl implements IPullRequestRepository {
-	private octokit: Octokit;
-	constructor() {
-		this.octokit = new Octokit({
-			auth: AppConfig.github.token,
-		});
+	private octokit: Octokit | undefined;
+
+	private isApp() {
+		return (
+			AppConfig.github.appId != null &&
+			AppConfig.github.appId.length !== 0 &&
+			AppConfig.github.privateKey != null &&
+			AppConfig.github.privateKey.length !== 0 &&
+			fs.existsSync(AppConfig.github.privateKey) &&
+			AppConfig.github.installationId != null &&
+			AppConfig.github.installationId.length !== 0 &&
+			!Number.isNaN(Number.parseInt(AppConfig.github.installationId))
+		);
+	}
+
+	@postConstruct()
+	public async initialize() {
+		console.log(`Initializing Github Pull Request App Mode:${this.isApp()}`);
+
+		this.octokit = this.isApp()
+			? await new App({
+					appId: String(AppConfig.github.appId),
+					privateKey: fs.readFileSync(
+						String(AppConfig.github.privateKey),
+						"utf8",
+					),
+				}).getInstallationOctokit(Number(AppConfig.github.installationId))
+			: new Octokit({
+					auth: AppConfig.github.token,
+				});
 	}
 
 	async getById(pr: GithubPullRequestId): Promise<PullRequestDto | undefined> {
+		if (!this.octokit) {
+			throw new Error("Github API not initialized");
+		}
 		return this.octokit
 			.request("GET /repos/{owner}/{repo}/pulls/{pull_number}", {
 				owner: AppConfig.github.owner,
@@ -43,6 +73,10 @@ export class GithubPullRequestRepositoryImpl implements IPullRequestRepository {
 		user: GitHubUserId,
 		pr: GithubPullRequestId,
 	): Promise<PullRequestDto | undefined> {
+		if (!this.octokit) {
+			throw new Error("Github API not initialized");
+		}
+
 		return this.octokit
 			.request(
 				"POST /repos/{owner}/{repo}/pulls/{pull_number}/requested_reviewers",
@@ -70,6 +104,10 @@ export class GithubPullRequestRepositoryImpl implements IPullRequestRepository {
 	}
 
 	async getAssigneeList(user: GitHubUserId): Promise<PullRequestDto[]> {
+		if (!this.octokit) {
+			throw new Error("Github API not initialized");
+		}
+
 		return this.octokit
 			.request("GET /repos/{owner}/{repo}/pulls", {
 				owner: AppConfig.github.owner,

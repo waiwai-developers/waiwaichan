@@ -1,8 +1,6 @@
 .env
-config/config.json
-config/database.json
-config/accounts.json
-config/key.json
+config/*.json
+config/*.pem
 node_modules/
 ignore/
 dist/
