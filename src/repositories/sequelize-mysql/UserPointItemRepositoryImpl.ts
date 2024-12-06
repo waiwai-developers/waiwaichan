@@ -91,7 +91,8 @@ class UserPointItemRepositoryImpl
 		id: UserPointItemId,
 		userId: DiscordUserId,
 	): Promise<UserPointItemDto | null> {
-		return await UserPointItemRepositoryImpl.destroy({
+		const userPointItem = await UserPointItemRepositoryImpl.findByPk(id.getValue());
+		return UserPointItemRepositoryImpl.destroy({
 			where: {
 				id: id.getValue(),
 				userId: userId.getValue(),
@@ -101,9 +102,9 @@ class UserPointItemRepositoryImpl
 		})
 			.then((res) => {
 				if (res <= 0) {
-					throw Error("no item updated");
+					throw Error("no item deleted");
 				}
-				return UserPointItemRepositoryImpl.findByPk(id.getValue());
+				return userPointItem;
 			})
 			.then((repo) => (repo ? this.toDto(repo) : null));
 	}
