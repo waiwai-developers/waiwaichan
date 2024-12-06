@@ -106,7 +106,6 @@ export class PointLogic implements IPointLogic {
 							new UserPointItemId(0),
 							userId,
 							hitId,
-							UserPointItemStatus.UNUSED,
 							new UserPointItemExpire(
 								dayjs().add(1, "day").add(1, "year").startOf("day").toDate(),
 							),

@@ -6,7 +6,6 @@ import { PointItemId } from "@/src/entities/vo/PointItemId";
 import { PointItemName } from "@/src/entities/vo/PointItemName";
 import { UserPointItemExpire } from "@/src/entities/vo/UserPointItemExpire";
 import { UserPointItemId } from "@/src/entities/vo/UserPointItemId";
-import { UserPointItemStatus } from "@/src/entities/vo/UserPointItemStatus";
 import type { IUserPointItemRepository } from "@/src/logics/Interfaces/repositories/database/IUserPointItemRepository";
 import dayjs from "dayjs";
 import { injectable } from "inversify";
@@ -58,7 +57,6 @@ class UserPointItemRepositoryImpl
 
 	async findByNotUsed(
 		userId: DiscordUserId,
-		userStatus: UserPointItemStatus = UserPointItemStatus.UNUSED,
 	): Promise<UserPointItemWithItemDto[]> {
 		return UserPointItemRepositoryImpl.findAll({
 			include: [PointItemRepositoryImpl],
