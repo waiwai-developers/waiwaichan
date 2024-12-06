@@ -35,8 +35,6 @@ class PointRepositoryImpl extends Model implements IPointRepository {
 	declare giveUserId: string;
 	@Column(DataType.STRING)
 	declare messageId: string;
-	@Column(DataType.STRING)
-	declare status: boolean;
 	@Column(DataType.DATE)
 	declare expiredAt: Date;
 
@@ -45,7 +43,6 @@ class PointRepositoryImpl extends Model implements IPointRepository {
 			receiveUserId: data.receiveUserId.getValue(),
 			giveUserId: data.giveUserId.getValue(),
 			messageId: data.messageId.getValue(),
-			status: data.status.getValue(),
 			expiredAt: data.expiredAt.getValue(),
 		});
 		return true;
@@ -101,14 +98,12 @@ class PointRepositoryImpl extends Model implements IPointRepository {
 		receiveUserId,
 		giveUserId,
 		messageId,
-		status,
 		expiredAt,
 	}: PointRepositoryImpl): PointDto {
 		return new PointDto(
 			new DiscordUserId(receiveUserId),
 			new DiscordUserId(giveUserId),
 			new DiscordMessageId(messageId),
-			new PointStatus(status),
 			new PointExpire(expiredAt),
 		);
 	}

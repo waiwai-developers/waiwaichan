@@ -10,7 +10,6 @@ export class UserPointItemWithItemDto {
 		public id: UserPointItemId,
 		public userId: DiscordUserId,
 		public itemId: PointItemId,
-		public status: UserPointItemStatus,
 		public expiredAt: UserPointItemExpire,
 		public name: PointItemName,
 		public description: PointItemDescription,

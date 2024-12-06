@@ -8,7 +8,6 @@ export class UserPointItemDto {
 		public id: UserPointItemId,
 		public userId: DiscordUserId,
 		public itemId: PointItemId,
-		public status: UserPointItemStatus,
 		public expiredAt: UserPointItemExpire,
 	) {}
 }

@@ -42,8 +42,6 @@ class UserPointItemRepositoryImpl
 	@Column(DataType.STRING)
 	@ForeignKey(() => PointItemRepositoryImpl)
 	declare itemId: number;
-	@Column(DataType.STRING)
-	declare status: boolean;
 	@Column(DataType.DATE)
 	declare expiredAt: Date;
 
@@ -54,7 +52,6 @@ class UserPointItemRepositoryImpl
 		return UserPointItemRepositoryImpl.create({
 			userId: data.userId.getValue(),
 			itemId: data.itemId.getValue(),
-			status: data.status.getValue(),
 			expiredAt: data.expiredAt.getValue(),
 		}).then((res) => new UserPointItemId(res.id));
 	}
@@ -67,7 +64,6 @@ class UserPointItemRepositoryImpl
 			include: [PointItemRepositoryImpl],
 			where: {
 				userId: userId.getValue(),
-				status: userStatus.getValue(),
 				expiredAt: { [Op.gt]: dayjs().toDate() },
 			},
 		}).then((r) =>
@@ -110,14 +106,12 @@ class UserPointItemRepositoryImpl
 		id,
 		userId,
 		itemId,
-		status,
 		expiredAt,
 	}: UserPointItemRepositoryImpl): UserPointItemDto {
 		return new UserPointItemDto(
 			new UserPointItemId(id),
 			new DiscordUserId(userId),
 			new PointItemId(itemId),
-			new UserPointItemStatus(status),
 			new UserPointItemExpire(expiredAt),
 		);
 	}
