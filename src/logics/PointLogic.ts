@@ -12,10 +12,8 @@ import type { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
 import type { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
 import { PointExpire } from "@/src/entities/vo/PointExpire";
 import { PointItemId } from "@/src/entities/vo/PointItemId";
-import { PointStatus } from "@/src/entities/vo/PointStatus";
 import { UserPointItemExpire } from "@/src/entities/vo/UserPointItemExpire";
 import { UserPointItemId } from "@/src/entities/vo/UserPointItemId";
-import { UserPointItemStatus } from "@/src/entities/vo/UserPointItemStatus";
 import type { IPointLogic } from "@/src/logics/Interfaces/logics/IPointLogic";
 import type { IPointItemRepository } from "@/src/logics/Interfaces/repositories/database/IPointItemRepository";
 import type { IPointRepository } from "@/src/logics/Interfaces/repositories/database/IPointRepository";
@@ -162,7 +160,6 @@ export class PointLogic implements IPointLogic {
 						receiver,
 						giver,
 						messageId,
-						PointStatus.UNUSED,
 						new PointExpire(
 							dayjs().add(1, "day").add(1, "month").startOf("day").toDate(),
 						),
