@@ -92,12 +92,12 @@ class UserPointItemRepositoryImpl
 				id: id.getValue(),
 				userId: userId.getValue(),
 				expiredAt: { [Op.gt]: dayjs().toDate() },
-			}
+			},
 		}).then((res) => {
 			if (res === null) {
 				throw Error("no item deleted");
 			}
-			res.destroy()
+			res.destroy();
 			return res ? this.toDto(res) : null;
 		});
 	}
