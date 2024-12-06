@@ -9,7 +9,6 @@ import {
 
 @Table({
 	tableName: "Points",
-	timestamps: true,
 })
 class DatafixPointModel extends Model {
 	@PrimaryKey
@@ -26,6 +25,12 @@ class DatafixPointModel extends Model {
 	declare status: boolean;
 	@Column(DataType.DATE)
 	declare expiredAt: Date;
+	@Column(DataType.DATE)
+	declare createdAt: Date;
+	@Column(DataType.DATE)
+	declare updatedAt: Date;
+	@Column(DataType.DATE)
+	declare deletedAt: Date;
 }
 
 export { DatafixPointModel };

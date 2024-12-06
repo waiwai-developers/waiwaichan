@@ -26,6 +26,8 @@ import { PointItemRepositoryImpl } from "./PointItemRepositoryImpl";
 @injectable()
 @Table({
 	tableName: "UserItems",
+	timestamps: true,
+	paranoid: true,
 })
 class UserPointItemRepositoryImpl
 	extends Model
@@ -89,25 +91,19 @@ class UserPointItemRepositoryImpl
 		id: UserPointItemId,
 		userId: DiscordUserId,
 	): Promise<UserPointItemDto | null> {
-		return await UserPointItemRepositoryImpl.update(
-			{ status: UserPointItemStatus.USED.getValue() },
-			{
-				where: {
-					id: id.getValue(),
-					userId: userId.getValue(),
-					status: UserPointItemStatus.UNUSED.getValue(),
-					expiredAt: { [Op.gt]: dayjs().toDate() },
-				},
-				limit: 1,
-			},
-		)
-			.then((updated) => {
-				if (updated[0] <= 0) {
-					throw Error("no item updated");
-				}
-				return UserPointItemRepositoryImpl.findByPk(id.getValue());
-			})
-			.then((repo) => (repo ? this.toDto(repo) : null));
+		return UserPointItemRepositoryImpl.findOne({
+			where: {
+				id: id.getValue(),
+				userId: userId.getValue(),
+				expiredAt: { [Op.gt]: dayjs().toDate() },
+			}
+		}).then((res) => {
+			if (res === null) {
+				throw Error("no item deleted");
+			}
+			res.destroy()
+			return res ? this.toDto(res) : null;
+		});
 	}
 
 	toDto({

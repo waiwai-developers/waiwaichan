@@ -9,7 +9,6 @@ import {
 
 @Table({
 	tableName: "UserItems",
-	timestamps: true,
 })
 class DatafixUserItemModel extends Model {
 	@PrimaryKey
@@ -24,6 +23,11 @@ class DatafixUserItemModel extends Model {
 	declare status: boolean;
 	@Column(DataType.DATE)
 	declare expiredAt: Date;
+	@Column(DataType.DATE)
+	declare createdAt: Date;
+	@Column(DataType.DATE)
+	declare updatedAt: Date;
+	@Column(DataType.DATE)
+	declare deletedAt: Date;
 }
-
 export { DatafixUserItemModel };
