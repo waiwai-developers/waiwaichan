@@ -4,7 +4,6 @@ import { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
 import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
 import { PointCount } from "@/src/entities/vo/PointCount";
 import { PointExpire } from "@/src/entities/vo/PointExpire";
-import { PointStatus } from "@/src/entities/vo/PointStatus";
 import type { IPointRepository } from "@/src/logics/Interfaces/repositories/database/IPointRepository";
 import dayjs from "dayjs";
 import { injectable } from "inversify";
