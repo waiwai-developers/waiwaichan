@@ -91,7 +91,9 @@ class UserPointItemRepositoryImpl
 		id: UserPointItemId,
 		userId: DiscordUserId,
 	): Promise<UserPointItemDto | null> {
-		const userPointItem = await UserPointItemRepositoryImpl.findByPk(id.getValue());
+		const userPointItem = await UserPointItemRepositoryImpl.findByPk(
+			id.getValue(),
+		);
 		return UserPointItemRepositoryImpl.destroy({
 			where: {
 				id: id.getValue(),
