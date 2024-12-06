@@ -91,24 +91,19 @@ class UserPointItemRepositoryImpl
 		id: UserPointItemId,
 		userId: DiscordUserId,
 	): Promise<UserPointItemDto | null> {
-		const userPointItem = await UserPointItemRepositoryImpl.findOne({
+		return UserPointItemRepositoryImpl.findOne({
 			where: {
 				id: id.getValue(),
 				userId: userId.getValue(),
-			}
-		});
-		if (userPointItem === null) {
-			throw Error("no item deleted");
-		}
-		UserPointItemRepositoryImpl.destroy({
-			where: {
-				id: userPointItem.id,
-				userId: userPointItem.userId,
 				expiredAt: { [Op.gt]: dayjs().toDate() },
-			},
-			limit: 1,
-		})
-		return userPointItem ? this.toDto(userPointItem) : null;
+			}
+		}).then((res) => {
+			if (res === null) {
+				throw Error("no item deleted");
+			}
+			res.destroy()
+			return res ? this.toDto(res) : null;
+		});
 	}
 
 	toDto({
