@@ -84,7 +84,7 @@ class PointRepositoryImpl extends Model implements IPointRepository {
 				receiveUserId: userId.getValue(),
 			},
 			limit: points.getValue(),
-		}).then((res) => res > 0);
+		}).then((res) => res === points.getValue());
 	}
 	async findByGiverAndMessageId(
 		giver: DiscordChannelId,
