@@ -106,8 +106,8 @@ export class DiscordCommandRegister {
 				.setName("candyitem")
 				.setDescription("candyitem"),
 			new SlashCommandBuilder()
-				.setName("candychange")
-				.setDescription("candychange")
+				.setName("candyexchange")
+				.setDescription("candyexchange")
 				.addIntegerOption((option) =>
 					option.setName("id").setDescription("integer").setRequired(true),
 				),
