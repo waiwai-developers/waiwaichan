@@ -12,7 +12,7 @@ export class CandyExchangeCommandHandler implements SlashCommandHandler {
 	private candyLogic!: ICandyLogic;
 
 	isHandle(commandName: string): boolean {
-		return commandName === "candychange";
+		return commandName === "candyexchange";
 	}
 
 	async handle(
