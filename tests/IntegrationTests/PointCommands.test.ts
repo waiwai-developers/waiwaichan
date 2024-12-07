@@ -270,6 +270,7 @@ describe("Test Point Commands", () => {
 				userId: 1234,
 				itemId: ID_HIT,
 				expiredAt: "1970/1/1 00:00:00",
+				deletedAt: null,
 			},
 		]);
 	};
