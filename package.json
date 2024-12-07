@@ -38,6 +38,7 @@
 		"mysql2": "^3.11.4",
 		"node-cron": "^3.0.3",
 		"openai": "^4.71.1",
+		"reflect-metadata": "^0.2.2",
 		"sequelize": "^6.37.5",
 		"sequelize-typescript": "^2.1.6",
 		"ts-mockito": "^2.6.1",

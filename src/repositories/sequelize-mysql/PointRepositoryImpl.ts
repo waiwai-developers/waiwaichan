@@ -4,7 +4,6 @@ import { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
 import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
 import { PointCount } from "@/src/entities/vo/PointCount";
 import { PointExpire } from "@/src/entities/vo/PointExpire";
-import { PointStatus } from "@/src/entities/vo/PointStatus";
 import type { IPointRepository } from "@/src/logics/Interfaces/repositories/database/IPointRepository";
 import dayjs from "dayjs";
 import { injectable } from "inversify";
@@ -35,8 +34,6 @@ class PointRepositoryImpl extends Model implements IPointRepository {
 	declare giveUserId: string;
 	@Column(DataType.STRING)
 	declare messageId: string;
-	@Column(DataType.STRING)
-	declare status: boolean;
 	@Column(DataType.DATE)
 	declare expiredAt: Date;
 
@@ -45,7 +42,6 @@ class PointRepositoryImpl extends Model implements IPointRepository {
 			receiveUserId: data.receiveUserId.getValue(),
 			giveUserId: data.giveUserId.getValue(),
 			messageId: data.messageId.getValue(),
-			status: data.status.getValue(),
 			expiredAt: data.expiredAt.getValue(),
 		});
 		return true;
@@ -101,14 +97,12 @@ class PointRepositoryImpl extends Model implements IPointRepository {
 		receiveUserId,
 		giveUserId,
 		messageId,
-		status,
 		expiredAt,
 	}: PointRepositoryImpl): PointDto {
 		return new PointDto(
 			new DiscordUserId(receiveUserId),
 			new DiscordUserId(giveUserId),
 			new DiscordMessageId(messageId),
-			new PointStatus(status),
 			new PointExpire(expiredAt),
 		);
 	}

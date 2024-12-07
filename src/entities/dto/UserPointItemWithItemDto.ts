@@ -4,13 +4,11 @@ import type { PointItemId } from "@/src/entities/vo/PointItemId";
 import type { PointItemName } from "@/src/entities/vo/PointItemName";
 import type { UserPointItemExpire } from "@/src/entities/vo/UserPointItemExpire";
 import type { UserPointItemId } from "@/src/entities/vo/UserPointItemId";
-import type { UserPointItemStatus } from "@/src/entities/vo/UserPointItemStatus";
 export class UserPointItemWithItemDto {
 	constructor(
 		public id: UserPointItemId,
 		public userId: DiscordUserId,
 		public itemId: PointItemId,
-		public status: UserPointItemStatus,
 		public expiredAt: UserPointItemExpire,
 		public name: PointItemName,
 		public description: PointItemDescription,

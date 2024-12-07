@@ -1,8 +1,6 @@
 import { ITEM_RECORDS } from "@/migrator/seeds/20241111041901-item";
 import { AppConfig } from "@/src/entities/config/AppConfig";
 import { ID_HIT, ID_JACKPOT } from "@/src/entities/constants/Items";
-import { PointStatus } from "@/src/entities/vo/PointStatus";
-import { UserPointItemStatus } from "@/src/entities/vo/UserPointItemStatus";
 import { PointRepositoryImpl, UserPointItemRepositoryImpl } from "@/src/repositories/sequelize-mysql";
 import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnector";
 import { waitUntilMessageReply } from "@/tests/fixtures/discord.js/MockMessage";
@@ -98,8 +96,8 @@ describe("Test Point Commands", () => {
 			receiveUserId: 1234,
 			giveUserId: 12345,
 			messageId: 5678,
-			status: PointStatus.UNUSED.getValue(),
 			expiredAt: "2999/12/31 23:59:59",
+			deletedAt: null,
 		});
 		const inserted = await PointRepositoryImpl.bulkCreate(insertData);
 		const commandMock = mockSlashCommand("pointcheck");
@@ -130,8 +128,8 @@ describe("Test Point Commands", () => {
 			receiveUserId: 1234,
 			giveUserId: 12345,
 			messageId: 5678,
-			status: PointStatus.UNUSED.getValue(),
 			expiredAt: "2999/12/31 23:59:59",
+			deletedAt: null,
 		});
 		new MysqlConnector();
 		await PointRepositoryImpl.bulkCreate(insertData);
@@ -166,32 +164,32 @@ describe("Test Point Commands", () => {
 			{
 				userId: 1234,
 				itemId: ID_HIT,
-				status: UserPointItemStatus.UNUSED.getValue(),
 				expiredAt: "2999/12/31 23:59:59",
+				deletedAt: null,
 			},
 			{
 				userId: 1234,
 				itemId: ID_HIT,
-				status: UserPointItemStatus.UNUSED.getValue(),
 				expiredAt: "2999/12/31 23:59:59",
+				deletedAt: null,
 			},
 			{
 				userId: 1234,
 				itemId: ID_JACKPOT,
-				status: UserPointItemStatus.USED.getValue(),
 				expiredAt: "2999/12/31 23:59:59",
+				deletedAt: "1970/01/01 00:00:00",
 			},
 			{
 				userId: 1234,
 				itemId: ID_JACKPOT,
-				status: UserPointItemStatus.USED.getValue(),
 				expiredAt: "2999/12/31 23:59:59",
+				deletedAt: "1970/01/01 00:00:00",
 			},
 			{
 				userId: 1234,
 				itemId: ID_JACKPOT,
-				status: UserPointItemStatus.UNUSED.getValue(),
 				expiredAt: "2999/12/31 23:59:59",
+				deletedAt: null,
 			},
 		];
 		const inserted = await UserPointItemRepositoryImpl.bulkCreate(insertData);
@@ -249,30 +247,30 @@ describe("Test Point Commands", () => {
 				// exchangeable
 				userId: 1234,
 				itemId: ID_HIT,
-				status: UserPointItemStatus.UNUSED.getValue(),
 				expiredAt: "2999/12/31 23:59:59",
+				deletedAt: null,
 			},
 			{
 				// used
 				userId: 1234,
 				itemId: ID_HIT,
-				status: UserPointItemStatus.USED.getValue(),
 				expiredAt: "2999/12/31 23:59:59",
+				deletedAt: "1970/01/01 00:00:00",
 			},
 			{
 				// expired
 				userId: 1234,
 				itemId: ID_HIT,
-				status: UserPointItemStatus.UNUSED.getValue(),
 				expiredAt: "1970/1/1 00:00:00",
+				deletedAt: null,
 			},
 
 			{
 				// expired used
 				userId: 1234,
 				itemId: ID_HIT,
-				status: UserPointItemStatus.USED.getValue(),
 				expiredAt: "1970/1/1 00:00:00",
+				deletedAt: null,
 			},
 		]);
 	};
@@ -297,11 +295,7 @@ describe("Test Point Commands", () => {
 		expect(value).not.toBe("アイテムは持ってないよ！っ");
 		expect(value).toBe(`${ITEM_RECORDS[insert0.itemId - 1].name}と交換したよ！っ`);
 
-		const res = await UserPointItemRepositoryImpl.findAll({
-			where: {
-				status: UserPointItemStatus.UNUSED.getValue(),
-			},
-		});
+		const res = await UserPointItemRepositoryImpl.findAll();
 		expect(res.length).toBe(1);
 		expect(res[0].id).toBe(insert2.id);
 	});

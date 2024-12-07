@@ -59,6 +59,9 @@ importers:
       openai:
         specifier: ^4.71.1
         version: 4.71.1
+      reflect-metadata:
+        specifier: ^0.2.2
+        version: 0.2.2
       sequelize:
         specifier: ^6.37.5
         version: 6.37.5(mysql2@3.11.4)
