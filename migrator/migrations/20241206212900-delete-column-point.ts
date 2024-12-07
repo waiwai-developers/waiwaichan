@@ -1,5 +1,4 @@
 import type { Migration } from "@/migrator/umzug";
-import { DataTypes } from "sequelize";
 
 const TABLE_NAME = "Points";
 const COLUMN_NAME = "status";
