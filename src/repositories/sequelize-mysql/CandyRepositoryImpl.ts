@@ -1,10 +1,10 @@
-import { PointDto } from "@/src/entities/dto/PointDto";
+import { CandyDto } from "@/src/entities/dto/CandyDto";
+import { CandyCount } from "@/src/entities/vo/CandyCount";
+import { CandyExpire } from "@/src/entities/vo/CandyExpire";
 import type { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
 import { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
 import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
-import { PointCount } from "@/src/entities/vo/PointCount";
-import { PointExpire } from "@/src/entities/vo/PointExpire";
-import type { IPointRepository } from "@/src/logics/Interfaces/repositories/database/IPointRepository";
+import type { ICandyRepository } from "@/src/logics/Interfaces/repositories/database/ICandyRepository";
 import dayjs from "dayjs";
 import { injectable } from "inversify";
 import { Op } from "sequelize";
@@ -19,11 +19,11 @@ import {
 
 @injectable()
 @Table({
-	tableName: "Points",
+	tableName: "Candies",
 	timestamps: true,
 	paranoid: true,
 })
-class PointRepositoryImpl extends Model implements IPointRepository {
+class CandyRepositoryImpl extends Model implements ICandyRepository {
 	@PrimaryKey
 	@AutoIncrement
 	@Column(DataType.INTEGER)
@@ -37,8 +37,8 @@ class PointRepositoryImpl extends Model implements IPointRepository {
 	@Column(DataType.DATE)
 	declare expiredAt: Date;
 
-	async createPoint(data: PointDto): Promise<boolean> {
-		await PointRepositoryImpl.create({
+	async createCandy(data: CandyDto): Promise<boolean> {
+		await CandyRepositoryImpl.create({
 			receiveUserId: data.receiveUserId.getValue(),
 			giveUserId: data.giveUserId.getValue(),
 			messageId: data.messageId.getValue(),
@@ -47,17 +47,17 @@ class PointRepositoryImpl extends Model implements IPointRepository {
 		return true;
 	}
 
-	async pointCount(userId: DiscordUserId): Promise<PointCount> {
-		return PointRepositoryImpl.count({
+	async candyCount(userId: DiscordUserId): Promise<CandyCount> {
+		return CandyRepositoryImpl.count({
 			where: {
 				receiveUserId: userId.getValue(),
 				expiredAt: { [Op.gt]: dayjs().toDate() },
 			},
-		}).then((c) => new PointCount(c));
+		}).then((c) => new CandyCount(c));
 	}
 
-	async countByToday(userId: DiscordUserId): Promise<PointCount> {
-		return PointRepositoryImpl.count({
+	async countByToday(userId: DiscordUserId): Promise<CandyCount> {
+		return CandyRepositoryImpl.count({
 			where: {
 				giveUserId: userId.getValue(),
 				createdAt: {
@@ -68,25 +68,25 @@ class PointRepositoryImpl extends Model implements IPointRepository {
 						.toDate(),
 				},
 			},
-		}).then((c) => new PointCount(c));
+		}).then((c) => new CandyCount(c));
 	}
 
-	async ConsumePoints(
+	async ConsumeCandies(
 		userId: DiscordUserId,
-		points: PointCount = new PointCount(1),
+		Candies: CandyCount = new CandyCount(1),
 	): Promise<boolean> {
-		return PointRepositoryImpl.destroy({
+		return CandyRepositoryImpl.destroy({
 			where: {
 				receiveUserId: userId.getValue(),
 			},
-			limit: points.getValue(),
-		}).then((res) => res === points.getValue());
+			limit: Candies.getValue(),
+		}).then((res) => res === Candies.getValue());
 	}
 	async findByGiverAndMessageId(
 		giver: DiscordChannelId,
 		messageId: DiscordMessageId,
-	): Promise<Array<PointDto>> {
-		return PointRepositoryImpl.findAll({
+	): Promise<Array<CandyDto>> {
+		return CandyRepositoryImpl.findAll({
 			where: {
 				giveUserId: giver.getValue(),
 				messageId: messageId.getValue(),
@@ -98,13 +98,13 @@ class PointRepositoryImpl extends Model implements IPointRepository {
 		giveUserId,
 		messageId,
 		expiredAt,
-	}: PointRepositoryImpl): PointDto {
-		return new PointDto(
+	}: CandyRepositoryImpl): CandyDto {
+		return new CandyDto(
 			new DiscordUserId(receiveUserId),
 			new DiscordUserId(giveUserId),
 			new DiscordMessageId(messageId),
-			new PointExpire(expiredAt),
+			new CandyExpire(expiredAt),
 		);
 	}
 }
-export { PointRepositoryImpl };
+export { CandyRepositoryImpl };

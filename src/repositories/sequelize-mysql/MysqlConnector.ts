@@ -1,10 +1,10 @@
 import { GetEnvDBConfig } from "@/src/entities/config/DatabaseConfig";
 import type { IDataBaseConnector } from "@/src/logics/Interfaces/repositories/database/IDataBaseConnector";
-import { PointItemRepositoryImpl } from "@/src/repositories/sequelize-mysql/PointItemRepositoryImpl";
-import { PointRepositoryImpl } from "@/src/repositories/sequelize-mysql/PointRepositoryImpl";
+import { CandyItemRepositoryImpl } from "@/src/repositories/sequelize-mysql/CandyItemRepositoryImpl";
+import { CandyRepositoryImpl } from "@/src/repositories/sequelize-mysql/CandyRepositoryImpl";
 import { ReminderRepositoryImpl } from "@/src/repositories/sequelize-mysql/ReminderRepositoryImpl";
 import { SequelizeLogger } from "@/src/repositories/sequelize-mysql/SequelizeLogger";
-import { UserPointItemRepositoryImpl } from "@/src/repositories/sequelize-mysql/UserPointItemRepositoryImpl";
+import { UserCandyItemRepositoryImpl } from "@/src/repositories/sequelize-mysql/UserCandyItemRepositoryImpl";
 import { injectable } from "inversify";
 import type { Dialect } from "sequelize";
 import { Sequelize } from "sequelize-typescript";
@@ -25,9 +25,9 @@ export class MysqlConnector implements IDataBaseConnector<Sequelize, "mysql"> {
 				dialect: dbConfig.dialect as Dialect,
 				logging: SequelizeLogger,
 				models: [
-					PointRepositoryImpl,
-					PointItemRepositoryImpl,
-					UserPointItemRepositoryImpl,
+					CandyRepositoryImpl,
+					CandyItemRepositoryImpl,
+					UserCandyItemRepositoryImpl,
 					ReminderRepositoryImpl,
 				],
 			},

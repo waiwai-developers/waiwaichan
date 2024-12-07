@@ -1,13 +1,13 @@
 import { ReminderRepositoryImpl } from "@/src/repositories/sequelize-mysql/ReminderRepositoryImpl";
 import { ReminderSchedulerRepositoryImpl } from "@/src/repositories/sequelize-mysql/ReminderSchedulerRepositoryImpl";
-import { PointItemRepositoryImpl } from "./PointItemRepositoryImpl";
-import { PointRepositoryImpl } from "./PointRepositoryImpl";
-import { UserPointItemRepositoryImpl } from "./UserPointItemRepositoryImpl";
+import { CandyItemRepositoryImpl } from "./CandyItemRepositoryImpl";
+import { CandyRepositoryImpl } from "./CandyRepositoryImpl";
+import { UserCandyItemRepositoryImpl } from "./UserCandyItemRepositoryImpl";
 
 export {
 	ReminderRepositoryImpl,
 	ReminderSchedulerRepositoryImpl,
-	PointItemRepositoryImpl,
-	PointRepositoryImpl,
-	UserPointItemRepositoryImpl,
+	CandyItemRepositoryImpl,
+	CandyRepositoryImpl,
+	UserCandyItemRepositoryImpl,
 };

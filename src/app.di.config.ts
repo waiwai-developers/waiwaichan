@@ -7,10 +7,10 @@ import {
 	MinecraftStartCommandHandler,
 	MinecraftStopCommandHandler,
 	ParrotCommandHandler,
-	PointCheckCommandHandler,
-	PointDrawCommandHandler,
-	PointExchangeCommandHandler,
-	PointItemCommandHandler,
+	CandyCheckCommandHandler,
+	CandyDrawCommandHandler,
+	CandyExchangeCommandHandler,
+	CandyItemCommandHandler,
 	ReminderDeleteCommandHandler,
 	ReminderListCommandHandler,
 	ReminderSetCommandHandler,
@@ -25,10 +25,11 @@ import { AIReplyHandler } from "@/src/handlers/discord.js/events/AIReplyHandler"
 import { CandyReactionHandler } from "@/src/handlers/discord.js/events/CandyReactionHandler";
 import type { DiscordEventHandler } from "@/src/handlers/discord.js/events/DiscordEventHandler";
 import type { ReactionInteraction } from "@/src/handlers/discord.js/events/DiscordEventHandler";
+import { CandyLogic } from "@/src/logics/CandyLogic";
 import { ChatAILogic } from "@/src/logics/ChatAILogic";
 import type { IChatAILogic } from "@/src/logics/Interfaces/logics/IChatAILogic";
 import type { IMinecraftServerLogic } from "@/src/logics/Interfaces/logics/IMinecraftServerLogic";
-import type { IPointLogic } from "@/src/logics/Interfaces/logics/IPointLogic";
+import type { ICandyLogic } from "@/src/logics/Interfaces/logics/ICandyLogic";
 import type { IPullRequestLogic } from "@/src/logics/Interfaces/logics/IPullRequestLogic";
 import type { IReminderLogic } from "@/src/logics/Interfaces/logics/IReminderLogic";
 import type { ITranslatorLogic } from "@/src/logics/Interfaces/logics/ITranslatorLogic";
@@ -36,15 +37,14 @@ import type { IUtilityLogic } from "@/src/logics/Interfaces/logics/IUtilityLogic
 import type { IChatAIRepository } from "@/src/logics/Interfaces/repositories/chataiapi/IChatAIRepository";
 import type { IVirtualMachineAPI } from "@/src/logics/Interfaces/repositories/cloudprovider/IVirtualMachineAPI";
 import type { IDataBaseConnector } from "@/src/logics/Interfaces/repositories/database/IDataBaseConnector";
-import type { IPointItemRepository } from "@/src/logics/Interfaces/repositories/database/IPointItemRepository";
-import type { IPointRepository } from "@/src/logics/Interfaces/repositories/database/IPointRepository";
+import type { ICandyItemRepository } from "@/src/logics/Interfaces/repositories/database/ICandyItemRepository";
+import type { ICandyRepository } from "@/src/logics/Interfaces/repositories/database/ICandyRepository";
 import type { IReminderRepository } from "@/src/logics/Interfaces/repositories/database/IReminderRepository";
-import type { IUserPointItemRepository } from "@/src/logics/Interfaces/repositories/database/IUserPointItemRepository";
+import type { IUserCandyItemRepository } from "@/src/logics/Interfaces/repositories/database/IUserCandyItemRepository";
 import type { IPullRequestRepository } from "@/src/logics/Interfaces/repositories/githubapi/IPullRequestRepository";
 import type { IMutex } from "@/src/logics/Interfaces/repositories/mutex/IMutex";
 import type { ITranslatorRepository } from "@/src/logics/Interfaces/repositories/translator/ITranslatorRepository";
 import { MinecraftServerLogic } from "@/src/logics/MinecraftServerLogic";
-import { PointLogic } from "@/src/logics/PointLogic";
 import { PullRequestLogic } from "@/src/logics/PullRequestLogic";
 import { ReminderLogic } from "@/src/logics/ReminderLogic";
 import { TranslatorLogic } from "@/src/logics/TranslatorLogic";
@@ -54,7 +54,7 @@ import { DeepLTranslateRepositoryImpl } from "@/src/repositories/deeplapi/DeepLT
 import { GCPComputeEngineInstanceRepositoryImpl } from "@/src/repositories/gcpapi/GCPComputeEngineInstanceRepositoryImpl";
 import { GithubPullRequestRepositoryImpl } from "@/src/repositories/githubapi/GithubPullRequestRepositoryImpl";
 import { AwaitSemaphoreMutex } from "@/src/repositories/mutex/AwaitSemaphoreMutex";
-import { PointItemRepositoryImpl, PointRepositoryImpl, ReminderRepositoryImpl, UserPointItemRepositoryImpl } from "@/src/repositories/sequelize-mysql";
+import { CandyItemRepositoryImpl, CandyRepositoryImpl, ReminderRepositoryImpl, UserCandyItemRepositoryImpl } from "@/src/repositories/sequelize-mysql";
 import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnector";
 import { SequelizeTransaction } from "@/src/repositories/sequelize-mysql/SequelizeTransaction";
 import type { DiscordEventRouter } from "@/src/routes/discordjs/events/DiscordEventRouter";
@@ -76,9 +76,9 @@ appContainer.bind<IMutex>(RepoTypes.Mutex).to(AwaitSemaphoreMutex).inSingletonSc
 // Database
 appContainer.bind<IDataBaseConnector<Sequelize, "mysql">>(RepoTypes.DatabaseConnector).to(MysqlConnector).inSingletonScope();
 appContainer.bind<ITransaction<TransactionLike>>(RepoTypes.Transaction).to(SequelizeTransaction);
-appContainer.bind<IPointRepository>(RepoTypes.PointRepository).to(PointRepositoryImpl);
-appContainer.bind<IPointItemRepository>(RepoTypes.PointItemRepository).to(PointItemRepositoryImpl);
-appContainer.bind<IUserPointItemRepository>(RepoTypes.UserPointItemRepository).to(UserPointItemRepositoryImpl);
+appContainer.bind<ICandyRepository>(RepoTypes.CandyRepository).to(CandyRepositoryImpl);
+appContainer.bind<ICandyItemRepository>(RepoTypes.CandyItemRepository).to(CandyItemRepositoryImpl);
+appContainer.bind<IUserCandyItemRepository>(RepoTypes.UserCandyItemRepository).to(UserCandyItemRepositoryImpl);
 appContainer.bind<IReminderRepository>(RepoTypes.ReminderRepository).to(ReminderRepositoryImpl);
 
 // ChatGPT
@@ -93,7 +93,7 @@ appContainer.bind<IPullRequestRepository>(RepoTypes.PullRequestRepository).to(Gi
 // Logics
 appContainer.bind<IChatAILogic>(LogicTypes.ChatAILogic).to(ChatAILogic);
 appContainer.bind<IMinecraftServerLogic>(LogicTypes.MinecraftServerLogic).to(MinecraftServerLogic);
-appContainer.bind<IPointLogic>(LogicTypes.PointLogic).to(PointLogic);
+appContainer.bind<ICandyLogic>(LogicTypes.CandyLogic).to(CandyLogic);
 appContainer.bind<IReminderLogic>(LogicTypes.ReminderLogic).to(ReminderLogic);
 appContainer.bind<IPullRequestLogic>(LogicTypes.PullRequestLogic).to(PullRequestLogic);
 appContainer.bind<ITranslatorLogic>(LogicTypes.TranslateLogic).to(TranslatorLogic);
@@ -112,10 +112,10 @@ appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(Talk
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(ReminderSetCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(ReminderListCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(ReminderDeleteCommandHandler);
-appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(PointCheckCommandHandler);
-appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(PointDrawCommandHandler);
-appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(PointItemCommandHandler);
-appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(PointExchangeCommandHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(CandyCheckCommandHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(CandyDrawCommandHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(CandyItemCommandHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(CandyExchangeCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(ReviewGachaCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(ReviewListCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(MinecraftStartCommandHandler);
