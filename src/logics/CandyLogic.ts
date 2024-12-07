@@ -6,32 +6,32 @@ import {
 	PROBABILITY_HIT,
 	PROBABILITY_JACKPOT,
 } from "@/src/entities/constants/Items";
-import { PointDto } from "@/src/entities/dto/PointDto";
-import { UserPointItemDto } from "@/src/entities/dto/UserPointItemDto";
+import { CandyDto } from "@/src/entities/dto/CandyDto";
+import { UserCandyItemDto } from "@/src/entities/dto/UserCandyItemDto";
+import { CandyExpire } from "@/src/entities/vo/CandyExpire";
+import { CandyItemId } from "@/src/entities/vo/CandyItemId";
 import type { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
 import type { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
-import { PointExpire } from "@/src/entities/vo/PointExpire";
-import { PointItemId } from "@/src/entities/vo/PointItemId";
-import { UserPointItemExpire } from "@/src/entities/vo/UserPointItemExpire";
-import { UserPointItemId } from "@/src/entities/vo/UserPointItemId";
-import type { IPointLogic } from "@/src/logics/Interfaces/logics/IPointLogic";
-import type { IPointItemRepository } from "@/src/logics/Interfaces/repositories/database/IPointItemRepository";
-import type { IPointRepository } from "@/src/logics/Interfaces/repositories/database/IPointRepository";
-import type { IUserPointItemRepository } from "@/src/logics/Interfaces/repositories/database/IUserPointItemRepository";
+import { UserCandyItemExpire } from "@/src/entities/vo/UserCandyItemExpire";
+import { UserCandyItemId } from "@/src/entities/vo/UserCandyItemId";
+import type { ICandyLogic } from "@/src/logics/Interfaces/logics/ICandyLogic";
+import type { ICandyItemRepository } from "@/src/logics/Interfaces/repositories/database/ICandyItemRepository";
+import type { ICandyRepository } from "@/src/logics/Interfaces/repositories/database/ICandyRepository";
+import type { IUserCandyItemRepository } from "@/src/logics/Interfaces/repositories/database/IUserCandyItemRepository";
 import type { IMutex } from "@/src/logics/Interfaces/repositories/mutex/IMutex";
 import dayjs from "dayjs";
 import { inject, injectable } from "inversify";
 
 @injectable()
-export class PointLogic implements IPointLogic {
-	@inject(RepoTypes.PointRepository)
-	private readonly pointRepository!: IPointRepository;
+export class CandyLogic implements ICandyLogic {
+	@inject(RepoTypes.CandyRepository)
+	private readonly candyRepository!: ICandyRepository;
 
-	@inject(RepoTypes.PointItemRepository)
-	private readonly pointItemRepository!: IPointItemRepository;
+	@inject(RepoTypes.CandyItemRepository)
+	private readonly candyItemRepository!: ICandyItemRepository;
 
-	@inject(RepoTypes.UserPointItemRepository)
-	private readonly userPointItemRepository!: IUserPointItemRepository;
+	@inject(RepoTypes.UserCandyItemRepository)
+	private readonly userCandyItemRepository!: IUserCandyItemRepository;
 
 	@inject(RepoTypes.Transaction)
 	private readonly transaction!: ITransaction<TransactionLike>;
@@ -42,31 +42,31 @@ export class PointLogic implements IPointLogic {
 	async check(userId: DiscordUserId): Promise<string> {
 		return this.transaction
 			.startTransaction(async () => {
-				return this.pointRepository.pointCount(userId);
+				return this.candyRepository.candyCount(userId);
 			})
-			.then((point) => {
-				if (point.getValue() <= 0) {
+			.then((candy) => {
+				if (candy.getValue() <= 0) {
 					return "ポイントがないよ！っ";
 				}
 
-				return `${point.getValue()}ポイントあるよ！っ`;
+				return `${candy.getValue()}ポイントあるよ！っ`;
 			});
 	}
 
 	async exchange(
 		userId: DiscordUserId,
-		userPointItemId: UserPointItemId,
+		userCandyItemId: UserCandyItemId,
 	): Promise<string> {
 		return this.transaction
 			.startTransaction(async (t) => {
-				return this.userPointItemRepository
-					.exchangeById(userPointItemId, userId)
+				return this.userCandyItemRepository
+					.exchangeById(userCandyItemId, userId)
 					.then(async (updated) => {
 						if (!updated) {
 							await t.rollback();
 							return "アイテムは持ってないよ！っ";
 						}
-						const item = await this.pointItemRepository.findById(
+						const item = await this.candyItemRepository.findById(
 							updated.itemId,
 						);
 						if (item == null) {
@@ -80,8 +80,8 @@ export class PointLogic implements IPointLogic {
 
 	async drawItem(userId: DiscordUserId): Promise<string> {
 		return await this.transaction.startTransaction(async () => {
-			return this.pointRepository
-				.ConsumePoints(userId)
+			return this.candyRepository
+				.ConsumeCandies(userId)
 				.then(async (success) => {
 					if (!success) {
 						return "ポイントがないよ！っ";
@@ -95,21 +95,21 @@ export class PointLogic implements IPointLogic {
 					) {
 						return "ハズレちゃったよ！っ";
 					}
-					const hitId = new PointItemId(
+					const hitId = new CandyItemId(
 						randomNum % PROBABILITY_JACKPOT === 0 ? ID_JACKPOT : ID_HIT,
 					);
 					//TODO: this creation require just user and hit id
-					await this.userPointItemRepository.create(
-						new UserPointItemDto(
-							new UserPointItemId(0),
+					await this.userCandyItemRepository.create(
+						new UserCandyItemDto(
+							new UserCandyItemId(0),
 							userId,
 							hitId,
-							new UserPointItemExpire(
+							new UserCandyItemExpire(
 								dayjs().add(1, "day").add(1, "year").startOf("day").toDate(),
 							),
 						),
 					);
-					const item = await this.pointItemRepository.findById(hitId);
+					const item = await this.candyItemRepository.findById(hitId);
 					return `${item?.name.getValue()}が当たったよ${randomNum % PROBABILITY_JACKPOT === 0 ? "👕" : "🍭"}！っ`;
 				});
 		});
@@ -117,11 +117,11 @@ export class PointLogic implements IPointLogic {
 
 	async getItems(userId: DiscordUserId): Promise<string> {
 		return this.transaction.startTransaction(async () => {
-			const userPointItems =
-				await this.userPointItemRepository.findByNotUsed(userId);
+			const userCandyItems =
+				await this.userCandyItemRepository.findByNotUsed(userId);
 
-			if (userPointItems.length === 0) return "アイテムは持ってないよ！っ";
-			const texts = userPointItems.flatMap((u) => [
+			if (userCandyItems.length === 0) return "アイテムは持ってないよ！っ";
+			const texts = userCandyItems.flatMap((u) => [
 				`- id: ${u.id.getValue()}`,
 				`  - ${u.name.getValue()}`,
 				`  - ${u.description.getValue()}`,
@@ -130,7 +130,7 @@ export class PointLogic implements IPointLogic {
 			return ["以下のアイテムが交換できるよ！っ", ...texts].join("\n");
 		});
 	}
-	async givePoint(
+	async giveCandy(
 		receiver: DiscordUserId,
 		giver: DiscordUserId,
 		messageId: DiscordMessageId,
@@ -138,34 +138,34 @@ export class PointLogic implements IPointLogic {
 		if (receiver.getValue() === giver.getValue()) {
 			return;
 		}
-		return this.mutex.useMutex("GivePoint", async () =>
+		return this.mutex.useMutex("GiveCandy", async () =>
 			this.transaction.startTransaction(async () => {
-				const todayCount = await this.pointRepository.countByToday(giver);
+				const todayCount = await this.candyRepository.countByToday(giver);
 				// reaction limit
 				// todo reaction limit to constant
 				if (todayCount.getValue() > 2) {
 					return "今はスタンプを押してもポイントをあげられないよ！っ";
 				}
 
-				const points = await this.pointRepository.findByGiverAndMessageId(
+				const Candies = await this.candyRepository.findByGiverAndMessageId(
 					giver,
 					messageId,
 				);
 				// duplicate reaction
-				if (points.length > 0) {
+				if (Candies.length > 0) {
 					return;
 				}
-				await this.pointRepository.createPoint(
-					new PointDto(
+				await this.candyRepository.createCandy(
+					new CandyDto(
 						receiver,
 						giver,
 						messageId,
-						new PointExpire(
+						new CandyExpire(
 							dayjs().add(1, "day").add(1, "month").startOf("day").toDate(),
 						),
 					),
 				);
-				return `<@${giver.getValue()}>さんが${AppConfig.backend.pointEmoji}スタンプを押したよ！！っ`;
+				return `<@${giver.getValue()}>さんが${AppConfig.backend.candyEmoji}スタンプを押したよ！！っ`;
 			}),
 		);
 	}

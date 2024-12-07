@@ -6,16 +6,15 @@ import type {
 	DiscordEventHandler,
 	ReactionInteraction,
 } from "@/src/handlers/discord.js/events/DiscordEventHandler";
-import type { IChatAILogic } from "@/src/logics/Interfaces/logics/IChatAILogic";
-import type { IPointLogic } from "@/src/logics/Interfaces/logics/IPointLogic";
+import type { ICandyLogic } from "@/src/logics/Interfaces/logics/ICandyLogic";
 import { inject, injectable } from "inversify";
 
 @injectable()
 export class CandyReactionHandler
 	implements DiscordEventHandler<ReactionInteraction>
 {
-	@inject(LogicTypes.PointLogic)
-	private pointLogic!: IPointLogic;
+	@inject(LogicTypes.CandyLogic)
+	private candyLogic!: ICandyLogic;
 
 	async handle({ reaction, user }: ReactionInteraction): Promise<void> {
 		if (reaction.partial) {
@@ -45,12 +44,12 @@ export class CandyReactionHandler
 			return;
 		}
 
-		if (reaction.emoji.name !== AppConfig.backend.pointEmoji) {
+		if (reaction.emoji.name !== AppConfig.backend.candyEmoji) {
 			console.log("not peer bonus emoji");
 			return;
 		}
 
-		const res = await this.pointLogic.givePoint(
+		const res = await this.candyLogic.giveCandy(
 			new DiscordUserId(reaction.message.author.id),
 			new DiscordUserId(user.id),
 			new DiscordMessageId(reaction.message.id),

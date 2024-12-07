@@ -97,17 +97,17 @@ export class DiscordCommandRegister {
 				.setName("reminderlist")
 				.setDescription("reminder string"),
 			new SlashCommandBuilder()
-				.setName("pointcheck")
-				.setDescription("pointcheck"),
+				.setName("candycheck")
+				.setDescription("candycheck"),
 			new SlashCommandBuilder()
-				.setName("pointdraw")
-				.setDescription("pointdraw"),
+				.setName("candydraw")
+				.setDescription("candydraw"),
 			new SlashCommandBuilder()
-				.setName("pointitem")
-				.setDescription("pointitem"),
+				.setName("candyitem")
+				.setDescription("candyitem"),
 			new SlashCommandBuilder()
-				.setName("pointchange")
-				.setDescription("pointchange")
+				.setName("candychange")
+				.setDescription("candychange")
 				.addIntegerOption((option) =>
 					option.setName("id").setDescription("integer").setRequired(true),
 				),
