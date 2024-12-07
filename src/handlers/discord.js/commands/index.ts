@@ -4,10 +4,10 @@ import { HelpCommandHandler } from "@/src/handlers/discord.js/commands/HelpComma
 import { MinecraftStartCommandHandler } from "@/src/handlers/discord.js/commands/MinecraftStartCommandHandler";
 import { MinecraftStopCommandHandler } from "@/src/handlers/discord.js/commands/MinecraftStopCommandHandler";
 import { ParrotCommandHandler } from "@/src/handlers/discord.js/commands/ParrotCommandHandler";
-import { PointCheckCommandHandler } from "@/src/handlers/discord.js/commands/PointCheckCommandHandler";
-import { PointDrawCommandHandler } from "@/src/handlers/discord.js/commands/PointDrawCommandHandler";
-import { PointExchangeCommandHandler } from "@/src/handlers/discord.js/commands/PointExchangeCommandHandler";
-import { PointItemCommandHandler } from "@/src/handlers/discord.js/commands/PointItemCommandHandler";
+import { CandyCheckCommandHandler } from "@/src/handlers/discord.js/commands/CandyCheckCommandHandler";
+import { CandyDrawCommandHandler } from "@/src/handlers/discord.js/commands/CandyDrawCommandHandler";
+import { CandyExchangeCommandHandler } from "@/src/handlers/discord.js/commands/CandyExchangeCommandHandler";
+import { CandyItemCommandHandler } from "@/src/handlers/discord.js/commands/CandyItemCommandHandler";
 import { ReminderDeleteCommandHandler } from "@/src/handlers/discord.js/commands/ReminderDeleteCommandHandler";
 import { ReminderListCommandHandler } from "@/src/handlers/discord.js/commands/ReminderListCommandHandler";
 import { ReminderSetCommandHandler } from "@/src/handlers/discord.js/commands/ReminderSetCommandHandler";
@@ -28,10 +28,10 @@ export {
 	MinecraftStartCommandHandler,
 	MinecraftStopCommandHandler,
 	ParrotCommandHandler,
-	PointCheckCommandHandler,
-	PointExchangeCommandHandler,
-	PointDrawCommandHandler,
-	PointItemCommandHandler,
+	CandyCheckCommandHandler,
+	CandyExchangeCommandHandler,
+	CandyDrawCommandHandler,
+	CandyItemCommandHandler,
 	TalkCommandHandler,
 	TranslateCommandHandler,
 	WaiwaiCommandHandler,

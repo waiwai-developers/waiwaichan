@@ -31,10 +31,16 @@ export class TalkCommandHandler implements SlashCommandHandler {
 
 		const title = interaction.options.getString("title", true);
 
-		await interaction.reply("以下にお話する場を用意したよ！っ");
-		await interaction.channel.threads.create({
-			name: title,
-			autoArchiveDuration: 60,
-		});
+		await interaction
+			.reply({
+				content: "以下にお話する場を用意したよ！っ",
+				fetchReply: true,
+			})
+			.then((reply) => {
+				reply.startThread({
+					name: title,
+					autoArchiveDuration: 60,
+				});
+			});
 	}
 }

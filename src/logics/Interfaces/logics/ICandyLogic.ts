@@ -1,16 +1,16 @@
 import type { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
 import type { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
-import type { UserPointItemId } from "@/src/entities/vo/UserPointItemId";
+import type { UserCandyItemId } from "@/src/entities/vo/UserCandyItemId";
 
-export interface IPointLogic {
+export interface ICandyLogic {
 	check(userId: DiscordUserId): Promise<string>;
 	exchange(
 		userId: DiscordUserId,
-		userPointItemId: UserPointItemId,
+		userCandyItemId: UserCandyItemId,
 	): Promise<string>;
 	drawItem(userId: DiscordUserId): Promise<string>;
 	getItems(userId: DiscordUserId): Promise<string>;
-	givePoint(
+	giveCandy(
 		receiver: DiscordUserId,
 		giver: DiscordUserId,
 		messageId: DiscordMessageId,

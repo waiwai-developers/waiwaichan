@@ -35,7 +35,7 @@ interface AppConfigJson {
 	github: GithubConfig;
 	gcp: GCPInstanceConfig;
 	backend: {
-		pointEmoji: string;
+		candyEmoji: string;
 	};
 }
 

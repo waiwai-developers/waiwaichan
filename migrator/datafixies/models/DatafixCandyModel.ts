@@ -8,9 +8,9 @@ import {
 } from "sequelize-typescript";
 
 @Table({
-	tableName: "Points",
+	tableName: "Candies",
 })
-class DatafixPointModel extends Model {
+class DatafixCandyModel extends Model {
 	@PrimaryKey
 	@AutoIncrement
 	@Column(DataType.INTEGER)
@@ -31,4 +31,4 @@ class DatafixPointModel extends Model {
 	declare deletedAt: Date;
 }
 
-export { DatafixPointModel };
+export { DatafixCandyModel };
