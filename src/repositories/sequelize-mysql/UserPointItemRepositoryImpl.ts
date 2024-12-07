@@ -6,7 +6,6 @@ import { PointItemId } from "@/src/entities/vo/PointItemId";
 import { PointItemName } from "@/src/entities/vo/PointItemName";
 import { UserPointItemExpire } from "@/src/entities/vo/UserPointItemExpire";
 import { UserPointItemId } from "@/src/entities/vo/UserPointItemId";
-import { UserPointItemStatus } from "@/src/entities/vo/UserPointItemStatus";
 import type { IUserPointItemRepository } from "@/src/logics/Interfaces/repositories/database/IUserPointItemRepository";
 import dayjs from "dayjs";
 import { injectable } from "inversify";
@@ -42,8 +41,6 @@ class UserPointItemRepositoryImpl
 	@Column(DataType.STRING)
 	@ForeignKey(() => PointItemRepositoryImpl)
 	declare itemId: number;
-	@Column(DataType.STRING)
-	declare status: boolean;
 	@Column(DataType.DATE)
 	declare expiredAt: Date;
 
@@ -54,20 +51,17 @@ class UserPointItemRepositoryImpl
 		return UserPointItemRepositoryImpl.create({
 			userId: data.userId.getValue(),
 			itemId: data.itemId.getValue(),
-			status: data.status.getValue(),
 			expiredAt: data.expiredAt.getValue(),
 		}).then((res) => new UserPointItemId(res.id));
 	}
 
 	async findByNotUsed(
 		userId: DiscordUserId,
-		userStatus: UserPointItemStatus = UserPointItemStatus.UNUSED,
 	): Promise<UserPointItemWithItemDto[]> {
 		return UserPointItemRepositoryImpl.findAll({
 			include: [PointItemRepositoryImpl],
 			where: {
 				userId: userId.getValue(),
-				status: userStatus.getValue(),
 				expiredAt: { [Op.gt]: dayjs().toDate() },
 			},
 		}).then((r) =>
@@ -96,12 +90,12 @@ class UserPointItemRepositoryImpl
 				id: id.getValue(),
 				userId: userId.getValue(),
 				expiredAt: { [Op.gt]: dayjs().toDate() },
-			}
+			},
 		}).then((res) => {
 			if (res === null) {
 				throw Error("no item deleted");
 			}
-			res.destroy()
+			res.destroy();
 			return res ? this.toDto(res) : null;
 		});
 	}
@@ -110,14 +104,12 @@ class UserPointItemRepositoryImpl
 		id,
 		userId,
 		itemId,
-		status,
 		expiredAt,
 	}: UserPointItemRepositoryImpl): UserPointItemDto {
 		return new UserPointItemDto(
 			new UserPointItemId(id),
 			new DiscordUserId(userId),
 			new PointItemId(itemId),
-			new UserPointItemStatus(status),
 			new UserPointItemExpire(expiredAt),
 		);
 	}
