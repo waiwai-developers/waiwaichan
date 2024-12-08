@@ -1,4 +1,5 @@
 import type {
+	Client,
 	MessageReaction,
 	MessageReactionEventDetails,
 	PartialMessageReaction,
@@ -7,6 +8,7 @@ import type {
 } from "discord.js";
 
 export type ReactionInteraction = {
+	client: Client;
 	reaction: MessageReaction | PartialMessageReaction;
 	user: User | PartialUser;
 	details: MessageReactionEventDetails;

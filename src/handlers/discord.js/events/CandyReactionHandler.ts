@@ -8,6 +8,7 @@ import type {
 } from "@/src/handlers/discord.js/events/DiscordEventHandler";
 import type { ICandyLogic } from "@/src/logics/Interfaces/logics/ICandyLogic";
 import { inject, injectable } from "inversify";
+import {TextChannel } from "discord.js";
 
 @injectable()
 export class CandyReactionHandler
@@ -16,7 +17,7 @@ export class CandyReactionHandler
 	@inject(LogicTypes.CandyLogic)
 	private candyLogic!: ICandyLogic;
 
-	async handle({ reaction, user }: ReactionInteraction): Promise<void> {
+	async handle({ client, reaction, user }: ReactionInteraction): Promise<void> {
 		if (reaction.partial) {
 			try {
 				await reaction.fetch();
@@ -58,6 +59,11 @@ export class CandyReactionHandler
 		if (!res) {
 			return;
 		}
-		await reaction.message.reply(res);
+		const channel = client.channels.cache.get(AppConfig.backend.candyLogChannel)
+
+		if (!(channel instanceof TextChannel)) {
+			return
+		}
+		await channel.send(res);
 	}
 }
