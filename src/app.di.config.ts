@@ -1,16 +1,16 @@
 import { LogicTypes, RepoTypes, RouteTypes } from "@/src/entities/constants/DIContainerTypes";
 import { HandlerTypes } from "@/src/entities/constants/DIContainerTypes";
 import {
+	CandyCheckCommandHandler,
+	CandyDrawCommandHandler,
+	CandyExchangeCommandHandler,
+	CandyItemCommandHandler,
 	ChoiceCommandHandler,
 	DiceCommandHandler,
 	HelpCommandHandler,
 	MinecraftStartCommandHandler,
 	MinecraftStopCommandHandler,
 	ParrotCommandHandler,
-	CandyCheckCommandHandler,
-	CandyDrawCommandHandler,
-	CandyExchangeCommandHandler,
-	CandyItemCommandHandler,
 	ReminderDeleteCommandHandler,
 	ReminderListCommandHandler,
 	ReminderSetCommandHandler,
@@ -27,18 +27,18 @@ import type { DiscordEventHandler } from "@/src/handlers/discord.js/events/Disco
 import type { ReactionInteraction } from "@/src/handlers/discord.js/events/DiscordEventHandler";
 import { CandyLogic } from "@/src/logics/CandyLogic";
 import { ChatAILogic } from "@/src/logics/ChatAILogic";
+import type { ICandyLogic } from "@/src/logics/Interfaces/logics/ICandyLogic";
 import type { IChatAILogic } from "@/src/logics/Interfaces/logics/IChatAILogic";
 import type { IMinecraftServerLogic } from "@/src/logics/Interfaces/logics/IMinecraftServerLogic";
-import type { ICandyLogic } from "@/src/logics/Interfaces/logics/ICandyLogic";
 import type { IPullRequestLogic } from "@/src/logics/Interfaces/logics/IPullRequestLogic";
 import type { IReminderLogic } from "@/src/logics/Interfaces/logics/IReminderLogic";
 import type { ITranslatorLogic } from "@/src/logics/Interfaces/logics/ITranslatorLogic";
 import type { IUtilityLogic } from "@/src/logics/Interfaces/logics/IUtilityLogic";
 import type { IChatAIRepository } from "@/src/logics/Interfaces/repositories/chataiapi/IChatAIRepository";
 import type { IVirtualMachineAPI } from "@/src/logics/Interfaces/repositories/cloudprovider/IVirtualMachineAPI";
-import type { IDataBaseConnector } from "@/src/logics/Interfaces/repositories/database/IDataBaseConnector";
 import type { ICandyItemRepository } from "@/src/logics/Interfaces/repositories/database/ICandyItemRepository";
 import type { ICandyRepository } from "@/src/logics/Interfaces/repositories/database/ICandyRepository";
+import type { IDataBaseConnector } from "@/src/logics/Interfaces/repositories/database/IDataBaseConnector";
 import type { IReminderRepository } from "@/src/logics/Interfaces/repositories/database/IReminderRepository";
 import type { IUserCandyItemRepository } from "@/src/logics/Interfaces/repositories/database/IUserCandyItemRepository";
 import type { IPullRequestRepository } from "@/src/logics/Interfaces/repositories/githubapi/IPullRequestRepository";

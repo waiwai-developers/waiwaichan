@@ -7,8 +7,8 @@ import type {
 	ReactionInteraction,
 } from "@/src/handlers/discord.js/events/DiscordEventHandler";
 import type { ICandyLogic } from "@/src/logics/Interfaces/logics/ICandyLogic";
+import { TextChannel } from "discord.js";
 import { inject, injectable } from "inversify";
-import {TextChannel } from "discord.js";
 
 @injectable()
 export class CandyReactionHandler
@@ -59,10 +59,12 @@ export class CandyReactionHandler
 		if (!res) {
 			return;
 		}
-		const channel = client.channels.cache.get(AppConfig.backend.candyLogChannel)
+		const channel = client.channels.cache.get(
+			AppConfig.backend.candyLogChannel,
+		);
 
 		if (!(channel instanceof TextChannel)) {
-			return
+			return;
 		}
 		await channel.send(res);
 	}
