@@ -165,7 +165,7 @@ export class CandyLogic implements ICandyLogic {
 						),
 					),
 				);
-				return `<@${giver.getValue()}>さんが${AppConfig.backend.candyEmoji}スタンプを押したよ！！っ`;
+				return `<@${giver.getValue()}>さんが<@${receiver.getValue()}>さんに${AppConfig.backend.candyEmoji}スタンプを押したよ！！っ`;
 			}),
 		);
 	}

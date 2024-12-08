@@ -26,6 +26,7 @@
 		"instance": ""
 	},
 	"backend": {
-		"candyEmoji": ""
+		"candyEmoji": "",
+		"candyLogChannel": ""
 	}
 }
