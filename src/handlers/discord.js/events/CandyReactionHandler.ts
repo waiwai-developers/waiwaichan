@@ -17,7 +17,7 @@ export class CandyReactionHandler
 	@inject(LogicTypes.CandyLogic)
 	private candyLogic!: ICandyLogic;
 
-	async handle({ client, reaction, user }: ReactionInteraction): Promise<void> {
+	async handle({ reaction, user }: ReactionInteraction): Promise<void> {
 		if (reaction.partial) {
 			try {
 				await reaction.fetch();
