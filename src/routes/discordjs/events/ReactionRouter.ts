@@ -13,9 +13,7 @@ export class ReactionRouter implements DiscordEventRouter {
 	private readonly handlers!: DiscordEventHandler<ReactionInteraction>[];
 	register(client: Client): void {
 		client.on("messageReactionAdd", (reaction, user, details) => {
-			this.handlers.forEach((h) =>
-				h.handle({ reaction, user, details }),
-			);
+			this.handlers.forEach((h) => h.handle({ reaction, user, details }));
 		});
 	}
 }

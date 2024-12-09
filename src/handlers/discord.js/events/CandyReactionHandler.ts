@@ -61,7 +61,9 @@ export class CandyReactionHandler
 			return;
 		}
 
-		const channel = reaction.message.guild?.channels.cache.get(AppConfig.backend.candyLogChannel);
+		const channel = reaction.message.guild?.channels.cache.get(
+			AppConfig.backend.candyLogChannel,
+		);
 
 		if (!(channel instanceof TextChannel)) {
 			return;
