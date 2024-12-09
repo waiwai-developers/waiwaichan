@@ -22,6 +22,7 @@ export class CandyReactionHandler
 			try {
 				await reaction.fetch();
 				await reaction.message.fetch();
+				await reaction.message.guild?.channels.fetch();
 			} catch (err) {
 				console.log("fail to fetch old message");
 				return;
@@ -59,9 +60,8 @@ export class CandyReactionHandler
 		if (!res) {
 			return;
 		}
-		const channel = client.channels.cache.get(
-			AppConfig.backend.candyLogChannel,
-		);
+
+		const channel = reaction.message.guild?.channels.cache.get(AppConfig.backend.candyLogChannel);
 
 		if (!(channel instanceof TextChannel)) {
 			return;
