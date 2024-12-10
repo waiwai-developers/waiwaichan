@@ -13,6 +13,7 @@ export const RepoTypes = {
 	SequelizeModels: Symbol.for("SequelizeModels"),
 };
 export const LogicTypes = {
+	ThreadLogic: Symbol.for("ThreadLogic"),
 	ChatAILogic: Symbol.for("ChatAILogic"),
 	MinecraftServerLogic: Symbol.for("MinecraftServerLogic"),
 	CandyLogic: Symbol.for("CandyLogic"),
