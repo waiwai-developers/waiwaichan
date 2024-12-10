@@ -7,6 +7,7 @@ import type {
 	ReactionInteraction,
 } from "@/src/handlers/discord.js/events/DiscordEventHandler";
 import type { ICandyLogic } from "@/src/logics/Interfaces/logics/ICandyLogic";
+import { TextChannel } from "discord.js";
 import { inject, injectable } from "inversify";
 
 @injectable()
@@ -21,6 +22,7 @@ export class CandyReactionHandler
 			try {
 				await reaction.fetch();
 				await reaction.message.fetch();
+				await reaction.message.guild?.channels.fetch();
 			} catch (err) {
 				console.log("fail to fetch old message");
 				return;
@@ -58,6 +60,14 @@ export class CandyReactionHandler
 		if (!res) {
 			return;
 		}
-		await reaction.message.reply(res);
+
+		const channel = reaction.message.guild?.channels.cache.get(
+			AppConfig.backend.candyLogChannel,
+		);
+
+		if (!(channel instanceof TextChannel)) {
+			return;
+		}
+		await channel.send(res);
 	}
 }
