@@ -1,6 +1,7 @@
 import { AppConfig } from "@/src/entities/config/AppConfig";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
 import { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
+import { DiscordMessageLink } from "@/src/entities/vo/DiscordMessageLink";
 import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
 import type {
 	DiscordEventHandler,
@@ -55,6 +56,7 @@ export class CandyReactionHandler
 			new DiscordUserId(reaction.message.author.id),
 			new DiscordUserId(user.id),
 			new DiscordMessageId(reaction.message.id),
+			new DiscordMessageLink(reaction.message.url),
 		);
 
 		if (!res) {
