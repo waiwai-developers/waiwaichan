@@ -1,4 +1,5 @@
 import type { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
+import type { DiscordMessageLink } from "@/src/entities/vo/DiscordMessageLink";
 import type { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
 import type { UserCandyItemId } from "@/src/entities/vo/UserCandyItemId";
 
@@ -14,5 +15,6 @@ export interface ICandyLogic {
 		receiver: DiscordUserId,
 		giver: DiscordUserId,
 		messageId: DiscordMessageId,
+		messageLink: DiscordMessageLink,
 	): Promise<string | undefined>;
 }
