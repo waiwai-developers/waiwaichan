@@ -26,14 +26,13 @@ import { CandyReactionHandler } from "@/src/handlers/discord.js/events/CandyReac
 import type { DiscordEventHandler } from "@/src/handlers/discord.js/events/DiscordEventHandler";
 import type { ReactionInteraction } from "@/src/handlers/discord.js/events/DiscordEventHandler";
 import { CandyLogic } from "@/src/logics/CandyLogic";
-import { ThreadLogic } from "@/src/logics/ThreadLogic";
 import { ChatAILogic } from "@/src/logics/ChatAILogic";
 import type { ICandyLogic } from "@/src/logics/Interfaces/logics/ICandyLogic";
-import type { IThreadLogic } from "@/src/logics/Interfaces/logics/IThreadLogic";
 import type { IChatAILogic } from "@/src/logics/Interfaces/logics/IChatAILogic";
 import type { IMinecraftServerLogic } from "@/src/logics/Interfaces/logics/IMinecraftServerLogic";
 import type { IPullRequestLogic } from "@/src/logics/Interfaces/logics/IPullRequestLogic";
 import type { IReminderLogic } from "@/src/logics/Interfaces/logics/IReminderLogic";
+import type { IThreadLogic } from "@/src/logics/Interfaces/logics/IThreadLogic";
 import type { ITranslatorLogic } from "@/src/logics/Interfaces/logics/ITranslatorLogic";
 import type { IUtilityLogic } from "@/src/logics/Interfaces/logics/IUtilityLogic";
 import type { IChatAIRepository } from "@/src/logics/Interfaces/repositories/chataiapi/IChatAIRepository";
@@ -50,6 +49,7 @@ import type { ITranslatorRepository } from "@/src/logics/Interfaces/repositories
 import { MinecraftServerLogic } from "@/src/logics/MinecraftServerLogic";
 import { PullRequestLogic } from "@/src/logics/PullRequestLogic";
 import { ReminderLogic } from "@/src/logics/ReminderLogic";
+import { ThreadLogic } from "@/src/logics/ThreadLogic";
 import { TranslatorLogic } from "@/src/logics/TranslatorLogic";
 import { UtilityLogic } from "@/src/logics/UtilityLogic";
 import { ChatGPTRepositoryImpl } from "@/src/repositories/chatgptapi/ChatGPTRepositoryImpl";
@@ -57,7 +57,7 @@ import { DeepLTranslateRepositoryImpl } from "@/src/repositories/deeplapi/DeepLT
 import { GCPComputeEngineInstanceRepositoryImpl } from "@/src/repositories/gcpapi/GCPComputeEngineInstanceRepositoryImpl";
 import { GithubPullRequestRepositoryImpl } from "@/src/repositories/githubapi/GithubPullRequestRepositoryImpl";
 import { AwaitSemaphoreMutex } from "@/src/repositories/mutex/AwaitSemaphoreMutex";
-import { CandyItemRepositoryImpl, CandyRepositoryImpl, ReminderRepositoryImpl, UserCandyItemRepositoryImpl, ThreadRepositoryImpl } from "@/src/repositories/sequelize-mysql";
+import { CandyItemRepositoryImpl, CandyRepositoryImpl, ReminderRepositoryImpl, ThreadRepositoryImpl, UserCandyItemRepositoryImpl } from "@/src/repositories/sequelize-mysql";
 import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnector";
 import { SequelizeTransaction } from "@/src/repositories/sequelize-mysql/SequelizeTransaction";
 import type { DiscordEventRouter } from "@/src/routes/discordjs/events/DiscordEventRouter";

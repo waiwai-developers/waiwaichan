@@ -1,8 +1,8 @@
 import { ThreadDto } from "@/src/entities/dto/ThreadDto";
+import { ThreadCategoryType } from "@/src/entities/vo/ThreadCategoryType";
 import { ThreadGuildId } from "@/src/entities/vo/ThreadGuildId";
 import { ThreadMessageId } from "@/src/entities/vo/ThreadMessageId";
-import { ThreadCategoryType } from "@/src/entities/vo/ThreadCategoryType";
-import { IThreadRepository } from "@/src/logics/Interfaces/repositories/database/IThreadRepository";
+import type { IThreadRepository } from "@/src/logics/Interfaces/repositories/database/IThreadRepository";
 import { injectable } from "inversify";
 import {
 	AutoIncrement,
@@ -37,13 +37,16 @@ class ThreadRepositoryImpl extends Model implements IThreadRepository {
 		}).then((res) => !!res);
 	}
 
-	async findByMessageId(guildId: ThreadGuildId, messageId: ThreadMessageId): Promise<ThreadDto | undefined> {
+	async findByMessageId(
+		guildId: ThreadGuildId,
+		messageId: ThreadMessageId,
+	): Promise<ThreadDto | undefined> {
 		return ThreadRepositoryImpl.findOne({
 			where: {
 				guildId: guildId.getValue(),
 				messageId: messageId.getValue(),
 			},
-		}).then((res) => res ? res.toDto() : undefined);
+		}).then((res) => (res ? res.toDto() : undefined));
 	}
 
 	toDto(): ThreadDto {

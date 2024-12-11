@@ -1,16 +1,16 @@
+import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
+import { ThreadDto } from "@/src/entities/dto/ThreadDto";
+import { ThreadCategoryType } from "@/src/entities/vo/ThreadCategoryType";
+import { ThreadGuildId } from "@/src/entities/vo/ThreadGuildId";
+import { ThreadMessageId } from "@/src/entities/vo/ThreadMessageId";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
+import type { IThreadLogic } from "@/src/logics/Interfaces/logics/IThreadLogic";
 import type {
 	CacheType,
 	ChatInputCommandInteraction,
 	TextChannel,
 } from "discord.js";
 import { inject, injectable } from "inversify";
-import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
-import type { IThreadLogic } from "@/src/logics/Interfaces/logics/IThreadLogic";
-import { ThreadDto } from "@/src/entities/dto/ThreadDto";
-import { ThreadMessageId } from "@/src/entities/vo/ThreadMessageId";
-import { ThreadGuildId } from "@/src/entities/vo/ThreadGuildId";
-import { ThreadCategoryType } from "@/src/entities/vo/ThreadCategoryType";
 
 @injectable()
 export class TalkCommandHandler implements SlashCommandHandler {
@@ -39,23 +39,22 @@ export class TalkCommandHandler implements SlashCommandHandler {
 
 		const title = interaction.options.getString("title", true);
 
-		const message = await interaction
-			.reply({
-				content: "以下にお話する場を用意したよ！っ",
-				fetchReply: true,
-			})
+		const message = await interaction.reply({
+			content: "以下にお話する場を用意したよ！っ",
+			fetchReply: true,
+		});
 
 		await this.threadLogic.create(
 			new ThreadDto(
 				new ThreadGuildId(message.guildId),
 				new ThreadMessageId(message.id),
-				ThreadCategoryType.CATEGORY_TYPE_CHATGPT
-			)
+				ThreadCategoryType.CATEGORY_TYPE_CHATGPT,
+			),
 		);
 
 		await message.startThread({
-				name: title,
-				autoArchiveDuration: 60,
+			name: title,
+			autoArchiveDuration: 60,
 		});
 	}
 }
