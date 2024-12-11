@@ -21,9 +21,9 @@ import {
 })
 class ThreadRepositoryImpl extends Model implements IThreadRepository {
 	@PrimaryKey
-	@Column(DataType.INTEGER)
-	@PrimaryKey
+	@Column(DataType.STRING)
 	declare guildId: string;
+	@PrimaryKey
 	@Column(DataType.STRING)
 	declare messageId: string;
 	@Column(DataType.INTEGER)
