@@ -22,7 +22,7 @@ export class AIReplyHandler implements DiscordEventHandler<Message> {
 			if (message.author.bot) return;
 			if (!message.channel.isThread()) return;
 			if (!(message.channel.ownerId === AppConfig.discord.clientId)) return;
-			if ((await this.threadLogic.find(new ThreadMessageId(message.id)))?.categoryType  !== ThreadCategoryType.CATEGORY_TYPE_CHATGPT) return;
+			if ((await this.threadLogic.find(new ThreadMessageId(message.channel.id)))?.categoryType.getValue() !== ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue()) return;
 
 			message.channel.sendTyping();
 
