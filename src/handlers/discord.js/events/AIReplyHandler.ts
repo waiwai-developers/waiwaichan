@@ -8,7 +8,7 @@ import { ChatAIRole } from "@/src/entities/vo/ChatAIRole";
 import type { DiscordEventHandler } from "@/src/handlers/discord.js/events/DiscordEventHandler";
 import type { IChatAILogic } from "@/src/logics/Interfaces/logics/IChatAILogic";
 import type { IThreadLogic } from "@/src/logics/Interfaces/logics/IThreadLogic";
-import { Message } from "discord.js";
+import type { Message } from "discord.js";
 import { inject, injectable } from "inversify";
 
 @injectable()
