@@ -21,8 +21,8 @@ import {
 })
 class ThreadRepositoryImpl extends Model implements IThreadRepository {
 	@PrimaryKey
-	@AutoIncrement
 	@Column(DataType.INTEGER)
+	@PrimaryKey
 	declare guildId: string;
 	@Column(DataType.STRING)
 	declare messageId: string;
