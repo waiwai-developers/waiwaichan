@@ -3,6 +3,7 @@ import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
 import { ChatAIMessageDto } from "@/src/entities/dto/ChatAIMessageDto";
 import { ChatAIContent } from "@/src/entities/vo/ChatAIContent";
 import { ThreadMessageId } from "@/src/entities/vo/ThreadMessageId";
+import { ThreadGuildId } from "@/src/entities/vo/ThreadGuildId";
 import { ThreadCategoryType } from "@/src/entities/vo/ThreadCategoryType";
 import { ChatAIRole } from "@/src/entities/vo/ChatAIRole";
 import type { DiscordEventHandler } from "@/src/handlers/discord.js/events/DiscordEventHandler";
@@ -22,7 +23,10 @@ export class AIReplyHandler implements DiscordEventHandler<Message> {
 			if (message.author.bot) return;
 			if (!message.channel.isThread()) return;
 			if (!(message.channel.ownerId === AppConfig.discord.clientId)) return;
-			if ((await this.threadLogic.find(new ThreadMessageId(message.channel.id)))?.categoryType.getValue() !== ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue()) return;
+			if ((await this.threadLogic.find(
+				new ThreadGuildId(message.channel.guildId),
+				new ThreadMessageId(message.channel.id))
+			)?.categoryType.getValue() !== ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue()) return;
 
 			message.channel.sendTyping();
 

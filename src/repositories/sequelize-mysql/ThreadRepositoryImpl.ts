@@ -1,4 +1,5 @@
 import { ThreadDto } from "@/src/entities/dto/ThreadDto";
+import { ThreadGuildId } from "@/src/entities/vo/ThreadGuildId";
 import { ThreadMessageId } from "@/src/entities/vo/ThreadMessageId";
 import { ThreadCategoryType } from "@/src/entities/vo/ThreadCategoryType";
 import { IThreadRepository } from "@/src/logics/Interfaces/repositories/database/IThreadRepository";
@@ -21,6 +22,8 @@ import {
 class ThreadRepositoryImpl extends Model implements IThreadRepository {
 	@PrimaryKey
 	@AutoIncrement
+	@Column(DataType.INTEGER)
+	declare guildId: string;
 	@Column(DataType.STRING)
 	declare messageId: string;
 	@Column(DataType.INTEGER)
@@ -28,14 +31,16 @@ class ThreadRepositoryImpl extends Model implements IThreadRepository {
 
 	async create(data: ThreadDto): Promise<boolean> {
 		return ThreadRepositoryImpl.create({
+			guildId: data.guildId.getValue(),
 			messageId: data.messageId.getValue(),
 			categoryType: data.categoryType.getValue(),
 		}).then((res) => !!res);
 	}
 
-	async findByMessageId(messageId: ThreadMessageId): Promise<ThreadDto | undefined> {
+	async findByMessageId(guildId: ThreadGuildId, messageId: ThreadMessageId): Promise<ThreadDto | undefined> {
 		return ThreadRepositoryImpl.findOne({
 			where: {
+				guildId: guildId.getValue(),
 				messageId: messageId.getValue(),
 			},
 		}).then((res) => res ? res.toDto() : undefined);
@@ -43,6 +48,7 @@ class ThreadRepositoryImpl extends Model implements IThreadRepository {
 
 	toDto(): ThreadDto {
 		return new ThreadDto(
+			new ThreadGuildId(this.guildId),
 			new ThreadMessageId(this.messageId),
 			new ThreadCategoryType(this.categoryType),
 		);

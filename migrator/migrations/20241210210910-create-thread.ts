@@ -11,6 +11,11 @@ export const up: Migration = async ({ context: sequelize }) => {
 			primaryKey: true,
 			type: DataTypes.INTEGER,
 		},
+		guildId: {
+			allowNull: false,
+			primaryKey: true,
+			type: DataTypes.BIGINT,
+		},
 		messageId: {
 			allowNull: false,
 			primaryKey: true,

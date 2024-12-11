@@ -9,6 +9,7 @@ import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
 import type { IThreadLogic } from "@/src/logics/Interfaces/logics/IThreadLogic";
 import { ThreadDto } from "@/src/entities/dto/ThreadDto";
 import { ThreadMessageId } from "@/src/entities/vo/ThreadMessageId";
+import { ThreadGuildId } from "@/src/entities/vo/ThreadGuildId";
 import { ThreadCategoryType } from "@/src/entities/vo/ThreadCategoryType";
 
 @injectable()
@@ -46,6 +47,7 @@ export class TalkCommandHandler implements SlashCommandHandler {
 
 		await this.threadLogic.create(
 			new ThreadDto(
+				new ThreadGuildId(message.guildId),
 				new ThreadMessageId(message.id),
 				ThreadCategoryType.CATEGORY_TYPE_CHATGPT
 			)
