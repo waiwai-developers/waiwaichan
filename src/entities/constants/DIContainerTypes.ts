@@ -6,6 +6,7 @@ export const RepoTypes = {
 	CandyItemRepository: Symbol.for("CandyItemRepository"),
 	UserCandyItemRepository: Symbol.for("UserCandyItemRepository"),
 	ReminderRepository: Symbol.for("ReminderRepository"),
+	ThreadRepository: Symbol.for("ThreadRepository"),
 	ChatAIRepository: Symbol.for("ChatAIRepository"),
 	TranslateRepository: Symbol.for("TranslateRepository"),
 	VMInstanceRepository: Symbol.for("VMInstanceRepository"),
@@ -13,6 +14,7 @@ export const RepoTypes = {
 	SequelizeModels: Symbol.for("SequelizeModels"),
 };
 export const LogicTypes = {
+	ThreadLogic: Symbol.for("ThreadLogic"),
 	ChatAILogic: Symbol.for("ChatAILogic"),
 	MinecraftServerLogic: Symbol.for("MinecraftServerLogic"),
 	CandyLogic: Symbol.for("CandyLogic"),

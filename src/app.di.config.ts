@@ -32,6 +32,7 @@ import type { IChatAILogic } from "@/src/logics/Interfaces/logics/IChatAILogic";
 import type { IMinecraftServerLogic } from "@/src/logics/Interfaces/logics/IMinecraftServerLogic";
 import type { IPullRequestLogic } from "@/src/logics/Interfaces/logics/IPullRequestLogic";
 import type { IReminderLogic } from "@/src/logics/Interfaces/logics/IReminderLogic";
+import type { IThreadLogic } from "@/src/logics/Interfaces/logics/IThreadLogic";
 import type { ITranslatorLogic } from "@/src/logics/Interfaces/logics/ITranslatorLogic";
 import type { IUtilityLogic } from "@/src/logics/Interfaces/logics/IUtilityLogic";
 import type { IChatAIRepository } from "@/src/logics/Interfaces/repositories/chataiapi/IChatAIRepository";
@@ -40,6 +41,7 @@ import type { ICandyItemRepository } from "@/src/logics/Interfaces/repositories/
 import type { ICandyRepository } from "@/src/logics/Interfaces/repositories/database/ICandyRepository";
 import type { IDataBaseConnector } from "@/src/logics/Interfaces/repositories/database/IDataBaseConnector";
 import type { IReminderRepository } from "@/src/logics/Interfaces/repositories/database/IReminderRepository";
+import type { IThreadRepository } from "@/src/logics/Interfaces/repositories/database/IThreadRepository";
 import type { IUserCandyItemRepository } from "@/src/logics/Interfaces/repositories/database/IUserCandyItemRepository";
 import type { IPullRequestRepository } from "@/src/logics/Interfaces/repositories/githubapi/IPullRequestRepository";
 import type { IMutex } from "@/src/logics/Interfaces/repositories/mutex/IMutex";
@@ -47,6 +49,7 @@ import type { ITranslatorRepository } from "@/src/logics/Interfaces/repositories
 import { MinecraftServerLogic } from "@/src/logics/MinecraftServerLogic";
 import { PullRequestLogic } from "@/src/logics/PullRequestLogic";
 import { ReminderLogic } from "@/src/logics/ReminderLogic";
+import { ThreadLogic } from "@/src/logics/ThreadLogic";
 import { TranslatorLogic } from "@/src/logics/TranslatorLogic";
 import { UtilityLogic } from "@/src/logics/UtilityLogic";
 import { ChatGPTRepositoryImpl } from "@/src/repositories/chatgptapi/ChatGPTRepositoryImpl";
@@ -54,7 +57,7 @@ import { DeepLTranslateRepositoryImpl } from "@/src/repositories/deeplapi/DeepLT
 import { GCPComputeEngineInstanceRepositoryImpl } from "@/src/repositories/gcpapi/GCPComputeEngineInstanceRepositoryImpl";
 import { GithubPullRequestRepositoryImpl } from "@/src/repositories/githubapi/GithubPullRequestRepositoryImpl";
 import { AwaitSemaphoreMutex } from "@/src/repositories/mutex/AwaitSemaphoreMutex";
-import { CandyItemRepositoryImpl, CandyRepositoryImpl, ReminderRepositoryImpl, UserCandyItemRepositoryImpl } from "@/src/repositories/sequelize-mysql";
+import { CandyItemRepositoryImpl, CandyRepositoryImpl, ReminderRepositoryImpl, ThreadRepositoryImpl, UserCandyItemRepositoryImpl } from "@/src/repositories/sequelize-mysql";
 import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnector";
 import { SequelizeTransaction } from "@/src/repositories/sequelize-mysql/SequelizeTransaction";
 import type { DiscordEventRouter } from "@/src/routes/discordjs/events/DiscordEventRouter";
@@ -80,7 +83,7 @@ appContainer.bind<ICandyRepository>(RepoTypes.CandyRepository).to(CandyRepositor
 appContainer.bind<ICandyItemRepository>(RepoTypes.CandyItemRepository).to(CandyItemRepositoryImpl);
 appContainer.bind<IUserCandyItemRepository>(RepoTypes.UserCandyItemRepository).to(UserCandyItemRepositoryImpl);
 appContainer.bind<IReminderRepository>(RepoTypes.ReminderRepository).to(ReminderRepositoryImpl);
-
+appContainer.bind<IThreadRepository>(RepoTypes.ThreadRepository).to(ThreadRepositoryImpl);
 // ChatGPT
 appContainer.bind<IChatAIRepository>(RepoTypes.ChatAIRepository).to(ChatGPTRepositoryImpl);
 // DeepL
@@ -91,6 +94,7 @@ appContainer.bind<IVirtualMachineAPI>(RepoTypes.VMInstanceRepository).to(GCPComp
 appContainer.bind<IPullRequestRepository>(RepoTypes.PullRequestRepository).to(GithubPullRequestRepositoryImpl);
 
 // Logics
+appContainer.bind<IThreadLogic>(LogicTypes.ThreadLogic).to(ThreadLogic);
 appContainer.bind<IChatAILogic>(LogicTypes.ChatAILogic).to(ChatAILogic);
 appContainer.bind<IMinecraftServerLogic>(LogicTypes.MinecraftServerLogic).to(MinecraftServerLogic);
 appContainer.bind<ICandyLogic>(LogicTypes.CandyLogic).to(CandyLogic);

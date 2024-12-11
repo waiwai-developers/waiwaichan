@@ -4,6 +4,7 @@ import { CandyItemRepositoryImpl } from "@/src/repositories/sequelize-mysql/Cand
 import { CandyRepositoryImpl } from "@/src/repositories/sequelize-mysql/CandyRepositoryImpl";
 import { ReminderRepositoryImpl } from "@/src/repositories/sequelize-mysql/ReminderRepositoryImpl";
 import { SequelizeLogger } from "@/src/repositories/sequelize-mysql/SequelizeLogger";
+import { ThreadRepositoryImpl } from "@/src/repositories/sequelize-mysql/ThreadRepositoryImpl";
 import { UserCandyItemRepositoryImpl } from "@/src/repositories/sequelize-mysql/UserCandyItemRepositoryImpl";
 import { injectable } from "inversify";
 import type { Dialect } from "sequelize";
@@ -29,6 +30,7 @@ export class MysqlConnector implements IDataBaseConnector<Sequelize, "mysql"> {
 					CandyItemRepositoryImpl,
 					UserCandyItemRepositoryImpl,
 					ReminderRepositoryImpl,
+					ThreadRepositoryImpl,
 				],
 			},
 		);
