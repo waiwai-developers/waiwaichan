@@ -26,8 +26,10 @@ import { CandyReactionHandler } from "@/src/handlers/discord.js/events/CandyReac
 import type { DiscordEventHandler } from "@/src/handlers/discord.js/events/DiscordEventHandler";
 import type { ReactionInteraction } from "@/src/handlers/discord.js/events/DiscordEventHandler";
 import { CandyLogic } from "@/src/logics/CandyLogic";
+import { ThreadLogic } from "@/src/logics/ThreadLogic";
 import { ChatAILogic } from "@/src/logics/ChatAILogic";
 import type { ICandyLogic } from "@/src/logics/Interfaces/logics/ICandyLogic";
+import type { IThreadLogic } from "@/src/logics/Interfaces/logics/IThreadLogic";
 import type { IChatAILogic } from "@/src/logics/Interfaces/logics/IChatAILogic";
 import type { IMinecraftServerLogic } from "@/src/logics/Interfaces/logics/IMinecraftServerLogic";
 import type { IPullRequestLogic } from "@/src/logics/Interfaces/logics/IPullRequestLogic";
@@ -91,6 +93,7 @@ appContainer.bind<IVirtualMachineAPI>(RepoTypes.VMInstanceRepository).to(GCPComp
 appContainer.bind<IPullRequestRepository>(RepoTypes.PullRequestRepository).to(GithubPullRequestRepositoryImpl);
 
 // Logics
+appContainer.bind<IThreadLogic>(LogicTypes.ThreadLogic).to(ThreadLogic);
 appContainer.bind<IChatAILogic>(LogicTypes.ChatAILogic).to(ChatAILogic);
 appContainer.bind<IMinecraftServerLogic>(LogicTypes.MinecraftServerLogic).to(MinecraftServerLogic);
 appContainer.bind<ICandyLogic>(LogicTypes.CandyLogic).to(CandyLogic);
