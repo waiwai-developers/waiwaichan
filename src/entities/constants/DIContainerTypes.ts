@@ -6,6 +6,7 @@ export const RepoTypes = {
 	CandyItemRepository: Symbol.for("CandyItemRepository"),
 	UserCandyItemRepository: Symbol.for("UserCandyItemRepository"),
 	ReminderRepository: Symbol.for("ReminderRepository"),
+	IThreadRepository: Symbol.for("IThreadRepository"),
 	ChatAIRepository: Symbol.for("ChatAIRepository"),
 	TranslateRepository: Symbol.for("TranslateRepository"),
 	VMInstanceRepository: Symbol.for("VMInstanceRepository"),
