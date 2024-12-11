@@ -8,7 +8,7 @@ import { inject, injectable } from "inversify";
 
 @injectable()
 export class ThreadLogic implements IThreadLogic {
-	@inject(RepoTypes.IThreadRepository)
+	@inject(RepoTypes.ThreadRepository)
 	private readonly threadRepository!: IThreadRepository;
 
 	@inject(RepoTypes.Transaction)
