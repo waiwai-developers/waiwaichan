@@ -5,12 +5,6 @@ const TABLE_NAME = "Threads";
 
 export const up: Migration = async ({ context: sequelize }) => {
 	await sequelize.getQueryInterface().createTable(TABLE_NAME, {
-		id: {
-			allowNull: false,
-			autoIncrement: true,
-			primaryKey: true,
-			type: DataTypes.INTEGER,
-		},
 		guildId: {
 			allowNull: false,
 			primaryKey: true,
