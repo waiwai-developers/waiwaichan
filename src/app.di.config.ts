@@ -42,6 +42,7 @@ import type { ICandyItemRepository } from "@/src/logics/Interfaces/repositories/
 import type { ICandyRepository } from "@/src/logics/Interfaces/repositories/database/ICandyRepository";
 import type { IDataBaseConnector } from "@/src/logics/Interfaces/repositories/database/IDataBaseConnector";
 import type { IReminderRepository } from "@/src/logics/Interfaces/repositories/database/IReminderRepository";
+import type { IThreadRepository } from "@/src/logics/Interfaces/repositories/database/IThreadRepository";
 import type { IUserCandyItemRepository } from "@/src/logics/Interfaces/repositories/database/IUserCandyItemRepository";
 import type { IPullRequestRepository } from "@/src/logics/Interfaces/repositories/githubapi/IPullRequestRepository";
 import type { IMutex } from "@/src/logics/Interfaces/repositories/mutex/IMutex";
@@ -56,7 +57,7 @@ import { DeepLTranslateRepositoryImpl } from "@/src/repositories/deeplapi/DeepLT
 import { GCPComputeEngineInstanceRepositoryImpl } from "@/src/repositories/gcpapi/GCPComputeEngineInstanceRepositoryImpl";
 import { GithubPullRequestRepositoryImpl } from "@/src/repositories/githubapi/GithubPullRequestRepositoryImpl";
 import { AwaitSemaphoreMutex } from "@/src/repositories/mutex/AwaitSemaphoreMutex";
-import { CandyItemRepositoryImpl, CandyRepositoryImpl, ReminderRepositoryImpl, UserCandyItemRepositoryImpl } from "@/src/repositories/sequelize-mysql";
+import { CandyItemRepositoryImpl, CandyRepositoryImpl, ReminderRepositoryImpl, UserCandyItemRepositoryImpl, ThreadRepositoryImpl } from "@/src/repositories/sequelize-mysql";
 import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnector";
 import { SequelizeTransaction } from "@/src/repositories/sequelize-mysql/SequelizeTransaction";
 import type { DiscordEventRouter } from "@/src/routes/discordjs/events/DiscordEventRouter";
@@ -82,9 +83,9 @@ appContainer.bind<ICandyRepository>(RepoTypes.CandyRepository).to(CandyRepositor
 appContainer.bind<ICandyItemRepository>(RepoTypes.CandyItemRepository).to(CandyItemRepositoryImpl);
 appContainer.bind<IUserCandyItemRepository>(RepoTypes.UserCandyItemRepository).to(UserCandyItemRepositoryImpl);
 appContainer.bind<IReminderRepository>(RepoTypes.ReminderRepository).to(ReminderRepositoryImpl);
-
-// ChatGPT
 appContainer.bind<IChatAIRepository>(RepoTypes.ChatAIRepository).to(ChatGPTRepositoryImpl);
+// ChatGPT
+appContainer.bind<IThreadRepository>(RepoTypes.ThreadRepository).to(ThreadRepositoryImpl);
 // DeepL
 appContainer.bind<ITranslatorRepository>(RepoTypes.TranslateRepository).to(DeepLTranslateRepositoryImpl);
 // GCP
