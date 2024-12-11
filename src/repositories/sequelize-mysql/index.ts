@@ -3,6 +3,7 @@ import { ReminderSchedulerRepositoryImpl } from "@/src/repositories/sequelize-my
 import { CandyItemRepositoryImpl } from "./CandyItemRepositoryImpl";
 import { CandyRepositoryImpl } from "./CandyRepositoryImpl";
 import { UserCandyItemRepositoryImpl } from "./UserCandyItemRepositoryImpl";
+import { ThreadRepositoryImpl } from "./ThreadRepositoryImpl";
 
 export {
 	ReminderRepositoryImpl,
@@ -10,4 +11,5 @@ export {
 	CandyItemRepositoryImpl,
 	CandyRepositoryImpl,
 	UserCandyItemRepositoryImpl,
+	ThreadRepositoryImpl,
 };
