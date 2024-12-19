@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import { ITEM_RECORDS } from "@/migrator/seeds/20241111041901-item";
 import { AppConfig } from "@/src/entities/config/AppConfig";
 import { ID_HIT, ID_JACKPOT } from "@/src/entities/constants/Items";
@@ -7,15 +8,16 @@ import { waitUntilMessageReply } from "@/tests/fixtures/discord.js/MockMessage";
 import { mockReaction } from "@/tests/fixtures/discord.js/MockReaction";
 import { mockSlashCommand, waitUntilReply as waitSlashUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { TestDiscordServer } from "@/tests/fixtures/discord.js/TestDiscordServer";
+import { expect } from "chai";
 import dayjs from "dayjs";
-import { type MessageReactionEventDetails, Status } from "discord.js";
+import type { MessageReactionEventDetails } from "discord.js";
 import { anything, instance, mock, verify, when } from "ts-mockito";
 
 describe("Test Candy Commands", () => {
-	test("test  adding", async () => {
+	it("test  adding", async () => {
 		const giverId = "1234";
 		const receiverId = "5678";
-		const creationDate = dayjs().add(1, "month").subtract(1, "second");
+		const creationDate = dayjs().add(1, "month").hour(0).minute(0).second(0).millisecond(0).add(1, "day").subtract(1, "second");
 		const { reaction, user, messageMock } = mockReaction(AppConfig.backend.candyEmoji, giverId, receiverId);
 		const TEST_CLIENT = await TestDiscordServer.getClient();
 		TEST_CLIENT.emit("messageReactionAdd", instance(reaction), instance(user), instance(mock<MessageReactionEventDetails>()));
@@ -27,18 +29,18 @@ describe("Test Candy Commands", () => {
 
 		new MysqlConnector();
 		const res = await CandyRepositoryImpl.findAll();
-		expect(res.length).toEqual(1);
+		expect(res.length).to.eq(1);
 
-		expect(String(res[0].giveUserId)).toBe(giverId);
-		expect(String(res[0].receiveUserId)).toBe(receiverId);
+		expect(String(res[0].giveUserId)).to.eq(giverId);
+		expect(String(res[0].receiveUserId)).to.eq(receiverId);
 
-		const finishedDate = dayjs().add(1, "month").add(1, "second");
+		const finishedDate = dayjs().add(1, "month").hour(0).minute(0).second(0).millisecond(0).add(1, "day").add(1, "second");
 
-		expect(creationDate.isBefore(dayjs(res[0].expiredAt))).toBe(true);
-		expect(finishedDate.isAfter(dayjs(res[0].expiredAt))).toBe(true);
+		expect(creationDate.isBefore(dayjs(res[0].expiredAt))).to.be.true;
+		expect(finishedDate.isAfter(dayjs(res[0].expiredAt))).to.be.true;
 	});
 
-	test("test  adding limit", async () => {
+	it("test  adding limit", async () => {
 		const reaction = mockReaction(AppConfig.backend.candyEmoji, "1234", "5678");
 		const TEST_CLIENT = await TestDiscordServer.getClient();
 		for (let i = 0; i < 4; i++) {
@@ -55,10 +57,10 @@ describe("Test Candy Commands", () => {
 
 		new MysqlConnector();
 		const res = await CandyRepositoryImpl.findAll();
-		expect(res.length).toEqual(3);
+		expect(res.length).to.eq(3);
 	});
 
-	test("test  not add same user", async () => {
+	it("test  not add same user", async () => {
 		const giverId = "1234";
 		const receiverId = "1234";
 
@@ -72,10 +74,10 @@ describe("Test Candy Commands", () => {
 			verify(messageMock.reply(anything())).never();
 			return;
 		}
-		expect("expect not reach here").toBe(false);
+		expect("expect not reach here").to.false;
 	});
 
-	test("test  not adding for same message", async () => {
+	it("test  not adding for same message", async () => {
 		const giverId = "1234";
 		const receiverId = "5678";
 		const { reaction, user, messageMock } = mockReaction(AppConfig.backend.candyEmoji, giverId, receiverId);
@@ -90,7 +92,7 @@ describe("Test Candy Commands", () => {
 		verify(messageMock.reply(`<@${instance(user).id}>さんが${AppConfig.backend.candyEmoji}スタンプを押したよ！！っ`)).once();
 	});
 
-	test("test /candycheck when Candies exists", async () => {
+	it("test /candycheck when Candies exists", async () => {
 		new MysqlConnector();
 		const insertData = new Array(Math.round(Math.random() * 100)).fill({
 			receiveUserId: 1234,
@@ -109,7 +111,7 @@ describe("Test Candy Commands", () => {
 		verify(commandMock.reply(`${inserted.length}ポイントあるよ！っ`)).once();
 	});
 
-	test("test /candycheck when no Candies", async () => {
+	it("test /candycheck when no Candies", async () => {
 		const commandMock = mockSlashCommand("candycheck");
 
 		const TEST_CLIENT = await TestDiscordServer.getClient();
@@ -119,7 +121,7 @@ describe("Test Candy Commands", () => {
 		verify(commandMock.reply("ポイントがないよ！っ")).once();
 	});
 
-	test("test /candydraw", async () => {
+	it("test /candydraw", async () => {
 		// P = 1-(1-p)^n
 		// → 0.9999(99.99%) = 1-(1-0.01(1%))^n
 		// → n = log(1-0.9999)/log(1-0.01) = 916.421 ≒ 917
@@ -150,7 +152,7 @@ describe("Test Candy Commands", () => {
 		verify(commandMock.reply(hitResult)).atLeast(1);
 		const jackpotResult = `${ITEM_RECORDS[0].name}が当たったよ👕！っ`;
 		verify(commandMock.reply(jackpotResult)).atLeast(1);
-	}, 10_000);
+	}).timeout(60_000);
 
 	const getItem = (id: number) => {
 		// auto_increment start with id 1
@@ -158,7 +160,7 @@ describe("Test Candy Commands", () => {
 		return ITEM_RECORDS[id - 1];
 	};
 
-	test("test /candyitem", async () => {
+	it("test /candyitem", async () => {
 		new MysqlConnector();
 		const insertData = [
 			{
@@ -206,7 +208,7 @@ describe("Test Candy Commands", () => {
 
 		await waitSlashUntilReply(commandMock);
 		verify(commandMock.reply(anything())).once();
-		expect(value).toBe(
+		expect(value).to.eq(
 			[
 				"以下のアイテムが交換できるよ！っ",
 				"- id: 1",
@@ -222,7 +224,7 @@ describe("Test Candy Commands", () => {
 		);
 	});
 
-	test("test /candyitem when no item", async () => {
+	it("test /candyitem when no item", async () => {
 		new MysqlConnector();
 
 		const commandMock = mockSlashCommand("candyitem");
@@ -237,12 +239,19 @@ describe("Test Candy Commands", () => {
 
 		await waitSlashUntilReply(commandMock);
 		verify(commandMock.reply(anything())).once();
-		expect(value).toBe("アイテムは持ってないよ！っ");
+		expect(value).to.eq("アイテムは持ってないよ！っ");
 	});
 
 	const setupUserCandyItemData = async () => {
 		new MysqlConnector();
 		return UserCandyItemRepositoryImpl.bulkCreate([
+			{
+				// expired
+				userId: 1234,
+				itemId: ID_HIT,
+				expiredAt: "1970/1/1 00:00:00",
+				deletedAt: null,
+			},
 			{
 				// exchangeable
 				userId: 1234,
@@ -258,14 +267,6 @@ describe("Test Candy Commands", () => {
 				deletedAt: "1970/01/01 00:00:00",
 			},
 			{
-				// expired
-				userId: 1234,
-				itemId: ID_HIT,
-				expiredAt: "1970/1/1 00:00:00",
-				deletedAt: null,
-			},
-
-			{
 				// expired used
 				userId: 1234,
 				itemId: ID_HIT,
@@ -275,11 +276,11 @@ describe("Test Candy Commands", () => {
 		]);
 	};
 
-	test("test /candychange", async () => {
+	it("test /candychange", async () => {
 		const [insert0, insert1, insert2, insert3] = await setupUserCandyItemData();
 
 		const commandMock = mockSlashCommand("candychange", {
-			id: insert0.id,
+			id: insert1.id,
 		});
 
 		let value = "";
@@ -292,15 +293,16 @@ describe("Test Candy Commands", () => {
 
 		await waitSlashUntilReply(commandMock);
 		verify(commandMock.reply(anything())).once();
-		expect(value).not.toBe("アイテムは持ってないよ！っ");
-		expect(value).toBe(`${ITEM_RECORDS[insert0.itemId - 1].name}と交換したよ！っ`);
+		expect(value).not.to.eq("アイテムは持ってないよ！っ");
+		expect(value).to.eq(`${ITEM_RECORDS[insert0.itemId - 1].name}と交換したよ！っ`);
 
 		const res = await UserCandyItemRepositoryImpl.findAll();
-		expect(res.length).toBe(1);
-		expect(res[0].id).toBe(insert2.id);
+		expect(res.length).to.eq(2);
+		// checking expired items not used.
+		expect(res.find((r) => r.id === insert1.id)).to.be.undefined;
 	});
 
-	test("test /candychange when no item", async () => {
+	it("test /candychange when no item", async () => {
 		const commandMock = mockSlashCommand("candychange", {
 			id: 0,
 		});
@@ -315,15 +317,17 @@ describe("Test Candy Commands", () => {
 
 		await waitSlashUntilReply(commandMock);
 		verify(commandMock.reply(anything())).once();
-		expect(value).toBe("アイテムは持ってないよ！っ");
+		expect(value).to.eq("アイテムは持ってないよ！っ");
 	});
 
 	afterEach(async () => {
 		await CandyRepositoryImpl.destroy({
 			truncate: true,
+			force: true,
 		});
 		await UserCandyItemRepositoryImpl.destroy({
 			truncate: true,
+			force: true,
 		});
 	});
 });

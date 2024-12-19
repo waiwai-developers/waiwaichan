@@ -1,5 +1,6 @@
+import { readFileSync } from "node:fs";
 import process from "node:process";
-import json from "@/config/database.json" with { type: "json" };
+import json from "../../../config/database.json" with { type: "json" };
 
 export interface DatabaseConfigType {
 	username: string;
@@ -17,8 +18,12 @@ interface DatabaseJsonType {
 
 export const GetEnvDBConfig = () => {
 	switch (process.env.NODE_ENV || "development") {
-		case "test":
-			return DatabaseConfig.test;
+		case "test": {
+			const json: DatabaseJsonType = JSON.parse(
+				readFileSync("config/database.json", "utf8"),
+			);
+			return json.test;
+		}
 		case "production":
 			return DatabaseConfig.production;
 		default:

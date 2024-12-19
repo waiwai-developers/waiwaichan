@@ -10,7 +10,7 @@ const ENGLISH_SOURCE = TranslateConst.source.find((it) => it.value === "EN")?.va
 const ENGLISH_TARGET = TranslateConst.target.find((it) => it.value === "EN-US")?.value;
 
 describe("Test Translate Command", () => {
-	test("Test /translate source:EN target:JA messages:Hello World! ", async () => {
+	it("Test /translate source:EN target:JA messages:Hello World! ", async () => {
 		const commandMock = mockSlashCommand("translate", {
 			source: ENGLISH_SOURCE,
 			target: JAPANESE_TARGET,
@@ -28,7 +28,7 @@ describe("Test Translate Command", () => {
 		verify(commandMock.editReply("")).never();
 	});
 
-	test("Test /translate source:null target:JA messages:Hello World! ", async () => {
+	it("Test /translate source:null target:JA messages:Hello World! ", async () => {
 		const commandMock = mockSlashCommand("translate", {
 			source: null,
 			target: JAPANESE_TARGET,
@@ -46,7 +46,7 @@ describe("Test Translate Command", () => {
 		verify(commandMock.reply(InternalErrorMessage)).once();
 	});
 
-	test("Test /translate source:EN target:null messages:Hello World! ", async () => {
+	it("Test /translate source:EN target:null messages:Hello World! ", async () => {
 		const commandMock = mockSlashCommand("translate", {
 			source: ENGLISH_SOURCE,
 			target: null,
@@ -64,7 +64,7 @@ describe("Test Translate Command", () => {
 		verify(commandMock.reply(InternalErrorMessage)).once();
 	});
 
-	test("Test /translate source:EN target:JA messages:null", async () => {
+	it("Test /translate source:EN target:JA messages:null", async () => {
 		const commandMock = mockSlashCommand("translate", {
 			source: ENGLISH_SOURCE,
 			target: JAPANESE_TARGET,
@@ -82,7 +82,7 @@ describe("Test Translate Command", () => {
 		verify(commandMock.reply(InternalErrorMessage)).once();
 	});
 
-	test("Test /translate source:JA target:JA messages:Hello World!", async () => {
+	it("Test /translate source:JA target:JA messages:Hello World!", async () => {
 		const commandMock = mockSlashCommand("translate", {
 			source: JAPANESE_SOURCE,
 			target: JAPANESE_TARGET,

@@ -30,7 +30,9 @@ export class GithubPullRequestRepositoryImpl implements IPullRequestRepository {
 
 	@postConstruct()
 	public async initialize() {
-		console.log(`Initializing Github Pull Request App Mode:${this.isApp()}`);
+		if (process.env.NODE_ENV === "production") {
+			console.log(`Initializing Github Pull Request App Mode:${this.isApp()}`);
+		}
 
 		this.octokit = this.isApp()
 			? await new App({

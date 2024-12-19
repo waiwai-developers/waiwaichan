@@ -3,13 +3,11 @@ import { CandyItemDescription } from "@/src/entities/vo/CandyItemDescription";
 import { CandyItemId } from "@/src/entities/vo/CandyItemId";
 import { CandyItemName } from "@/src/entities/vo/CandyItemName";
 import type { ICandyItemRepository } from "@/src/logics/Interfaces/repositories/database/ICandyItemRepository";
-import { UserCandyItemRepositoryImpl } from "@/src/repositories/sequelize-mysql/UserCandyItemRepositoryImpl";
 import { injectable } from "inversify";
 import {
 	AutoIncrement,
 	Column,
 	DataType,
-	HasMany,
 	Model,
 	PrimaryKey,
 	Table,
@@ -29,9 +27,6 @@ class CandyItemRepositoryImpl extends Model implements ICandyItemRepository {
 	declare name: string;
 	@Column(DataType.STRING)
 	declare description: string;
-
-	@HasMany(() => UserCandyItemRepositoryImpl)
-	declare itemOwners: UserCandyItemRepositoryImpl[];
 
 	async findById(id: CandyItemId): Promise<CandyItemDto | undefined> {
 		return await CandyItemRepositoryImpl.findOne({
