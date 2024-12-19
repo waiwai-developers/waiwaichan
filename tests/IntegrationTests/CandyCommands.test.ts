@@ -246,6 +246,13 @@ describe("Test Candy Commands", () => {
 		new MysqlConnector();
 		return UserCandyItemRepositoryImpl.bulkCreate([
 			{
+				// expired
+				userId: 1234,
+				itemId: ID_HIT,
+				expiredAt: "1970/1/1 00:00:00",
+				deletedAt: null,
+			},
+			{
 				// exchangeable
 				userId: 1234,
 				itemId: ID_HIT,
@@ -260,14 +267,6 @@ describe("Test Candy Commands", () => {
 				deletedAt: "1970/01/01 00:00:00",
 			},
 			{
-				// expired
-				userId: 1234,
-				itemId: ID_HIT,
-				expiredAt: "1970/1/1 00:00:00",
-				deletedAt: null,
-			},
-
-			{
 				// expired used
 				userId: 1234,
 				itemId: ID_HIT,
@@ -281,7 +280,7 @@ describe("Test Candy Commands", () => {
 		const [insert0, insert1, insert2, insert3] = await setupUserCandyItemData();
 
 		const commandMock = mockSlashCommand("candychange", {
-			id: insert0.id,
+			id: insert1.id,
 		});
 
 		let value = "";
@@ -298,8 +297,10 @@ describe("Test Candy Commands", () => {
 		expect(value).to.eq(`${ITEM_RECORDS[insert0.itemId - 1].name}と交換したよ！っ`);
 
 		const res = await UserCandyItemRepositoryImpl.findAll();
-		expect(res.length).to.eq(1);
-		expect(res[0].id).to.eq(insert2.id);
+		console.log(res);
+		expect(res.length).to.eq(2);
+		// checking expired items not used.
+		expect(res.find((r) => r.id === insert1.id)).to.be.undefined;
 	});
 
 	it("test /candychange when no item", async () => {
