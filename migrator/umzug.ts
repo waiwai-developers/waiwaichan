@@ -41,7 +41,6 @@ export const seeder = (dbConfig: DatabaseConfigType = GetEnvDBConfig()) => {
 			host: dbConfig.host,
 			port: dbConfig.port,
 			dialect: "mysql",
-			models: [MigratePointItemModel],
 		},
 	);
 
