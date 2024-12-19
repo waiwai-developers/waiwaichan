@@ -14,7 +14,6 @@ export class MysqlConnector implements IDataBaseConnector<Sequelize, "mysql"> {
 	instance: Sequelize;
 	constructor() {
 		const dbConfig = GetEnvDBConfig();
-		console.log(dbConfig);
 		this.instance = new Sequelize(
 			dbConfig.database,
 			dbConfig.username,
