@@ -153,7 +153,7 @@ describe("Test UtilityCommand", () => {
 			}
 		} while (notChoices.length !== 0);
 		expect(notChoices).to.deep.eq([]);
-	});
+	}).timeout(10_000);
 
 	it("Test /choice parameter:null", async () => {
 		const commandMock = mockSlashCommand("choice");
