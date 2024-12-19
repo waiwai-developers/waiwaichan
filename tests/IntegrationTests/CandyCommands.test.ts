@@ -17,7 +17,7 @@ describe("Test Candy Commands", () => {
 	it("test  adding", async () => {
 		const giverId = "1234";
 		const receiverId = "5678";
-		const creationDate = dayjs().add(1, "month").subtract(1, "second");
+		const creationDate = dayjs().add(1, "month").hour(0).minute(0).second(0).millisecond(0).add(1, "day").subtract(1, "second");
 		const { reaction, user, messageMock } = mockReaction(AppConfig.backend.candyEmoji, giverId, receiverId);
 		const TEST_CLIENT = await TestDiscordServer.getClient();
 		TEST_CLIENT.emit("messageReactionAdd", instance(reaction), instance(user), instance(mock<MessageReactionEventDetails>()));
@@ -34,7 +34,7 @@ describe("Test Candy Commands", () => {
 		expect(String(res[0].giveUserId)).to.eq(giverId);
 		expect(String(res[0].receiveUserId)).to.eq(receiverId);
 
-		const finishedDate = dayjs().add(1, "month").add(1, "second");
+		const finishedDate = dayjs().add(1, "month").hour(0).minute(0).second(0).millisecond(0).add(1, "day").add(1, "second");
 
 		expect(creationDate.isBefore(dayjs(res[0].expiredAt))).to.be.true;
 		expect(finishedDate.isAfter(dayjs(res[0].expiredAt))).to.be.true;
