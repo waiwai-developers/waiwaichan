@@ -38,6 +38,9 @@ importers:
       chai:
         specifier: ^5.1.2
         version: 5.1.2
+      chai-diff:
+        specifier: ^1.0.2
+        version: 1.0.2(chai@5.1.2)
       cls-hooked:
         specifier: ^4.2.2
         version: 4.2.2
@@ -1103,6 +1106,11 @@ packages:
 
   caniuse-lite@1.0.30001684:
     resolution: {integrity: sha512-G1LRwLIQjBQoyq0ZJGqGIJUXzJ8irpbjHLpVRXDvBEScFJ9b17sgK6vlx0GAJFE21okD7zXl08rRRUfq6HdoEQ==}
+
+  chai-diff@1.0.2:
+    resolution: {integrity: sha512-9DqtTB4BcUZFFgawc/6C2vX8Sg+bZjo9jxlBIItUyBy/EsC3qlZlhgzeKk+9Zv6iMQfRP4X4yZOgUjlmIKhhwA==}
+    peerDependencies:
+      chai: '>= 4.0'
 
   chai@5.1.2:
     resolution: {integrity: sha512-aGtmf24DW6MLHHG5gCx4zaI3uBq3KRtxeVs0DjFH6Z0rDNbsvTxFASFvdj79pxjxZ8/5u3PIiN3IwEIQkiiuPw==}
@@ -3503,6 +3511,11 @@ snapshots:
   camelcase@6.3.0: {}
 
   caniuse-lite@1.0.30001684: {}
+
+  chai-diff@1.0.2(chai@5.1.2):
+    dependencies:
+      chai: 5.1.2
+      diff: 5.2.0
 
   chai@5.1.2:
     dependencies:
