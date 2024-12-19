@@ -1,8 +1,10 @@
 {
+	"$schema": "https://swc.rs/schema.json",
 	"jsc": {
-		"baseUrl": ".",
+		"baseUrl": "./",
 		"paths": {
-			"@/*": ["./*"]
+			"@/*": ["./*"],
+			"@config/*": ["config/*"]
 		},
 		"parser": {
 			"syntax": "typescript",
