@@ -297,7 +297,6 @@ describe("Test Candy Commands", () => {
 		expect(value).to.eq(`${ITEM_RECORDS[insert0.itemId - 1].name}と交換したよ！っ`);
 
 		const res = await UserCandyItemRepositoryImpl.findAll();
-		console.log(res);
 		expect(res.length).to.eq(2);
 		// checking expired items not used.
 		expect(res.find((r) => r.id === insert1.id)).to.be.undefined;
