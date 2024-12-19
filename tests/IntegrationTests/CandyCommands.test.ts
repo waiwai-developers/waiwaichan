@@ -323,9 +323,11 @@ describe("Test Candy Commands", () => {
 	afterEach(async () => {
 		await CandyRepositoryImpl.destroy({
 			truncate: true,
+			force: true,
 		});
 		await UserCandyItemRepositoryImpl.destroy({
 			truncate: true,
+			force: true,
 		});
 	});
 });
