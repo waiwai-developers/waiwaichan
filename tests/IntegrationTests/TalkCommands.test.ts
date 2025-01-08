@@ -3,11 +3,10 @@ import { AppConfig } from "@/src/entities/config/AppConfig";
 import { mockMessage, waitUntilMessageReply } from "@/tests/fixtures/discord.js/MockMessage";
 import { mockSlashCommand, waitUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { TestDiscordServer } from "@/tests/fixtures/discord.js/TestDiscordServer";
-import { jest } from "@jest/globals";
+import { expect } from "chai";
 import {
 	type AllowedThreadTypeForTextChannel,
 	Collection,
-	FetchMessagesOptions,
 	type GuildMessageManager,
 	type GuildTextThreadManager,
 	type Message,
@@ -16,10 +15,10 @@ import {
 	type TextChannel,
 	type VoiceChannel,
 } from "discord.js";
-import { anyOfClass, anything, capture, deepEqual, instance, mock, verify, when } from "ts-mockito";
+import { anything, deepEqual, instance, mock, verify, when } from "ts-mockito";
 
 describe("Test Talk Command", () => {
-	test("Test /talk title:test title", async () => {
+	it("Test /talk title:test title", async () => {
 		const title = "test title";
 		const commandMock = mockSlashCommand("talk", {
 			title: title,
@@ -40,10 +39,10 @@ describe("Test Talk Command", () => {
 		verify(commandMock.reply("")).never();
 		verify(commandMock.reply("以下にお話する場を用意したよ！っ")).once();
 		verify(threadManagerMock.create(anything())).once();
-		expect(createdTitle).toEqual(title);
+		expect(createdTitle).to.eq(title);
 	});
 
-	test("Test /talk title:null", async () => {
+	it("Test /talk title:null", async () => {
 		const commandMock = mockSlashCommand("talk", {
 			title: null,
 		});
@@ -60,7 +59,7 @@ describe("Test Talk Command", () => {
 		verify(commandMock.reply(InternalErrorMessage)).once();
 	});
 
-	test("Test /talk channel is null", async () => {
+	it("Test /talk channel is null", async () => {
 		const commandMock = mockSlashCommand("talk", {
 			title: "Test /talk channel is null",
 		});
@@ -78,10 +77,10 @@ describe("Test Talk Command", () => {
 			verify(commandMock.reply(anything())).never();
 			return;
 		}
-		expect("expect not reach here").toBe(false);
+		expect("expect not reach here").to.false;
 	});
 
-	test("Test /talk in not test channel", async () => {
+	it("Test /talk in not test channel", async () => {
 		const commandMock = mockSlashCommand("talk", {
 			title: "Test /talk in not test channel",
 		});
@@ -99,10 +98,10 @@ describe("Test Talk Command", () => {
 			return;
 		}
 		// expect not reach here
-		expect("expect not reach here").toBe(false);
+		expect("expect not reach here").to.false;
 	});
 
-	test("test chat AI", async () => {
+	it("test chat AI", async () => {
 		const messageMock = mockMessage("1234", false, false);
 		const channelMock = mock<PublicThreadChannel>();
 		const gmmMock = mock<GuildMessageManager>();
@@ -116,5 +115,5 @@ describe("Test Talk Command", () => {
 		TEST_CLIENT.emit("messageCreate", instance(messageMock) as OmitPartialGroupDMChannel<Message>);
 		await waitUntilMessageReply(messageMock, 10_000);
 		verify(messageMock.reply(anything())).once();
-	});
+	}).timeout(10_000);
 });

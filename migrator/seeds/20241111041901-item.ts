@@ -13,7 +13,8 @@ export const ITEM_RECORDS = [
 		description: "コンビニで買える100円くらいお菓子",
 	},
 ];
-export const up: Seed = async () => {
+export const up: Seed = async ({ context: sequelize }) => {
+	sequelize.addModels([MigratePointItemModel]);
 	await new MigratePointItemModel().bulkUpsert(ITEM_RECORDS);
 };
 

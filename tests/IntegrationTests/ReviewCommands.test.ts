@@ -1,26 +1,19 @@
-import { clearInterval } from "node:timers";
 import { appContainer } from "@/src/app.di.config";
 import { InternalErrorMessage } from "@/src/entities/DiscordErrorMessages";
 import { AccountsConfig } from "@/src/entities/config/AccountsConfig";
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
-import { ReminderNotifyHandler } from "@/src/handlers/discord.js/events/ReminderNotifyHandler";
-import type { IVirtualMachineAPI } from "@/src/logics/Interfaces/repositories/cloudprovider/IVirtualMachineAPI";
 import type { IPullRequestRepository } from "@/src/logics/Interfaces/repositories/githubapi/IPullRequestRepository";
-import { ReminderRepositoryImpl } from "@/src/repositories/sequelize-mysql";
-import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnector";
 import { mockSlashCommand, waitUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { TestDiscordServer } from "@/tests/fixtures/discord.js/TestDiscordServer";
 import { DummyPullRequest, MockGithubAPI, MockNotfoundGithubAPI } from "@/tests/fixtures/repositories/MockGithubAPI";
-import { MockVirtualMachineAPI } from "@/tests/fixtures/repositories/MockVirtualMachineAPI";
-import dayjs from "dayjs";
-import { type Channel, type ChannelManager, ChannelResolvable, type Client, type Collection, type Snowflake, TextChannel } from "discord.js";
-import { anything, instance, mock, verify, when } from "ts-mockito";
+import { expect } from "chai";
+import { anything, instance, verify, when } from "ts-mockito";
 
-describe("Test Reminder Commands", () => {
+describe("Test Review Commands", () => {
 	beforeEach(() => {
 		appContainer.rebind<IPullRequestRepository>(RepoTypes.PullRequestRepository).toConstantValue(MockGithubAPI());
 	});
-	test("/reviewgacha", async () => {
+	it("/reviewgacha", async () => {
 		const TEST_CLIENT = await TestDiscordServer.getClient();
 		// P = 1-(1-p)^n
 		// → 0.9999(99.99%) = 1-(1-0.3333(33.33%))^n
@@ -54,11 +47,11 @@ describe("Test Reminder Commands", () => {
 					].join("\n"),
 				);
 
-			expect(correctResult).toContain(result);
+			expect(correctResult).to.be.an("array").that.includes(result);
 		}
-	});
+	}).timeout(60_000);
 
-	test("/reviewgacha called not owner ", async () => {
+	it("/reviewgacha called not owner ", async () => {
 		const TEST_CLIENT = await TestDiscordServer.getClient();
 		const commandMock = mockSlashCommand(
 			"reviewgacha",
@@ -77,10 +70,10 @@ describe("Test Reminder Commands", () => {
 		await waitUntilReply(commandMock);
 		verify(commandMock.editReply(anything())).once();
 
-		expect(result).toBe("pull reqのオーナーじゃないよ！っ");
+		expect(result).to.eq("pull reqのオーナーじゃないよ！っ");
 	});
 
-	test("/reviewgacha when id is null", async () => {
+	it("/reviewgacha when id is null", async () => {
 		const TEST_CLIENT = await TestDiscordServer.getClient();
 		const commandMock = mockSlashCommand(
 			"reviewgacha",
@@ -99,10 +92,10 @@ describe("Test Reminder Commands", () => {
 		await waitUntilReply(commandMock);
 		verify(commandMock.editReply(anything())).never();
 
-		expect(result).toBe(InternalErrorMessage);
+		expect(result).to.eq(InternalErrorMessage);
 	});
 
-	test("/reviewlist", async () => {
+	it("/reviewlist", async () => {
 		const TEST_CLIENT = await TestDiscordServer.getClient();
 		const commandMock = mockSlashCommand("reviewlist", {}, AccountsConfig.users[0].discordId);
 
@@ -115,7 +108,7 @@ describe("Test Reminder Commands", () => {
 		await waitUntilReply(commandMock);
 		verify(commandMock.editReply(anything())).once();
 
-		expect(result).toBe(
+		expect(result).to.eq(
 			[
 				"以下のpull reqのreviewerにアサインされているよ！っ",
 				"",
@@ -125,7 +118,7 @@ describe("Test Reminder Commands", () => {
 		);
 	});
 
-	test("/reviewlist not assigned", async () => {
+	it("/reviewlist not assigned", async () => {
 		appContainer.rebind<IPullRequestRepository>(RepoTypes.PullRequestRepository).toConstantValue(MockNotfoundGithubAPI());
 		const TEST_CLIENT = await TestDiscordServer.getClient();
 		const commandMock = mockSlashCommand("reviewlist", {}, AccountsConfig.users[0].discordId);
@@ -139,6 +132,6 @@ describe("Test Reminder Commands", () => {
 		await waitUntilReply(commandMock);
 		verify(commandMock.editReply(anything())).once();
 
-		expect(result).toBe("アサインされているpull reqはないよ！っ");
+		expect(result).to.eq("アサインされているpull reqはないよ！っ");
 	});
 });

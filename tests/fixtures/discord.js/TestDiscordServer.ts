@@ -11,12 +11,12 @@ export class TestDiscordServer extends DiscordServer {
 	}
 	async reRegister() {
 		this.client.removeAllListeners();
-		this.EventRoutes = [
+		this.EventRoutes = await Promise.all([
 			appContainer.get<DiscordEventRouter>(RouteTypes.ReadyStateRoute),
-			appContainer.get<DiscordEventRouter>(RouteTypes.SlashCommandRoute),
+			appContainer.getAsync<DiscordEventRouter>(RouteTypes.SlashCommandRoute),
 			appContainer.get<DiscordEventRouter>(RouteTypes.MessageReplyRoute),
 			appContainer.get<DiscordEventRouter>(RouteTypes.ReactionRoute),
-		];
+		]);
 
 		this.EventRoutes.forEach((event) => {
 			event.register(this.client);
