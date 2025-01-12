@@ -5,15 +5,16 @@ services:
       - server-network
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: config/key.json
+    volumes:
+      - type: bind
+        source: ../../config
+        target: /app/config
   backend:
     <<: *base-service
     container_name: waiwai-backend
     restart: always
     tty: true
     volumes:
-      - type: bind
-        source: ../../config
-        target: /app/config
       - type: volume
         source: backend_node_modules
         target: /app/node_modules
@@ -23,9 +24,6 @@ services:
     container_name: waiwai-scheduler
     restart: "always"
     volumes:
-      - type: bind
-        source: ../../config
-        target: /app/config
       - type: volume
         source: scheduler_node_modules
         target: /app/node_modules
@@ -35,9 +33,6 @@ services:
     container_name: waiwai-migrate
     restart: "no"
     volumes:
-      - type: bind
-        source: ../../config
-        target: /app/config
       - type: volume
         source: migrate_node_modules
         target: /app/node_modules
