@@ -4,4 +4,4 @@ COPY . .
 RUN apk update && apk add mysql-client
 RUN npm i -g pnpm
 RUN pnpm install
-CMD ["node", "app.js"]
+CMD ["pnpm", "run", "dev"]
