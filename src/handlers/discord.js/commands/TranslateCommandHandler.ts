@@ -39,14 +39,13 @@ export class TranslateCommandHandler implements SlashCommandHandler {
 		}
 
 		const title = interaction.options.getString("title", true);
-
-		const message = await interaction.reply({
-			content: "以下にお話する場を用意したよ！っ",
-			fetchReply: true,
-		});
-
 		const source = interaction.options?.getString("source", true);
 		const target = interaction.options?.getString("target", true);
+
+		const message = await interaction.reply({
+			content: `以下に${source}から${target}に翻訳する場を用意したよ！っ`,
+			fetchReply: true,
+		});
 
 		await this.threadLogic.create(
 			new ThreadDto(
