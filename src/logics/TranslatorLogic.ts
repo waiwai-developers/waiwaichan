@@ -19,7 +19,7 @@ export class TranslatorLogic implements ITranslatorLogic {
 			return "sourceとtargetが同じだよ！っ";
 		const texts = text
 			.getValue()
-			.split("  ")
+			.split("\n\n")
 			.map((t) => t.trim());
 
 		const postMessages = await Promise.all(
