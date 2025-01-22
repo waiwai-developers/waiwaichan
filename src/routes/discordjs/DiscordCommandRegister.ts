@@ -53,6 +53,9 @@ export class DiscordCommandRegister {
 				.setName("translate")
 				.setDescription("translate string")
 				.addStringOption((option) =>
+					option.setName("title").setDescription("string").setRequired(true),
+				)
+				.addStringOption((option) =>
 					option
 						.setName("source")
 						.setDescription("string")
@@ -65,9 +68,6 @@ export class DiscordCommandRegister {
 						.setDescription("string")
 						.setRequired(true)
 						.addChoices(...TranslateConst.target),
-				)
-				.addStringOption((option) =>
-					option.setName("messages").setDescription("string").setRequired(true),
 				),
 			new SlashCommandBuilder()
 				.setName("talk")

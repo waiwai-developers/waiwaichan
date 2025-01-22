@@ -1,35 +1,67 @@
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
-import { TranslateDto } from "@/src/entities/dto/TranslateDto";
-import { TranslateSourceLanguage } from "@/src/entities/vo/TranslateSourceLanguage";
-import { TranslateTargetLanguage } from "@/src/entities/vo/TranslateTargetLanguage";
-import { TranslateText } from "@/src/entities/vo/TranslateText";
+import { ThreadDto } from "@/src/entities/dto/ThreadDto";
+import { ThreadCategoryType } from "@/src/entities/vo/ThreadCategoryType";
+import { ThreadGuildId } from "@/src/entities/vo/ThreadGuildId";
+import { ThreadMessageId } from "@/src/entities/vo/ThreadMessageId";
+import { ThreadMetadata } from "@/src/entities/vo/ThreadMetadata";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
-import type { ITranslatorLogic } from "@/src/logics/Interfaces/logics/ITranslatorLogic";
-import type { CacheType, ChatInputCommandInteraction } from "discord.js";
+import type { IThreadLogic } from "@/src/logics/Interfaces/logics/IThreadLogic";
+import type {
+	CacheType,
+	ChatInputCommandInteraction,
+	TextChannel,
+} from "discord.js";
 import { inject, injectable } from "inversify";
 
 @injectable()
 export class TranslateCommandHandler implements SlashCommandHandler {
-	@inject(LogicTypes.TranslateLogic)
-	private translateLogic!: ITranslatorLogic;
-
+	@inject(LogicTypes.ThreadLogic)
+	private readonly threadLogic!: IThreadLogic;
 	isHandle(commandName: string): boolean {
 		return commandName === "translate";
+	}
+
+	isTextChannel(channel: unknown): channel is TextChannel {
+		return (
+			(channel as TextChannel).threads != null &&
+			(channel as TextChannel).threads.create != null
+		);
 	}
 
 	async handle(
 		interaction: ChatInputCommandInteraction<CacheType>,
 	): Promise<void> {
-		await interaction.deferReply();
-		const dto = new TranslateDto(
-			new TranslateText(interaction.options?.getString("messages", true)),
-			new TranslateSourceLanguage(
-				interaction.options?.getString("source", true),
-			),
-			new TranslateTargetLanguage(
-				interaction.options?.getString("target", true),
+		if (interaction.channel == null) {
+			return;
+		}
+		if (!this.isTextChannel(interaction.channel)) {
+			return;
+		}
+
+		const title = interaction.options.getString("title", true);
+
+		const message = await interaction.reply({
+			content: "以下にお話する場を用意したよ！っ",
+			fetchReply: true,
+		});
+
+		const source = interaction.options?.getString("source", true);
+		const target = interaction.options?.getString("target", true);
+
+		await this.threadLogic.create(
+			new ThreadDto(
+				new ThreadGuildId(message.guildId),
+				new ThreadMessageId(message.id),
+				ThreadCategoryType.CATEGORY_TYPE_DEEPL,
+				new ThreadMetadata(
+					JSON.parse(`{"source": "${source}", "target": "${target}"}`),
+				),
 			),
 		);
-		await interaction.editReply(await this.translateLogic.translate(dto));
+
+		await message.startThread({
+			name: title,
+			autoArchiveDuration: 60,
+		});
 	}
 }
