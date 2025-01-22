@@ -22,10 +22,10 @@ import {
 } from "@/src/handlers/discord.js/commands/";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
 import { AIReplyHandler } from "@/src/handlers/discord.js/events/AIReplyHandler";
-import { TranslateReplyHandler } from "@/src/handlers/discord.js/events/TranslateReplyHandler";
 import { CandyReactionHandler } from "@/src/handlers/discord.js/events/CandyReactionHandler";
 import type { DiscordEventHandler } from "@/src/handlers/discord.js/events/DiscordEventHandler";
 import type { ReactionInteraction } from "@/src/handlers/discord.js/events/DiscordEventHandler";
+import { TranslateReplyHandler } from "@/src/handlers/discord.js/events/TranslateReplyHandler";
 import { CandyLogic } from "@/src/logics/CandyLogic";
 import { ChatAILogic } from "@/src/logics/ChatAILogic";
 import type { ICandyLogic } from "@/src/logics/Interfaces/logics/ICandyLogic";
