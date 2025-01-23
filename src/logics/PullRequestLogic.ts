@@ -51,7 +51,7 @@ export class PullRequestLogic implements IPullRequestLogic {
 
 		const texts = [
 			selectReviewers.map((r) => `<@${r.discordId}>`).join(" "),
-			"review依頼が来たよ！っ",
+			`#${pullRequestId.getValue()}のpull reqのreview依頼が来たよ！っ`,
 			"",
 			`${pr.title.getValue()}`,
 			`pullreq: <${pr.url.getValue()}>`,
