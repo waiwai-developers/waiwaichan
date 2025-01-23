@@ -62,7 +62,7 @@ class CandyRepositoryImpl extends Model implements ICandyRepository {
 				receiveUserId: userId.getValue(),
 				expiredAt: { [Op.gt]: dayjs().toDate() },
 			},
-			order: [[col("expiredAt"), "DESC"]],
+			order: [[col("expiredAt"), "ASC"]],
 		}).then((c) => (c ? new CandyExpire(c.expiredAt) : undefined));
 	}
 
