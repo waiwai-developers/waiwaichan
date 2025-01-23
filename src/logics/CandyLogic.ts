@@ -147,9 +147,9 @@ export class CandyLogic implements ICandyLogic {
 		messageId: DiscordMessageId,
 		messageLink: DiscordMessageLink,
 	): Promise<string | undefined> {
-		// if (receiver.getValue() === giver.getValue()) {
-		// 	return;
-		// }
+		if (receiver.getValue() === giver.getValue()) {
+			return;
+		}
 		return this.mutex.useMutex("GiveCandy", async () =>
 			this.transaction.startTransaction(async () => {
 				const todayCount = await this.candyRepository.countByToday(giver);
