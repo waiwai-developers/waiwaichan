@@ -47,10 +47,10 @@ export class CandyLogic implements ICandyLogic {
 			})
 			.then((candy) => {
 				if (candy.getValue() <= 0) {
-					return "ポイントがないよ！っ";
+					return "キャンディがないよ！っ";
 				}
 
-				return `${candy.getValue()}ポイントあるよ！っ`;
+				return `${candy.getValue()}キャンディがあるよ！っ`;
 			});
 	}
 
@@ -85,7 +85,7 @@ export class CandyLogic implements ICandyLogic {
 				.ConsumeCandies(userId)
 				.then(async (success) => {
 					if (!success) {
-						return "ポイントがないよ！っ";
+						return "キャンディがないよ！っ";
 					}
 
 					// NOTE:todo より良い乱数生成に変える
@@ -146,7 +146,7 @@ export class CandyLogic implements ICandyLogic {
 				// reaction limit
 				// todo reaction limit to constant
 				if (todayCount.getValue() > 2) {
-					return "今はスタンプを押してもポイントをあげられないよ！っ";
+					return "今はスタンプを押してもキャンディをあげられないよ！っ";
 				}
 
 				const Candies = await this.candyRepository.findByGiverAndMessageId(
