@@ -41,17 +41,27 @@ export class CandyLogic implements ICandyLogic {
 	private readonly mutex!: IMutex;
 
 	async check(userId: DiscordUserId): Promise<string> {
-		return this.transaction
-			.startTransaction(async () => {
-				return this.candyRepository.candyCount(userId);
-			})
-			.then((candy) => {
-				if (candy.getValue() <= 0) {
-					return "キャンディがないよ！っ";
-				}
+		const candyCount = await this.candyRepository
+			.candyCount(userId)
+			.then((candyCount) => candyCount.getValue());
 
-				return `${candy.getValue()}キャンディがあるよ！っ`;
-			});
+		if (candyCount <= 0) {
+			return "キャンディがないよ！っ";
+		}
+
+		const candyExpire = await this.candyRepository
+			.candyExpire(userId)
+			.then((e) =>
+				e
+					? dayjs(e.getValue()).subtract(1, "d").format("YYYY/MM/DD")
+					: undefined,
+			);
+
+		if (!candyExpire) {
+			return "キャンディがないよ！っ";
+		}
+
+		return `キャンディが${candyCount}個あるよ！期限が${candyExpire}に切れるから気を付けてね！っ`;
 	}
 
 	async exchange(
@@ -137,9 +147,9 @@ export class CandyLogic implements ICandyLogic {
 		messageId: DiscordMessageId,
 		messageLink: DiscordMessageLink,
 	): Promise<string | undefined> {
-		if (receiver.getValue() === giver.getValue()) {
-			return;
-		}
+		// if (receiver.getValue() === giver.getValue()) {
+		// 	return;
+		// }
 		return this.mutex.useMutex("GiveCandy", async () =>
 			this.transaction.startTransaction(async () => {
 				const todayCount = await this.candyRepository.countByToday(giver);

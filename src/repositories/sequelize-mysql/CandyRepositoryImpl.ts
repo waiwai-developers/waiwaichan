@@ -7,7 +7,7 @@ import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
 import type { ICandyRepository } from "@/src/logics/Interfaces/repositories/database/ICandyRepository";
 import dayjs from "dayjs";
 import { injectable } from "inversify";
-import { Op } from "sequelize";
+import { Op, col } from "sequelize";
 import {
 	AutoIncrement,
 	Column,
@@ -54,6 +54,16 @@ class CandyRepositoryImpl extends Model implements ICandyRepository {
 				expiredAt: { [Op.gt]: dayjs().toDate() },
 			},
 		}).then((c) => new CandyCount(c));
+	}
+
+	async candyExpire(userId: DiscordUserId): Promise<CandyExpire | undefined> {
+		return CandyRepositoryImpl.findOne({
+			where: {
+				receiveUserId: userId.getValue(),
+				expiredAt: { [Op.gt]: dayjs().toDate() },
+			},
+			order: [[col("expiredAt"), "DESC"]],
+		}).then((c) => (c ? new CandyExpire(c.expiredAt) : undefined));
 	}
 
 	async countByToday(userId: DiscordUserId): Promise<CandyCount> {
