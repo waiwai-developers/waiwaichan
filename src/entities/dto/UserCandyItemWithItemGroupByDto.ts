@@ -2,15 +2,15 @@ import type { CandyItemDescription } from "@/src/entities/vo/CandyItemDescriptio
 import type { CandyItemId } from "@/src/entities/vo/CandyItemId";
 import type { CandyItemName } from "@/src/entities/vo/CandyItemName";
 import type { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
-import type { UserCandyItemExpire } from "@/src/entities/vo/UserCandyItemExpire";
-import type { UserCandyItemId } from "@/src/entities/vo/UserCandyItemId";
-export class UserCandyItemWithItemDto {
+import type { UserCandyItemMinExpire } from "@/src/entities/vo/UserCandyItemMinExpire";
+import type { UserCandyItemCount } from "@/src/entities/vo/UserCandyItemCount";
+export class UserCandyItemWithItemGroupByDto {
 	constructor(
-		public id: UserCandyItemId,
 		public userId: DiscordUserId,
 		public itemId: CandyItemId,
-		public expiredAt: UserCandyItemExpire,
 		public name: CandyItemName,
 		public description: CandyItemDescription,
+		public count: UserCandyItemCount,
+		public minExpiredAt: UserCandyItemMinExpire,
 	) {}
 }
