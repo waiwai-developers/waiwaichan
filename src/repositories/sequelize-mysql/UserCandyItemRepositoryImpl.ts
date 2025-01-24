@@ -47,11 +47,11 @@ class UserCandyItemRepositoryImpl
 	@Column(DataType.DATE)
 	declare expiredAt: Date;
 	@Column(DataType.INTEGER)
-	declare count: number;
+	declare aggrCount: number;
 	@Column(DataType.INTEGER)
-	declare minId: number;
+	declare aggrMinId: number;
 	@Column(DataType.DATE)
-	declare minExpiredAt: Date;
+	declare aggrMinExpiredAt: Date;
 
 	@BelongsTo(() => CandyItemRepositoryImpl)
 	declare item: CandyItemRepositoryImpl;
@@ -88,9 +88,9 @@ class UserCandyItemRepositoryImpl
 					new CandyItemId(it.item.id),
 					new CandyItemName(it.item.name),
 					new CandyItemDescription(it.item.description),
-					new UserCandyItemCount(it.count),
-					new UserCandyItemMinId(it.minId),
-					new UserCandyItemMinExpire(it.minExpiredAt),
+					new UserCandyItemCount(it.aggrCount),
+					new UserCandyItemMinId(it.aggrMinId),
+					new UserCandyItemMinExpire(it.aggrMinExpiredAt),
 				);
 			}),
 		);
@@ -107,6 +107,12 @@ class UserCandyItemRepositoryImpl
 		userId: DiscordUserId,
 	): Promise<UserCandyItemDto | null> {
 		return UserCandyItemRepositoryImpl.findOne({
+			attributes: [
+				'id',
+				'userId',
+				'itemId',
+				'expiredAt',
+			],
 			where: {
 				id: id.getValue(),
 				userId: userId.getValue(),
