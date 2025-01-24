@@ -15,8 +15,6 @@ export class TranslatorLogic implements ITranslatorLogic {
 		if (text.getValue() === "") return "messageパラメーターがないよ！っ";
 		if (source.getValue() === "") return "sourceパラメーターがないよ！っ";
 		if (target.getValue() === "") return "targetパラメーターがないよ！っ";
-		if (source.getValue() === target.getValue())
-			return "sourceとtargetが同じだよ！っ";
 		const texts = text
 			.getValue()
 			.split("\n\n")

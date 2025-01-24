@@ -42,6 +42,14 @@ export class TranslateCommandHandler implements SlashCommandHandler {
 		const source = interaction.options?.getString("source", true);
 		const target = interaction.options?.getString("target", true);
 
+		if (source === target) {
+			await interaction.reply({
+				content: 'sourceとtargetが同じだよ！っ',
+				fetchReply: true,
+			});
+			return
+		}
+
 		const message = await interaction.reply({
 			content: `以下に${source}から${target}に翻訳する場を用意したよ！っ`,
 			fetchReply: true,
