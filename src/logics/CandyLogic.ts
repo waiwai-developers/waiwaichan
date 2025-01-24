@@ -133,10 +133,10 @@ export class CandyLogic implements ICandyLogic {
 
 			if (userCandyItems.length === 0) return "アイテムは持ってないよ！っ";
 			const texts = userCandyItems.flatMap((u) => [
-				`- ${u.name.getValue()}`,
+				`- ${u.name.getValue()} id: ${u.minId.getValue()}`,
 				`  - 説明：${u.description.getValue()}`,
-				`  - 個数：${u.count.getValue()}`,
 				`  - 期限：${ dayjs(u.minExpiredAt.getValue()).subtract(1, "d").format("YYYY/MM/DD")}`,
+				`  - 個数：${u.count.getValue()}`,
 			]);
 
 			return ["以下のアイテムが交換できるよ！っ", ...texts].join("\n");

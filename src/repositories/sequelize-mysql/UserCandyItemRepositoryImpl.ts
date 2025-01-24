@@ -8,6 +8,7 @@ import { CandyItemName } from "@/src/entities/vo/CandyItemName";
 import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
 import { UserCandyItemExpire } from "@/src/entities/vo/UserCandyItemExpire";
 import { UserCandyItemId } from "@/src/entities/vo/UserCandyItemId";
+import { UserCandyItemMinId } from "@/src/entities/vo/UserCandyItemMinId";
 import type { IUserCandyItemRepository } from "@/src/logics/Interfaces/repositories/database/IUserCandyItemRepository";
 import dayjs from "dayjs";
 import { injectable } from "inversify";
@@ -47,6 +48,8 @@ class UserCandyItemRepositoryImpl
 	declare expiredAt: Date;
 	@Column(DataType.INTEGER)
 	declare count: number;
+	@Column(DataType.INTEGER)
+	declare minId: number;
 	@Column(DataType.DATE)
 	declare minExpiredAt: Date;
 
@@ -70,6 +73,7 @@ class UserCandyItemRepositoryImpl
 				'userId',
 				'itemId',
 				[fn('COUNT', col('UserCandyItemRepositoryImpl.id')), 'count'],
+				[fn('MIN', col('UserCandyItemRepositoryImpl.id')), 'minId'],
 				[fn('MIN', col('expiredAt')), 'minExpiredAt']
 			],
 			where: {
@@ -85,8 +89,9 @@ class UserCandyItemRepositoryImpl
 					new CandyItemName(it.item.name),
 					new CandyItemDescription(it.item.description),
 					new UserCandyItemCount(it.count),
+					new UserCandyItemMinId(it.minId),
 					new UserCandyItemMinExpire(it.minExpiredAt),
-					);
+				);
 			}),
 		);
 	}
