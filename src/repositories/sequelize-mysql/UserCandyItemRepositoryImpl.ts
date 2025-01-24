@@ -72,9 +72,9 @@ class UserCandyItemRepositoryImpl
 			attributes: [
 				'userId',
 				'itemId',
-				[fn('COUNT', col('UserCandyItemRepositoryImpl.id')), 'count'],
-				[fn('MIN', col('UserCandyItemRepositoryImpl.id')), 'minId'],
-				[fn('MIN', col('expiredAt')), 'minExpiredAt']
+				[fn('COUNT', col('UserCandyItemRepositoryImpl.id')), 'aggrCount'],
+				[fn('MIN', col('UserCandyItemRepositoryImpl.id')), 'aggrMinId'],
+				[fn('MIN', col('expiredAt')), 'aggrMinExpiredAt']
 			],
 			where: {
 				userId: userId.getValue(),
