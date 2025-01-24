@@ -1,6 +1,8 @@
 import { UserCandyItemDto } from "@/src/entities/dto/UserCandyItemDto";
-import type { UserCandyItemWithItemDto } from "@/src/entities/dto/UserCandyItemWithItemDto";
+import { UserCandyItemWithItemGroupByDto } from "@/src/entities/dto/UserCandyItemWithItemGroupByDto";
 import { CandyItemDescription } from "@/src/entities/vo/CandyItemDescription";
+import { UserCandyItemMinExpire } from "@/src/entities/vo/UserCandyItemMinExpire";
+import { UserCandyItemCount } from "@/src/entities/vo/UserCandyItemCount";
 import { CandyItemId } from "@/src/entities/vo/CandyItemId";
 import { CandyItemName } from "@/src/entities/vo/CandyItemName";
 import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
@@ -9,7 +11,7 @@ import { UserCandyItemId } from "@/src/entities/vo/UserCandyItemId";
 import type { IUserCandyItemRepository } from "@/src/logics/Interfaces/repositories/database/IUserCandyItemRepository";
 import dayjs from "dayjs";
 import { injectable } from "inversify";
-import { Op } from "sequelize";
+import { Op, fn, col } from  "sequelize";
 import {
 	AutoIncrement,
 	BelongsTo,
@@ -43,6 +45,10 @@ class UserCandyItemRepositoryImpl
 	declare itemId: number;
 	@Column(DataType.DATE)
 	declare expiredAt: Date;
+	@Column(DataType.INTEGER)
+	declare count: number;
+	@Column(DataType.DATE)
+	declare minExpiredAt: Date;
 
 	@BelongsTo(() => CandyItemRepositoryImpl)
 	declare item: CandyItemRepositoryImpl;
@@ -57,20 +63,30 @@ class UserCandyItemRepositoryImpl
 
 	async findByNotUsed(
 		userId: DiscordUserId,
-	): Promise<UserCandyItemWithItemDto[]> {
+	): Promise<UserCandyItemWithItemGroupByDto[]> {
 		return UserCandyItemRepositoryImpl.findAll({
 			include: [CandyItemRepositoryImpl],
+			attributes: [
+				'userId',
+				'itemId',
+				[fn('COUNT', col('UserCandyItemRepositoryImpl.id')), 'count'],
+				[fn('MIN', col('expiredAt')), 'minExpiredAt']
+			],
 			where: {
 				userId: userId.getValue(),
 				expiredAt: { [Op.gt]: dayjs().toDate() },
 			},
+			group: ['itemId']
 		}).then((r) =>
 			r.map((it) => {
-				return {
-					...this.toDto(it),
-					name: new CandyItemName(it.item.name),
-					description: new CandyItemDescription(it.item.description),
-				};
+				return new UserCandyItemWithItemGroupByDto(
+					new CandyItemName(it.userId),
+					new CandyItemId(it.item.id),
+					new CandyItemName(it.item.name),
+					new CandyItemDescription(it.item.description),
+					new UserCandyItemCount(it.count),
+					new UserCandyItemMinExpire(it.minExpiredAt),
+					);
 			}),
 		);
 	}
