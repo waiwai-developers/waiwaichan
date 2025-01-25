@@ -1,18 +1,18 @@
 import { UserCandyItemDto } from "@/src/entities/dto/UserCandyItemDto";
 import { UserCandyItemWithItemGroupByDto } from "@/src/entities/dto/UserCandyItemWithItemGroupByDto";
 import { CandyItemDescription } from "@/src/entities/vo/CandyItemDescription";
-import { UserCandyItemMinExpire } from "@/src/entities/vo/UserCandyItemMinExpire";
-import { UserCandyItemCount } from "@/src/entities/vo/UserCandyItemCount";
 import { CandyItemId } from "@/src/entities/vo/CandyItemId";
 import { CandyItemName } from "@/src/entities/vo/CandyItemName";
 import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
+import { UserCandyItemCount } from "@/src/entities/vo/UserCandyItemCount";
 import { UserCandyItemExpire } from "@/src/entities/vo/UserCandyItemExpire";
 import { UserCandyItemId } from "@/src/entities/vo/UserCandyItemId";
+import { UserCandyItemMinExpire } from "@/src/entities/vo/UserCandyItemMinExpire";
 import { UserCandyItemMinId } from "@/src/entities/vo/UserCandyItemMinId";
 import type { IUserCandyItemRepository } from "@/src/logics/Interfaces/repositories/database/IUserCandyItemRepository";
 import dayjs from "dayjs";
 import { injectable } from "inversify";
-import { Op, fn, col } from  "sequelize";
+import { Op, col, fn } from "sequelize";
 import {
 	AutoIncrement,
 	BelongsTo,
@@ -70,17 +70,17 @@ class UserCandyItemRepositoryImpl
 		return UserCandyItemRepositoryImpl.findAll({
 			include: [CandyItemRepositoryImpl],
 			attributes: [
-				'userId',
-				'itemId',
-				[fn('COUNT', col('UserCandyItemRepositoryImpl.id')), 'aggrCount'],
-				[fn('MIN', col('UserCandyItemRepositoryImpl.id')), 'aggrMinId'],
-				[fn('MIN', col('expiredAt')), 'aggrMinExpiredAt']
+				"userId",
+				"itemId",
+				[fn("COUNT", col("UserCandyItemRepositoryImpl.id")), "aggrCount"],
+				[fn("MIN", col("UserCandyItemRepositoryImpl.id")), "aggrMinId"],
+				[fn("MIN", col("expiredAt")), "aggrMinExpiredAt"],
 			],
 			where: {
 				userId: userId.getValue(),
 				expiredAt: { [Op.gt]: dayjs().toDate() },
 			},
-			group: ['itemId']
+			group: ["itemId"],
 		}).then((r) =>
 			r.map((it) => {
 				return new UserCandyItemWithItemGroupByDto(
@@ -107,12 +107,7 @@ class UserCandyItemRepositoryImpl
 		userId: DiscordUserId,
 	): Promise<UserCandyItemDto | null> {
 		return UserCandyItemRepositoryImpl.findOne({
-			attributes: [
-				'id',
-				'userId',
-				'itemId',
-				'expiredAt',
-			],
+			attributes: ["id", "userId", "itemId", "expiredAt"],
 			where: {
 				id: id.getValue(),
 				userId: userId.getValue(),

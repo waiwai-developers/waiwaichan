@@ -135,7 +135,7 @@ export class CandyLogic implements ICandyLogic {
 			const texts = userCandyItems.flatMap((u) => [
 				`- ${u.name.getValue()} id: ${u.minId.getValue()}`,
 				`  - 説明：${u.description.getValue()}`,
-				`  - 期限：${ dayjs(u.minExpiredAt.getValue()).subtract(1, "d").format("YYYY/MM/DD")}`,
+				`  - 期限：${dayjs(u.minExpiredAt.getValue()).subtract(1, "d").format("YYYY/MM/DD")}`,
 				`  - 個数：${u.count.getValue()}`,
 			]);
 
