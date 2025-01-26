@@ -59,7 +59,6 @@ export class PullRequestLogic implements IPullRequestLogic {
 			return "reviewerの選ばれる人数が実際のreviewerの数より多いよ！っ";
 		}
 
-		let reviewerIndexs: number[] = [];
 		const selectReviewers: typeof AccountsConfig.users = [];
 
 		do {
@@ -67,10 +66,7 @@ export class PullRequestLogic implements IPullRequestLogic {
 				const j = Math.floor(Math.random() * (i + 1));
 				[array[i], array[j]] = [array[j], array[i]];
 			}
-
-			reviewerIndexs = array.slice(0, REVIEWER_NUMBER);
-
-			reviewerIndexs.forEach((v, i) => {
+			array.slice(0, REVIEWER_NUMBER).forEach((v, i) => {
 				selectReviewers[i] = reviewers[v];
 			});
 		} while (
