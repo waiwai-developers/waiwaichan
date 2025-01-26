@@ -6,6 +6,7 @@ import type { GithubPullRequestId } from "@/src/entities/vo/GithubPullRequestId"
 import type { IPullRequestLogic } from "@/src/logics/Interfaces/logics/IPullRequestLogic";
 import type { IPullRequestRepository } from "@/src/logics/Interfaces/repositories/githubapi/IPullRequestRepository";
 import { inject, injectable } from "inversify";
+import { REVIEW_GRADE_HIGH } from "@/src/entities/constants/review";
 
 @injectable()
 export class PullRequestLogic implements IPullRequestLogic {
@@ -71,8 +72,8 @@ export class PullRequestLogic implements IPullRequestLogic {
 				firstReviewer = reviewers[firstIndex];
 				secondReviewer = reviewers[secondIndex];
 			} while (
-				firstReviewer.grade !== "parent" &&
-				secondReviewer.grade !== "parent"
+				firstReviewer.grade !== REVIEW_GRADE_HIGH &&
+				secondReviewer.grade !== REVIEW_GRADE_HIGH
 			);
 
 			selectReviewers = [firstReviewer, secondReviewer];
