@@ -1,15 +1,18 @@
 import { UserCandyItemDto } from "@/src/entities/dto/UserCandyItemDto";
-import type { UserCandyItemWithItemDto } from "@/src/entities/dto/UserCandyItemWithItemDto";
+import { UserCandyItemWithItemGroupByDto } from "@/src/entities/dto/UserCandyItemWithItemGroupByDto";
 import { CandyItemDescription } from "@/src/entities/vo/CandyItemDescription";
 import { CandyItemId } from "@/src/entities/vo/CandyItemId";
 import { CandyItemName } from "@/src/entities/vo/CandyItemName";
 import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
+import { UserCandyItemCount } from "@/src/entities/vo/UserCandyItemCount";
 import { UserCandyItemExpire } from "@/src/entities/vo/UserCandyItemExpire";
 import { UserCandyItemId } from "@/src/entities/vo/UserCandyItemId";
+import { UserCandyItemMinExpire } from "@/src/entities/vo/UserCandyItemMinExpire";
+import { UserCandyItemMinId } from "@/src/entities/vo/UserCandyItemMinId";
 import type { IUserCandyItemRepository } from "@/src/logics/Interfaces/repositories/database/IUserCandyItemRepository";
 import dayjs from "dayjs";
 import { injectable } from "inversify";
-import { Op } from "sequelize";
+import { Op, col, fn } from "sequelize";
 import {
 	AutoIncrement,
 	BelongsTo,
@@ -43,6 +46,12 @@ class UserCandyItemRepositoryImpl
 	declare itemId: number;
 	@Column(DataType.DATE)
 	declare expiredAt: Date;
+	@Column(DataType.INTEGER)
+	declare aggrCount: number;
+	@Column(DataType.INTEGER)
+	declare aggrMinId: number;
+	@Column(DataType.DATE)
+	declare aggrMinExpiredAt: Date;
 
 	@BelongsTo(() => CandyItemRepositoryImpl)
 	declare item: CandyItemRepositoryImpl;
@@ -57,20 +66,32 @@ class UserCandyItemRepositoryImpl
 
 	async findByNotUsed(
 		userId: DiscordUserId,
-	): Promise<UserCandyItemWithItemDto[]> {
+	): Promise<UserCandyItemWithItemGroupByDto[]> {
 		return UserCandyItemRepositoryImpl.findAll({
 			include: [CandyItemRepositoryImpl],
+			attributes: [
+				"userId",
+				"itemId",
+				[fn("COUNT", col("UserCandyItemRepositoryImpl.id")), "aggrCount"],
+				[fn("MIN", col("UserCandyItemRepositoryImpl.id")), "aggrMinId"],
+				[fn("MIN", col("expiredAt")), "aggrMinExpiredAt"],
+			],
 			where: {
 				userId: userId.getValue(),
 				expiredAt: { [Op.gt]: dayjs().toDate() },
 			},
+			group: ["itemId"],
 		}).then((r) =>
 			r.map((it) => {
-				return {
-					...this.toDto(it),
-					name: new CandyItemName(it.item.name),
-					description: new CandyItemDescription(it.item.description),
-				};
+				return new UserCandyItemWithItemGroupByDto(
+					new CandyItemName(it.userId),
+					new CandyItemId(it.item.id),
+					new CandyItemName(it.item.name),
+					new CandyItemDescription(it.item.description),
+					new UserCandyItemCount(it.aggrCount),
+					new UserCandyItemMinId(it.aggrMinId),
+					new UserCandyItemMinExpire(it.aggrMinExpiredAt),
+				);
 			}),
 		);
 	}
@@ -86,6 +107,7 @@ class UserCandyItemRepositoryImpl
 		userId: DiscordUserId,
 	): Promise<UserCandyItemDto | null> {
 		return UserCandyItemRepositoryImpl.findOne({
+			attributes: ["id", "userId", "itemId", "expiredAt"],
 			where: {
 				id: id.getValue(),
 				userId: userId.getValue(),
