@@ -1,12 +1,15 @@
 import { AccountsConfig } from "@/src/entities/config/AccountsConfig";
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
+import {
+	REVIEWER_NUMBER,
+	REVIEW_GRADE_HIGH,
+} from "@/src/entities/constants/review";
 import type { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
 import { GitHubUserId } from "@/src/entities/vo/GitHubUserId";
 import type { GithubPullRequestId } from "@/src/entities/vo/GithubPullRequestId";
 import type { IPullRequestLogic } from "@/src/logics/Interfaces/logics/IPullRequestLogic";
 import type { IPullRequestRepository } from "@/src/logics/Interfaces/repositories/githubapi/IPullRequestRepository";
 import { inject, injectable } from "inversify";
-import { REVIEW_GRADE_HIGH, REVIEWER_NUMBER } from "@/src/entities/constants/review";
 
 @injectable()
 export class PullRequestLogic implements IPullRequestLogic {
@@ -46,21 +49,18 @@ export class PullRequestLogic implements IPullRequestLogic {
 			return "pull reqのステータスがopenじゃないよ！っ";
 		}
 
-		if ( REVIEWER_NUMBER <= 0 ) {
+		if (REVIEWER_NUMBER <= 0) {
 			return "reviewerの選ばれる人数が0以下に設定されているよ！っ";
 		}
 
-		let array = Array.from(
-			{ length: reviewers.length },
-			(_, index) => index,
-		);
+		const array = Array.from({ length: reviewers.length }, (_, index) => index);
 
-		if ( REVIEWER_NUMBER > array.length ) {
+		if (REVIEWER_NUMBER > array.length) {
 			return "reviewerの選ばれる人数が実際のreviewerの数より多いよ！っ";
 		}
 
-		let reviewerIndexs: number[] = []
-		let selectReviewers: typeof AccountsConfig.users = [];
+		let reviewerIndexs: number[] = [];
+		const selectReviewers: typeof AccountsConfig.users = [];
 
 		do {
 			for (let i = array.length - 1; i > 0; i--) {
@@ -71,11 +71,10 @@ export class PullRequestLogic implements IPullRequestLogic {
 			reviewerIndexs = array.slice(0, REVIEWER_NUMBER);
 
 			reviewerIndexs.forEach((v, i) => {
-				selectReviewers[i] = reviewers[v]
+				selectReviewers[i] = reviewers[v];
 			});
-
 		} while (
-			selectReviewers.filter(s => s.grade === REVIEW_GRADE_HIGH ).length === 0
+			selectReviewers.filter((s) => s.grade === REVIEW_GRADE_HIGH).length === 0
 		);
 
 		selectReviewers.forEach(
