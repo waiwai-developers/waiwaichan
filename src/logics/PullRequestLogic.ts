@@ -51,9 +51,7 @@ export class PullRequestLogic implements IPullRequestLogic {
 		if (reviewers.length === 0) {
 			selectReviewers = [];
 		} else if (reviewers.length === 1) {
-			selectReviewers = [
-				reviewers[Math.floor(Math.random() * reviewers.length)],
-			];
+			selectReviewers = reviewers;
 		} else {
 			const array = Array.from(
 				{ length: reviewers.length },
