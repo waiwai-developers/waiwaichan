@@ -24,7 +24,7 @@ export class PullRequestLogic implements IPullRequestLogic {
 		if (reviewers.length === 0) {
 			return "reviewerが存在しないよ！っ";
 		}
-		if (reviewers.filter((u) => u.grade === "parent").length === 0) {
+		if (reviewers.filter((u) => u.grade === REVIEW_GRADE_HIGH).length === 0) {
 			return "親reviewerが存在しないよ！っ";
 		}
 
