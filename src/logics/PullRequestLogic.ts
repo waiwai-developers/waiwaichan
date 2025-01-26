@@ -48,9 +48,7 @@ export class PullRequestLogic implements IPullRequestLogic {
 
 		let selectReviewers: typeof AccountsConfig.users;
 
-		if (reviewers.length === 0) {
-			selectReviewers = [];
-		} else if (reviewers.length === 1) {
+		if (reviewers.length === 1) {
 			selectReviewers = reviewers;
 		} else {
 			const array = Array.from(
