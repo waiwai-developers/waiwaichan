@@ -20,6 +20,13 @@ export class PullRequestLogic implements IPullRequestLogic {
 			(u) => u.discordId !== userId.getValue(),
 		);
 
+		if (reviewers.length === 0) {
+			return "reviewerが存在しないよ";
+		}
+		if (reviewers.filter((u) => u.grade === "parent").length === 0) {
+			return "親reviewerが存在しないよ";
+		}
+
 		const pr = await this.pullRequestRepository.getById(pullRequestId);
 
 		// NOTE:todo 機能していないのでerror responseに応じて直す必要がある
