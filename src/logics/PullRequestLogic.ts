@@ -38,16 +38,34 @@ export class PullRequestLogic implements IPullRequestLogic {
 			return "pull reqのステータスがopenじゃないよ！っ";
 		}
 
-		// NOTE:todo より良い乱数生成に変える
-		const randomNum = Math.floor(Math.random() * reviewers.length);
+		let selectReviewers: typeof AccountsConfig.users
 
-		// NOTE:todo そのうち複数人に対応できるロジックに変える
-		const selectReviewers = [reviewers[randomNum]];
+		if (reviewers.length === 0) {
+			selectReviewers = [];
+		} else if (reviewers.length === 1) {
+			selectReviewers = [reviewers[Math.floor(Math.random() * reviewers.length)]];
+		} else {
+			const array = Array.from({ length: reviewers.length }, (_, index) => index)
 
-		await this.pullRequestRepository.assignReviewer(
-			new GitHubUserId(selectReviewers[0].githubId),
+			let firstReviewer
+			let secondReviewer
+
+			do {
+				const firstIndex = Math.floor(Math.random() * array.length);
+				const SecondIndex = Math.floor(Math.random() * array.filter(e => e !== firstIndex).length);
+
+				firstReviewer = reviewers[firstIndex]
+				secondReviewer = reviewers[SecondIndex]
+
+			} while (firstReviewer.grade !== "parent" && secondReviewer.grade !== "parent");
+
+			selectReviewers = [firstReviewer, secondReviewer];
+		}
+
+		selectReviewers.forEach(async (r) => await this.pullRequestRepository.assignReviewer(
+			new GitHubUserId(r.githubId),
 			pullRequestId,
-		);
+		));
 
 		const texts = [
 			selectReviewers.map((r) => `<@${r.discordId}>`).join(" "),
