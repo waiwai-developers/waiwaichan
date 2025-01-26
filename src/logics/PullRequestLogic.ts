@@ -38,34 +38,46 @@ export class PullRequestLogic implements IPullRequestLogic {
 			return "pull reqのステータスがopenじゃないよ！っ";
 		}
 
-		let selectReviewers: typeof AccountsConfig.users
+		let selectReviewers: typeof AccountsConfig.users;
 
 		if (reviewers.length === 0) {
 			selectReviewers = [];
 		} else if (reviewers.length === 1) {
-			selectReviewers = [reviewers[Math.floor(Math.random() * reviewers.length)]];
+			selectReviewers = [
+				reviewers[Math.floor(Math.random() * reviewers.length)],
+			];
 		} else {
-			const array = Array.from({ length: reviewers.length }, (_, index) => index)
+			const array = Array.from(
+				{ length: reviewers.length },
+				(_, index) => index,
+			);
 
-			let firstReviewer
-			let secondReviewer
+			let firstReviewer: (typeof AccountsConfig.users)[number];
+			let secondReviewer: (typeof AccountsConfig.users)[number];
 
 			do {
 				const firstIndex = Math.floor(Math.random() * array.length);
-				const SecondIndex = Math.floor(Math.random() * array.filter(e => e !== firstIndex).length);
+				const SecondIndex = Math.floor(
+					Math.random() * array.filter((e) => e !== firstIndex).length,
+				);
 
-				firstReviewer = reviewers[firstIndex]
-				secondReviewer = reviewers[SecondIndex]
-
-			} while (firstReviewer.grade !== "parent" && secondReviewer.grade !== "parent");
+				firstReviewer = reviewers[firstIndex];
+				secondReviewer = reviewers[SecondIndex];
+			} while (
+				firstReviewer.grade !== "parent" &&
+				secondReviewer.grade !== "parent"
+			);
 
 			selectReviewers = [firstReviewer, secondReviewer];
 		}
 
-		selectReviewers.forEach(async (r) => await this.pullRequestRepository.assignReviewer(
-			new GitHubUserId(r.githubId),
-			pullRequestId,
-		));
+		selectReviewers.forEach(
+			async (r) =>
+				await this.pullRequestRepository.assignReviewer(
+					new GitHubUserId(r.githubId),
+					pullRequestId,
+				),
+		);
 
 		const texts = [
 			selectReviewers.map((r) => `<@${r.discordId}>`).join(" "),
