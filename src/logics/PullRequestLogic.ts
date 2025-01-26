@@ -57,12 +57,12 @@ export class PullRequestLogic implements IPullRequestLogic {
 
 			do {
 				const firstIndex = Math.floor(Math.random() * array.length);
-				const SecondIndex = Math.floor(
+				const secondIndex = Math.floor(
 					Math.random() * array.filter((e) => e !== firstIndex).length,
 				);
 
 				firstReviewer = reviewers[firstIndex];
-				secondReviewer = reviewers[SecondIndex];
+				secondReviewer = reviewers[secondIndex];
 			} while (
 				firstReviewer.grade !== "parent" &&
 				secondReviewer.grade !== "parent"
