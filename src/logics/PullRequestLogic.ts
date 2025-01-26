@@ -6,7 +6,7 @@ import type { GithubPullRequestId } from "@/src/entities/vo/GithubPullRequestId"
 import type { IPullRequestLogic } from "@/src/logics/Interfaces/logics/IPullRequestLogic";
 import type { IPullRequestRepository } from "@/src/logics/Interfaces/repositories/githubapi/IPullRequestRepository";
 import { inject, injectable } from "inversify";
-import { REVIEW_GRADE_HIGH } from "@/src/entities/constants/review";
+import { REVIEW_GRADE_HIGH, REVIEWER_NUMBER } from "@/src/entities/constants/review";
 
 @injectable()
 export class PullRequestLogic implements IPullRequestLogic {
@@ -46,34 +46,37 @@ export class PullRequestLogic implements IPullRequestLogic {
 			return "pull reqのステータスがopenじゃないよ！っ";
 		}
 
-		let selectReviewers: typeof AccountsConfig.users;
-
-		if (reviewers.length === 1) {
-			selectReviewers = reviewers;
-		} else {
-			const array = Array.from(
-				{ length: reviewers.length },
-				(_, index) => index,
-			);
-
-			let firstReviewer: (typeof AccountsConfig.users)[number];
-			let secondReviewer: (typeof AccountsConfig.users)[number];
-
-			do {
-				const firstIndex = Math.floor(Math.random() * array.length);
-				const secondIndex = Math.floor(
-					Math.random() * array.filter((e) => e !== firstIndex).length,
-				);
-
-				firstReviewer = reviewers[firstIndex];
-				secondReviewer = reviewers[secondIndex];
-			} while (
-				firstReviewer.grade !== REVIEW_GRADE_HIGH &&
-				secondReviewer.grade !== REVIEW_GRADE_HIGH
-			);
-
-			selectReviewers = [firstReviewer, secondReviewer];
+		if ( REVIEWER_NUMBER <= 0 ) {
+			return "reviewerの選ばれる人数が0以下に設定されているよ！っ";
 		}
+
+		let array = Array.from(
+			{ length: reviewers.length },
+			(_, index) => index,
+		);
+
+		if ( REVIEWER_NUMBER > array.length ) {
+			return "reviewerの選ばれる人数が実際のreviewerの数より多いよ！っ";
+		}
+
+		let reviewerIndexs: number[] = []
+		let selectReviewers: typeof AccountsConfig.users = [];
+
+		do {
+			for (let i = array.length - 1; i > 0; i--) {
+				const j = Math.floor(Math.random() * (i + 1));
+				[array[i], array[j]] = [array[j], array[i]];
+			}
+
+			reviewerIndexs = array.slice(0, REVIEWER_NUMBER);
+
+			reviewerIndexs.forEach((v, i) => {
+				selectReviewers[i] = reviewers[v]
+			});
+
+		} while (
+			selectReviewers.filter(s => s.grade === REVIEW_GRADE_HIGH ).length === 0
+		);
 
 		selectReviewers.forEach(
 			async (r) =>
