@@ -1,5 +1,9 @@
 import { AccountsConfig } from "@/src/entities/config/AccountsConfig";
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
+import {
+	REVIEWER_LENGTH,
+	REVIEW_GRADE_HIGH,
+} from "@/src/entities/constants/review";
 import type { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
 import { GitHubUserId } from "@/src/entities/vo/GitHubUserId";
 import type { GithubPullRequestId } from "@/src/entities/vo/GithubPullRequestId";
@@ -20,6 +24,13 @@ export class PullRequestLogic implements IPullRequestLogic {
 			(u) => u.discordId !== userId.getValue(),
 		);
 
+		if (reviewers.length === 0) {
+			return "reviewerが存在しないよ！っ";
+		}
+		if (reviewers.filter((u) => u.grade === REVIEW_GRADE_HIGH).length === 0) {
+			return "親reviewerが存在しないよ！っ";
+		}
+
 		const pr = await this.pullRequestRepository.getById(pullRequestId);
 
 		// NOTE:todo 機能していないのでerror responseに応じて直す必要がある
@@ -38,16 +49,34 @@ export class PullRequestLogic implements IPullRequestLogic {
 			return "pull reqのステータスがopenじゃないよ！っ";
 		}
 
-		// NOTE:todo より良い乱数生成に変える
-		const randomNum = Math.floor(Math.random() * reviewers.length);
+		if (REVIEWER_LENGTH <= 0) {
+			return "reviewerの選ばれる人数が0以下に設定されているよ！っ";
+		}
 
-		// NOTE:todo そのうち複数人に対応できるロジックに変える
-		const selectReviewers = [reviewers[randomNum]];
+		if (REVIEWER_LENGTH > reviewers.length) {
+			return "reviewerの選ばれる人数が実際のreviewerの数より多いよ！っ";
+		}
 
-		await this.pullRequestRepository.assignReviewer(
-			new GitHubUserId(selectReviewers[0].githubId),
-			pullRequestId,
+		let selectReviewers: typeof AccountsConfig.users = [];
+
+		// NOTE:フィッシャー–イェーツのシャッフルのアルゴリズムを使用
+		do {
+			for (let i = reviewers.length - 1; i > 0; i--) {
+				const j = Math.floor(Math.random() * (i + 1));
+				[reviewers[i], reviewers[j]] = [reviewers[j], reviewers[i]];
+			}
+			selectReviewers = reviewers.slice(0, REVIEWER_LENGTH);
+		} while (!selectReviewers.some((s) => s.grade === REVIEW_GRADE_HIGH));
+
+		const promises = selectReviewers.map(
+			async (r) =>
+				await this.pullRequestRepository.assignReviewer(
+					new GitHubUserId(r.githubId),
+					pullRequestId,
+				),
 		);
+
+		await Promise.all(promises);
 
 		const texts = [
 			selectReviewers.map((r) => `<@${r.discordId}>`).join(" "),
