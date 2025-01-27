@@ -5,7 +5,7 @@ import { GithubPullRequestId } from "@/src/entities/vo/GithubPullRequestId";
 import { ThreadCategoryType } from "@/src/entities/vo/ThreadCategoryType";
 import { ThreadGuildId } from "@/src/entities/vo/ThreadGuildId";
 import { ThreadMessageId } from "@/src/entities/vo/ThreadMessageId";
-import { ThreadMetadata } from "@/src/entities/vo/ThreadMetadata";
+import { ThreadMetadataGithub } from "@/src/entities/vo/ThreadMetadataGithub";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
 import type { IPullRequestLogic } from "@/src/logics/Interfaces/logics/IPullRequestLogic";
 import type { IThreadLogic } from "@/src/logics/Interfaces/logics/IThreadLogic";
@@ -56,7 +56,7 @@ export class ReviewGachaCommandHandler implements SlashCommandHandler {
 				new ThreadGuildId(message.guildId),
 				new ThreadMessageId(message.id),
 				ThreadCategoryType.CATEGORY_TYPE_GITHUB,
-				new ThreadMetadata(JSON.parse("{}")),
+				new ThreadMetadataGithub(JSON.parse("{}")),
 			),
 		);
 
