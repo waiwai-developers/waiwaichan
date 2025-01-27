@@ -65,17 +65,17 @@ export class PullRequestLogic implements IPullRequestLogic {
 				[reviewers[i], reviewers[j]] = [reviewers[j], reviewers[i]];
 			}
 			selectReviewers = reviewers.slice(0, REVIEWER_LENGTH);
-		} while (
-			!selectReviewers.some((s) => s.grade === REVIEW_GRADE_HIGH)
-		);
+		} while (!selectReviewers.some((s) => s.grade === REVIEW_GRADE_HIGH));
 
-		selectReviewers.forEach(
+		const promises = selectReviewers.map(
 			async (r) =>
 				await this.pullRequestRepository.assignReviewer(
 					new GitHubUserId(r.githubId),
 					pullRequestId,
 				),
 		);
+
+		await Promise.all(promises);
 
 		const texts = [
 			selectReviewers.map((r) => `<@${r.discordId}>`).join(" "),
