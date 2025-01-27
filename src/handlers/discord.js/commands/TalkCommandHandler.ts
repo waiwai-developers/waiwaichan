@@ -3,7 +3,7 @@ import { ThreadDto } from "@/src/entities/dto/ThreadDto";
 import { ThreadCategoryType } from "@/src/entities/vo/ThreadCategoryType";
 import { ThreadGuildId } from "@/src/entities/vo/ThreadGuildId";
 import { ThreadMessageId } from "@/src/entities/vo/ThreadMessageId";
-import { ThreadMetadata } from "@/src/entities/vo/ThreadMetadata";
+import { ThreadMetadataChatgpt } from "@/src/entities/vo/ThreadMetadataChatgpt";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
 import type { IThreadLogic } from "@/src/logics/Interfaces/logics/IThreadLogic";
 import type {
@@ -50,7 +50,7 @@ export class TalkCommandHandler implements SlashCommandHandler {
 				new ThreadGuildId(message.guildId),
 				new ThreadMessageId(message.id),
 				ThreadCategoryType.CATEGORY_TYPE_CHATGPT,
-				new ThreadMetadata(
+				new ThreadMetadataChatgpt(
 					JSON.parse(
 						`{
 						}`,
