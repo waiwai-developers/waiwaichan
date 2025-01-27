@@ -35,14 +35,14 @@
 				},
 				{
 					"name": "/translate",
-					"example": "/translate source: English target: Japanese message: hello world",
-					"parameter": "source: string, target: string, message: [string]",
+					"example": "/translate title: hello world source: English target: Japanese message: hello world",
+					"parameter": "title: string, source: string, target: string",
 					"description": "指定した言語から言語へ翻訳を行う"
 				},
 				{
 					"name": "/talk",
-					"example": "/talk message: please tell me your favorite food",
-					"parameter": "message: string",
+					"example": "/talk title: please tell me your favorite food",
+					"parameter": "title: string",
 					"description": "スレッドを立ててwaiwaiちゃんと会話をする"
 				}
 			]
@@ -71,31 +71,31 @@
 			]
 		},
 		{
-			"name": "pointコマンド",
+			"name": "candyコマンド",
 			"commands": [
 				{
-					"name": "/pointcheck",
-					"example": "/pointCheck",
+					"name": "/candycheck",
+					"example": "/candyCheck",
 					"parameter": "none",
-					"description": "付与されているポイントの数を確認する"
+					"description": "付与されているキャンディの数を確認する"
 				},
 				{
-					"name": "/pointdraw",
-					"example": "/pointDraw",
+					"name": "/candydraw",
+					"example": "/candydraw",
 					"parameter": "none",
-					"description": "ポイントを消費しガチャを回す"
+					"description": "キャンディを消費しガチャを回す"
 				},
 				{
-					"name": "/pointitem",
-					"example": "/pointItem",
+					"name": "/candyitem",
+					"example": "/candyitem",
 					"parameter": "none",
-					"description": "ガチャで取得したアイテムを確認する"
+					"description": "キャンディで取得したアイテムを確認する"
 				},
 				{
-					"name": "/pointChange",
-					"example": "/pointChange id: 1",
+					"name": "/candychange",
+					"example": "/candychange id: 1",
 					"parameter": "id: integer",
-					"description": "ガチャで取得したアイテムを交換する"
+					"description": "キャンディで取得したアイテムを交換する"
 				}
 			]
 		},
