@@ -1,3 +1,5 @@
 import { ValueObject } from "./ValueObject";
 
-export class ThreadMetadata extends ValueObject<JSON> {}
+export class ThreadMetadata extends ValueObject<
+	{} | { githubId: string; discordId: string }
+> {}
