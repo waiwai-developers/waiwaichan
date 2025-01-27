@@ -2,15 +2,18 @@
 	"users": [
 		{
 			"githubId": "",
-			"discordId": ""
+			"discordId": "",
+			"grade" ""
 		},
 		{
 			"githubId": "",
-			"discordId": ""
+			"discordId": "",
+			"grade" ""
 		},
 		{
 			"githubId": "",
-			"discordId": ""
+			"discordId": "",
+			"grade" ""
 		}
 	]
 }

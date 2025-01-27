@@ -5,6 +5,10 @@ services:
       - server-network
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: config/key.json
+    volumes:
+      - type: bind
+        source: ../../config
+        target: /app/config
   backend:
     <<: *base-service
     container_name: waiwai-backend

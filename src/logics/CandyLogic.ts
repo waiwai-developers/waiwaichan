@@ -41,17 +41,27 @@ export class CandyLogic implements ICandyLogic {
 	private readonly mutex!: IMutex;
 
 	async check(userId: DiscordUserId): Promise<string> {
-		return this.transaction
-			.startTransaction(async () => {
-				return this.candyRepository.candyCount(userId);
-			})
-			.then((candy) => {
-				if (candy.getValue() <= 0) {
-					return "ポイントがないよ！っ";
-				}
+		const candyCount = await this.candyRepository
+			.candyCount(userId)
+			.then((candyCount) => candyCount.getValue());
 
-				return `${candy.getValue()}ポイントあるよ！っ`;
-			});
+		if (candyCount <= 0) {
+			return "キャンディがないよ！っ";
+		}
+
+		const candyExpire = await this.candyRepository
+			.candyExpire(userId)
+			.then((e) =>
+				e
+					? dayjs(e.getValue()).subtract(1, "d").format("YYYY/MM/DD")
+					: undefined,
+			);
+
+		if (!candyExpire) {
+			return "キャンディがないよ！っ";
+		}
+
+		return `キャンディが${candyCount}個あるよ！期限が${candyExpire}に切れるから気を付けてね！っ`;
 	}
 
 	async exchange(
@@ -85,7 +95,7 @@ export class CandyLogic implements ICandyLogic {
 				.ConsumeCandies(userId)
 				.then(async (success) => {
 					if (!success) {
-						return "ポイントがないよ！っ";
+						return "キャンディがないよ！っ";
 					}
 
 					// NOTE:todo より良い乱数生成に変える
@@ -123,9 +133,10 @@ export class CandyLogic implements ICandyLogic {
 
 			if (userCandyItems.length === 0) return "アイテムは持ってないよ！っ";
 			const texts = userCandyItems.flatMap((u) => [
-				`- id: ${u.id.getValue()}`,
-				`  - ${u.name.getValue()}`,
-				`  - ${u.description.getValue()}`,
+				`- ${u.name.getValue()} id: ${u.minId.getValue()}`,
+				`  - 説明：${u.description.getValue()}`,
+				`  - 期限：${dayjs(u.minExpiredAt.getValue()).subtract(1, "d").format("YYYY/MM/DD")}`,
+				`  - 個数：${u.count.getValue()}`,
 			]);
 
 			return ["以下のアイテムが交換できるよ！っ", ...texts].join("\n");
@@ -146,7 +157,7 @@ export class CandyLogic implements ICandyLogic {
 				// reaction limit
 				// todo reaction limit to constant
 				if (todayCount.getValue() > 2) {
-					return "今はスタンプを押してもポイントをあげられないよ！っ";
+					return "今はスタンプを押してもキャンディをあげられないよ！っ";
 				}
 
 				const Candies = await this.candyRepository.findByGiverAndMessageId(

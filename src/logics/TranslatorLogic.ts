@@ -15,11 +15,9 @@ export class TranslatorLogic implements ITranslatorLogic {
 		if (text.getValue() === "") return "messageパラメーターがないよ！っ";
 		if (source.getValue() === "") return "sourceパラメーターがないよ！っ";
 		if (target.getValue() === "") return "targetパラメーターがないよ！っ";
-		if (source.getValue() === target.getValue())
-			return "sourceとtargetが同じだよ！っ";
 		const texts = text
 			.getValue()
-			.split("  ")
+			.split("\n\n")
 			.map((t) => t.trim());
 
 		const postMessages = await Promise.all(

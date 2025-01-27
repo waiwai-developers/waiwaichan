@@ -20,7 +20,7 @@ export const LogicTypes = {
 	CandyLogic: Symbol.for("CandyLogic"),
 	ReminderLogic: Symbol.for("ReminderLogic"),
 	PullRequestLogic: Symbol.for("PullRequestLogic"),
-	TranslateLogic: Symbol.for("TranslateLogic"),
+	TranslatorLogic: Symbol.for("TranslateLogic"),
 	UtilityLogic: Symbol.for("UtilityLogic"),
 };
 
