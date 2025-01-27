@@ -66,7 +66,7 @@ export class PullRequestLogic implements IPullRequestLogic {
 			}
 			selectReviewers = reviewers.slice(0, REVIEWER_LENGTH);
 		} while (
-			selectReviewers.filter((s) => s.grade === REVIEW_GRADE_HIGH).length === 0
+			!selectReviewers.some((s) => s.grade === REVIEW_GRADE_HIGH)
 		);
 
 		selectReviewers.forEach(
