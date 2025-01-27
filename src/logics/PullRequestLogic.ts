@@ -53,22 +53,18 @@ export class PullRequestLogic implements IPullRequestLogic {
 			return "reviewerの選ばれる人数が0以下に設定されているよ！っ";
 		}
 
-		const array = Array.from({ length: reviewers.length }, (_, index) => index);
-
-		if (REVIEWER_NUMBER > array.length) {
+		if (REVIEWER_NUMBER > reviewers.length) {
 			return "reviewerの選ばれる人数が実際のreviewerの数より多いよ！っ";
 		}
 
-		const selectReviewers: typeof AccountsConfig.users = [];
+		let selectReviewers: typeof AccountsConfig.users = [];
 
 		do {
-			for (let i = array.length - 1; i > 0; i--) {
+			for (let i = reviewers.length - 1; i > 0; i--) {
 				const j = Math.floor(Math.random() * (i + 1));
-				[array[i], array[j]] = [array[j], array[i]];
+				[reviewers[i], reviewers[j]] = [reviewers[j], reviewers[i]];
 			}
-			array.slice(0, REVIEWER_NUMBER).forEach((v, i) => {
-				selectReviewers[i] = reviewers[v];
-			});
+			selectReviewers = reviewers.slice(0, REVIEWER_NUMBER)
 		} while (
 			selectReviewers.filter((s) => s.grade === REVIEW_GRADE_HIGH).length === 0
 		);
