@@ -59,6 +59,7 @@ export class PullRequestLogic implements IPullRequestLogic {
 
 		let selectReviewers: typeof AccountsConfig.users = [];
 
+		// NOTE:フィッシャー–イェーツのシャッフルのアルゴリズムを使用
 		do {
 			for (let i = reviewers.length - 1; i > 0; i--) {
 				const j = Math.floor(Math.random() * (i + 1));
