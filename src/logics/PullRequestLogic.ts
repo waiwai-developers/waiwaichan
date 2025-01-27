@@ -1,7 +1,7 @@
 import { AccountsConfig } from "@/src/entities/config/AccountsConfig";
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import {
-	REVIEWER_NUMBER,
+	REVIEWER_LENGTH,
 	REVIEW_GRADE_HIGH,
 } from "@/src/entities/constants/review";
 import type { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
@@ -49,11 +49,11 @@ export class PullRequestLogic implements IPullRequestLogic {
 			return "pull reqのステータスがopenじゃないよ！っ";
 		}
 
-		if (REVIEWER_NUMBER <= 0) {
+		if (REVIEWER_LENGTH <= 0) {
 			return "reviewerの選ばれる人数が0以下に設定されているよ！っ";
 		}
 
-		if (REVIEWER_NUMBER > reviewers.length) {
+		if (REVIEWER_LENGTH > reviewers.length) {
 			return "reviewerの選ばれる人数が実際のreviewerの数より多いよ！っ";
 		}
 
@@ -64,7 +64,7 @@ export class PullRequestLogic implements IPullRequestLogic {
 				const j = Math.floor(Math.random() * (i + 1));
 				[reviewers[i], reviewers[j]] = [reviewers[j], reviewers[i]];
 			}
-			selectReviewers = reviewers.slice(0, REVIEWER_NUMBER)
+			selectReviewers = reviewers.slice(0, REVIEWER_LENGTH);
 		} while (
 			selectReviewers.filter((s) => s.grade === REVIEW_GRADE_HIGH).length === 0
 		);
