@@ -57,6 +57,7 @@ import { ChatGPTRepositoryImpl } from "@/src/repositories/chatgptapi/ChatGPTRepo
 import { DeepLTranslateRepositoryImpl } from "@/src/repositories/deeplapi/DeepLTranslateRepositoryImpl";
 import { GCPComputeEngineInstanceRepositoryImpl } from "@/src/repositories/gcpapi/GCPComputeEngineInstanceRepositoryImpl";
 import { GithubPullRequestRepositoryImpl } from "@/src/repositories/githubapi/GithubPullRequestRepositoryImpl";
+import { PinoLogger } from "@/src/repositories/logger/PinoLogger";
 import { AwaitSemaphoreMutex } from "@/src/repositories/mutex/AwaitSemaphoreMutex";
 import { CandyItemRepositoryImpl, CandyRepositoryImpl, ReminderRepositoryImpl, ThreadRepositoryImpl, UserCandyItemRepositoryImpl } from "@/src/repositories/sequelize-mysql";
 import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnector";
@@ -93,6 +94,8 @@ appContainer.bind<ITranslatorRepository>(RepoTypes.TranslateRepository).to(DeepL
 appContainer.bind<IVirtualMachineAPI>(RepoTypes.VMInstanceRepository).to(GCPComputeEngineInstanceRepositoryImpl);
 // Github
 appContainer.bind<IPullRequestRepository>(RepoTypes.PullRequestRepository).to(GithubPullRequestRepositoryImpl);
+// Logger
+appContainer.bind<ILogger>(RepoTypes.Logger).to(PinoLogger);
 
 // Logics
 appContainer.bind<IThreadLogic>(LogicTypes.ThreadLogic).to(ThreadLogic);

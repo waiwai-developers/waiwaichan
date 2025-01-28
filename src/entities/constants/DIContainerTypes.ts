@@ -12,6 +12,7 @@ export const RepoTypes = {
 	VMInstanceRepository: Symbol.for("VMInstanceRepository"),
 	PullRequestRepository: Symbol.for("PullRequestRepository"),
 	SequelizeModels: Symbol.for("SequelizeModels"),
+	Logger: Symbol.for("Logger"),
 };
 export const LogicTypes = {
 	ThreadLogic: Symbol.for("ThreadLogic"),
