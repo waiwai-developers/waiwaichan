@@ -21,8 +21,7 @@ export class ChatGPTRepositoryImpl implements IChatAIRepository {
 					? res.choices[0].message.content
 					: "";
 				if (content === "") {
-					console.error(res);
-					throw new Error("failed to create chat");
+					throw new Error(`failed to create chat ${res}`);
 				}
 				return new ChatAIContent(content);
 			});

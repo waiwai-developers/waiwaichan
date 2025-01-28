@@ -23,38 +23,34 @@ export class TranslateReplyHandler implements DiscordEventHandler<Message> {
 	@inject(LogicTypes.ThreadLogic)
 	private readonly threadLogic!: IThreadLogic;
 	async handle(message: Message) {
-		try {
-			if (message.author.bot) return;
-			if (!message.channel.isThread()) return;
-			if (!(message.channel.ownerId === AppConfig.discord.clientId)) return;
+		if (message.author.bot) return;
+		if (!message.channel.isThread()) return;
+		if (!(message.channel.ownerId === AppConfig.discord.clientId)) return;
 
-			const thread = await this.threadLogic.find(
-				new ThreadGuildId(message.channel.guildId),
-				new ThreadMessageId(message.channel.id),
-			);
+		const thread = await this.threadLogic.find(
+			new ThreadGuildId(message.channel.guildId),
+			new ThreadMessageId(message.channel.id),
+		);
 
-			if (
-				thread?.categoryType.getValue() !==
-				ThreadCategoryType.CATEGORY_TYPE_DEEPL.getValue()
-			)
-				return;
+		if (
+			thread?.categoryType.getValue() !==
+			ThreadCategoryType.CATEGORY_TYPE_DEEPL.getValue()
+		)
+			return;
 
-			message.channel.sendTyping();
-			message.reply(
-				await this.translatorLogic.translate(
-					new TranslateDto(
-						new TranslateText(message.content),
-						new TranslateSourceLanguage(
-							JSON.parse(JSON.stringify(thread.metadata)).value.source,
-						),
-						new TranslateTargetLanguage(
-							JSON.parse(JSON.stringify(thread.metadata)).value.target,
-						),
+		message.channel.sendTyping();
+		await message.reply(
+			await this.translatorLogic.translate(
+				new TranslateDto(
+					new TranslateText(message.content),
+					new TranslateSourceLanguage(
+						JSON.parse(JSON.stringify(thread.metadata)).value.source,
+					),
+					new TranslateTargetLanguage(
+						JSON.parse(JSON.stringify(thread.metadata)).value.target,
 					),
 				),
-			);
-		} catch (e) {
-			console.error("Error:", e);
-		}
+			),
+		);
 	}
 }

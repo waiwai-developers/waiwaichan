@@ -1,5 +1,8 @@
 import { AppConfig } from "@/src/entities/config/AppConfig";
-import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
+import {
+	LogicTypes,
+	RepoTypes,
+} from "@/src/entities/constants/DIContainerTypes";
 import { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
 import { DiscordMessageLink } from "@/src/entities/vo/DiscordMessageLink";
 import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
@@ -17,6 +20,9 @@ export class CandyReactionHandler
 {
 	@inject(LogicTypes.CandyLogic)
 	private candyLogic!: ICandyLogic;
+
+	@inject(RepoTypes.Logger)
+	private readonly logger!: ILogger;
 
 	async handle({ reaction, user }: ReactionInteraction): Promise<void> {
 		if (reaction.partial) {
