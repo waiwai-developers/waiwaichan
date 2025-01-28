@@ -1,7 +1,7 @@
 import type { Migration } from "@/migrator/umzug";
 import { DataTypes } from "sequelize";
 
-const TABLE_NAME = "shiritoriWords";
+const TABLE_NAME = "ShiritoriWords";
 
 export const up: Migration = async ({ context: sequelize }) => {
 	await sequelize.getQueryInterface().createTable(TABLE_NAME, {
