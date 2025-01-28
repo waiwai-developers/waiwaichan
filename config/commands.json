@@ -75,7 +75,7 @@
 			"commands": [
 				{
 					"name": "/candycheck",
-					"example": "/candyCheck",
+					"example": "/candycheck",
 					"parameter": "none",
 					"description": "付与されているキャンディの数を確認する"
 				},
