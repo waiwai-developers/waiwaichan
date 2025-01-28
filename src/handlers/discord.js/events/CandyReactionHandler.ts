@@ -31,12 +31,12 @@ export class CandyReactionHandler
 				await reaction.message.fetch();
 				await reaction.message.guild?.channels.fetch();
 			} catch (err) {
-				console.log("fail to fetch old message");
+				this.logger.debug("fail to fetch old message");
 				return;
 			}
 		}
 		if (user.bot) {
-			console.log("reaction by bot");
+			this.logger.debug("reaction by bot");
 			return;
 		}
 
@@ -44,17 +44,17 @@ export class CandyReactionHandler
 			(reaction.message.author?.bot ?? true) ||
 			(reaction.message.author?.id ?? null) == null
 		) {
-			console.log("some data is null");
+			this.logger.debug("some data is null");
 			return;
 		}
 
 		if (reaction.message.author?.id == null) {
-			console.log("author id is null");
+			this.logger.debug("author id is null");
 			return;
 		}
 
 		if (reaction.emoji.name !== AppConfig.backend.candyEmoji) {
-			console.log("not peer bonus emoji");
+			this.logger.debug("not peer bonus emoji");
 			return;
 		}
 

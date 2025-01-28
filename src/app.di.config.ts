@@ -93,7 +93,7 @@ appContainer.bind<ITranslatorRepository>(RepoTypes.TranslateRepository).to(DeepL
 // GCP
 appContainer.bind<IVirtualMachineAPI>(RepoTypes.VMInstanceRepository).to(GCPComputeEngineInstanceRepositoryImpl);
 // Github
-appContainer.bind<IPullRequestRepository>(RepoTypes.PullRequestRepository).to(GithubPullRequestRepositoryImpl);
+appContainer.bind<IPullRequestRepository>(RepoTypes.PullRequestRepository).to(GithubPullRequestRepositoryImpl).inSingletonScope();
 // Logger
 appContainer.bind<ILogger>(RepoTypes.Logger).to(PinoLogger);
 
