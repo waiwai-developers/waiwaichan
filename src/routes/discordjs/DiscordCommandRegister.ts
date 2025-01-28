@@ -140,4 +140,16 @@ export class DiscordCommandRegister {
 			},
 		);
 	}
+	async cleanUp(token: string) {
+		const rest = new REST({ version: "10" }).setToken(token);
+		await rest.put(
+			Routes.applicationGuildCommands(
+				AppConfig.discord.clientId,
+				AppConfig.discord.guildId,
+			),
+			{
+				body: {},
+			},
+		);
+	}
 }
