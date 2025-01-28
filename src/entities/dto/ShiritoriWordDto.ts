@@ -6,7 +6,7 @@ import type { ShiritoriWordReadingWord } from "@/src/entities/vo/ShiritoriWordRe
 import type { ShiritoriWordWritingWord } from "@/src/entities/vo/ShiritoriWordWritingWord";
 import type { ShiritoriWordNextMessageId } from "@/src/entities/vo/ShiritoriWordNextMessageId";
 
-export class ThreadDto {
+export class ShiritoriWordDto {
 	constructor(
 		public userId: ShiritoriWordUserId,
 		public guildId: ShiritoriWordGuildId,
