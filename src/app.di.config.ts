@@ -18,6 +18,7 @@ import {
 	ReviewListCommandHandler,
 	TalkCommandHandler,
 	TranslateCommandHandler,
+	ShiritoriCommandHandler,
 	WaiwaiCommandHandler,
 } from "@/src/handlers/discord.js/commands/";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
@@ -115,6 +116,7 @@ appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(Dice
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(ChoiceCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(TranslateCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(TalkCommandHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(ShiritoriCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(ReminderSetCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(ReminderListCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(ReminderDeleteCommandHandler);

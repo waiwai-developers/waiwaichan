@@ -15,6 +15,7 @@ import { ReviewGachaCommandHandler } from "@/src/handlers/discord.js/commands/Re
 import { ReviewListCommandHandler } from "@/src/handlers/discord.js/commands/ReviewListCommandHandler";
 import { TalkCommandHandler } from "@/src/handlers/discord.js/commands/TalkCommandHandler";
 import { TranslateCommandHandler } from "@/src/handlers/discord.js/commands/TranslateCommandHandler";
+import { ShiritoriCommandHandler } from "@/src/handlers/discord.js/commands/ShiritoriCommandHandler";
 import { WaiwaiCommandHandler } from "@/src/handlers/discord.js/commands/WaiwaiCommandHandler";
 export {
 	ReminderSetCommandHandler,
@@ -34,5 +35,6 @@ export {
 	CandyItemCommandHandler,
 	TalkCommandHandler,
 	TranslateCommandHandler,
+	ShiritoriCommandHandler,
 	WaiwaiCommandHandler,
 };
