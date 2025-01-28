@@ -23,7 +23,7 @@ export const up: Migration = async ({ context: sequelize }) => {
 			primaryKey: true,
 			type: DataTypes.BIGINT
 		},
-		  readingWord: {
+		readingWord: {
 			allowNull: false,
 			type: DataTypes.STRING
 		},
