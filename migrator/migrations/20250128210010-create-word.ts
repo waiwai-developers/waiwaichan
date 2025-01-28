@@ -1,7 +1,7 @@
 import type { Migration } from "@/migrator/umzug";
 import { DataTypes } from "sequelize";
 
-const TABLE_NAME = "Words";
+const TABLE_NAME = "shiritoriWords";
 
 export const up: Migration = async ({ context: sequelize }) => {
 	await sequelize.getQueryInterface().createTable(TABLE_NAME, {
@@ -30,6 +30,9 @@ export const up: Migration = async ({ context: sequelize }) => {
 		writingWord: {
 			allowNull: false,
 			type: DataTypes.STRING
+		},
+		nextMessageId: {
+			type: DataTypes.BIGINT
 		},
 		createdAt: {
 			allowNull: false,
