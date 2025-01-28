@@ -7,7 +7,7 @@ export const up: Migration = async ({ context: sequelize }) => {
 	await sequelize.getQueryInterface().createTable(TABLE_NAME, {
 		userId: {
 			allowNull: false,
-			type: DataTypes.BIGINT,
+			type: DataTypes.BIGINT
 		},
 		guildId: {
 			allowNull: false,
@@ -36,7 +36,7 @@ export const up: Migration = async ({ context: sequelize }) => {
 		},
 		createdAt: {
 			allowNull: false,
-			type: DataTypes.DATE,
+			type: DataTypes.DATE
 		},
 		updatedAt: {
 			allowNull: false,
