@@ -16,9 +16,9 @@ import {
 	ReminderSetCommandHandler,
 	ReviewGachaCommandHandler,
 	ReviewListCommandHandler,
+	ShiritoriCommandHandler,
 	TalkCommandHandler,
 	TranslateCommandHandler,
-	ShiritoriCommandHandler,
 	WaiwaiCommandHandler,
 } from "@/src/handlers/discord.js/commands/";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
