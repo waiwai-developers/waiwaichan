@@ -48,7 +48,6 @@ const chunkBuilder = (chunks: string[], currentRow = new Array<string>()) =>
 	chunks.reduce(
 		(messageTexts: Array<string>, current) => {
 			const lastItem = messageTexts[messageTexts.length - 1];
-			console.log(messageTexts);
 			if (lastItem.length + current.length > MAX_REPLY_CHARACTERS) {
 				messageTexts.push(current);
 				return messageTexts;
