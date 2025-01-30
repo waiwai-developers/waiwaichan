@@ -34,14 +34,6 @@ const splitByDelimiter = (
 	const tail = s.substring(nextIndex, s.length);
 	chunks.push(s.substring(0, nextIndex));
 
-	if (!codeBlock && s.indexOf(CODE_BLOCK_DELIMITER) === 0) {
-		/*
-        case of
-        \n\n
-        ```
-         */
-		return splitByDelimiter(tail, chunks, true);
-	}
 	if (
 		getDelimiterIndex(s, PARAGRAPH_DELIMITER) === Math.min(...hitDelimiters) ||
 		codeBlock
