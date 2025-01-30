@@ -10,7 +10,6 @@ const splitByDelimiter = (
 	s: string,
 	chunks: Array<string> = new Array<string>(),
 	codeBlock = false,
-	index = 0,
 ) => {
 	const CODE_BLOCK_DELIMITER = "```";
 	const PARAGRAPH_DELIMITER = "\n\n";
@@ -20,7 +19,6 @@ const splitByDelimiter = (
 				getDelimiterIndex(s, PARAGRAPH_DELIMITER),
 				s.indexOf(CODE_BLOCK_DELIMITER), // before code block when opening
 			];
-	console.log(index, codeBlock, delimiterIndices, s);
 
 	if (delimiterIndices.every((i) => i < 0)) {
 		// no delimiter while EOF
@@ -42,16 +40,16 @@ const splitByDelimiter = (
         \n\n
         ```
          */
-		return splitByDelimiter(tail, chunks, true, index + 1);
+		return splitByDelimiter(tail, chunks, true);
 	}
 	if (
 		getDelimiterIndex(s, PARAGRAPH_DELIMITER) === Math.min(...hitDelimiters) ||
 		codeBlock
 	) {
-		return splitByDelimiter(tail, chunks, false, index + 1);
+		return splitByDelimiter(tail, chunks, false);
 	}
 
-	return splitByDelimiter(tail, chunks, true, index + 1);
+	return splitByDelimiter(tail, chunks, true);
 };
 
 const chunkBuilder = (chunks: string[], currentRow = new Array<string>()) =>
