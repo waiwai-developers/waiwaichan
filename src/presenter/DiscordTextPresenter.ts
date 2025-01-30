@@ -69,10 +69,10 @@ const chunkBuilder = (chunks: string[], currentRow = new Array<string>()) =>
 		[""],
 	);
 
-export const DiscordTextPresenter = (string: string) => {
-	return new Promise<string>((resolve) => {
+export const DiscordTextPresenter = async (string: string) => {
+	const s = await new Promise<string>((resolve) => {
 		resolve(string);
-	})
-		.then(splitByDelimiter)
-		.then(chunkBuilder);
+	});
+	const chunks = await splitByDelimiter(s);
+	return chunkBuilder(chunks);
 };
