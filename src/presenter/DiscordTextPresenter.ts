@@ -22,6 +22,13 @@ const splitByDelimiter = (
 
 	if (delimiterIndices.every((i) => i < 0)) {
 		// no delimiter while EOF
+
+		if (s.length <= MAX_REPLY_CHARACTERS) {
+			const tail = s.substring(MAX_REPLY_CHARACTERS, s.length);
+			chunks.push(s.substring(0, MAX_REPLY_CHARACTERS));
+			return splitByDelimiter(tail, chunks, false);
+		}
+
 		return [...chunks, s];
 	}
 
