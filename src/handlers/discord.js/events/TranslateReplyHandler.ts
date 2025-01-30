@@ -11,6 +11,7 @@ import { TranslateText } from "@/src/entities/vo/TranslateText";
 import type { DiscordEventHandler } from "@/src/handlers/discord.js/events/DiscordEventHandler";
 import type { IThreadLogic } from "@/src/logics/Interfaces/logics/IThreadLogic";
 import type { ITranslatorLogic } from "@/src/logics/Interfaces/logics/ITranslatorLogic.ts";
+import { DiscordTextPresenter } from "@/src/presenter/DiscordTextPresenter";
 import type { Message } from "discord.js";
 import { inject, injectable } from "inversify";
 
@@ -39,11 +40,8 @@ export class TranslateReplyHandler implements DiscordEventHandler<Message> {
 
 			message.channel.sendTyping();
 
-			const replTexts = [];
-			let chunkText = "";
-
-			(
-				await this.translatorLogic.translate(
+			const replTexts = await this.translatorLogic
+				.translate(
 					new TranslateDto(
 						new TranslateText(message.content),
 						new TranslateSourceLanguage(
@@ -54,21 +52,7 @@ export class TranslateReplyHandler implements DiscordEventHandler<Message> {
 						),
 					),
 				)
-			)
-				.split("\n\n")
-				.forEach((t) => {
-					if (chunkText.length + t.length <= MAX_REPLY_CHARACTERS) {
-						chunkText += `${t}\n\n`;
-					} else {
-						replTexts.push(chunkText);
-						chunkText = `${t}\n\n`;
-					}
-				});
-
-			if (chunkText) {
-				replTexts.push(chunkText);
-			}
-
+				.then(DiscordTextPresenter);
 			await Promise.all(
 				replTexts.map(async (t) => {
 					await message.reply(t);
