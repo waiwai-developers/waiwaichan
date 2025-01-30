@@ -27,14 +27,14 @@ const splitByDelimiter = (
 		return [...chunks, s];
 	}
 
-	let hitDelimiters = delimiterIndices.filter((i) => i !== -1);
-	if (Math.min(...hitDelimiters) > MAX_REPLY_CHARACTERS) {
-		hitDelimiters = [2000];
-	}
+	const hitDelimiters = delimiterIndices.filter((i) => i !== -1);
+	const nextIndex =
+		Math.min(...hitDelimiters) > MAX_REPLY_CHARACTERS
+			? MAX_REPLY_CHARACTERS
+			: Math.min(...hitDelimiters);
 
-	const tail = s.substring(Math.min(...hitDelimiters), s.length);
-	chunks.push(s.substring(0, Math.min(...hitDelimiters)));
-	// start code block
+	const tail = s.substring(nextIndex, s.length);
+	chunks.push(s.substring(0, nextIndex));
 
 	if (!codeBlock && s.indexOf(CODE_BLOCK_DELIMITER) === 0) {
 		/*
