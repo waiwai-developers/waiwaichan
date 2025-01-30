@@ -1,15 +1,13 @@
 import { AppConfig } from "@/src/entities/config/AppConfig";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
+import { MAX_REPLY_CHARACTERS } from "@/src/entities/constants/Discord";
 import { TranslateDto } from "@/src/entities/dto/TranslateDto";
-
-import { TranslateSourceLanguage } from "@/src/entities/vo/TranslateSourceLanguage";
-import { TranslateTargetLanguage } from "@/src/entities/vo/TranslateTargetLanguage";
-import { TranslateText } from "@/src/entities/vo/TranslateText";
-
 import { ThreadCategoryType } from "@/src/entities/vo/ThreadCategoryType";
 import { ThreadGuildId } from "@/src/entities/vo/ThreadGuildId";
 import { ThreadMessageId } from "@/src/entities/vo/ThreadMessageId";
-
+import { TranslateSourceLanguage } from "@/src/entities/vo/TranslateSourceLanguage";
+import { TranslateTargetLanguage } from "@/src/entities/vo/TranslateTargetLanguage";
+import { TranslateText } from "@/src/entities/vo/TranslateText";
 import type { DiscordEventHandler } from "@/src/handlers/discord.js/events/DiscordEventHandler";
 import type { IThreadLogic } from "@/src/logics/Interfaces/logics/IThreadLogic";
 import type { ITranslatorLogic } from "@/src/logics/Interfaces/logics/ITranslatorLogic.ts";
@@ -40,7 +38,11 @@ export class TranslateReplyHandler implements DiscordEventHandler<Message> {
 				return;
 
 			message.channel.sendTyping();
-			message.reply(
+
+			const replTexts = [];
+			let chunkText = "";
+
+			(
 				await this.translatorLogic.translate(
 					new TranslateDto(
 						new TranslateText(message.content),
@@ -51,7 +53,26 @@ export class TranslateReplyHandler implements DiscordEventHandler<Message> {
 							JSON.parse(JSON.stringify(thread.metadata)).value.target,
 						),
 					),
-				),
+				)
+			)
+				.split("\n\n")
+				.forEach((t) => {
+					if (chunkText.length + t.length <= MAX_REPLY_CHARACTERS) {
+						chunkText += `${t}\n\n`;
+					} else {
+						replTexts.push(chunkText);
+						chunkText = `${t}\n\n`;
+					}
+				});
+
+			if (chunkText) {
+				replTexts.push(chunkText);
+			}
+
+			await Promise.all(
+				replTexts.map(async (t) => {
+					await message.reply(t);
+				}),
 			);
 		} catch (e) {
 			console.error("Error:", e);

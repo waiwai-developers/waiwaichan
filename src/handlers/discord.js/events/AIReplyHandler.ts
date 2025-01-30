@@ -1,5 +1,6 @@
 import { AppConfig } from "@/src/entities/config/AppConfig";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
+import { MAX_REPLY_CHARACTERS } from "@/src/entities/constants/Discord";
 import { ChatAIMessageDto } from "@/src/entities/dto/ChatAIMessageDto";
 import { ChatAIContent } from "@/src/entities/vo/ChatAIContent";
 import { ChatAIRole } from "@/src/entities/vo/ChatAIRole";
@@ -52,7 +53,29 @@ export class AIReplyHandler implements DiscordEventHandler<Message> {
 						),
 				);
 
-			await message.reply(await this.chatAILogic.replyTalk(chatAIContext));
+			const replTexts = [];
+			let chunkText = "";
+
+			(await this.chatAILogic.replyTalk(chatAIContext))
+				.split("\n\n")
+				.forEach((t) => {
+					if (chunkText.length + t.length <= MAX_REPLY_CHARACTERS) {
+						chunkText += `${t}\n\n`;
+					} else {
+						replTexts.push(chunkText);
+						chunkText = `${t}\n\n`;
+					}
+				});
+
+			if (chunkText) {
+				replTexts.push(chunkText);
+			}
+
+			await Promise.all(
+				replTexts.map(async (t) => {
+					await message.reply(t);
+				}),
+			);
 		} catch (e) {
 			console.error("Error:", e);
 		}
