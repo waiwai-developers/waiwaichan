@@ -7,29 +7,35 @@ const getDelimiterIndex = (str: string, delimiter: string, pos = 0) => {
 };
 
 const splitByDelimiter = (
-	s: string,
+	payload: string,
 	chunks: Array<string> = new Array<string>(),
 	codeBlock = false,
 ) => {
 	const CODE_BLOCK_DELIMITER = "```";
 	const PARAGRAPH_DELIMITER = "\n\n";
 	const delimiterIndices = codeBlock
-		? [getDelimiterIndex(s, CODE_BLOCK_DELIMITER, CODE_BLOCK_DELIMITER.length)] // after code block when closing & ignoring open code block quotes
+		? [
+				getDelimiterIndex(
+					payload,
+					CODE_BLOCK_DELIMITER,
+					CODE_BLOCK_DELIMITER.length,
+				),
+			] // after code block when closing & ignoring open code block quotes
 		: [
-				getDelimiterIndex(s, PARAGRAPH_DELIMITER),
-				s.indexOf(CODE_BLOCK_DELIMITER), // before code block when opening
+				getDelimiterIndex(payload, PARAGRAPH_DELIMITER),
+				payload.indexOf(CODE_BLOCK_DELIMITER), // before code block when opening
 			];
 
 	if (delimiterIndices.every((i) => i < 0)) {
 		// no delimiter while EOF
 
-		if (s.length > MAX_REPLY_CHARACTERS) {
-			const tail = s.substring(MAX_REPLY_CHARACTERS, s.length);
-			chunks.push(s.substring(0, MAX_REPLY_CHARACTERS));
+		if (payload.length > MAX_REPLY_CHARACTERS) {
+			const tail = payload.substring(MAX_REPLY_CHARACTERS, payload.length);
+			chunks.push(payload.substring(0, MAX_REPLY_CHARACTERS));
 			return splitByDelimiter(tail, chunks, false);
 		}
 
-		return [...chunks, s];
+		return [...chunks, payload];
 	}
 
 	const hitDelimiters = delimiterIndices.filter((i) => i !== -1);
@@ -38,11 +44,12 @@ const splitByDelimiter = (
 			? MAX_REPLY_CHARACTERS
 			: Math.min(...hitDelimiters);
 
-	const tail = s.substring(nextIndex, s.length);
-	chunks.push(s.substring(0, nextIndex));
+	const tail = payload.substring(nextIndex, payload.length);
+	chunks.push(payload.substring(0, nextIndex));
 
 	if (
-		getDelimiterIndex(s, PARAGRAPH_DELIMITER) === Math.min(...hitDelimiters) ||
+		getDelimiterIndex(payload, PARAGRAPH_DELIMITER) ===
+			Math.min(...hitDelimiters) ||
 		codeBlock
 	) {
 		return splitByDelimiter(tail, chunks, false);
