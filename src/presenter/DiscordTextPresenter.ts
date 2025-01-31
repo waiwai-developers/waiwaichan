@@ -6,6 +6,10 @@ const lastIndexOf = (str: string, delimiter: string, pos = 0) => {
 		: str.indexOf(delimiter, pos) + delimiter.length;
 };
 
+const splitStringByIndex = (str: string, index: number) => {
+	return [str.substring(0, index), str.substring(index, str.length)];
+};
+
 const splitByDelimiter = (
 	payload: string,
 	chunks: Array<string> = new Array<string>(),
@@ -20,35 +24,28 @@ const splitByDelimiter = (
 				payload.indexOf(CODE_BLOCK_DELIMITER), // before code block when opening
 			];
 
-	if (delimiterIndices.every((i) => i < 0)) {
+	const hitDelimiters = delimiterIndices.filter((i) => i >= 0);
+	if (hitDelimiters.length === 0) {
 		// no delimiter while EOF
 
 		if (payload.length > MAX_REPLY_CHARACTERS) {
-			const tail = payload.substring(MAX_REPLY_CHARACTERS, payload.length);
-			chunks.push(payload.substring(0, MAX_REPLY_CHARACTERS));
+			const [head, tail] = splitStringByIndex(payload, MAX_REPLY_CHARACTERS);
+			chunks.push(head);
 			return splitByDelimiter(tail, chunks, false);
 		}
 
 		return [...chunks, payload];
 	}
 
-	const hitDelimiters = delimiterIndices.filter((i) => i !== -1);
-	const nextIndex =
-		Math.min(...hitDelimiters) > MAX_REPLY_CHARACTERS
-			? MAX_REPLY_CHARACTERS
-			: Math.min(...hitDelimiters);
+	const nextIndex = Math.min(...hitDelimiters, MAX_REPLY_CHARACTERS);
+	const [head, tail] = splitStringByIndex(payload, nextIndex);
+	chunks.push(head);
 
-	const tail = payload.substring(nextIndex, payload.length);
-	chunks.push(payload.substring(0, nextIndex));
-
-	if (
-		lastIndexOf(payload, PARAGRAPH_DELIMITER) === Math.min(...hitDelimiters) ||
-		codeBlock
-	) {
-		return splitByDelimiter(tail, chunks, false);
-	}
-
-	return splitByDelimiter(tail, chunks, true);
+	return splitByDelimiter(
+		tail,
+		chunks,
+		lastIndexOf(payload, CODE_BLOCK_DELIMITER) === nextIndex && !codeBlock,
+	);
 };
 
 const chunkBuilder = (chunks: string[], currentRow = new Array<string>()) =>
