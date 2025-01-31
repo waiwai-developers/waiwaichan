@@ -1,6 +1,6 @@
 import { MAX_REPLY_CHARACTERS } from "@/src/entities/constants/Discord";
 
-const getDelimiterIndex = (str: string, delimiter: string, pos = 0) => {
+const lastIndexOf = (str: string, delimiter: string, pos = 0) => {
 	return str.indexOf(delimiter, pos) === -1
 		? -1
 		: str.indexOf(delimiter, pos) + delimiter.length;
@@ -14,15 +14,9 @@ const splitByDelimiter = (
 	const CODE_BLOCK_DELIMITER = "```";
 	const PARAGRAPH_DELIMITER = "\n\n";
 	const delimiterIndices = codeBlock
-		? [
-				getDelimiterIndex(
-					payload,
-					CODE_BLOCK_DELIMITER,
-					CODE_BLOCK_DELIMITER.length,
-				),
-			] // after code block when closing & ignoring open code block quotes
+		? [lastIndexOf(payload, CODE_BLOCK_DELIMITER, CODE_BLOCK_DELIMITER.length)] // after code block when closing & ignoring open code block quotes
 		: [
-				getDelimiterIndex(payload, PARAGRAPH_DELIMITER),
+				lastIndexOf(payload, PARAGRAPH_DELIMITER),
 				payload.indexOf(CODE_BLOCK_DELIMITER), // before code block when opening
 			];
 
@@ -48,8 +42,7 @@ const splitByDelimiter = (
 	chunks.push(payload.substring(0, nextIndex));
 
 	if (
-		getDelimiterIndex(payload, PARAGRAPH_DELIMITER) ===
-			Math.min(...hitDelimiters) ||
+		lastIndexOf(payload, PARAGRAPH_DELIMITER) === Math.min(...hitDelimiters) ||
 		codeBlock
 	) {
 		return splitByDelimiter(tail, chunks, false);
