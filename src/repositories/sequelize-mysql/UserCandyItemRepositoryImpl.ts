@@ -119,7 +119,6 @@ class UserCandyItemRepositoryImpl
 			limit: amount.getValue(),
 			lock: Transaction.LOCK.UPDATE,
 		}).then((res) => {
-			console.log(res.length);
 			if (res.length < amount.getValue()) {
 				throw Error("no items found for satisfy request");
 			}
