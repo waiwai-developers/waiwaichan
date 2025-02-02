@@ -36,7 +36,7 @@ export class CandyLogic implements ICandyLogic {
 	private readonly userCandyItemRepository!: IUserCandyItemRepository;
 
 	@inject(RepoTypes.Transaction)
-	private readonly transaction!: ITransaction<TransactionLike>;
+	private readonly transaction!: ITransaction;
 
 	@inject(RepoTypes.Mutex)
 	private readonly mutex!: IMutex;
@@ -71,7 +71,7 @@ export class CandyLogic implements ICandyLogic {
 		amount: UserCandyItemCount,
 	): Promise<string> {
 		return this.transaction
-			.startTransaction(async (t) => {
+			.startTransaction(async () => {
 				const item = await this.candyItemRepository.findById(type);
 				if (item == null) {
 					return "アイテムは持ってないよ！っ";

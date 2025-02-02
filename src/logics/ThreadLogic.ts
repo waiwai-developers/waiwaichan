@@ -12,7 +12,7 @@ export class ThreadLogic implements IThreadLogic {
 	private readonly threadRepository!: IThreadRepository;
 
 	@inject(RepoTypes.Transaction)
-	private readonly transaction!: ITransaction<TransactionLike>;
+	private readonly transaction!: ITransaction;
 
 	async create(data: ThreadDto): Promise<boolean> {
 		return this.transaction.startTransaction(async () => {
