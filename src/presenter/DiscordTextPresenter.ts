@@ -25,6 +25,7 @@ const splitByDelimiter = (
 			];
 
 	const hitDelimiters = delimiterIndices.filter((i) => i >= 0);
+	console.log(hitDelimiters, delimiterIndices);
 	if (hitDelimiters.length === 0) {
 		// no delimiter while EOF
 
@@ -44,7 +45,7 @@ const splitByDelimiter = (
 	return splitByDelimiter(
 		tail,
 		chunks,
-		lastIndexOf(payload, CODE_BLOCK_DELIMITER) === nextIndex && !codeBlock,
+		payload.indexOf(CODE_BLOCK_DELIMITER) === nextIndex && !codeBlock,
 	);
 };
 
