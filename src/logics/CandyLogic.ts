@@ -13,6 +13,7 @@ import { CandyItemId } from "@/src/entities/vo/CandyItemId";
 import type { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
 import type { DiscordMessageLink } from "@/src/entities/vo/DiscordMessageLink";
 import type { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
+import type { UserCandyItemCount } from "@/src/entities/vo/UserCandyItemCount";
 import { UserCandyItemExpire } from "@/src/entities/vo/UserCandyItemExpire";
 import { UserCandyItemId } from "@/src/entities/vo/UserCandyItemId";
 import type { ICandyLogic } from "@/src/logics/Interfaces/logics/ICandyLogic";
@@ -66,24 +67,22 @@ export class CandyLogic implements ICandyLogic {
 
 	async exchange(
 		userId: DiscordUserId,
-		userCandyItemId: UserCandyItemId,
+		type: CandyItemId,
+		amount: UserCandyItemCount,
 	): Promise<string> {
 		return this.transaction
 			.startTransaction(async (t) => {
+				const item = await this.candyItemRepository.findById(type);
+				if (item == null) {
+					return "アイテムは持ってないよ！っ";
+				}
 				return this.userCandyItemRepository
-					.exchangeById(userCandyItemId, userId)
+					.exchangeByTypeAndAmount(userId, type, amount)
 					.then(async (updated) => {
 						if (!updated) {
-							await t.rollback();
-							return "アイテムは持ってないよ！っ";
+							throw new Error();
 						}
-						const item = await this.candyItemRepository.findById(
-							updated.itemId,
-						);
-						if (item == null) {
-							return "アイテムは持ってないよ！っ";
-						}
-						return `${item.name.getValue()}と交換したよ！っ`;
+						return `${item.name.getValue()}${amount.getValue() > 1 ? `${amount.getValue()}個` : ""}と交換したよ！っ`;
 					});
 			})
 			.catch((_err) => "アイテムは持ってないよ！っ");

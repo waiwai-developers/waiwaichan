@@ -98,27 +98,29 @@ class UserCandyItemRepositoryImpl
 
 	/**
 	 *
-	 * @param id the UserCandyItem id that created with Vo
 	 * @param userId the Discord user id that created with Vo
+	 * @param type the CandyItem id that created with Vo
+	 * @param amount the Exchange candy amount that created with Vo
 	 * @return dto that updated item
 	 */
-	async exchangeById(
-		id: UserCandyItemId,
+	async exchangeByTypeAndAmount(
 		userId: DiscordUserId,
-	): Promise<UserCandyItemDto | null> {
-		return UserCandyItemRepositoryImpl.findOne({
+		type: CandyItemId,
+		amount: UserCandyItemCount,
+	): Promise<UserCandyItemDto[] | null> {
+		return UserCandyItemRepositoryImpl.findAll({
 			attributes: ["id", "userId", "itemId", "expiredAt"],
 			where: {
-				id: id.getValue(),
 				userId: userId.getValue(),
+				itemId: type,
 				expiredAt: { [Op.gt]: dayjs().toDate() },
 			},
+			limit: amount.getValue(),
 		}).then((res) => {
-			if (res === null) {
+			if (res.length < amount.getValue()) {
 				throw Error("no item deleted");
 			}
-			res.destroy();
-			return res ? this.toDto(res) : null;
+			return res.map(this.toDto);
 		});
 	}
 
