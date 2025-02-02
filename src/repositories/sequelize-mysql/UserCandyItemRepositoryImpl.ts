@@ -115,6 +115,7 @@ class UserCandyItemRepositoryImpl
 				itemId: type.getValue(),
 				expiredAt: { [Op.gt]: dayjs().toDate() },
 			},
+			order: [["expiredAt", "ASC"]],
 			limit: amount.getValue(),
 			lock: Transaction.LOCK.UPDATE,
 		}).then((res) => {
