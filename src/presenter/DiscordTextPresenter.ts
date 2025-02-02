@@ -25,7 +25,6 @@ const splitByDelimiter = (
 			];
 
 	const hitDelimiters = delimiterIndices.filter((i) => i >= 0);
-	console.log(hitDelimiters, delimiterIndices);
 	if (hitDelimiters.length === 0) {
 		// no delimiter while EOF
 
