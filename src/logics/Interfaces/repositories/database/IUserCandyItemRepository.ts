@@ -15,5 +15,5 @@ export interface IUserCandyItemRepository {
 		userId: DiscordUserId,
 		type: CandyItemId,
 		amount: UserCandyItemCount,
-	): Promise<UserCandyItemDto[] | null>;
+	): Promise<number>;
 }

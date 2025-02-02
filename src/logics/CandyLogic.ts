@@ -72,15 +72,19 @@ export class CandyLogic implements ICandyLogic {
 	): Promise<string> {
 		return this.transaction
 			.startTransaction(async () => {
-				const item = await this.candyItemRepository.findById(type);
-				if (item == null) {
-					return "アイテムは持ってないよ！っ";
-				}
 				return this.userCandyItemRepository
 					.exchangeByTypeAndAmount(userId, type, amount)
 					.then(async (updated) => {
-						if (!updated) {
-							throw new Error();
+						if (updated !== amount.getValue()) {
+							throw new Error(
+								"The requested amount and received amount is not matched",
+							);
+						}
+						const item = await this.candyItemRepository.findById(type);
+						if (item == null) {
+							throw new Error(
+								`no item found that specify by type ${type.getValue()}`,
+							);
 						}
 						return `${item.name.getValue()}${amount.getValue() > 1 ? `${amount.getValue()}個` : ""}と交換したよ！っ`;
 					});

@@ -12,7 +12,7 @@ import { UserCandyItemMinId } from "@/src/entities/vo/UserCandyItemMinId";
 import type { IUserCandyItemRepository } from "@/src/logics/Interfaces/repositories/database/IUserCandyItemRepository";
 import dayjs from "dayjs";
 import { injectable } from "inversify";
-import { Op, col, fn } from "sequelize";
+import { Op, Transaction, col, fn } from "sequelize";
 import {
 	AutoIncrement,
 	BelongsTo,
@@ -107,20 +107,27 @@ class UserCandyItemRepositoryImpl
 		userId: DiscordUserId,
 		type: CandyItemId,
 		amount: UserCandyItemCount,
-	): Promise<UserCandyItemDto[] | null> {
-		return UserCandyItemRepositoryImpl.findAll({
-			attributes: ["id", "userId", "itemId", "expiredAt"],
+	): Promise<number> {
+		const lockedIds = await UserCandyItemRepositoryImpl.findAll({
+			attributes: ["id"],
 			where: {
 				userId: userId.getValue(),
-				itemId: type,
+				itemId: type.getValue(),
 				expiredAt: { [Op.gt]: dayjs().toDate() },
 			},
 			limit: amount.getValue(),
+			lock: Transaction.LOCK.UPDATE,
 		}).then((res) => {
+			console.log(res.length);
 			if (res.length < amount.getValue()) {
-				throw Error("no item deleted");
+				throw Error("no items found for satisfy request");
 			}
-			return res.map(this.toDto);
+			return res.map((it) => it.id);
+		});
+		return UserCandyItemRepositoryImpl.destroy({
+			where: {
+				id: lockedIds,
+			},
 		});
 	}
 
