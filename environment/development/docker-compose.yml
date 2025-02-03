@@ -1,19 +1,19 @@
+x-base_service: &base-service
+  build:
+    context: ../../.
+    dockerfile: environment/development/Dockerfile
+  depends_on:
+    database:
+      condition: service_healthy
+  networks:
+    - db-net
+  environment:
+    GOOGLE_APPLICATION_CREDENTIALS: config/key.json
+  volumes:
+    - type: bind
+      source: ../../.
+      target: /app
 services:
-  base_service: &base-service
-    build:
-      context: ../../.
-      dockerfile: environment/development/Dockerfile
-    depends_on:
-      database:
-        condition: service_healthy
-    networks:
-      - db-net
-    environment:
-      GOOGLE_APPLICATION_CREDENTIALS: config/key.json
-    volumes:
-      - type: bind
-        source: ../../.
-        target: /app
   backend:
     <<: *base-service
     container_name: waiwai-backend
