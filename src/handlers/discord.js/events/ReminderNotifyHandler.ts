@@ -8,10 +8,8 @@ import { type Client, TextChannel } from "discord.js";
 
 export const ReminderNotifyHandler = async (c: Client<boolean>) => {
 	try {
-		const t = schedulerContainer.get<ITransaction<TransactionLike>>(
-			RepoTypes.Transaction,
-		);
-		await t.startTransaction(async (_t) => {
+		const t = schedulerContainer.get<ITransaction>(RepoTypes.Transaction);
+		await t.startTransaction(async () => {
 			const reminder = schedulerContainer.get<IReminderSchedulerRepository>(
 				SchedulerRepoTypes.ReminderSchedulerRepository,
 			);
