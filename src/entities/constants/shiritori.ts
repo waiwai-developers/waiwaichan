@@ -130,7 +130,7 @@ export const TranslateConst: {
 		{ character: "ツ", writingWord: "アリゲイツ", readingWord: "アリゲイツ" },
 		// { character: "ヅ", writingWord: "ヅ", readingWord: "ツ" },
 		{ character: "テ", writingWord: "フラエッテ", readingWord: "フラエッテ" },
-        { character: "デ", writingWord: "ジガルデ", readingWord: "ジガルデ" },
+		{ character: "デ", writingWord: "ジガルデ", readingWord: "ジガルデ" },
 		{ character: "ト", writingWord: "アイアント", readingWord: "アイアント" },
 		{ character: "ド", writingWord: "エアームド", readingWord: "エアームド" },
 		{ character: "ナ", writingWord: "ギラティナ", readingWord: "ギラティナ" },
