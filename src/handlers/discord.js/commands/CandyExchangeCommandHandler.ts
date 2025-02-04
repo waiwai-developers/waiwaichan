@@ -1,6 +1,7 @@
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
+import { CandyItemId } from "@/src/entities/vo/CandyItemId";
 import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
-import { UserCandyItemId } from "@/src/entities/vo/UserCandyItemId";
+import { UserCandyItemCount } from "@/src/entities/vo/UserCandyItemCount";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
 import type { ICandyLogic } from "@/src/logics/Interfaces/logics/ICandyLogic";
 import type { CacheType, ChatInputCommandInteraction } from "discord.js";
@@ -21,7 +22,8 @@ export class CandyExchangeCommandHandler implements SlashCommandHandler {
 		await interaction.reply(
 			await this.candyLogic.exchange(
 				new DiscordUserId(interaction.user.id),
-				new UserCandyItemId(interaction.options.getInteger("id", true)),
+				new CandyItemId(interaction.options.getInteger("type", true)),
+				new UserCandyItemCount(interaction.options.getInteger("amount") ?? 1),
 			),
 		);
 	}
