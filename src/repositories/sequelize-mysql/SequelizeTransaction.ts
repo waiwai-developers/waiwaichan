@@ -5,16 +5,14 @@ import { inject, injectable } from "inversify";
 import { Sequelize, type Transaction } from "sequelize";
 
 @injectable()
-export class SequelizeTransaction implements ITransaction<Transaction> {
+export class SequelizeTransaction implements ITransaction {
 	@inject(RepoTypes.DatabaseConnector)
 	declare mysql: IDataBaseConnector<Sequelize, "mysql">;
 	constructor() {
 		const namespace = createNamespace("sequelize-mysql-transactions");
 		Sequelize.useCLS(namespace);
 	}
-	async startTransaction<R>(
-		cb: (t: Transaction) => PromiseLike<R>,
-	): Promise<R> {
+	async startTransaction<R>(cb: () => PromiseLike<R>): Promise<R> {
 		return this.mysql.getDBInstance().transaction(cb);
 	}
 }

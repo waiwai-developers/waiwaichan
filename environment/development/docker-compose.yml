@@ -1,19 +1,19 @@
+x-base-service: &base-service
+  build:
+    context: ../../.
+    dockerfile: environment/development/Dockerfile
+  depends_on:
+    database:
+      condition: service_healthy
+  networks:
+    - server-network
+  environment:
+    GOOGLE_APPLICATION_CREDENTIALS: config/key.json
+  volumes:
+    - type: bind
+      source: ../../config
+      target: /app/config
 services:
-  base_service: &base-service
-    build:
-      context: ../../.
-      dockerfile: environment/development/Dockerfile
-    depends_on:
-      database:
-        condition: service_healthy
-    networks:
-      - db-net
-    environment:
-      GOOGLE_APPLICATION_CREDENTIALS: config/key.json
-    volumes:
-      - type: bind
-        source: ../../.
-        target: /app
   backend:
     <<: *base-service
     container_name: waiwai-backend
@@ -39,7 +39,7 @@ services:
         source: scheduler_node_modules
         target: /app/node_modules
     networks:
-      - db-net
+      - server-network
     command: sh -c "npm i && pnpm run dev:scheduler"
   migrate:
     <<: *base-service
@@ -65,7 +65,7 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
-      - db-net
+      - server-network
     platform: linux/x86_64
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
@@ -74,7 +74,7 @@ services:
       start_period: 30s
       timeout: 5s
 networks:
-  db-net:
+  server-network:
     driver: bridge
 volumes:
   mysql_data:

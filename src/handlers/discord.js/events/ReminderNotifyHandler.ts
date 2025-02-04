@@ -7,10 +7,10 @@ import { schedulerContainer } from "@/src/scheduler.di.config";
 import { type Client, TextChannel } from "discord.js";
 
 export const ReminderNotifyHandler = async (c: Client<boolean>) => {
-	const t = schedulerContainer.get<ITransaction<TransactionLike>>(
+	const t = schedulerContainer.get<ITransaction>(
 		RepoTypes.Transaction,
 	);
-	await t.startTransaction(async (_t) => {
+	await t.startTransaction(async () => {
 		const reminder = schedulerContainer.get<IReminderSchedulerRepository>(
 			SchedulerRepoTypes.ReminderSchedulerRepository,
 		);
