@@ -3,6 +3,7 @@ import { CandyItemDescription } from "@/src/entities/vo/CandyItemDescription";
 import { CandyItemId } from "@/src/entities/vo/CandyItemId";
 import { CandyItemName } from "@/src/entities/vo/CandyItemName";
 import type { ICandyItemRepository } from "@/src/logics/Interfaces/repositories/database/ICandyItemRepository";
+import type { CandyRepositoryImpl } from "@/src/repositories/sequelize-mysql/CandyRepositoryImpl";
 import { injectable } from "inversify";
 import {
 	AutoIncrement,
@@ -31,10 +32,10 @@ class CandyItemRepositoryImpl extends Model implements ICandyItemRepository {
 	async findById(id: CandyItemId): Promise<CandyItemDto | undefined> {
 		return await CandyItemRepositoryImpl.findOne({
 			where: { id: id.getValue() },
-		}).then((r) => (r ? this.toDto(r.id, r.name, r.description) : undefined));
+		}).then((r) => (r ? this.toDto(r) : undefined));
 	}
 
-	toDto(id: number, name: string, description: string): CandyItemDto {
+	toDto({ id, name, description }: CandyItemRepositoryImpl): CandyItemDto {
 		return new CandyItemDto(
 			new CandyItemId(id),
 			new CandyItemName(name),

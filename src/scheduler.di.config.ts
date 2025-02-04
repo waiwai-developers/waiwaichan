@@ -9,7 +9,7 @@ import type { Sequelize } from "sequelize-typescript";
 
 const schedulerContainer = new Container();
 schedulerContainer.bind<IDataBaseConnector<Sequelize, "mysql">>(RepoTypes.DatabaseConnector).to(MysqlSchedulerConnector).inSingletonScope();
-schedulerContainer.bind<ITransaction<TransactionLike>>(RepoTypes.Transaction).to(SequelizeTransaction);
+schedulerContainer.bind<ITransaction>(RepoTypes.Transaction).to(SequelizeTransaction);
 schedulerContainer.bind<IReminderSchedulerRepository>(SchedulerRepoTypes.ReminderSchedulerRepository).to(ReminderSchedulerRepositoryImpl);
 
 export { schedulerContainer };

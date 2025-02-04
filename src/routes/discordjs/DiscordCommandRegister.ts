@@ -1,3 +1,4 @@
+import { ITEM_RECORDS } from "@/migrator/seeds/20241111041901-item";
 import { AppConfig } from "@/src/entities/config/AppConfig";
 import { CommandsConfig } from "@/src/entities/config/CommandsConfig";
 import { TranslateConst } from "@/src/entities/constants/translate";
@@ -109,7 +110,19 @@ export class DiscordCommandRegister {
 				.setName("candyexchange")
 				.setDescription("candyexchange")
 				.addIntegerOption((option) =>
-					option.setName("id").setDescription("integer").setRequired(true),
+					option
+						.setName("type")
+						.setDescription("integer")
+						.setRequired(true)
+						.addChoices(
+							// TODO read from in memory db
+							ITEM_RECORDS.map((r) => {
+								return { name: r.name, value: r.id };
+							}),
+						),
+				)
+				.addIntegerOption((option) =>
+					option.setName("amount").setDescription("integer"),
 				),
 			new SlashCommandBuilder()
 				.setName("reviewgacha")

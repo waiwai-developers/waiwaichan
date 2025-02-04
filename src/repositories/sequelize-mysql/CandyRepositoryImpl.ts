@@ -78,6 +78,7 @@ class CandyRepositoryImpl extends Model implements ICandyRepository {
 						.toDate(),
 				},
 			},
+			paranoid: false,
 		}).then((c) => new CandyCount(c));
 	}
 

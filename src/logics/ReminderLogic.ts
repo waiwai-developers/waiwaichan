@@ -13,7 +13,7 @@ export class ReminderLogic implements IReminderLogic {
 	private readonly reminderRepository!: IReminderRepository;
 
 	@inject(RepoTypes.Transaction)
-	private readonly transaction!: ITransaction<TransactionLike>;
+	private readonly transaction!: ITransaction;
 
 	async create(data: ReminderDto): Promise<string> {
 		if (dayjs(data.remindAt.getValue()).isBefore(dayjs())) {

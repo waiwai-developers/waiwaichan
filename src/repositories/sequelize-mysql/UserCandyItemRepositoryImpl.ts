@@ -12,7 +12,7 @@ import { UserCandyItemMinId } from "@/src/entities/vo/UserCandyItemMinId";
 import type { IUserCandyItemRepository } from "@/src/logics/Interfaces/repositories/database/IUserCandyItemRepository";
 import dayjs from "dayjs";
 import { injectable } from "inversify";
-import { Op, col, fn } from "sequelize";
+import { Op, Transaction, col, fn } from "sequelize";
 import {
 	AutoIncrement,
 	BelongsTo,
@@ -98,27 +98,36 @@ class UserCandyItemRepositoryImpl
 
 	/**
 	 *
-	 * @param id the UserCandyItem id that created with Vo
 	 * @param userId the Discord user id that created with Vo
+	 * @param type the CandyItem id that created with Vo
+	 * @param amount the Exchange candy amount that created with Vo
 	 * @return dto that updated item
 	 */
-	async exchangeById(
-		id: UserCandyItemId,
+	async exchangeByTypeAndAmount(
 		userId: DiscordUserId,
-	): Promise<UserCandyItemDto | null> {
-		return UserCandyItemRepositoryImpl.findOne({
-			attributes: ["id", "userId", "itemId", "expiredAt"],
+		type: CandyItemId,
+		amount: UserCandyItemCount,
+	): Promise<number> {
+		const lockedIds = await UserCandyItemRepositoryImpl.findAll({
+			attributes: ["id"],
 			where: {
-				id: id.getValue(),
 				userId: userId.getValue(),
+				itemId: type.getValue(),
 				expiredAt: { [Op.gt]: dayjs().toDate() },
 			},
+			order: [["expiredAt", "ASC"]],
+			limit: amount.getValue(),
+			lock: Transaction.LOCK.UPDATE,
 		}).then((res) => {
-			if (res === null) {
-				throw Error("no item deleted");
+			if (res.length < amount.getValue()) {
+				throw Error("no items found for satisfy request");
 			}
-			res.destroy();
-			return res ? this.toDto(res) : null;
+			return res.map((it) => it.id);
+		});
+		return UserCandyItemRepositoryImpl.destroy({
+			where: {
+				id: lockedIds,
+			},
 		});
 	}
 
