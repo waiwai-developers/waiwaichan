@@ -18,7 +18,6 @@ export const migrator = (dbConfig: DatabaseConfigType = GetEnvDBConfig() ) => {
 			host: dbConfig.host,
 			port: dbConfig.port,
 			dialect: "mysql",
-			models: [DatafixUserItemModel, DatafixCandyModel, DatafixThreadModel],
 		},
 	);
 	return new Umzug({
