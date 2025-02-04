@@ -124,7 +124,7 @@ export const TranslateConst: {
 		{ character: "ソ", writingWord: "ケムッソ", readingWord: "ケムッソ" },
 		{ character: "ゾ", writingWord: "ニョロゾ", readingWord: "ニョロゾ" },
 		{ character: "タ", writingWord: "ザマゼンタ", readingWord: "ザマゼンタ" },
-		{ character: "ダ", writingWord: "ジャローダ　", readingWord: "ジャローダ　" },
+		{ character: "ダ", writingWord: "ジャローダ", readingWord: "ジャローダ" },
 		{ character: "チ", writingWord: "ジラーチ", readingWord: "ジラーチ" },
 		// { character: "ヂ", writingWord: "", readingWord: "" },
 		{ character: "ツ", writingWord: "アリゲイツ", readingWord: "アリゲイツ" },
