@@ -1,14 +1,19 @@
+x-base-service: &base-service
+  build:
+    context: ../../.
+    dockerfile: environment/production/Dockerfile
+  depends_on:
+    database:
+      condition: service_healthy
+  networks:
+    - server-network
+  environment:
+    GOOGLE_APPLICATION_CREDENTIALS: config/key.json
+  volumes:
+    - type: bind
+      source: ../../config
+      target: /app/config
 services:
-  base_service: &base-service
-    image: asia-northeast1-docker.pkg.dev/waiwai-406106/waiwaichan/image:latest
-    networks:
-      - server-network
-    environment:
-      GOOGLE_APPLICATION_CREDENTIALS: config/key.json
-    volumes:
-      - type: bind
-        source: ../../config
-        target: /app/config
   backend:
     <<: *base-service
     container_name: waiwai-backend
