@@ -100,7 +100,7 @@ export const TranslateConst: {
 		{ character: "ア", writingWord: "アーマーガア", readingWord: "アーマーガア" },
 		{ character: "イ", writingWord: "イーブイ", readingWord: "イーブイ" },
 		{ character: "ウ", writingWord: "アズマオウ", readingWord: "アズマオウ" },
-		{ character: "ヴ", writingWord: "ソニックレイヴ", readingWord: "ソニックレイヴ" },
+		// { character: "ヴ", writingWord: "", readingWord: "" },
 		// { character: "エ", writingWord: "", readingWord: "" },
 		{ character: "オ", writingWord: "ケイコウオ", readingWord: "ケイコウオ" },
 		{ character: "カ", writingWord: "ゼブライカ", readingWord: "ゼブライカ" },
