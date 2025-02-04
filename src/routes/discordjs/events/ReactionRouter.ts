@@ -20,13 +20,13 @@ export class ReactionRouter implements DiscordEventRouter {
 		client.on("messageReactionAdd", async (reaction, user, details) => {
 			try {
 				this.logger.debug(
-					`New reaction received  Reaction:${reaction} User:${user.username}`,
+					`New reaction received Reaction:${reaction} User:${user.username}`,
 				);
 				await Promise.all(
 					this.handlers.map((h) => h.handle({ reaction, user, details })),
 				);
 			} catch (e) {
-				this.logger.error(`Error: ${error}`);
+				this.logger.error(`Error: ${e}`);
 			}
 		});
 	}
