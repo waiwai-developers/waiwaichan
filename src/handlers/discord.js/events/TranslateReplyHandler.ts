@@ -22,23 +22,21 @@ export class TranslateReplyHandler implements DiscordEventHandler<Message> {
 	@inject(LogicTypes.ThreadLogic)
 	private readonly threadLogic!: IThreadLogic;
 	async handle(message: Message) {
-		try {
-			if (message.author.bot) return;
-			if (!message.channel.isThread()) return;
-			if (!(message.channel.ownerId === AppConfig.discord.clientId)) return;
+		if (message.author.bot) return;
+		if (!message.channel.isThread()) return;
+		if (!(message.channel.ownerId === AppConfig.discord.clientId)) return;
 
-			const thread = await this.threadLogic.find(
-				new ThreadGuildId(message.channel.guildId),
-				new ThreadMessageId(message.channel.id),
-			);
+		const thread = await this.threadLogic.find(
+			new ThreadGuildId(message.channel.guildId),
+			new ThreadMessageId(message.channel.id),
+		);
 
-			if (
-				thread?.categoryType.getValue() !==
-				ThreadCategoryType.CATEGORY_TYPE_DEEPL.getValue()
-			)
-				return;
-
-			message.channel.sendTyping();
+		if (
+			thread?.categoryType.getValue() !==
+			ThreadCategoryType.CATEGORY_TYPE_DEEPL.getValue()
+		)
+			return;
+		message.channel.sendTyping();
 
 			const replTexts = await this.translatorLogic
 				.translate(

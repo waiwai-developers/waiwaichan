@@ -22,8 +22,7 @@ export class GCPComputeEngineInstanceRepositoryImpl
 			.start(request)
 			.then((_) => true)
 			.catch((e) => {
-				console.error(e);
-				return false;
+				throw e;
 			});
 	}
 
@@ -41,8 +40,7 @@ export class GCPComputeEngineInstanceRepositoryImpl
 			.stop(request)
 			.then((_) => true)
 			.catch((e) => {
-				console.error(e);
-				return false;
+				throw e;
 			});
 	}
 }

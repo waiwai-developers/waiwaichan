@@ -1,5 +1,6 @@
 import * as fs from "node:fs";
 import { AppConfig } from "@/src/entities/config/AppConfig";
+import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import { PullRequestDto } from "@/src/entities/dto/PullRequestDto";
 import { GitHubUserId } from "@/src/entities/vo/GitHubUserId";
 import { GithubPullRequestId } from "@/src/entities/vo/GithubPullRequestId";
@@ -9,11 +10,14 @@ import { GithubPullRequestStatus } from "@/src/entities/vo/GtihubPullRequestStat
 import type { IPullRequestRepository } from "@/src/logics/Interfaces/repositories/githubapi/IPullRequestRepository";
 import { App } from "@octokit/app";
 import { Octokit } from "@octokit/core";
-import { injectable, postConstruct } from "inversify";
+import { inject, injectable, postConstruct } from "inversify";
 
 @injectable()
 export class GithubPullRequestRepositoryImpl implements IPullRequestRepository {
 	private octokit: Octokit | undefined;
+
+	@inject(RepoTypes.Logger)
+	private logger!: ILogger;
 
 	private isApp() {
 		return (
@@ -31,7 +35,9 @@ export class GithubPullRequestRepositoryImpl implements IPullRequestRepository {
 	@postConstruct()
 	public async initialize() {
 		if (process.env.NODE_ENV === "production") {
-			console.log(`Initializing Github Pull Request App Mode:${this.isApp()}`);
+			this.logger.info(
+				`Initializing Github Pull Request App Mode:${this.isApp()}`,
+			);
 		}
 
 		this.octokit = this.isApp()

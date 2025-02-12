@@ -1,13 +1,16 @@
+import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import type { DiscordEventRouter } from "@/src/routes/discordjs/events/DiscordEventRouter";
 import type { Client } from "discord.js";
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 
 @injectable()
 export class ReadyStateRouter implements DiscordEventRouter {
+	@inject(RepoTypes.Logger)
+	private readonly logger!: ILogger;
 	register(client: Client): void {
 		client.on("ready", async (c: Client) => {
 			if (c.isReady()) {
-				console.log(`login: ${c.user.tag}`);
+				this.logger.info(`login: ${c.user.tag}`);
 			}
 		});
 	}
