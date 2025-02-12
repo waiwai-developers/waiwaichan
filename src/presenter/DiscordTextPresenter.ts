@@ -48,7 +48,7 @@ const splitByDelimiter = (
 	);
 };
 
-const chunkBuilder = (chunks: string[], currentRow = new Array<string>()) =>
+const chunkBuilder = (chunks: string[]) =>
 	chunks.reduce(
 		(messageTexts: Array<string>, current) => {
 			const lastItem = messageTexts[messageTexts.length - 1];
