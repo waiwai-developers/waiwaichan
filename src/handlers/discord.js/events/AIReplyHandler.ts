@@ -54,17 +54,14 @@ export class AIReplyHandler implements DiscordEventHandler<Message> {
 					),
 			);
 
-			const results = await this.chatAILogic
-				.replyTalk(chatAIContext)
-				.then(DiscordTextPresenter);
+		const results = await this.chatAILogic
+			.replyTalk(chatAIContext)
+			.then(DiscordTextPresenter);
 
-			await Promise.all(
-				results.map(async (t) => {
-					await message.reply(t);
-				}),
-			);
-		} catch (e) {
-			console.error("Error:", e);
-		}
+		await Promise.all(
+			results.map(async (t) => {
+				await message.reply(t);
+			}),
+		);
 	}
 }

@@ -38,26 +38,23 @@ export class TranslateReplyHandler implements DiscordEventHandler<Message> {
 			return;
 		message.channel.sendTyping();
 
-			const replTexts = await this.translatorLogic
-				.translate(
-					new TranslateDto(
-						new TranslateText(message.content),
-						new TranslateSourceLanguage(
-							JSON.parse(JSON.stringify(thread.metadata)).value.source,
-						),
-						new TranslateTargetLanguage(
-							JSON.parse(JSON.stringify(thread.metadata)).value.target,
-						),
+		const replTexts = await this.translatorLogic
+			.translate(
+				new TranslateDto(
+					new TranslateText(message.content),
+					new TranslateSourceLanguage(
+						JSON.parse(JSON.stringify(thread.metadata)).value.source,
 					),
-				)
-				.then(DiscordTextPresenter);
-			await Promise.all(
-				replTexts.map(async (t) => {
-					await message.reply(t);
-				}),
-			);
-		} catch (e) {
-			console.error("Error:", e);
-		}
+					new TranslateTargetLanguage(
+						JSON.parse(JSON.stringify(thread.metadata)).value.target,
+					),
+				),
+			)
+			.then(DiscordTextPresenter);
+		await Promise.all(
+			replTexts.map(async (t) => {
+				await message.reply(t);
+			}),
+		);
 	}
 }
