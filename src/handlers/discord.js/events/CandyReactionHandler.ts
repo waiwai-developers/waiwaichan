@@ -1,5 +1,8 @@
 import { AppConfig } from "@/src/entities/config/AppConfig";
-import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
+import {
+	LogicTypes,
+	RepoTypes,
+} from "@/src/entities/constants/DIContainerTypes";
 import { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
 import { DiscordMessageLink } from "@/src/entities/vo/DiscordMessageLink";
 import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
@@ -18,6 +21,9 @@ export class CandyReactionHandler
 	@inject(LogicTypes.CandyLogic)
 	private candyLogic!: ICandyLogic;
 
+	@inject(RepoTypes.Logger)
+	private readonly logger!: ILogger;
+
 	async handle({ reaction, user }: ReactionInteraction): Promise<void> {
 		if (reaction.partial) {
 			try {
@@ -25,12 +31,12 @@ export class CandyReactionHandler
 				await reaction.message.fetch();
 				await reaction.message.guild?.channels.fetch();
 			} catch (err) {
-				console.log("fail to fetch old message");
+				this.logger.debug("fail to fetch old message");
 				return;
 			}
 		}
 		if (user.bot) {
-			console.log("reaction by bot");
+			this.logger.debug("reaction by bot");
 			return;
 		}
 
@@ -38,17 +44,17 @@ export class CandyReactionHandler
 			(reaction.message.author?.bot ?? true) ||
 			(reaction.message.author?.id ?? null) == null
 		) {
-			console.log("some data is null");
+			this.logger.debug("some data is null");
 			return;
 		}
 
 		if (reaction.message.author?.id == null) {
-			console.log("author id is null");
+			this.logger.debug("author id is null");
 			return;
 		}
 
 		if (reaction.emoji.name !== AppConfig.backend.candyEmoji) {
-			console.log("not peer bonus emoji");
+			this.logger.debug("not peer bonus emoji");
 			return;
 		}
 

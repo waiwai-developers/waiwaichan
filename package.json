@@ -44,6 +44,8 @@
 		"mysql2": "^3.11.4",
 		"node-cron": "^3.0.3",
 		"openai": "^4.71.1",
+		"pino": "^9.6.0",
+		"pino-pretty": "^13.0.0",
 		"reflect-metadata": "^0.2.2",
 		"sequelize": "^6.37.5",
 		"sequelize-typescript": "^2.1.6",
@@ -66,21 +68,36 @@
 	},
 	"mocha": {
 		"diff": true,
-		"extension": ["ts"],
+		"extension": [
+			"ts"
+		],
 		"package": "./package.json",
 		"reporter": "spec",
 		"slow": "75",
 		"timeout": "2000",
 		"ui": "bdd",
-		"watch-files": ["lib/**/*.js", "test/**/*.js"],
-		"watch-ignore": ["lib/vendor"],
+		"watch-files": [
+			"lib/**/*.js",
+			"test/**/*.js"
+		],
+		"watch-ignore": [
+			"lib/vendor"
+		],
 		"spec": "tests/**/*.test.ts",
 		"require": "./tests/hooks.ts"
 	},
 	"c8": {
-		"reporter": ["text-summary", "html", "lcov"],
-		"include": ["src/**/*.ts"],
-		"exclude": ["src/logics/Interfaces/**/*.ts"],
+		"reporter": [
+			"text-summary",
+			"html",
+			"lcov"
+		],
+		"include": [
+			"src/**/*.ts"
+		],
+		"exclude": [
+			"src/logics/Interfaces/**/*.ts"
+		],
 		"all": true,
 		"source-map": true
 	},
@@ -89,8 +106,12 @@
 		"jsc": {
 			"baseUrl": "./",
 			"paths": {
-				"@/*": ["./*"],
-				"@config/*": ["config/*"]
+				"@/*": [
+					"./*"
+				],
+				"@config/*": [
+					"config/*"
+				]
 			},
 			"parser": {
 				"syntax": "typescript",
