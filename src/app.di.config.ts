@@ -16,6 +16,7 @@ import {
 	ReminderSetCommandHandler,
 	ReviewGachaCommandHandler,
 	ReviewListCommandHandler,
+	ShiritoriCommandHandler,
 	TalkCommandHandler,
 	TranslateCommandHandler,
 	WaiwaiCommandHandler,
@@ -118,6 +119,7 @@ appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(Dice
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(ChoiceCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(TranslateCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(TalkCommandHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(ShiritoriCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(ReminderSetCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(ReminderListCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(ReminderDeleteCommandHandler);

@@ -77,6 +77,12 @@ export class DiscordCommandRegister {
 					option.setName("title").setDescription("string").setRequired(true),
 				),
 			new SlashCommandBuilder()
+				.setName("shiritori")
+				.setDescription("shiritori string")
+				.addStringOption((option) =>
+					option.setName("title").setDescription("string").setRequired(true),
+				),
+			new SlashCommandBuilder()
 				.setName("reminderset")
 				.setDescription("reminder string")
 				.addStringOption((option) =>
