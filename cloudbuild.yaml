@@ -17,7 +17,7 @@ steps:
     args:
       - '-c'
       - |
-        gcloud compute ssh waiwaichan-server --zone=asia-northeast1-a --ssh-key-expire-after=10m --command="
+        gcloud compute ssh waiwaichan-server --force-key-file-overwrite --zone=asia-northeast1-a --ssh-key-expire-after=10m --command="
           cd /app/waiwaichan
           sudo docker compose -f ./environment/production/docker-compose.yml down
           git config --global --add safe.directory /app/waiwaichan
