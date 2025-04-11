@@ -3,6 +3,7 @@ import { HandlerTypes } from "@/src/entities/constants/DIContainerTypes";
 import {
 	CandyCheckCommandHandler,
 	CandyDrawCommandHandler,
+	CandySeriesDrawCommandHandler,
 	CandyExchangeCommandHandler,
 	CandyItemCommandHandler,
 	ChoiceCommandHandler,
@@ -123,6 +124,7 @@ appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(Remi
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(ReminderDeleteCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(CandyCheckCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(CandyDrawCommandHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(CandySeriesDrawCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(CandyItemCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(CandyExchangeCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(ReviewGachaCommandHandler);
