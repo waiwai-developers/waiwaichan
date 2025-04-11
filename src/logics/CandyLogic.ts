@@ -8,6 +8,7 @@ import {
 } from "@/src/entities/constants/Items";
 import { CandyDto } from "@/src/entities/dto/CandyDto";
 import { UserCandyItemDto } from "@/src/entities/dto/UserCandyItemDto";
+import { CandyCount } from "@/src/entities/vo/CandyCount";
 import { CandyExpire } from "@/src/entities/vo/CandyExpire";
 import { CandyItemId } from "@/src/entities/vo/CandyItemId";
 import type { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
@@ -90,6 +91,67 @@ export class CandyLogic implements ICandyLogic {
 					});
 			})
 			.catch((_err) => "アイテムは持ってないよ！っ");
+	}
+
+	async drawSeriesItem(userId: DiscordUserId): Promise<string> {
+		return await this.transaction.startTransaction(
+			async () => {
+				return this.candyRepository
+					.ConsumeSeriesCandies(userId)
+					.then((success) => {
+						if (!success) {
+							throw new Error(
+								"Have less than the number of consecutive items need to consume",
+							);
+						}
+						let randomNums = [];
+						do {
+							const selectRandomNums = [];
+							for (let i = 0; i < AppConfig.backend.candySeriesAmount; i++) {
+								// NOTE:todo より良い乱数生成に変える
+								selectRandomNums.push(
+									Math.floor(Math.random() * PROBABILITY_JACKPOT + 1),
+								);
+							}
+							randomNums = selectRandomNums;
+						} while (
+							!randomNums.some(
+								(r) =>
+									r % PROBABILITY_HIT === 0 || r % PROBABILITY_JACKPOT === 0,
+							)
+						);
+
+						const texts = ["結果は以下だよ！っ"];
+						randomNums.forEach(async (n) => {
+							if (n % PROBABILITY_HIT !== 0 && n % PROBABILITY_JACKPOT !== 0) {
+								texts.push("- ハズレちゃったよ！っ");
+							} else {
+								const hitId = new CandyItemId(
+									n % PROBABILITY_JACKPOT === 0 ? ID_JACKPOT : ID_HIT,
+								);
+								await this.userCandyItemRepository.create(
+									new UserCandyItemDto(
+										new UserCandyItemId(0),
+										userId,
+										hitId,
+										new UserCandyItemExpire(
+											dayjs()
+												.add(1, "day")
+												.add(1, "year")
+												.startOf("day")
+												.toDate(),
+										),
+									),
+								);
+								const item = await this.candyItemRepository.findById(hitId);
+								texts.push(
+									`- ${item?.name.getValue()}が当たったよ${n % PROBABILITY_JACKPOT === 0 ? "👕" : "🍭"}！っ`,
+								);
+							}
+						});
+						return texts.join("\n");
+					});
+			}).catch((_err) => "キャンディの数が足りないよ！っ");
 	}
 
 	async drawItem(userId: DiscordUserId): Promise<string> {
