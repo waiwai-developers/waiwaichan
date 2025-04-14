@@ -1,3 +1,4 @@
+import { ID_JACKPOT } from "@/src/entities/constants/Items";
 import { UserCandyItemDto } from "@/src/entities/dto/UserCandyItemDto";
 import { UserCandyItemWithItemGroupByDto } from "@/src/entities/dto/UserCandyItemWithItemGroupByDto";
 import { CandyItemDescription } from "@/src/entities/vo/CandyItemDescription";
@@ -5,6 +6,7 @@ import { CandyItemId } from "@/src/entities/vo/CandyItemId";
 import { CandyItemName } from "@/src/entities/vo/CandyItemName";
 import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
 import { UserCandyItemCount } from "@/src/entities/vo/UserCandyItemCount";
+import { UserCandyItemCreatedAt } from "@/src/entities/vo/UserCandyItemCreatedAt";
 import { UserCandyItemExpire } from "@/src/entities/vo/UserCandyItemExpire";
 import { UserCandyItemId } from "@/src/entities/vo/UserCandyItemId";
 import { UserCandyItemMinExpire } from "@/src/entities/vo/UserCandyItemMinExpire";
@@ -46,6 +48,8 @@ class UserCandyItemRepositoryImpl
 	declare itemId: number;
 	@Column(DataType.DATE)
 	declare expiredAt: Date;
+	@Column(DataType.DATE)
+	declare createdAt: Date;
 	@Column(DataType.INTEGER)
 	declare aggrCount: number;
 	@Column(DataType.INTEGER)
@@ -104,6 +108,19 @@ class UserCandyItemRepositoryImpl
 				);
 			}),
 		);
+	}
+
+	async lastJackpodDatatime(
+		userId: DiscordUserId,
+	): Promise<UserCandyItemCreatedAt | undefined> {
+		return UserCandyItemRepositoryImpl.findOne({
+			attributes: ["createdAt"],
+			where: {
+				itemId: ID_JACKPOT,
+				userId: userId.getValue(),
+			},
+			order: [["createdAt", "DESC"]],
+		}).then((i) => (i ? new UserCandyItemCreatedAt(i.createdAt) : undefined));
 	}
 
 	/**

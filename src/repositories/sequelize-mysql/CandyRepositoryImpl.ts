@@ -1,6 +1,7 @@
 import { AppConfig } from "@/src/entities/config/AppConfig";
 import { CandyDto } from "@/src/entities/dto/CandyDto";
 import { CandyCount } from "@/src/entities/vo/CandyCount";
+import type { CandyCreatedAt } from "@/src/entities/vo/CandyCreatedAt";
 import { CandyExpire } from "@/src/entities/vo/CandyExpire";
 import type { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
 import { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
@@ -54,6 +55,20 @@ class CandyRepositoryImpl extends Model implements ICandyRepository {
 				receiveUserId: userId.getValue(),
 				expiredAt: { [Op.gt]: dayjs().toDate() },
 			},
+		}).then((c) => new CandyCount(c));
+	}
+
+	async candyCountFromJackpod(
+		userId: DiscordUserId,
+		createdAt: CandyCreatedAt | undefined,
+	): Promise<CandyCount> {
+		return CandyRepositoryImpl.count({
+			where: {
+				receiveUserId: userId.getValue(),
+				deletedAt: { [Op.ne]: null },
+				...(createdAt ? { createdAt: { [Op.gt]: createdAt.getValue() } } : {}),
+			},
+			paranoid: false,
 		}).then((c) => new CandyCount(c));
 	}
 
