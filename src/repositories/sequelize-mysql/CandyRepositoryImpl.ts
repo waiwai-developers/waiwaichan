@@ -95,18 +95,6 @@ class CandyRepositoryImpl extends Model implements ICandyRepository {
 		}).then((res) => res === Candies.getValue());
 	}
 
-	async ConsumeSeriesCandies(
-		userId: DiscordUserId,
-		candies: CandyCount,
-	): Promise<boolean> {
-		return CandyRepositoryImpl.destroy({
-			where: {
-				receiveUserId: userId.getValue(),
-			},
-			limit: candies.getValue(),
-		}).then((res) => res === candies.getValue());
-	}
-
 	async findByGiverAndMessageId(
 		giver: DiscordChannelId,
 		messageId: DiscordMessageId,

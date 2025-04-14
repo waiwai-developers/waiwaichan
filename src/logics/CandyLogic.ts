@@ -97,7 +97,7 @@ export class CandyLogic implements ICandyLogic {
 		return await this.transaction
 			.startTransaction(async () => {
 				// candyの消費
-				const success = await this.candyRepository.ConsumeSeriesCandies(
+				const success = await this.candyRepository.ConsumeCandies(
 					userId,
 					new CandyCount(AppConfig.backend.candySeriesAmount),
 				);
