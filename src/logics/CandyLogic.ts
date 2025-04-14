@@ -143,11 +143,11 @@ export class CandyLogic implements ICandyLogic {
 			const candyItems = await this.candyItemRepository.findAll()
 			const resultTexts = randomNums.map((n) => {
 				if (n % PROBABILITY_JACKPOT === 0) {
-					`- ${candyItems?.find(c => c.id.getValue() === ID_JACKPOT)?.name.getValue()}が当たったよ👕！っ`;
+					return `- ${candyItems?.find(c => c.id.getValue() === ID_JACKPOT)?.name.getValue()}が当たったよ👕！っ`;
 				} else if (n % PROBABILITY_HIT === 0) {
-					`- ${candyItems?.find(c => c.id.getValue() === ID_HIT)?.name.getValue()}が当たったよ🍭！っ`;
+					return  `- ${candyItems?.find(c => c.id.getValue() === ID_HIT)?.name.getValue()}が当たったよ🍭！っ`;
 				} else {
-					"- ハズレちゃったよ！っ";
+					return  "- ハズレちゃったよ！っ";
 				}
 			});
 			const texts = ["結果は以下だよ！っ", ...resultTexts];
@@ -215,17 +215,17 @@ export class CandyLogic implements ICandyLogic {
 		messageId: DiscordMessageId,
 		messageLink: DiscordMessageLink,
 	): Promise<string | undefined> {
-		if (receiver.getValue() === giver.getValue()) {
-			return;
-		}
+		// if (receiver.getValue() === giver.getValue()) {
+		// 	return;
+		// }
 		return this.mutex.useMutex("GiveCandy", async () =>
 			this.transaction.startTransaction(async () => {
 				const todayCount = await this.candyRepository.countByToday(giver);
 				// reaction limit
 				// todo reaction limit to constant
-				if (todayCount.getValue() > 2) {
-					return "今はスタンプを押してもキャンディをあげられないよ！っ";
-				}
+				// if (todayCount.getValue() > 2) {
+				// 	return "今はスタンプを押してもキャンディをあげられないよ！っ";
+				// }
 
 				const Candies = await this.candyRepository.findByGiverAndMessageId(
 					giver,
