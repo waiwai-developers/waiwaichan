@@ -139,7 +139,7 @@ export class CandyLogic implements ICandyLogic {
 					);
 				if (
 					candyCountFromJackpod.getValue() +
-						AppConfig.backend.candySeriesAmount >
+						AppConfig.backend.candySeriesAmount >=
 					CEILING_JACKPOT
 				) {
 					randomNums.splice(
@@ -196,7 +196,23 @@ export class CandyLogic implements ICandyLogic {
 					}
 
 					// NOTE:todo より良い乱数生成に変える
-					const randomNum = Math.floor(Math.random() * PROBABILITY_JACKPOT + 1);
+					let randomNum = Math.floor(Math.random() * PROBABILITY_JACKPOT + 1);
+
+					//天上の場合に置換
+					const lastJackpodDatatime =
+						await this.userCandyItemRepository.lastJackpodDatatime(userId);
+
+					const candyCountFromJackpod =
+						await this.candyRepository.candyCountFromJackpod(
+							userId,
+							lastJackpodDatatime
+								? new CandyCreatedAt(lastJackpodDatatime?.getValue())
+								: undefined,
+						);
+					if (candyCountFromJackpod.getValue() + 1 >= CEILING_JACKPOT) {
+						randomNum = PROBABILITY_JACKPOT;
+					}
+
 					if (
 						randomNum % PROBABILITY_HIT !== 0 &&
 						randomNum % PROBABILITY_JACKPOT !== 0
