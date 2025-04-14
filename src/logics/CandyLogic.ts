@@ -138,10 +138,8 @@ export class CandyLogic implements ICandyLogic {
 
 			await this.userCandyItemRepository.bulkCreate(userCandyItems);
 			const candyItems = await this.candyItemRepository.findAll()
-
-			candyItems?.find(c => {c.id === new CandyItemId(ID_JACKPOT)})
-
 			const texts = ["結果は以下だよ！っ"];
+
 			randomNums.forEach(async (n) => {
 				if (n % PROBABILITY_JACKPOT === 0) {
 					texts.push(`- ${candyItems?.find(c => c.id.getValue() === ID_JACKPOT)?.name.getValue()}が当たったよ👕！っ`);
