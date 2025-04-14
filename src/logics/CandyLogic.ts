@@ -152,10 +152,6 @@ export class CandyLogic implements ICandyLogic {
 				}
 			});
 
-			console.log("aaaaaaaa");
-			console.log(texts);
-			console.log("aaaaaaaa");
-
 			return texts.join("\n");
 		}).catch((_err) => "キャンディの数が足りないよ！っ");
 	}
