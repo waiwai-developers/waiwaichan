@@ -94,66 +94,71 @@ export class CandyLogic implements ICandyLogic {
 	}
 
 	async drawSeriesItem(userId: DiscordUserId): Promise<string> {
-		return await this.transaction.startTransaction(async () => {
-			// candyの消費
-			const success = await this.candyRepository.ConsumeSeriesCandies(userId, new CandyCount(AppConfig.backend.candySeriesAmount));
-			if (!success) {
-				throw new Error(
-					"Have less than the number of consecutive items need to consume",
+		return await this.transaction
+			.startTransaction(async () => {
+				// candyの消費
+				const success = await this.candyRepository.ConsumeSeriesCandies(
+					userId,
+					new CandyCount(AppConfig.backend.candySeriesAmount),
 				);
-			}
-
-			// itemの抽選
-			let randomNums = [];
-			do {
-				const selectRandomNums = [];
-				for (let i = 0; i < AppConfig.backend.candySeriesAmount; i++) {
-					// NOTE:todo より良い乱数生成に変える
-					selectRandomNums.push(
-						Math.floor(Math.random() * PROBABILITY_JACKPOT + 1),
+				if (!success) {
+					throw new Error(
+						"Have less than the number of consecutive items need to consume",
 					);
 				}
-				randomNums = selectRandomNums;
-			} while (
-				!randomNums.some(
-					(r) => r % PROBABILITY_HIT === 0 || r % PROBABILITY_JACKPOT === 0,
-				)
-			);
 
-			// itemの作成
-			const randomWinNums = randomNums.filter(
-				(n) => n % PROBABILITY_HIT === 0 || n % PROBABILITY_JACKPOT === 0,
-			);
-			const hitIds = randomWinNums.map((n) =>
-				n % PROBABILITY_JACKPOT === 0 ? ID_JACKPOT : ID_HIT,
-			);
-			const userCandyItems = hitIds.map(
-				(h) =>
-					new UserCandyItemDto(
-						new UserCandyItemId(0),
-						userId,
-						new CandyItemId(h),
-						new UserCandyItemExpire(
-							dayjs().add(1, "day").add(1, "year").startOf("day").toDate(),
+				// itemの抽選
+				let randomNums = [];
+				do {
+					const selectRandomNums = [];
+					for (let i = 0; i < AppConfig.backend.candySeriesAmount; i++) {
+						// NOTE:todo より良い乱数生成に変える
+						selectRandomNums.push(
+							Math.floor(Math.random() * PROBABILITY_JACKPOT + 1),
+						);
+					}
+					randomNums = selectRandomNums;
+				} while (
+					!randomNums.some(
+						(r) => r % PROBABILITY_HIT === 0 || r % PROBABILITY_JACKPOT === 0,
+					)
+				);
+
+				// itemの作成
+				const randomWinNums = randomNums.filter(
+					(n) => n % PROBABILITY_HIT === 0 || n % PROBABILITY_JACKPOT === 0,
+				);
+				const hitIds = randomWinNums.map((n) =>
+					n % PROBABILITY_JACKPOT === 0 ? ID_JACKPOT : ID_HIT,
+				);
+				const userCandyItems = hitIds.map(
+					(h) =>
+						new UserCandyItemDto(
+							new UserCandyItemId(0),
+							userId,
+							new CandyItemId(h),
+							new UserCandyItemExpire(
+								dayjs().add(1, "day").add(1, "year").startOf("day").toDate(),
+							),
 						),
-					),
-			);
-			await this.userCandyItemRepository.bulkCreate(userCandyItems);
+				);
+				await this.userCandyItemRepository.bulkCreate(userCandyItems);
 
-			const candyItems = await this.candyItemRepository.findAll()
-			const resultTexts = randomNums.map((n) => {
-				if (n % PROBABILITY_JACKPOT === 0) {
-					return `- ${candyItems?.find(c => c.id.getValue() === ID_JACKPOT)?.name.getValue()}が当たったよ👕！っ`;
-				} else if (n % PROBABILITY_HIT === 0) {
-					return  `- ${candyItems?.find(c => c.id.getValue() === ID_HIT)?.name.getValue()}が当たったよ🍭！っ`;
-				} else {
-					return  "- ハズレちゃったよ！っ";
-				}
-			});
-			const texts = ["結果は以下だよ！っ", ...resultTexts];
+				const candyItems = await this.candyItemRepository.findAll();
+				const resultTexts = randomNums.map((n) => {
+					if (n % PROBABILITY_JACKPOT === 0) {
+						return `- ${candyItems?.find((c) => c.id.getValue() === ID_JACKPOT)?.name.getValue()}が当たったよ👕！っ`;
+					}
+					if (n % PROBABILITY_HIT === 0) {
+						return `- ${candyItems?.find((c) => c.id.getValue() === ID_HIT)?.name.getValue()}が当たったよ🍭！っ`;
+					}
+					return "- ハズレちゃったよ！っ";
+				});
+				const texts = ["結果は以下だよ！っ", ...resultTexts];
 
-			return texts.join("\n");
-		}).catch((_err) => "キャンディの数が足りないよ！っ");
+				return texts.join("\n");
+			})
+			.catch((_err) => "キャンディの数が足りないよ！っ");
 	}
 
 	async drawItem(userId: DiscordUserId): Promise<string> {
