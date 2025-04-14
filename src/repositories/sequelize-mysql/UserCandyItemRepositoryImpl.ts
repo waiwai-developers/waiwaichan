@@ -64,6 +64,16 @@ class UserCandyItemRepositoryImpl
 		}).then((res) => new UserCandyItemId(res.id));
 	}
 
+	async bulkCreate(data: UserCandyItemDto[]): Promise<UserCandyItemId[]> {
+		return UserCandyItemRepositoryImpl.bulkCreate(
+			data.map((u) => ({
+				userId: u.userId.getValue(),
+				itemId: u.itemId.getValue(),
+				expiredAt: u.expiredAt.getValue(),
+			})),
+		).then((res) => res.map((r) => new UserCandyItemId(r.id)));
+	}
+
 	async findByNotUsed(
 		userId: DiscordUserId,
 	): Promise<UserCandyItemWithItemGroupByDto[]> {

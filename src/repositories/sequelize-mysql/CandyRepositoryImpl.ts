@@ -97,7 +97,7 @@ class CandyRepositoryImpl extends Model implements ICandyRepository {
 
 	async ConsumeSeriesCandies(
 		userId: DiscordUserId,
-		Candies: CandyCount = new CandyCount(AppConfig.backend.candySeriesAmount),
+		Candies: CandyCount,
 	): Promise<boolean> {
 		return CandyRepositoryImpl.destroy({
 			where: {
