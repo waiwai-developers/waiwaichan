@@ -3,6 +3,7 @@ import type { UserCandyItemWithItemGroupByDto } from "@/src/entities/dto/UserCan
 import type { CandyItemId } from "@/src/entities/vo/CandyItemId";
 import type { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
 import type { UserCandyItemCount } from "@/src/entities/vo/UserCandyItemCount";
+import type { UserCandyItemCreatedAt } from "@/src/entities/vo/UserCandyItemCreatedAt";
 import type { UserCandyItemId } from "@/src/entities/vo/UserCandyItemId";
 
 export interface IUserCandyItemRepository {
@@ -11,7 +12,9 @@ export interface IUserCandyItemRepository {
 	findByNotUsed(
 		userId: DiscordUserId,
 	): Promise<UserCandyItemWithItemGroupByDto[]>;
-
+	lastJackpodDatatime(
+		userId: DiscordUserId,
+	): Promise<UserCandyItemCreatedAt | undefined>;
 	exchangeByTypeAndAmount(
 		userId: DiscordUserId,
 		type: CandyItemId,
