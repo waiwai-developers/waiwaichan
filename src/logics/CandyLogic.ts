@@ -95,13 +95,15 @@ export class CandyLogic implements ICandyLogic {
 
 	async drawSeriesItem(userId: DiscordUserId): Promise<string> {
 		return await this.transaction.startTransaction(async () => {
+			// candyの消費
 			const success = await this.candyRepository.ConsumeSeriesCandies(userId, new CandyCount(AppConfig.backend.candySeriesAmount));
-
 			if (!success) {
 				throw new Error(
 					"Have less than the number of consecutive items need to consume",
 				);
 			}
+
+			// itemの抽選
 			let randomNums = [];
 			do {
 				const selectRandomNums = [];
@@ -118,6 +120,7 @@ export class CandyLogic implements ICandyLogic {
 				)
 			);
 
+			// itemの作成
 			const randomWinNums = randomNums.filter(
 				(n) => n % PROBABILITY_HIT === 0 || n % PROBABILITY_JACKPOT === 0,
 			);
@@ -135,11 +138,10 @@ export class CandyLogic implements ICandyLogic {
 						),
 					),
 			);
-
 			await this.userCandyItemRepository.bulkCreate(userCandyItems);
+
 			const candyItems = await this.candyItemRepository.findAll()
 			const texts = ["結果は以下だよ！っ"];
-
 			randomNums.forEach(async (n) => {
 				if (n % PROBABILITY_JACKPOT === 0) {
 					texts.push(`- ${candyItems?.find(c => c.id.getValue() === ID_JACKPOT)?.name.getValue()}が当たったよ👕！っ`);
