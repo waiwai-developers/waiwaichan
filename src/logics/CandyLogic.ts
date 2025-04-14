@@ -97,10 +97,6 @@ export class CandyLogic implements ICandyLogic {
 		return await this.transaction.startTransaction(async () => {
 			const success = await this.candyRepository.ConsumeSeriesCandies(userId, new CandyCount(AppConfig.backend.candySeriesAmount));
 
-			console.log("aaaaaaaa");
-			console.log(success);
-			console.log("aaaaaaaa");
-
 			if (!success) {
 				throw new Error(
 					"Have less than the number of consecutive items need to consume",
@@ -122,10 +118,6 @@ export class CandyLogic implements ICandyLogic {
 				)
 			);
 
-			console.log("aaaaaaaa");
-			console.log(randomNums);
-			console.log("aaaaaaaa");
-
 			const randomWinNums = randomNums.filter(
 				(n) => n % PROBABILITY_HIT === 0 || n % PROBABILITY_JACKPOT === 0,
 			);
@@ -146,10 +138,6 @@ export class CandyLogic implements ICandyLogic {
 
 			await this.userCandyItemRepository.bulkCreate(userCandyItems);
 			const candyItems = await this.candyItemRepository.findAll()
-
-			console.log("aaaaaaaa");
-			console.log(candyItems);
-			console.log("aaaaaaaa");
 
 			candyItems?.find(c => {c.id === new CandyItemId(ID_JACKPOT)})
 
