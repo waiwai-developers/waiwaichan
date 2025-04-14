@@ -1,6 +1,7 @@
 import { AppConfig } from "@/src/entities/config/AppConfig";
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import {
+	CEILING_JACKPOT,
 	ID_HIT,
 	ID_JACKPOT,
 	PROBABILITY_HIT,
@@ -9,6 +10,7 @@ import {
 import { CandyDto } from "@/src/entities/dto/CandyDto";
 import { UserCandyItemDto } from "@/src/entities/dto/UserCandyItemDto";
 import { CandyCount } from "@/src/entities/vo/CandyCount";
+import { CandyCreatedAt } from "@/src/entities/vo/CandyCreatedAt";
 import { CandyExpire } from "@/src/entities/vo/CandyExpire";
 import { CandyItemId } from "@/src/entities/vo/CandyItemId";
 import type { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
@@ -123,6 +125,29 @@ export class CandyLogic implements ICandyLogic {
 						(r) => r % PROBABILITY_HIT === 0 || r % PROBABILITY_JACKPOT === 0,
 					)
 				);
+
+				//天上の場合に置換
+				const lastJackpodDatatime =
+					await this.userCandyItemRepository.lastJackpodDatatime(userId);
+
+				const candyCountFromJackpod =
+					await this.candyRepository.candyCountFromJackpod(
+						userId,
+						lastJackpodDatatime
+							? new CandyCreatedAt(lastJackpodDatatime?.getValue())
+							: undefined,
+					);
+				if (
+					candyCountFromJackpod.getValue() +
+						AppConfig.backend.candySeriesAmount >
+					CEILING_JACKPOT
+				) {
+					randomNums.splice(
+						CEILING_JACKPOT - candyCountFromJackpod.getValue() - 1,
+						1,
+						PROBABILITY_JACKPOT,
+					);
+				}
 
 				// itemの作成
 				const randomWinNums = randomNums.filter(
