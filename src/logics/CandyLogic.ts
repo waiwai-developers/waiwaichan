@@ -141,16 +141,16 @@ export class CandyLogic implements ICandyLogic {
 			await this.userCandyItemRepository.bulkCreate(userCandyItems);
 
 			const candyItems = await this.candyItemRepository.findAll()
-			const texts = ["結果は以下だよ！っ"];
-			randomNums.forEach((n) => {
+			const resultTexts = randomNums.map((n) => {
 				if (n % PROBABILITY_JACKPOT === 0) {
-					texts.push(`- ${candyItems?.find(c => c.id.getValue() === ID_JACKPOT)?.name.getValue()}が当たったよ👕！っ`);
+					`- ${candyItems?.find(c => c.id.getValue() === ID_JACKPOT)?.name.getValue()}が当たったよ👕！っ`;
 				} else if (n % PROBABILITY_HIT === 0) {
-					texts.push(`- ${candyItems?.find(c => c.id.getValue() === ID_HIT)?.name.getValue()}が当たったよ🍭！っ`);
+					`- ${candyItems?.find(c => c.id.getValue() === ID_HIT)?.name.getValue()}が当たったよ🍭！っ`;
 				} else {
-					texts.push("- ハズレちゃったよ！っ");
+					"- ハズレちゃったよ！っ";
 				}
 			});
+			const texts = ["結果は以下だよ！っ", ...resultTexts];
 
 			return texts.join("\n");
 		}).catch((_err) => "キャンディの数が足りないよ！っ");
