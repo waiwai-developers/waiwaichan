@@ -17,6 +17,6 @@ export interface ICandyRepository {
 	ConsumeCandies(userId: DiscordUserId, Candies?: CandyCount): Promise<boolean>;
 	ConsumeSeriesCandies(
 		userId: DiscordUserId,
-		Candies?: CandyCount,
+		candies?: CandyCount,
 	): Promise<boolean>;
 }
