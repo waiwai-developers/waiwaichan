@@ -3,9 +3,9 @@ import { HandlerTypes } from "@/src/entities/constants/DIContainerTypes";
 import {
 	CandyCheckCommandHandler,
 	CandyDrawCommandHandler,
-	CandySeriesDrawCommandHandler,
 	CandyExchangeCommandHandler,
 	CandyItemCommandHandler,
+	CandySeriesDrawCommandHandler,
 	ChoiceCommandHandler,
 	DiceCommandHandler,
 	HelpCommandHandler,
