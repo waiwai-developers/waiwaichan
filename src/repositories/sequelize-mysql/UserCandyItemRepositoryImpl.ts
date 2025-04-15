@@ -46,6 +46,8 @@ class UserCandyItemRepositoryImpl
 	@Column(DataType.STRING)
 	@ForeignKey(() => CandyItemRepositoryImpl)
 	declare itemId: number;
+	@Column(DataType.INTEGER)
+	declare candyId: number;
 	@Column(DataType.DATE)
 	declare expiredAt: Date;
 	@Column(DataType.DATE)
@@ -64,6 +66,7 @@ class UserCandyItemRepositoryImpl
 		return UserCandyItemRepositoryImpl.create({
 			userId: data.userId.getValue(),
 			itemId: data.itemId.getValue(),
+			candyId: data.candyId.getValue(),
 			expiredAt: data.expiredAt.getValue(),
 		}).then((res) => new UserCandyItemId(res.id));
 	}
@@ -73,6 +76,7 @@ class UserCandyItemRepositoryImpl
 			data.map((u) => ({
 				userId: u.userId.getValue(),
 				itemId: u.itemId.getValue(),
+				candyId: u.candyId.getValue(),
 				expiredAt: u.expiredAt.getValue(),
 			})),
 		).then((res) => res.map((r) => new UserCandyItemId(r.id)));
@@ -160,12 +164,14 @@ class UserCandyItemRepositoryImpl
 		id,
 		userId,
 		itemId,
+		candyId,
 		expiredAt,
 	}: UserCandyItemRepositoryImpl): UserCandyItemDto {
 		return new UserCandyItemDto(
 			new UserCandyItemId(id),
 			new DiscordUserId(userId),
 			new CandyItemId(itemId),
+			new CandyId(candyId),
 			new UserCandyItemExpire(expiredAt),
 		);
 	}

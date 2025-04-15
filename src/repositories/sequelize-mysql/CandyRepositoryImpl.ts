@@ -2,7 +2,7 @@ import { AppConfig } from "@/src/entities/config/AppConfig";
 import { CandyDto } from "@/src/entities/dto/CandyDto";
 import { CandyCount } from "@/src/entities/vo/CandyCount";
 import { CandyExpire } from "@/src/entities/vo/CandyExpire";
-import type { CandyId } from "@/src/entities/vo/CandyId";
+import { CandyId } from "@/src/entities/vo/CandyId";
 import type { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
 import { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
 import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
@@ -98,16 +98,34 @@ class CandyRepositoryImpl extends Model implements ICandyRepository {
 		}).then((c) => new CandyCount(c));
 	}
 
-	async ConsumeCandies(
+	async consumeCandy(
 		userId: DiscordUserId,
-		Candies: CandyCount = new CandyCount(1),
-	): Promise<boolean> {
-		return CandyRepositoryImpl.destroy({
+	): Promise<CandyId | undefined> {
+		return CandyRepositoryImpl.findOne({
 			where: {
 				receiveUserId: userId.getValue(),
 			},
-			limit: Candies.getValue(),
-		}).then((res) => res === Candies.getValue());
+		}).then((c) => {
+			c?.destroy()
+			return c ? new CandyId(c.id) : undefined
+		})
+	}
+
+	async consumeCandies(
+		userId: DiscordUserId,
+		candyCount: CandyCount,
+	): Promise<CandyId[]> {
+		return CandyRepositoryImpl.findAll({
+			where: {
+				receiveUserId: userId.getValue(),
+			},
+			limit: candyCount.getValue(),
+		}).then((cs) => {
+			return cs.map((c) => {
+				c?.destroy()
+				return new CandyId(c.id)
+			})
+		})
 	}
 
 	async findByGiverAndMessageId(
