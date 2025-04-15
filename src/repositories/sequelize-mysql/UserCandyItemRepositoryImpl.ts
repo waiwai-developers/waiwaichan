@@ -1,8 +1,8 @@
 import { ID_JACKPOT } from "@/src/entities/constants/Items";
 import { UserCandyItemDto } from "@/src/entities/dto/UserCandyItemDto";
 import { UserCandyItemWithItemGroupByDto } from "@/src/entities/dto/UserCandyItemWithItemGroupByDto";
-import { CandyItemDescription } from "@/src/entities/vo/CandyItemDescription";
 import { CandyId } from "@/src/entities/vo/CandyId";
+import { CandyItemDescription } from "@/src/entities/vo/CandyItemDescription";
 import { CandyItemId } from "@/src/entities/vo/CandyItemId";
 import { CandyItemName } from "@/src/entities/vo/CandyItemName";
 import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
@@ -110,9 +110,7 @@ class UserCandyItemRepositoryImpl
 		);
 	}
 
-	async lastJackpodId(
-		userId: DiscordUserId,
-	): Promise<CandyId | undefined> {
+	async lastJackpodId(userId: DiscordUserId): Promise<CandyId | undefined> {
 		return UserCandyItemRepositoryImpl.findOne({
 			attributes: ["createdAt"],
 			where: {

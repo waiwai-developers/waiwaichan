@@ -18,6 +18,6 @@ export interface ICandyRepository {
 	ConsumeCandies(userId: DiscordUserId, Candies?: CandyCount): Promise<boolean>;
 	candyCountFromJackpod(
 		userId: DiscordUserId,
-		cansyId: CandyId | undefined,
+		candyId: CandyId | undefined,
 	): Promise<CandyCount>;
 }

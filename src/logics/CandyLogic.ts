@@ -10,8 +10,8 @@ import {
 import { CandyDto } from "@/src/entities/dto/CandyDto";
 import { UserCandyItemDto } from "@/src/entities/dto/UserCandyItemDto";
 import { CandyCount } from "@/src/entities/vo/CandyCount";
-import { CandyId } from "@/src/entities/vo/CandyId";
 import { CandyExpire } from "@/src/entities/vo/CandyExpire";
+import { CandyId } from "@/src/entities/vo/CandyId";
 import { CandyItemId } from "@/src/entities/vo/CandyItemId";
 import type { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
 import type { DiscordMessageLink } from "@/src/entities/vo/DiscordMessageLink";
@@ -133,9 +133,7 @@ export class CandyLogic implements ICandyLogic {
 				const candyCountFromJackpod =
 					await this.candyRepository.candyCountFromJackpod(
 						userId,
-						lastJackpodId
-							? new CandyId(lastJackpodId?.getValue())
-							: undefined,
+						lastJackpodId ? new CandyId(lastJackpodId?.getValue()) : undefined,
 					);
 				if (
 					candyCountFromJackpod.getValue() +
