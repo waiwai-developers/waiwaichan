@@ -66,7 +66,7 @@ class CandyRepositoryImpl extends Model implements ICandyRepository {
 			where: {
 				receiveUserId: userId.getValue(),
 				deletedAt: { [Op.ne]: null },
-				...(candyId ? { candyId: { [Op.gt]: candyId.getValue() } } : {}),
+				...(candyId ? { id: { [Op.gte]: candyId.getValue() } } : {}),
 			},
 			paranoid: false,
 		}).then((c) => new CandyCount(c));
