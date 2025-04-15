@@ -2,9 +2,9 @@ import { AppConfig } from "@/src/entities/config/AppConfig";
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import {
 	CEILING_JACKPOT,
-	ID_OUT,
 	ID_HIT,
 	ID_JACKPOT,
+	ID_OUT,
 	PROBABILITY_HIT,
 	PROBABILITY_JACKPOT,
 } from "@/src/entities/constants/Items";
@@ -104,7 +104,7 @@ export class CandyLogic implements ICandyLogic {
 					userId,
 					new CandyCount(AppConfig.backend.candySeriesAmount),
 				);
-				if (candyIds.length) {
+				if (candyIds.length === AppConfig.backend.candySeriesAmount) {
 					throw new Error(
 						"Have less than the number of consecutive items need to consume",
 					);
@@ -148,10 +148,20 @@ export class CandyLogic implements ICandyLogic {
 					);
 				}
 
-				const mapCandyIdHitIds = [...Array(AppConfig.backend.candySeriesAmount)].map((v, i)=> i).map((i) => ({candyId: candyIds[i], hitId: randomNums[i] % PROBABILITY_JACKPOT === 0 ? new CandyItemId(ID_JACKPOT) : randomNums[i] % PROBABILITY_HIT === 0 ? new CandyItemId(ID_HIT) : new CandyItemId(ID_OUT) }))
+				const mapCandyIdHitIds = [...Array(AppConfig.backend.candySeriesAmount)]
+					.map((v, i) => i)
+					.map((i) => ({
+						candyId: candyIds[i],
+						hitId:
+							randomNums[i] % PROBABILITY_JACKPOT === 0
+								? new CandyItemId(ID_JACKPOT)
+								: randomNums[i] % PROBABILITY_HIT === 0
+									? new CandyItemId(ID_HIT)
+									: new CandyItemId(ID_OUT),
+					}));
 				const mapWinCandyIdHitIds = mapCandyIdHitIds.filter(
 					(m) => m.hitId.getValue() !== ID_OUT,
-				)
+				);
 				const userCandyItems = mapWinCandyIdHitIds.map(
 					(m) =>
 						new UserCandyItemDto(
@@ -185,55 +195,55 @@ export class CandyLogic implements ICandyLogic {
 
 	async drawItem(userId: DiscordUserId): Promise<string> {
 		return await this.transaction.startTransaction(async () => {
-			return this.candyRepository
-				.consumeCandy(userId)
-				.then(async (candyId) => {
-					if (!candyId) {
-						return "キャンディがないよ！っ";
-					}
+			return this.candyRepository.consumeCandy(userId).then(async (candyId) => {
+				if (!candyId) {
+					return "キャンディがないよ！っ";
+				}
 
-					// NOTE:todo より良い乱数生成に変える
-					let randomNum = Math.floor(Math.random() * PROBABILITY_JACKPOT + 1);
+				// NOTE:todo より良い乱数生成に変える
+				let randomNum = Math.floor(Math.random() * PROBABILITY_JACKPOT + 1);
 
-					//天上の場合に置換
-					const lastJackpodId =
-						await this.userCandyItemRepository.lastJackpodId(userId);
+				//天上の場合に置換
+				const lastJackpodId =
+					await this.userCandyItemRepository.lastJackpodId(userId);
 
-					const candyCountFromJackpod =
-						await this.candyRepository.candyCountFromJackpod(
-							userId,
-							lastJackpodId
-								? new CandyId(lastJackpodId?.getValue())
-								: undefined,
-						);
-					if (candyCountFromJackpod.getValue() + 1 >= CEILING_JACKPOT) {
-						randomNum = PROBABILITY_JACKPOT;
-					}
+				console.log("aaaaaaaaa");
+				console.log(lastJackpodId);
+				console.log("aaaaaaaaa");
 
-					if (
-						randomNum % PROBABILITY_HIT !== 0 &&
-						randomNum % PROBABILITY_JACKPOT !== 0
-					) {
-						return "ハズレちゃったよ！っ";
-					}
-					const hitId = new CandyItemId(
-						randomNum % PROBABILITY_JACKPOT === 0 ? ID_JACKPOT : ID_HIT,
+				const candyCountFromJackpod =
+					await this.candyRepository.candyCountFromJackpod(
+						userId,
+						lastJackpodId ? new CandyId(lastJackpodId?.getValue()) : undefined,
 					);
-					//TODO: this creation require just user and hit id
-					await this.userCandyItemRepository.create(
-						new UserCandyItemDto(
-							new UserCandyItemId(0),
-							userId,
-							hitId,
-							candyId,
-							new UserCandyItemExpire(
-								dayjs().add(1, "day").add(1, "year").startOf("day").toDate(),
-							),
+				if (candyCountFromJackpod.getValue() >= CEILING_JACKPOT) {
+					randomNum = PROBABILITY_JACKPOT;
+				}
+
+				if (
+					randomNum % PROBABILITY_HIT !== 0 &&
+					randomNum % PROBABILITY_JACKPOT !== 0
+				) {
+					return "ハズレちゃったよ！っ";
+				}
+				const hitId = new CandyItemId(
+					randomNum % PROBABILITY_JACKPOT === 0 ? ID_JACKPOT : ID_HIT,
+				);
+				//TODO: this creation require just user and hit id
+				await this.userCandyItemRepository.create(
+					new UserCandyItemDto(
+						new UserCandyItemId(0),
+						userId,
+						hitId,
+						candyId,
+						new UserCandyItemExpire(
+							dayjs().add(1, "day").add(1, "year").startOf("day").toDate(),
 						),
-					);
-					const item = await this.candyItemRepository.findById(hitId);
-					return `${item?.name.getValue()}が当たったよ${randomNum % PROBABILITY_JACKPOT === 0 ? "👕" : "🍭"}！っ`;
-				});
+					),
+				);
+				const item = await this.candyItemRepository.findById(hitId);
+				return `${item?.name.getValue()}が当たったよ${randomNum % PROBABILITY_JACKPOT === 0 ? "👕" : "🍭"}！っ`;
+			});
 		});
 	}
 

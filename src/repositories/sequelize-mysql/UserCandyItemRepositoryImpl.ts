@@ -116,13 +116,13 @@ class UserCandyItemRepositoryImpl
 
 	async lastJackpodId(userId: DiscordUserId): Promise<CandyId | undefined> {
 		return UserCandyItemRepositoryImpl.findOne({
-			attributes: ["createdAt"],
+			attributes: ["candyId"],
 			where: {
 				itemId: ID_JACKPOT,
 				userId: userId.getValue(),
 			},
 			order: [["createdAt", "DESC"]],
-		}).then((i) => (i ? new CandyId(i.id) : undefined));
+		}).then((i) => (i ? new CandyId(i.candyId) : undefined));
 	}
 
 	/**

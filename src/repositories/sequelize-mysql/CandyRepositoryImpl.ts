@@ -66,7 +66,7 @@ class CandyRepositoryImpl extends Model implements ICandyRepository {
 			where: {
 				receiveUserId: userId.getValue(),
 				deletedAt: { [Op.ne]: null },
-				...(candyId ? { id: { [Op.gte]: candyId.getValue() } } : {}),
+				...(candyId ? { id: { [Op.gt]: candyId.getValue() } } : {}),
 			},
 			paranoid: false,
 		}).then((c) => new CandyCount(c));
@@ -98,17 +98,15 @@ class CandyRepositoryImpl extends Model implements ICandyRepository {
 		}).then((c) => new CandyCount(c));
 	}
 
-	async consumeCandy(
-		userId: DiscordUserId,
-	): Promise<CandyId | undefined> {
+	async consumeCandy(userId: DiscordUserId): Promise<CandyId | undefined> {
 		return CandyRepositoryImpl.findOne({
 			where: {
 				receiveUserId: userId.getValue(),
 			},
 		}).then((c) => {
-			c?.destroy()
-			return c ? new CandyId(c.id) : undefined
-		})
+			c?.destroy();
+			return c ? new CandyId(c.id) : undefined;
+		});
 	}
 
 	async consumeCandies(
@@ -122,10 +120,10 @@ class CandyRepositoryImpl extends Model implements ICandyRepository {
 			limit: candyCount.getValue(),
 		}).then((cs) => {
 			return cs.map((c) => {
-				c?.destroy()
-				return new CandyId(c.id)
-			})
-		})
+				c?.destroy();
+				return new CandyId(c.id);
+			});
+		});
 	}
 
 	async findByGiverAndMessageId(
