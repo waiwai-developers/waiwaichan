@@ -2,6 +2,7 @@ import { AppConfig } from "@/src/entities/config/AppConfig";
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import {
 	CEILING_JACKPOT,
+	ID_OUT,
 	ID_HIT,
 	ID_JACKPOT,
 	PROBABILITY_HIT,
@@ -99,18 +100,18 @@ export class CandyLogic implements ICandyLogic {
 		return await this.transaction
 			.startTransaction(async () => {
 				// candyの消費
-				const success = await this.candyRepository.ConsumeCandies(
+				const candyIds = await this.candyRepository.consumeCandies(
 					userId,
 					new CandyCount(AppConfig.backend.candySeriesAmount),
 				);
-				if (!success) {
+				if (candyIds.length) {
 					throw new Error(
 						"Have less than the number of consecutive items need to consume",
 					);
 				}
 
 				// itemの抽選
-				let randomNums = [];
+				let randomNums: number[] = [];
 				do {
 					const selectRandomNums = [];
 					for (let i = 0; i < AppConfig.backend.candySeriesAmount; i++) {
@@ -147,19 +148,17 @@ export class CandyLogic implements ICandyLogic {
 					);
 				}
 
-				// itemの作成
-				const randomWinNums = randomNums.filter(
-					(n) => n % PROBABILITY_HIT === 0 || n % PROBABILITY_JACKPOT === 0,
-				);
-				const hitIds = randomWinNums.map((n) =>
-					n % PROBABILITY_JACKPOT === 0 ? ID_JACKPOT : ID_HIT,
-				);
-				const userCandyItems = hitIds.map(
-					(h) =>
+				const mapCandyIdHitIds = [...Array(AppConfig.backend.candySeriesAmount)].map((v, i)=> i).map((i) => ({candyId: candyIds[i], hitId: randomNums[i] % PROBABILITY_JACKPOT === 0 ? new CandyItemId(ID_JACKPOT) : randomNums[i] % PROBABILITY_HIT === 0 ? new CandyItemId(ID_HIT) : new CandyItemId(ID_OUT) }))
+				const mapWinCandyIdHitIds = mapCandyIdHitIds.filter(
+					(m) => m.hitId.getValue() !== ID_OUT,
+				)
+				const userCandyItems = mapWinCandyIdHitIds.map(
+					(m) =>
 						new UserCandyItemDto(
 							new UserCandyItemId(0),
 							userId,
-							new CandyItemId(h),
+							m.hitId,
+							m.candyId,
 							new UserCandyItemExpire(
 								dayjs().add(1, "day").add(1, "year").startOf("day").toDate(),
 							),
@@ -187,9 +186,9 @@ export class CandyLogic implements ICandyLogic {
 	async drawItem(userId: DiscordUserId): Promise<string> {
 		return await this.transaction.startTransaction(async () => {
 			return this.candyRepository
-				.ConsumeCandies(userId)
-				.then(async (success) => {
-					if (!success) {
+				.consumeCandy(userId)
+				.then(async (candyId) => {
+					if (!candyId) {
 						return "キャンディがないよ！っ";
 					}
 
@@ -226,6 +225,7 @@ export class CandyLogic implements ICandyLogic {
 							new UserCandyItemId(0),
 							userId,
 							hitId,
+							candyId,
 							new UserCandyItemExpire(
 								dayjs().add(1, "day").add(1, "year").startOf("day").toDate(),
 							),
