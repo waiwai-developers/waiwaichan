@@ -2,11 +2,11 @@ import { ID_JACKPOT } from "@/src/entities/constants/Items";
 import { UserCandyItemDto } from "@/src/entities/dto/UserCandyItemDto";
 import { UserCandyItemWithItemGroupByDto } from "@/src/entities/dto/UserCandyItemWithItemGroupByDto";
 import { CandyItemDescription } from "@/src/entities/vo/CandyItemDescription";
+import { CandyId } from "@/src/entities/vo/CandyId";
 import { CandyItemId } from "@/src/entities/vo/CandyItemId";
 import { CandyItemName } from "@/src/entities/vo/CandyItemName";
 import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
 import { UserCandyItemCount } from "@/src/entities/vo/UserCandyItemCount";
-import { UserCandyItemCreatedAt } from "@/src/entities/vo/UserCandyItemCreatedAt";
 import { UserCandyItemExpire } from "@/src/entities/vo/UserCandyItemExpire";
 import { UserCandyItemId } from "@/src/entities/vo/UserCandyItemId";
 import { UserCandyItemMinExpire } from "@/src/entities/vo/UserCandyItemMinExpire";
@@ -110,9 +110,9 @@ class UserCandyItemRepositoryImpl
 		);
 	}
 
-	async lastJackpodDatatime(
+	async lastJackpodId(
 		userId: DiscordUserId,
-	): Promise<UserCandyItemCreatedAt | undefined> {
+	): Promise<CandyId | undefined> {
 		return UserCandyItemRepositoryImpl.findOne({
 			attributes: ["createdAt"],
 			where: {
@@ -120,7 +120,7 @@ class UserCandyItemRepositoryImpl
 				userId: userId.getValue(),
 			},
 			order: [["createdAt", "DESC"]],
-		}).then((i) => (i ? new UserCandyItemCreatedAt(i.createdAt) : undefined));
+		}).then((i) => (i ? new CandyId(i.id) : undefined));
 	}
 
 	/**
