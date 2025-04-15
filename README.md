@@ -15,6 +15,11 @@ Execute the migration
 pnpm migrate up
 ```
 
+Execute the rollback
+```
+pnpm migrate down
+```
+
 Insert seed data
 ```
 pnpm seed up
