@@ -207,10 +207,6 @@ export class CandyLogic implements ICandyLogic {
 				const lastJackpodId =
 					await this.userCandyItemRepository.lastJackpodId(userId);
 
-				console.log("aaaaaaaaa");
-				console.log(lastJackpodId);
-				console.log("aaaaaaaaa");
-
 				const candyCountFromJackpod =
 					await this.candyRepository.candyCountFromJackpod(
 						userId,
