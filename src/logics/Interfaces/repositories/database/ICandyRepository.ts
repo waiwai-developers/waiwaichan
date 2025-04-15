@@ -1,6 +1,6 @@
 import type { CandyDto } from "@/src/entities/dto/CandyDto";
 import type { CandyCount } from "@/src/entities/vo/CandyCount";
-import type { CandyCreatedAt } from "@/src/entities/vo/CandyCreatedAt";
+import type { CandyId } from "@/src/entities/vo/CandyId";
 import type { CandyExpire } from "@/src/entities/vo/CandyExpire";
 import type { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
 import type { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
@@ -18,6 +18,6 @@ export interface ICandyRepository {
 	ConsumeCandies(userId: DiscordUserId, Candies?: CandyCount): Promise<boolean>;
 	candyCountFromJackpod(
 		userId: DiscordUserId,
-		createdAt: CandyCreatedAt | undefined,
+		cansyId: CandyId | undefined,
 	): Promise<CandyCount>;
 }

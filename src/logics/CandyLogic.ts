@@ -10,7 +10,7 @@ import {
 import { CandyDto } from "@/src/entities/dto/CandyDto";
 import { UserCandyItemDto } from "@/src/entities/dto/UserCandyItemDto";
 import { CandyCount } from "@/src/entities/vo/CandyCount";
-import { CandyCreatedAt } from "@/src/entities/vo/CandyCreatedAt";
+import { CandyId } from "@/src/entities/vo/CandyId";
 import { CandyExpire } from "@/src/entities/vo/CandyExpire";
 import { CandyItemId } from "@/src/entities/vo/CandyItemId";
 import type { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
@@ -127,14 +127,14 @@ export class CandyLogic implements ICandyLogic {
 				);
 
 				//天上の場合に置換
-				const lastJackpodDatatime =
-					await this.userCandyItemRepository.lastJackpodDatatime(userId);
+				const lastJackpodId =
+					await this.userCandyItemRepository.lastJackpodId(userId);
 
 				const candyCountFromJackpod =
 					await this.candyRepository.candyCountFromJackpod(
 						userId,
-						lastJackpodDatatime
-							? new CandyCreatedAt(lastJackpodDatatime?.getValue())
+						lastJackpodId
+							? new CandyId(lastJackpodId?.getValue())
 							: undefined,
 					);
 				if (
@@ -200,13 +200,13 @@ export class CandyLogic implements ICandyLogic {
 
 					//天上の場合に置換
 					const lastJackpodDatatime =
-						await this.userCandyItemRepository.lastJackpodDatatime(userId);
+						await this.userCandyItemRepository.lastJackpodId(userId);
 
 					const candyCountFromJackpod =
 						await this.candyRepository.candyCountFromJackpod(
 							userId,
 							lastJackpodDatatime
-								? new CandyCreatedAt(lastJackpodDatatime?.getValue())
+								? new CandyId(lastJackpodDatatime?.getValue())
 								: undefined,
 						);
 					if (candyCountFromJackpod.getValue() + 1 >= CEILING_JACKPOT) {
