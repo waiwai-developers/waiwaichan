@@ -197,14 +197,14 @@ export class CandyLogic implements ICandyLogic {
 					let randomNum = Math.floor(Math.random() * PROBABILITY_JACKPOT + 1);
 
 					//天上の場合に置換
-					const lastJackpodDatatime =
+					const lastJackpodId =
 						await this.userCandyItemRepository.lastJackpodId(userId);
 
 					const candyCountFromJackpod =
 						await this.candyRepository.candyCountFromJackpod(
 							userId,
-							lastJackpodDatatime
-								? new CandyId(lastJackpodDatatime?.getValue())
+							lastJackpodId
+								? new CandyId(lastJackpodId?.getValue())
 								: undefined,
 						);
 					if (candyCountFromJackpod.getValue() + 1 >= CEILING_JACKPOT) {
