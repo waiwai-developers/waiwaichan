@@ -130,22 +130,22 @@ export class CandyLogic implements ICandyLogic {
 				//天上の場合に置換
 				const lastJackpodId =
 					await this.userCandyItemRepository.lastJackpodId(userId);
-
 				const candyCountFromJackpod =
 					await this.candyRepository.candyCountFromJackpod(
 						userId,
 						lastJackpodId ? new CandyId(lastJackpodId?.getValue()) : undefined,
 					);
-				if (
+				const ceilingIndex =
+					CEILING_JACKPOT - candyCountFromJackpod.getValue() - 1;
+				const isOverCeiling =
 					candyCountFromJackpod.getValue() +
 						AppConfig.backend.candySeriesAmount >=
-					CEILING_JACKPOT
-				) {
-					randomNums.splice(
-						CEILING_JACKPOT - candyCountFromJackpod.getValue() - 1,
-						1,
-						PROBABILITY_JACKPOT,
-					);
+					CEILING_JACKPOT;
+				const isNotJackpotToCeiling = !randomNums
+					.splice(0, ceilingIndex)
+					.includes(PROBABILITY_JACKPOT);
+				if (isOverCeiling && isNotJackpotToCeiling) {
+					randomNums.splice(ceilingIndex, 1, PROBABILITY_JACKPOT);
 				}
 
 				const mapCandyIdHitIds = [...Array(AppConfig.backend.candySeriesAmount)]
@@ -176,6 +176,7 @@ export class CandyLogic implements ICandyLogic {
 				);
 				await this.userCandyItemRepository.bulkCreate(userCandyItems);
 
+				//文章を作成し投稿
 				const candyItems = await this.candyItemRepository.findAll();
 				const resultTexts = randomNums.map((n) => {
 					if (n % PROBABILITY_JACKPOT === 0) {
