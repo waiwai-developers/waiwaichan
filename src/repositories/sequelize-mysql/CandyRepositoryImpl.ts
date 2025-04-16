@@ -119,11 +119,15 @@ class CandyRepositoryImpl extends Model implements ICandyRepository {
 			},
 			limit: candyCount.getValue(),
 		}).then((cs) => {
+			CandyRepositoryImpl.destroy({
+				where: {
+					id: { [Op.in]: cs.map((c) => {return c.id}) },
+				},
+			})
 			return cs.map((c) => {
-				c?.destroy();
 				return new CandyId(c.id);
 			});
-		});
+		})
 	}
 
 	async findByGiverAndMessageId(

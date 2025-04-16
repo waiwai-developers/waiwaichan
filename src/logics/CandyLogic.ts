@@ -104,7 +104,7 @@ export class CandyLogic implements ICandyLogic {
 					userId,
 					new CandyCount(AppConfig.backend.candySeriesAmount),
 				);
-				if (candyIds.length === AppConfig.backend.candySeriesAmount) {
+				if (candyIds.length !== AppConfig.backend.candySeriesAmount) {
 					throw new Error(
 						"Have less than the number of consecutive items need to consume",
 					);
