@@ -50,8 +50,6 @@ class UserCandyItemRepositoryImpl
 	declare candyId: number;
 	@Column(DataType.DATE)
 	declare expiredAt: Date;
-	@Column(DataType.DATE)
-	declare createdAt: Date;
 	@Column(DataType.INTEGER)
 	declare aggrCount: number;
 	@Column(DataType.INTEGER)
