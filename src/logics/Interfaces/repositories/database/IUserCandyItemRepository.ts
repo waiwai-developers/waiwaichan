@@ -12,7 +12,7 @@ export interface IUserCandyItemRepository {
 	findByNotUsed(
 		userId: DiscordUserId,
 	): Promise<UserCandyItemWithItemGroupByDto[]>;
-	lastJackpodId(userId: DiscordUserId): Promise<CandyId | undefined>;
+	lastJackpodCandyId(userId: DiscordUserId): Promise<CandyId | undefined>;
 	exchangeByTypeAndAmount(
 		userId: DiscordUserId,
 		type: CandyItemId,

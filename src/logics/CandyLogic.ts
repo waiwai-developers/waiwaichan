@@ -128,12 +128,12 @@ export class CandyLogic implements ICandyLogic {
 				);
 
 				//天上の場合に置換
-				const lastJackpodId =
-					await this.userCandyItemRepository.lastJackpodId(userId);
+				const lastJackpodCandyId =
+					await this.userCandyItemRepository.lastJackpodCandyId(userId);
 				const candyCountFromJackpod =
 					await this.candyRepository.candyCountFromJackpod(
 						userId,
-						lastJackpodId ? new CandyId(lastJackpodId?.getValue()) : undefined,
+						lastJackpodCandyId ? new CandyId(lastJackpodCandyId?.getValue()) : undefined,
 					);
 				const ceilingIndex =
 					CEILING_JACKPOT - candyCountFromJackpod.getValue() - 1;
@@ -207,7 +207,7 @@ export class CandyLogic implements ICandyLogic {
 
 				//天上の場合に置換
 				const lastJackpodId =
-					await this.userCandyItemRepository.lastJackpodId(userId);
+					await this.userCandyItemRepository.lastJackpodCandyId(userId);
 
 				const candyCountFromJackpod =
 					await this.candyRepository.candyCountFromJackpod(
