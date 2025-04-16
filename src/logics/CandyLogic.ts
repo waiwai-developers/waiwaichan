@@ -142,12 +142,13 @@ export class CandyLogic implements ICandyLogic {
 						AppConfig.backend.candySeriesAmount >=
 					CEILING_JACKPOT;
 				const isNotJackpotToCeiling = !randomNums
-					.splice(0, ceilingIndex)
+					.slice(ceilingIndex)
 					.includes(PROBABILITY_JACKPOT);
 				if (isOverCeiling && isNotJackpotToCeiling) {
 					randomNums.splice(ceilingIndex, 1, PROBABILITY_JACKPOT);
 				}
 
+				// itemの作成
 				const mapCandyIdHitIds = [...Array(AppConfig.backend.candySeriesAmount)]
 					.map((v, i) => i)
 					.map((i) => ({
