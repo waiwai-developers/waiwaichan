@@ -18,7 +18,7 @@ export interface ICandyRepository {
 	consumeCandy(userId: DiscordUserId): Promise<CandyId | undefined>;
 	consumeCandies(
 		userId: DiscordUserId,
-		Candies?: CandyCount,
+		candyCount: CandyCount,
 	): Promise<CandyId[]>;
 	candyCountFromJackpod(
 		userId: DiscordUserId,
