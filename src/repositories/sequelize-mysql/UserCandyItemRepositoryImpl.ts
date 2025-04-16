@@ -112,7 +112,9 @@ class UserCandyItemRepositoryImpl
 		);
 	}
 
-	async lastJackpodCandyId(userId: DiscordUserId): Promise<CandyId | undefined> {
+	async lastJackpodCandyId(
+		userId: DiscordUserId,
+	): Promise<CandyId | undefined> {
 		return UserCandyItemRepositoryImpl.findOne({
 			attributes: ["candyId"],
 			where: {

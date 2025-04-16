@@ -133,7 +133,9 @@ export class CandyLogic implements ICandyLogic {
 				const candyCountFromJackpod =
 					await this.candyRepository.candyCountFromJackpod(
 						userId,
-						lastJackpodCandyId ? new CandyId(lastJackpodCandyId?.getValue()) : undefined,
+						lastJackpodCandyId
+							? new CandyId(lastJackpodCandyId?.getValue())
+							: undefined,
 					);
 				const ceilingIndex =
 					CEILING_JACKPOT - candyCountFromJackpod.getValue() - 1;
