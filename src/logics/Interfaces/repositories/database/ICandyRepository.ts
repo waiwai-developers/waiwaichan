@@ -1,4 +1,5 @@
 import type { CandyDto } from "@/src/entities/dto/CandyDto";
+import type { CandyCategoryType } from "@/src/entities/vo/CandyCategoryType";
 import type { CandyCount } from "@/src/entities/vo/CandyCount";
 import type { CandyCreatedAt } from "@/src/entities/vo/CandyCreatedAt";
 import type { CandyExpire } from "@/src/entities/vo/CandyExpire";
@@ -13,11 +14,13 @@ export interface ICandyRepository {
 	candyExpire(userId: DiscordUserId): Promise<CandyExpire | undefined>;
 	countByPeriod(
 		userId: DiscordUserId,
+		candyType: CandyCategoryType,
 		createdAt: CandyCreatedAt,
 	): Promise<CandyCount>;
 	findByGiverAndMessageId(
 		giver: DiscordChannelId,
 		messageId: DiscordMessageId,
+		categoryType: CandyCategoryType,
 	): Promise<Array<CandyDto>>;
 	ConsumeCandies(userId: DiscordUserId, Candies?: CandyCount): Promise<boolean>;
 }
