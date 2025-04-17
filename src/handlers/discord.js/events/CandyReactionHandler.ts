@@ -53,7 +53,7 @@ export class CandyReactionHandler
 			return;
 		}
 
-		let res
+		let res;
 
 		if (reaction.emoji.name === AppConfig.backend.candyEmoji) {
 			res = await this.candyLogic.giveCandy(

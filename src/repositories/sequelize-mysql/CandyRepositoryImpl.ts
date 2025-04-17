@@ -53,9 +53,9 @@ class CandyRepositoryImpl extends Model implements ICandyRepository {
 				receiveUserId: d.receiveUserId.getValue(),
 				giveUserId: d.giveUserId.getValue(),
 				messageId: d.messageId.getValue(),
-				expiredAt: d.expiredAt.getValue()
-			})
-		));
+				expiredAt: d.expiredAt.getValue(),
+			})),
+		);
 		return true;
 	}
 
