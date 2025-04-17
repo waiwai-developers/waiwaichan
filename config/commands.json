@@ -86,6 +86,12 @@
 					"description": "キャンディを消費しガチャを回す"
 				},
 				{
+					"name": "/candyseriesdraw ",
+					"example": "/candyseriesdraw",
+					"parameter": "none",
+					"description": "キャンディを複数消費しガチャを回す"
+				},
+				{
 					"name": "/candyitem",
 					"example": "/candyitem",
 					"parameter": "none",
