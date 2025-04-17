@@ -220,6 +220,7 @@ export class CandyLogic implements ICandyLogic {
 					randomNum = PROBABILITY_JACKPOT;
 				}
 
+				//文章を作成し投稿
 				if (
 					randomNum % PROBABILITY_HIT !== 0 &&
 					randomNum % PROBABILITY_JACKPOT !== 0
