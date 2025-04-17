@@ -53,17 +53,26 @@ export class CandyReactionHandler
 			return;
 		}
 
-		if (reaction.emoji.name !== AppConfig.backend.candyEmoji) {
+		let res
+
+		if (reaction.emoji.name === AppConfig.backend.candyEmoji) {
+			res = await this.candyLogic.giveCandy(
+				new DiscordUserId(reaction.message.author.id),
+				new DiscordUserId(user.id),
+				new DiscordMessageId(reaction.message.id),
+				new DiscordMessageLink(reaction.message.url),
+			);
+		} else if (reaction.emoji.name === AppConfig.backend.candyBigEmoji) {
+			res = await this.candyLogic.giveBigCandy(
+				new DiscordUserId(reaction.message.author.id),
+				new DiscordUserId(user.id),
+				new DiscordMessageId(reaction.message.id),
+				new DiscordMessageLink(reaction.message.url),
+			);
+		} else {
 			this.logger.debug("not peer bonus emoji");
 			return;
 		}
-
-		const res = await this.candyLogic.giveCandy(
-			new DiscordUserId(reaction.message.author.id),
-			new DiscordUserId(user.id),
-			new DiscordMessageId(reaction.message.id),
-			new DiscordMessageLink(reaction.message.url),
-		);
 
 		if (!res) {
 			return;
