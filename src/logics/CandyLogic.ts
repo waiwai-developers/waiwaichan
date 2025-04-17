@@ -1,7 +1,7 @@
 import { AppConfig } from "@/src/entities/config/AppConfig";
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import {
-	CEILING_JACKPOT,
+	PITY_COUNT,
 	ID_HIT,
 	ID_JACKPOT,
 	ID_OUT,
@@ -137,17 +137,17 @@ export class CandyLogic implements ICandyLogic {
 							? new CandyId(lastJackpodCandyId?.getValue())
 							: undefined,
 					);
-				const ceilingIndex =
-					CEILING_JACKPOT - candyCountFromJackpod.getValue() - 1;
-				const isOverCeiling =
+				const pityIndex =
+					PITY_COUNT - candyCountFromJackpod.getValue() - 1;
+				const isOverPity =
 					candyCountFromJackpod.getValue() +
 						AppConfig.backend.candySeriesAmount >=
-					CEILING_JACKPOT;
-				const isNotJackpotToCeiling = !randomNums
-					.slice(ceilingIndex)
+					PITY_COUNT;
+				const isNotJackpotToPity = !randomNums
+					.slice(pityIndex)
 					.includes(PROBABILITY_JACKPOT);
-				if (isOverCeiling && isNotJackpotToCeiling) {
-					randomNums.splice(ceilingIndex, 1, PROBABILITY_JACKPOT);
+				if (isOverPity && isNotJackpotToPity) {
+					randomNums.splice(pityIndex, 1, PROBABILITY_JACKPOT);
 				}
 
 				// itemの作成
@@ -216,7 +216,7 @@ export class CandyLogic implements ICandyLogic {
 						userId,
 						lastJackpodId ? new CandyId(lastJackpodId?.getValue()) : undefined,
 					);
-				if (candyCountFromJackpod.getValue() >= CEILING_JACKPOT) {
+				if (candyCountFromJackpod.getValue() >= PITY_COUNT) {
 					randomNum = PROBABILITY_JACKPOT;
 				}
 
