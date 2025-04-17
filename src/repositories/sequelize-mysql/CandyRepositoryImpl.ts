@@ -47,6 +47,18 @@ class CandyRepositoryImpl extends Model implements ICandyRepository {
 		return true;
 	}
 
+	async bulkCreateCandy(data: CandyDto[]): Promise<boolean> {
+		await CandyRepositoryImpl.bulkCreate(
+			data.map((d) => ({
+				receiveUserId: d.receiveUserId.getValue(),
+				giveUserId: d.giveUserId.getValue(),
+				messageId: d.messageId.getValue(),
+				expiredAt: d.expiredAt.getValue()
+			})
+		));
+		return true;
+	}
+
 	async candyCount(userId: DiscordUserId): Promise<CandyCount> {
 		return CandyRepositoryImpl.count({
 			where: {
@@ -66,7 +78,7 @@ class CandyRepositoryImpl extends Model implements ICandyRepository {
 		}).then((c) => (c ? new CandyExpire(c.expiredAt) : undefined));
 	}
 
-	async countByToday(userId: DiscordUserId): Promise<CandyCount> {
+	async countByPeriod(userId: DiscordUserId): Promise<CandyCount> {
 		return CandyRepositoryImpl.count({
 			where: {
 				giveUserId: userId.getValue(),
