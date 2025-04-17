@@ -93,7 +93,7 @@ class CandyRepositoryImpl extends Model implements ICandyRepository {
 			where: {
 				giveUserId: userId.getValue(),
 				categoryType: categoryType.getValue(),
-				createdAt: createdAt.getValue(),
+				createdAt: { [Op.gte]: createdAt.getValue() },
 			},
 			paranoid: false,
 		}).then((c) => new CandyCount(c));
