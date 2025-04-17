@@ -9,6 +9,7 @@ import {
 } from "@/src/entities/constants/Items";
 import { CandyDto } from "@/src/entities/dto/CandyDto";
 import { UserCandyItemDto } from "@/src/entities/dto/UserCandyItemDto";
+import { CandyCategoryType } from "@/src/entities/vo/CandyCategoryType";
 import { CandyCreatedAt } from "@/src/entities/vo/CandyCreatedAt";
 import { CandyExpire } from "@/src/entities/vo/CandyExpire";
 import { CandyItemId } from "@/src/entities/vo/CandyItemId";
@@ -159,24 +160,26 @@ export class CandyLogic implements ICandyLogic {
 		return this.mutex.useMutex("GiveCandy", async () =>
 			this.transaction.startTransaction(async () => {
 				const todayStartDatetime = new CandyCreatedAt(
-					dayjs().add(9, "h").startOf("month").subtract(9, "h").toDate(),
+					dayjs().add(9, "h").startOf("day").subtract(9, "h").toDate(),
 				);
-				const todayCount = await this.candyRepository.countByPeriod(
+				const todayNormalCandyCount = await this.candyRepository.countByPeriod(
 					giver,
+					CandyCategoryType.CATEGORY_TYPE_NORMAL,
 					todayStartDatetime,
 				);
 				// reaction limit
 				// todo reaction limit to constant
-				if (todayCount.getValue() > 2) {
+				if (todayNormalCandyCount.getValue() > 2) {
 					return "今はスタンプを押してもキャンディをあげられないよ！っ";
 				}
 
-				const Candies = await this.candyRepository.findByGiverAndMessageId(
+				const candies = await this.candyRepository.findByGiverAndMessageId(
 					giver,
 					messageId,
+					CandyCategoryType.CATEGORY_TYPE_NORMAL,
 				);
 				// duplicate reaction
-				if (Candies.length > 0) {
+				if (candies.length > 0) {
 					return;
 				}
 				await this.candyRepository.createCandy(
@@ -184,6 +187,7 @@ export class CandyLogic implements ICandyLogic {
 						receiver,
 						giver,
 						messageId,
+						CandyCategoryType.CATEGORY_TYPE_NORMAL,
 						new CandyExpire(
 							dayjs().add(1, "day").add(1, "month").startOf("day").toDate(),
 						),
@@ -209,6 +213,7 @@ export class CandyLogic implements ICandyLogic {
 				);
 				const monthCount = await this.candyRepository.countByPeriod(
 					giver,
+					CandyCategoryType.CATEGORY_TYPE_SUPER,
 					monthStartDatetime,
 				);
 				// reaction limit
@@ -217,12 +222,13 @@ export class CandyLogic implements ICandyLogic {
 					return "今はスタンプを押してもキャンディをあげられないよ！っ";
 				}
 
-				const Candies = await this.candyRepository.findByGiverAndMessageId(
+				const candies = await this.candyRepository.findByGiverAndMessageId(
 					giver,
 					messageId,
+					CandyCategoryType.CATEGORY_TYPE_SUPER,
 				);
 				// duplicate reaction
-				if (Candies.length > 0) {
+				if (candies.length > 0) {
 					return;
 				}
 				await this.candyRepository.bulkCreateCandy(
@@ -232,6 +238,7 @@ export class CandyLogic implements ICandyLogic {
 								receiver,
 								giver,
 								messageId,
+								CandyCategoryType.CATEGORY_TYPE_SUPER,
 								new CandyExpire(
 									dayjs().add(1, "day").add(1, "month").startOf("day").toDate(),
 								),
