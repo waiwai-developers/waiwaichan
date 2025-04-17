@@ -36,7 +36,7 @@ interface AppConfigJson {
 	gcp: GCPInstanceConfig;
 	backend: {
 		candyEmoji: string;
-		candyBigEmoji: string;
+		candySuperEmoji: string;
 		candyLogChannel: string;
 	};
 }
