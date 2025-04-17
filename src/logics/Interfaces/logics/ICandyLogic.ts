@@ -20,7 +20,7 @@ export interface ICandyLogic {
 		messageId: DiscordMessageId,
 		messageLink: DiscordMessageLink,
 	): Promise<string | undefined>;
-	giveBigCandy(
+	giveSuperCandy(
 		receiver: DiscordUserId,
 		giver: DiscordUserId,
 		messageId: DiscordMessageId,

@@ -63,7 +63,7 @@ export class CandyReactionHandler
 				new DiscordMessageLink(reaction.message.url),
 			);
 		} else if (reaction.emoji.name === AppConfig.backend.candyBigEmoji) {
-			res = await this.candyLogic.giveBigCandy(
+			res = await this.candyLogic.giveSuperCandy(
 				new DiscordUserId(reaction.message.author.id),
 				new DiscordUserId(user.id),
 				new DiscordMessageId(reaction.message.id),

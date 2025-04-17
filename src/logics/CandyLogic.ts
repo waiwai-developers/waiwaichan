@@ -197,7 +197,7 @@ export class CandyLogic implements ICandyLogic {
 			}),
 		);
 	}
-	async giveBigCandy(
+	async giveSuperCandy(
 		receiver: DiscordUserId,
 		giver: DiscordUserId,
 		messageId: DiscordMessageId,
