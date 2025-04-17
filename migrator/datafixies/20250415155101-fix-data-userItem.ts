@@ -14,7 +14,7 @@ export const up: Datafix = async () => {
 					id: { [Op.notIn]: candyIds },
 					receiveUserId: ui.userId,
 					createdAt: {
-						[Op.lte]: ui.createdAt,
+						[Op.lte]: ui.deletedAt,
 					},
 				},
 				order: [[col("createdAt"), "DESC"]],
