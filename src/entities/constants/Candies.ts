@@ -1,1 +1,1 @@
-export const BIG_CANDY_COUNT = 3;
+export const SUPER_CANDY_COUNT = 3;

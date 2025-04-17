@@ -1,5 +1,5 @@
 import { AppConfig } from "@/src/entities/config/AppConfig";
-import { BIG_CANDY_COUNT } from "@/src/entities/constants/Candies";
+import { SUPER_CANDY_COUNT } from "@/src/entities/constants/Candies";
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import {
 	ID_HIT,
@@ -232,7 +232,7 @@ export class CandyLogic implements ICandyLogic {
 					return;
 				}
 				await this.candyRepository.bulkCreateCandy(
-					[...Array(BIG_CANDY_COUNT)].map(
+					[...Array(SUPER_CANDY_COUNT)].map(
 						() =>
 							new CandyDto(
 								receiver,
