@@ -6,9 +6,13 @@ import {
 	PROBABILITY_HIT,
 	PROBABILITY_JACKPOT,
 } from "@/src/entities/constants/Items";
+import {
+	BIG_CANDY_COUNT,
+} from "@/src/entities/constants/Candies";
 import { CandyDto } from "@/src/entities/dto/CandyDto";
 import { UserCandyItemDto } from "@/src/entities/dto/UserCandyItemDto";
 import { CandyExpire } from "@/src/entities/vo/CandyExpire";
+import { CandyCreatedAt } from "@/src/entities/vo/CandyCreatedAt";
 import { CandyItemId } from "@/src/entities/vo/CandyItemId";
 import type { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
 import type { DiscordMessageLink } from "@/src/entities/vo/DiscordMessageLink";
@@ -156,7 +160,8 @@ export class CandyLogic implements ICandyLogic {
 		}
 		return this.mutex.useMutex("GiveCandy", async () =>
 			this.transaction.startTransaction(async () => {
-				const todayCount = await this.candyRepository.countByToday(giver);
+				const todayStartDatetime = new CandyCreatedAt(dayjs().add(9, "h").startOf("month").subtract(9, "h").toDate())
+				const todayCount = await this.candyRepository.countByPeriod(giver, todayStartDatetime);
 				// reaction limit
 				// todo reaction limit to constant
 				if (todayCount.getValue() > 2) {
@@ -182,6 +187,47 @@ export class CandyLogic implements ICandyLogic {
 					),
 				);
 				return `<@${giver.getValue()}>さんが<@${receiver.getValue()}>さんに${AppConfig.backend.candyEmoji}スタンプを押したよ！！っ\nリンク先はこちら！っ: ${messageLink.getValue()}`;
+			}),
+		);
+	}
+	async giveBigCandy(
+		receiver: DiscordUserId,
+		giver: DiscordUserId,
+		messageId: DiscordMessageId,
+		messageLink: DiscordMessageLink,
+	): Promise<string | undefined> {
+		if (receiver.getValue() === giver.getValue()) {
+			return;
+		}
+		return this.mutex.useMutex("GiveCandy", async () =>
+			this.transaction.startTransaction(async () => {
+				const monthStartDatetime = new CandyCreatedAt(dayjs().add(9, "h").startOf("month").subtract(9, "h").toDate())
+				const monthCount = await this.candyRepository.countByPeriod(giver, monthStartDatetime);
+				// reaction limit
+				// todo reaction limit to constant
+				if (monthCount.getValue() > 0) {
+					return "今はスタンプを押してもキャンディをあげられないよ！っ";
+				}
+
+				const Candies = await this.candyRepository.findByGiverAndMessageId(
+					giver,
+					messageId,
+				);
+				// duplicate reaction
+				if (Candies.length > 0) {
+					return;
+				}
+				await this.candyRepository.bulkCreateCandy(
+					[...Array(BIG_CANDY_COUNT)].map(() => new CandyDto(
+						receiver,
+						giver,
+						messageId,
+						new CandyExpire(
+							dayjs().add(1, "day").add(1, "month").startOf("day").toDate(),
+						),
+					))
+				);
+				return `<@${giver.getValue()}>さんが<@${receiver.getValue()}>さんに${AppConfig.backend.candyBigEmoji}スタンプを押したよ！！っ\nリンク先はこちら！っ: ${messageLink.getValue()}`;
 			}),
 		);
 	}
