@@ -132,6 +132,23 @@
 					"description": "minecraftサーバーを停止する"
 				}
 			]
+		},
+		{
+			"name": "stickyコマンド",
+			"commands": [
+				{
+					"name": "/stickycreate",
+					"example": "/stickycreate channelId: 1 message: let's make the channel exciting",
+					"parameter": "id: integer message: string",
+					"description": "stickyをチャンネルに登録する"
+				},
+				{
+					"name": "/stickydelete",
+					"example": "/stickydelete channelId: 1",
+					"parameter": "id: integer",
+					"description": "stickyをチャンネルから削除する"
+				}
+			]
 		}
 	]
 }
