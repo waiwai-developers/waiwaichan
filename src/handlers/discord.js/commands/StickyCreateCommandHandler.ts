@@ -87,6 +87,6 @@ export class StickyCreateCommandHandler implements SlashCommandHandler {
 					),
 				),
 			);
-		});
+		}).catch(console.error);
 	}
 }
