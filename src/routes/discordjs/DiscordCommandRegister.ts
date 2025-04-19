@@ -147,9 +147,6 @@ export class DiscordCommandRegister {
 						.setName("channelid")
 						.setDescription("string")
 						.setRequired(true),
-				)
-				.addStringOption((option) =>
-					option.setName("message").setDescription("string").setRequired(true),
 				),
 			new SlashCommandBuilder()
 				.setName("stickydelete")
