@@ -3,6 +3,7 @@ interface UserAssociation {
 	githubId: string;
 	discordId: string;
 	grade: string;
+	role: string;
 }
 
 interface AccountsConfigType {
