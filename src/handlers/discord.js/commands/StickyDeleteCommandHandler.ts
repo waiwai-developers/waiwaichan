@@ -1,3 +1,4 @@
+import { AccountsConfig } from "@/src/entities/config/AccountsConfig";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
 import { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
 import { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
@@ -19,20 +20,27 @@ export class StickyDeleteCommandHandler implements SlashCommandHandler {
 	async handle(
 		interaction: ChatInputCommandInteraction<CacheType>,
 	): Promise<void> {
+		if (interaction.channel == null) {
+			return;
+		}
+		if (
+			AccountsConfig.users.map((u) => u.role).includes(interaction.user.id)
+		) {
+			interaction.reply("スティッキーを登録する権限を持っていないよ！っ");
+			return;
+		}
+
 		const sticky = await this.stickyLogic.find(
 			new DiscordGuildId(interaction.guildId),
 			new DiscordMessageId(interaction.options.getString("channelid", true)),
 		);
-
 		if (sticky === undefined) {
 			await interaction.reply("スティッキーが登録されていなかったよ！っ");
 			return;
 		}
-
 		const channel = interaction.guild?.channels.cache.get(
 			interaction.options.getString("channelid", true),
 		);
-
 		if (channel === undefined) {
 			await interaction.reply("スティッキーの投稿がなかったよ！っ");
 			return;
@@ -40,21 +48,19 @@ export class StickyDeleteCommandHandler implements SlashCommandHandler {
 
 		if (!(channel instanceof TextChannel)) {
 			await interaction.reply(
-				"このチャンネルにはスティッキーを登録できないよ！っ",
+				"このチャンネルにはスティッキーを削除できないよ！っ",
 			);
 			return;
 		}
-
-		const message = await channel.messages.fetch(sticky.messageId.getValue());
-		await message.delete();
 
 		await interaction.deferReply();
 		await interaction.editReply(
 			await this.stickyLogic.delete(
 				new DiscordGuildId(interaction.guildId),
 				new DiscordMessageId(interaction.options.getString("channelid", true)),
-				new DiscordUserId(interaction.user.id),
 			),
 		);
+		const message = await channel.messages.fetch(sticky.messageId.getValue());
+		await message.delete();
 	}
 }

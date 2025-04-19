@@ -1,10 +1,10 @@
+import { AccountsConfig } from "@/src/entities/config/AccountsConfig";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
 import { StickyDto } from "@/src/entities/dto/StickyDto";
 import { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
 import { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
 import { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
 import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
-import { StickyMessage } from "@/src/entities/vo/StickyMessage";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
 import type { IStickyLogic } from "@/src/logics/Interfaces/logics/IStickyLogic";
 import type { CacheType, ChatInputCommandInteraction } from "discord.js";
@@ -25,12 +25,29 @@ export class StickyCreateCommandHandler implements SlashCommandHandler {
 		if (interaction.channel == null) {
 			return;
 		}
+		if (
+			AccountsConfig.users.map((u) => u.role).includes(interaction.user.id)
+		) {
+			interaction.reply("スティッキーを登録する権限を持っていないよ！っ");
+			return;
+		}
+
+		const sticky = await this.stickyLogic.find(
+			new DiscordGuildId(interaction.guildId),
+			new DiscordMessageId(interaction.options.getString("channelid", true)),
+		);
+		if (sticky !== undefined) {
+			await interaction.reply("スティッキーが既にチャンネルに登録されているよ！っ");
+			return;
+		}
 
 		const channel = interaction.guild?.channels.cache.get(
 			interaction.options.getString("channelid", true),
 		);
-
 		if (!(channel instanceof TextChannel)) {
+			await interaction.reply(
+				"このチャンネルにはスティッキーを登録できないよ！っ",
+			);
 			return;
 		}
 		const message = await channel.send(
@@ -47,7 +64,6 @@ export class StickyCreateCommandHandler implements SlashCommandHandler {
 					),
 					new DiscordUserId(interaction.user.id),
 					new DiscordMessageId(message.id),
-					new StickyMessage(interaction.options.getString("message", true)),
 				),
 			),
 		);

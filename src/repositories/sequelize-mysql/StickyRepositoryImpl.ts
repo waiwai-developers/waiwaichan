@@ -3,7 +3,6 @@ import { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
 import { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
 import { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
 import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
-import { StickyMessage } from "@/src/entities/vo/StickyMessage";
 import type { IStickyRepository } from "@/src/logics/Interfaces/repositories/database/IStickyRepository";
 import { injectable } from "inversify";
 import {
@@ -34,8 +33,6 @@ class StickyRepositoryImpl extends Model implements IStickyRepository {
 	declare userId: string;
 	@Column(DataType.STRING)
 	declare messageId: string;
-	@Column(DataType.STRING)
-	declare message: string;
 
 	async create(data: StickyDto): Promise<boolean> {
 		return StickyRepositoryImpl.create({
@@ -43,7 +40,6 @@ class StickyRepositoryImpl extends Model implements IStickyRepository {
 			channelId: data.channelId.getValue(),
 			userId: data.userId.getValue(),
 			messageId: data.messageId.getValue(),
-			message: data.message.getValue(),
 		}).then((res) => !!res);
 	}
 
@@ -77,7 +73,6 @@ class StickyRepositoryImpl extends Model implements IStickyRepository {
 			new DiscordChannelId(this.channelId),
 			new DiscordUserId(this.userId),
 			new DiscordMessageId(this.messageId),
-			new StickyMessage(this.message),
 		);
 	}
 }

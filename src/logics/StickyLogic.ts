@@ -17,15 +17,7 @@ export class StickyLogic implements IStickyLogic {
 	private readonly transaction!: ITransaction;
 
 	async create(data: StickyDto): Promise<string> {
-		if (
-			AccountsConfig.users.map((u) => u.role).includes(data.userId.getValue())
-		) {
-			return "スティッキーを登録する権限を持っていないよ！っ";
-		}
 		return this.transaction.startTransaction(async () => {
-			if (await this.StickyRepository.findOne(data.guildId, data.channelId)) {
-				return "スティッキーが既にチャンネルに登録されているよ！っ";
-			}
 			await this.StickyRepository.create(data);
 			return "スティッキーを登録したよ！っ";
 		});
@@ -43,11 +35,7 @@ export class StickyLogic implements IStickyLogic {
 	async delete(
 		guildId: DiscordGuildId,
 		channelId: DiscordChannelId,
-		userId: DiscordUserId,
 	): Promise<string> {
-		if (AccountsConfig.users.map((u) => u.role).includes(userId.getValue())) {
-			return "スティッキーを削除する権限を持っていないよ！っ";
-		}
 		return this.transaction.startTransaction(async () => {
 			this.StickyRepository.delete(guildId, channelId);
 			return "スティッキーを削除したよ！っ";
