@@ -7,6 +7,7 @@ import { StickyMessage } from "@/src/entities/vo/StickyMessage";
 import type { IStickyRepository } from "@/src/logics/Interfaces/repositories/database/IStickyRepository";
 import { injectable } from "inversify";
 import {
+	AutoIncrement,
 	Column,
 	DataType,
 	Model,
@@ -22,9 +23,11 @@ import {
 })
 class StickyRepositoryImpl extends Model implements IStickyRepository {
 	@PrimaryKey
+	@AutoIncrement
+	@Column(DataType.INTEGER)
+	declare id: number;
 	@Column(DataType.STRING)
 	declare guildId: string;
-	@PrimaryKey
 	@Column(DataType.STRING)
 	declare channelId: string;
 	@Column(DataType.STRING)

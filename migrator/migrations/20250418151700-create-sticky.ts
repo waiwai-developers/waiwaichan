@@ -5,14 +5,18 @@ const TABLE_NAME = "Stickies";
 
 export const up: Migration = async ({ context: sequelize }) => {
 	await sequelize.getQueryInterface().createTable(TABLE_NAME, {
+		id: {
+			allowNull: false,
+			autoIncrement: true,
+			primaryKey: true,
+			type: DataTypes.INTEGER,
+		},
 		guildId: {
 			allowNull: false,
-			primaryKey: true,
 			type: DataTypes.BIGINT,
 		},
 		channelId: {
 			allowNull: false,
-			primaryKey: true,
 			type: DataTypes.BIGINT,
 		},
 		userId: {
