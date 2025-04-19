@@ -50,9 +50,16 @@ export class StickyCreateCommandHandler implements SlashCommandHandler {
 			);
 			return;
 		}
+
 		const message = await channel.send(
 			interaction.options.getString("message", true),
 		);
+		if (!message) {
+			await interaction.reply(
+				"スティッキーの投稿に失敗したよ！っ",
+			);
+			return;
+		}
 
 		await interaction.deferReply();
 		await interaction.editReply(

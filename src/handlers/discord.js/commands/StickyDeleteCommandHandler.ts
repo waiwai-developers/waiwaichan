@@ -42,7 +42,6 @@ export class StickyDeleteCommandHandler implements SlashCommandHandler {
 			await interaction.reply("スティッキーの投稿がなかったよ！っ");
 			return;
 		}
-
 		if (!(channel instanceof TextChannel)) {
 			await interaction.reply(
 				"このチャンネルのスティッキーを削除できないよ！っ",
@@ -51,7 +50,13 @@ export class StickyDeleteCommandHandler implements SlashCommandHandler {
 		}
 
 		const message = await channel.messages.fetch(sticky.messageId.getValue());
-		await message.delete();
+		const success = await message.delete();
+		if (!success) {
+			await interaction.reply(
+				"スティッキーの削除に失敗したよ！っ",
+			);
+			return;
+		}
 
 		await interaction.deferReply();
 		await interaction.editReply(

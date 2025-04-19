@@ -32,9 +32,12 @@ export class StickyEventHandler implements DiscordEventHandler<Message> {
 		const stickyOldMessage = await channel.messages.fetch(
 			sticky.messageId.getValue(),
 		);
-		await stickyOldMessage.delete();
+		const success = await stickyOldMessage.delete();
+		if (!success) return;
 
 		const stickyNewMessage = await channel.send(stickyOldMessage.content);
+		if (!stickyNewMessage) return;
+
 		await this.stickyLogic.update(
 			new DiscordGuildId(stickyNewMessage.guildId),
 			new DiscordChannelId(stickyNewMessage.channelId),
