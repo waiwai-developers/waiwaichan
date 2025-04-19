@@ -48,7 +48,7 @@ export class StickyDeleteCommandHandler implements SlashCommandHandler {
 
 		if (!(channel instanceof TextChannel)) {
 			await interaction.reply(
-				"このチャンネルにはスティッキーを削除できないよ！っ",
+				"このチャンネルのスティッキーを削除できないよ！っ",
 			);
 			return;
 		}
