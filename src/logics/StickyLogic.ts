@@ -37,7 +37,7 @@ export class StickyLogic implements IStickyLogic {
 		channelId: DiscordChannelId,
 	): Promise<string> {
 		return this.transaction.startTransaction(async () => {
-			this.StickyRepository.delete(guildId, channelId);
+			await this.StickyRepository.delete(guildId, channelId);
 			return "スティッキーを削除したよ！っ";
 		});
 	}
