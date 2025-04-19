@@ -22,11 +22,10 @@ export class StickyDeleteCommandHandler implements SlashCommandHandler {
 		if (interaction.channel == null) {
 			return;
 		}
-		console.log("aaaaaa")
-		console.log(AccountsConfig.users.find((u) => u.discordId !== interaction.user.id)?.role)
-		console.log("aaaaaa")
-
-		if (AccountsConfig.users.find((u) => u.discordId === interaction.user.id)?.role !== "admin") {
+		if (
+			AccountsConfig.users.find((u) => u.discordId === interaction.user.id)
+				?.role !== "admin"
+		) {
 			interaction.reply("スティッキーを登録する権限を持っていないよ！っ");
 			return;
 		}
@@ -56,9 +55,7 @@ export class StickyDeleteCommandHandler implements SlashCommandHandler {
 		const message = await channel.messages.fetch(sticky.messageId.getValue());
 		const success = await message.delete();
 		if (!success) {
-			await interaction.reply(
-				"スティッキーの削除に失敗したよ！っ",
-			);
+			await interaction.reply("スティッキーの削除に失敗したよ！っ");
 			return;
 		}
 

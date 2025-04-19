@@ -25,12 +25,10 @@ export class StickyCreateCommandHandler implements SlashCommandHandler {
 		if (interaction.channel == null) {
 			return;
 		}
-
-		console.log("aaaaaa")
-		console.log(AccountsConfig.users.find((u) => u.discordId !== interaction.user.id)?.role)
-		console.log("aaaaaa")
-
-		if (AccountsConfig.users.find((u) => u.discordId === interaction.user.id)?.role !== "admin") {
+		if (
+			AccountsConfig.users.find((u) => u.discordId === interaction.user.id)
+				?.role !== "admin"
+		) {
 			interaction.reply("スティッキーを登録する権限を持っていないよ！っ");
 			return;
 		}
@@ -60,9 +58,7 @@ export class StickyCreateCommandHandler implements SlashCommandHandler {
 			interaction.options.getString("message", true),
 		);
 		if (!message) {
-			await interaction.reply(
-				"スティッキーの投稿に失敗したよ！っ",
-			);
+			await interaction.reply("スティッキーの投稿に失敗したよ！っ");
 			return;
 		}
 
