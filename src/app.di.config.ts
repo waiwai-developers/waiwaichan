@@ -27,6 +27,7 @@ import { AIReplyHandler } from "@/src/handlers/discord.js/events/AIReplyHandler"
 import { CandyReactionHandler } from "@/src/handlers/discord.js/events/CandyReactionHandler";
 import type { DiscordEventHandler } from "@/src/handlers/discord.js/events/DiscordEventHandler";
 import type { ReactionInteraction } from "@/src/handlers/discord.js/events/DiscordEventHandler";
+import { StickyEventHandler } from "@/src/handlers/discord.js/events/StickyEventHandler";
 import { TranslateReplyHandler } from "@/src/handlers/discord.js/events/TranslateReplyHandler";
 import { CandyLogic } from "@/src/logics/CandyLogic";
 import { ChatAILogic } from "@/src/logics/ChatAILogic";
@@ -116,6 +117,7 @@ appContainer.bind<IUtilityLogic>(LogicTypes.UtilityLogic).to(UtilityLogic);
 
 // Handlers
 appContainer.bind<DiscordEventHandler<Message>>(HandlerTypes.MessageHandler).to(AIReplyHandler);
+appContainer.bind<DiscordEventHandler<Message>>(HandlerTypes.MessageHandler).to(StickyEventHandler);
 appContainer.bind<DiscordEventHandler<Message>>(HandlerTypes.MessageHandler).to(TranslateReplyHandler);
 appContainer.bind<DiscordEventHandler<ReactionInteraction>>(HandlerTypes.ReactionHandler).to(CandyReactionHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(HelpCommandHandler);
