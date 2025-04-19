@@ -55,6 +55,21 @@ class StickyRepositoryImpl extends Model implements IStickyRepository {
 		}).then((res) => res > 0);
 	}
 
+	async updateForMessageId(
+		guildId: DiscordGuildId,
+		channelId: DiscordChannelId,
+		messageId: DiscordMessageId,
+	): Promise<boolean> {
+		return StickyRepositoryImpl.findOne({
+			where: {
+				guildId: guildId.getValue(),
+				channelId: channelId.getValue(),
+			},
+		})
+			.then((res) => res?.update({ messageId: messageId.getValue() }))
+			.then((res) => !!res);
+	}
+
 	async findOne(
 		guildId: DiscordGuildId,
 		channelId: DiscordChannelId,
