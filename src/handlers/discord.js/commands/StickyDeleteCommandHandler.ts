@@ -22,7 +22,7 @@ export class StickyDeleteCommandHandler implements SlashCommandHandler {
 		if (interaction.channel == null) {
 			return;
 		}
-		if (AccountsConfig.users.map((u) => u.role).includes(interaction.user.id)) {
+		if (AccountsConfig.users.find((u) => u.discordId !== interaction.user.id)?.role === "admin") {
 			interaction.reply("スティッキーを登録する権限を持っていないよ！っ");
 			return;
 		}
