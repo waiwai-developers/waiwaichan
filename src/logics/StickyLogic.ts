@@ -1,9 +1,8 @@
-import { AccountsConfig } from "@/src/entities/config/AccountsConfig";
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import type { StickyDto } from "@/src/entities/dto/StickyDto";
 import type { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
 import type { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
-import type { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
+import type { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
 import type { IStickyLogic } from "@/src/logics/Interfaces/logics/IStickyLogic";
 import type { IStickyRepository } from "@/src/logics/Interfaces/repositories/database/IStickyRepository";
 import { inject, injectable } from "inversify";
@@ -39,6 +38,20 @@ export class StickyLogic implements IStickyLogic {
 		return this.transaction.startTransaction(async () => {
 			await this.StickyRepository.delete(guildId, channelId);
 			return "スティッキーを削除したよ！っ";
+		});
+	}
+	async update(
+		guildId: DiscordGuildId,
+		channelId: DiscordChannelId,
+		messageId: DiscordMessageId,
+	): Promise<string> {
+		return this.transaction.startTransaction(async () => {
+			await this.StickyRepository.updateForMessageId(
+				guildId,
+				channelId,
+				messageId,
+			);
+			return "スティッキーを更新したよ！っ";
 		});
 	}
 }
