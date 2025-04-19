@@ -2,7 +2,6 @@ import { AccountsConfig } from "@/src/entities/config/AccountsConfig";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
 import { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
 import { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
-import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
 import type { IStickyLogic } from "@/src/logics/Interfaces/logics/IStickyLogic";
 import type { CacheType, ChatInputCommandInteraction } from "discord.js";
@@ -23,9 +22,7 @@ export class StickyDeleteCommandHandler implements SlashCommandHandler {
 		if (interaction.channel == null) {
 			return;
 		}
-		if (
-			AccountsConfig.users.map((u) => u.role).includes(interaction.user.id)
-		) {
+		if (AccountsConfig.users.map((u) => u.role).includes(interaction.user.id)) {
 			interaction.reply("スティッキーを登録する権限を持っていないよ！っ");
 			return;
 		}

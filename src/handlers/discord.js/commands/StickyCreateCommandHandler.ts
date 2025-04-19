@@ -25,9 +25,7 @@ export class StickyCreateCommandHandler implements SlashCommandHandler {
 		if (interaction.channel == null) {
 			return;
 		}
-		if (
-			AccountsConfig.users.map((u) => u.role).includes(interaction.user.id)
-		) {
+		if (AccountsConfig.users.map((u) => u.role).includes(interaction.user.id)) {
 			interaction.reply("スティッキーを登録する権限を持っていないよ！っ");
 			return;
 		}
@@ -37,7 +35,9 @@ export class StickyCreateCommandHandler implements SlashCommandHandler {
 			new DiscordMessageId(interaction.options.getString("channelid", true)),
 		);
 		if (sticky !== undefined) {
-			await interaction.reply("スティッキーが既にチャンネルに登録されているよ！っ");
+			await interaction.reply(
+				"スティッキーが既にチャンネルに登録されているよ！っ",
+			);
 			return;
 		}
 
