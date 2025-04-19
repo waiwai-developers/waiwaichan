@@ -53,6 +53,9 @@ export class StickyDeleteCommandHandler implements SlashCommandHandler {
 			return;
 		}
 
+		const message = await channel.messages.fetch(sticky.messageId.getValue());
+		await message.delete();
+
 		await interaction.deferReply();
 		await interaction.editReply(
 			await this.stickyLogic.delete(
@@ -60,7 +63,5 @@ export class StickyDeleteCommandHandler implements SlashCommandHandler {
 				new DiscordMessageId(interaction.options.getString("channelid", true)),
 			),
 		);
-		const message = await channel.messages.fetch(sticky.messageId.getValue());
-		await message.delete();
 	}
 }
