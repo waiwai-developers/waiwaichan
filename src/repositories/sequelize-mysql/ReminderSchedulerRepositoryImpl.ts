@@ -1,9 +1,9 @@
 import { ReminderDto } from "@/src/entities/dto/ReminderDto";
 import { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
+import { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
 import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
 import { ReceiveDiscordUserName } from "@/src/entities/vo/ReceiveDiscordUserName";
 import { RemindTime } from "@/src/entities/vo/RemindTime";
-import { ReminderDeletedAt } from "@/src/entities/vo/ReminderDeletedAt";
 import { ReminderId } from "@/src/entities/vo/ReminderId";
 import { ReminderMessage } from "@/src/entities/vo/ReminderMessage";
 import type { IReminderSchedulerRepository } from "@/src/logics/Interfaces/repositories/database/IReminderSchedulerRepository";
@@ -34,6 +34,8 @@ class ReminderSchedulerRepositoryImpl
 	@Column(DataType.INTEGER)
 	declare id: number;
 	@Column(DataType.STRING)
+	declare guildId: string;
+	@Column(DataType.STRING)
 	declare channelId: string;
 	@Column(DataType.STRING)
 	declare userId: string;
@@ -54,13 +56,16 @@ class ReminderSchedulerRepositoryImpl
 
 	async deleteReminder(id: ReminderId): Promise<boolean> {
 		return ReminderSchedulerRepositoryImpl.destroy({
-			where: { id: id.getValue() },
+			where: {
+				id: id.getValue(),
+			},
 		}).then((res) => res > 0);
 	}
 
 	toDto(): ReminderDto {
 		return new ReminderDto(
 			new ReminderId(this.id),
+			new DiscordGuildId(this.guildId),
 			new DiscordChannelId(this.channelId),
 			new DiscordUserId(this.userId),
 			new ReceiveDiscordUserName(this.receiveUserName),

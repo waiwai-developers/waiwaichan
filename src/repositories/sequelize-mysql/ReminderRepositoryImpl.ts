@@ -1,6 +1,6 @@
 import { ReminderDto } from "@/src/entities/dto/ReminderDto";
-import { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
 import { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
+import { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
 import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
 import { ReceiveDiscordUserName } from "@/src/entities/vo/ReceiveDiscordUserName";
 import { RemindTime } from "@/src/entities/vo/RemindTime";
@@ -58,11 +58,18 @@ class ReminderRepositoryImpl extends Model implements IReminderRepository {
 		userId: DiscordUserId,
 	): Promise<boolean> {
 		return ReminderRepositoryImpl.destroy({
-			where: { id: id.getValue(), guildId: guildId.getValue(), userId: userId.getValue() },
+			where: {
+				id: id.getValue(),
+				guildId: guildId.getValue(),
+				userId: userId.getValue(),
+			},
 		}).then((res) => res > 0);
 	}
 
-	async findByUserId(guildId: DiscordGuildId, userId: DiscordUserId): Promise<ReminderDto[]> {
+	async findByUserId(
+		guildId: DiscordGuildId,
+		userId: DiscordUserId,
+	): Promise<ReminderDto[]> {
 		return ReminderRepositoryImpl.findAll({
 			where: {
 				guildId: guildId.getValue(),
