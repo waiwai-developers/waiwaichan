@@ -1,10 +1,10 @@
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
 import { ReminderDto } from "@/src/entities/dto/ReminderDto";
+import { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
 import { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
 import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
 import { ReceiveDiscordUserName } from "@/src/entities/vo/ReceiveDiscordUserName";
 import { RemindTime } from "@/src/entities/vo/RemindTime";
-import { ReminderId } from "@/src/entities/vo/ReminderId";
 import { ReminderMessage } from "@/src/entities/vo/ReminderMessage";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
 import type { IReminderLogic } from "@/src/logics/Interfaces/logics/IReminderLogic";
@@ -24,10 +24,14 @@ export class ReminderSetCommandHandler implements SlashCommandHandler {
 	async handle(
 		interaction: ChatInputCommandInteraction<CacheType>,
 	): Promise<void> {
+		if (!interaction.guildId) {
+			return;
+		}
 		await interaction.reply(
 			await this.reminderLogic.create(
 				new ReminderDto(
 					undefined,
+					new DiscordGuildId(interaction.guildId),
 					new DiscordChannelId(interaction.channelId),
 					new DiscordUserId(interaction.user.id),
 					new ReceiveDiscordUserName(
