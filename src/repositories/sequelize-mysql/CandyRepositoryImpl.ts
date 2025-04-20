@@ -2,6 +2,7 @@ import { CandyDto } from "@/src/entities/dto/CandyDto";
 import { CandyCount } from "@/src/entities/vo/CandyCount";
 import { CandyExpire } from "@/src/entities/vo/CandyExpire";
 import type { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
+import { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
 import { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
 import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
 import type { ICandyRepository } from "@/src/logics/Interfaces/repositories/database/ICandyRepository";
@@ -29,6 +30,8 @@ class CandyRepositoryImpl extends Model implements ICandyRepository {
 	@Column(DataType.INTEGER)
 	declare id: number;
 	@Column(DataType.STRING)
+	declare guildId: string;
+	@Column(DataType.STRING)
 	declare receiveUserId: string;
 	@Column(DataType.STRING)
 	declare giveUserId: string;
@@ -39,6 +42,7 @@ class CandyRepositoryImpl extends Model implements ICandyRepository {
 
 	async createCandy(data: CandyDto): Promise<boolean> {
 		await CandyRepositoryImpl.create({
+			guildId: data.guildId.getValue(),
 			receiveUserId: data.receiveUserId.getValue(),
 			giveUserId: data.giveUserId.getValue(),
 			messageId: data.messageId.getValue(),
@@ -47,18 +51,26 @@ class CandyRepositoryImpl extends Model implements ICandyRepository {
 		return true;
 	}
 
-	async candyCount(userId: DiscordUserId): Promise<CandyCount> {
+	async candyCount(
+		guildId: DiscordGuildId,
+		userId: DiscordUserId,
+	): Promise<CandyCount> {
 		return CandyRepositoryImpl.count({
 			where: {
+				guildId: guildId.getValue(),
 				receiveUserId: userId.getValue(),
 				expiredAt: { [Op.gt]: dayjs().toDate() },
 			},
 		}).then((c) => new CandyCount(c));
 	}
 
-	async candyExpire(userId: DiscordUserId): Promise<CandyExpire | undefined> {
+	async candyExpire(
+		guildId: DiscordGuildId,
+		userId: DiscordUserId,
+	): Promise<CandyExpire | undefined> {
 		return CandyRepositoryImpl.findOne({
 			where: {
+				guildId: guildId.getValue(),
 				receiveUserId: userId.getValue(),
 				expiredAt: { [Op.gt]: dayjs().toDate() },
 			},
@@ -66,9 +78,13 @@ class CandyRepositoryImpl extends Model implements ICandyRepository {
 		}).then((c) => (c ? new CandyExpire(c.expiredAt) : undefined));
 	}
 
-	async countByToday(userId: DiscordUserId): Promise<CandyCount> {
+	async countByToday(
+		guildId: DiscordGuildId,
+		userId: DiscordUserId,
+	): Promise<CandyCount> {
 		return CandyRepositoryImpl.count({
 			where: {
+				guildId: guildId.getValue(),
 				giveUserId: userId.getValue(),
 				createdAt: {
 					[Op.gte]: dayjs()
@@ -83,34 +99,40 @@ class CandyRepositoryImpl extends Model implements ICandyRepository {
 	}
 
 	async ConsumeCandies(
+		guildId: DiscordGuildId,
 		userId: DiscordUserId,
 		Candies: CandyCount = new CandyCount(1),
 	): Promise<boolean> {
 		return CandyRepositoryImpl.destroy({
 			where: {
+				guildId: guildId.getValue(),
 				receiveUserId: userId.getValue(),
 			},
 			limit: Candies.getValue(),
 		}).then((res) => res === Candies.getValue());
 	}
 	async findByGiverAndMessageId(
+		guildId: DiscordGuildId,
 		giver: DiscordChannelId,
 		messageId: DiscordMessageId,
 	): Promise<Array<CandyDto>> {
 		return CandyRepositoryImpl.findAll({
 			where: {
+				guildId: guildId.getValue(),
 				giveUserId: giver.getValue(),
 				messageId: messageId.getValue(),
 			},
 		}).then((res) => res.map((r) => this.toDto(r)));
 	}
 	toDto({
+		guildId,
 		receiveUserId,
 		giveUserId,
 		messageId,
 		expiredAt,
 	}: CandyRepositoryImpl): CandyDto {
 		return new CandyDto(
+			new DiscordGuildId(guildId),
 			new DiscordUserId(receiveUserId),
 			new DiscordUserId(giveUserId),
 			new DiscordMessageId(messageId),
