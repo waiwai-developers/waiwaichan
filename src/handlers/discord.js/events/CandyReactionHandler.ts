@@ -3,6 +3,7 @@ import {
 	LogicTypes,
 	RepoTypes,
 } from "@/src/entities/constants/DIContainerTypes";
+import { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
 import { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
 import { DiscordMessageLink } from "@/src/entities/vo/DiscordMessageLink";
 import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
@@ -25,6 +26,10 @@ export class CandyReactionHandler
 	private readonly logger!: ILogger;
 
 	async handle({ reaction, user }: ReactionInteraction): Promise<void> {
+		if (!reaction.message.guildId) {
+			this.logger.debug("not guild message");
+			return;
+		}
 		if (reaction.partial) {
 			try {
 				await reaction.fetch();
@@ -59,6 +64,7 @@ export class CandyReactionHandler
 		}
 
 		const res = await this.candyLogic.giveCandy(
+			new DiscordGuildId(reaction.message.guildId),
 			new DiscordUserId(reaction.message.author.id),
 			new DiscordUserId(user.id),
 			new DiscordMessageId(reaction.message.id),
