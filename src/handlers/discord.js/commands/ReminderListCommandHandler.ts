@@ -22,7 +22,10 @@ export class ReminderListCommandHandler implements SlashCommandHandler {
 			return;
 		}
 		await interaction.reply(
-			await this.reminderLogic.list(new DiscordGuildId(interaction.guildId) ,new DiscordUserId(interaction.user.id)),
+			await this.reminderLogic.list(
+				new DiscordGuildId(interaction.guildId),
+				new DiscordUserId(interaction.user.id),
+			),
 		);
 	}
 }
