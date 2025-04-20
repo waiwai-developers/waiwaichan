@@ -139,7 +139,7 @@
 				{
 					"name": "/stickycreate",
 					"example": "/stickycreate channelId: 1",
-					"parameter": "id: integer message: string",
+					"parameter": "id: integer",
 					"description": "stickyをチャンネルに登録する"
 				},
 				{
