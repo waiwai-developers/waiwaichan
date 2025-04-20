@@ -3,6 +3,7 @@ import { UserCandyItemWithItemGroupByDto } from "@/src/entities/dto/UserCandyIte
 import { CandyItemDescription } from "@/src/entities/vo/CandyItemDescription";
 import { CandyItemId } from "@/src/entities/vo/CandyItemId";
 import { CandyItemName } from "@/src/entities/vo/CandyItemName";
+import { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
 import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
 import { UserCandyItemCount } from "@/src/entities/vo/UserCandyItemCount";
 import { UserCandyItemExpire } from "@/src/entities/vo/UserCandyItemExpire";
@@ -42,6 +43,8 @@ class UserCandyItemRepositoryImpl
 	@Column(DataType.STRING)
 	declare userId: string;
 	@Column(DataType.STRING)
+	declare guildId: string;
+	@Column(DataType.STRING)
 	@ForeignKey(() => CandyItemRepositoryImpl)
 	declare itemId: number;
 	@Column(DataType.DATE)
@@ -58,6 +61,7 @@ class UserCandyItemRepositoryImpl
 
 	async create(data: UserCandyItemDto): Promise<UserCandyItemId> {
 		return UserCandyItemRepositoryImpl.create({
+			guildId: DiscordGuildId,
 			userId: data.userId.getValue(),
 			itemId: data.itemId.getValue(),
 			expiredAt: data.expiredAt.getValue(),
@@ -65,6 +69,7 @@ class UserCandyItemRepositoryImpl
 	}
 
 	async findByNotUsed(
+		guildId: DiscordGuildId,
 		userId: DiscordUserId,
 	): Promise<UserCandyItemWithItemGroupByDto[]> {
 		return UserCandyItemRepositoryImpl.findAll({
@@ -77,6 +82,7 @@ class UserCandyItemRepositoryImpl
 				[fn("MIN", col("expiredAt")), "aggrMinExpiredAt"],
 			],
 			where: {
+				guildId: guildId.getValue(),
 				userId: userId.getValue(),
 				expiredAt: { [Op.gt]: dayjs().toDate() },
 			},
@@ -104,6 +110,7 @@ class UserCandyItemRepositoryImpl
 	 * @return dto that updated item
 	 */
 	async exchangeByTypeAndAmount(
+		guildId: DiscordGuildId,
 		userId: DiscordUserId,
 		type: CandyItemId,
 		amount: UserCandyItemCount,
@@ -111,6 +118,7 @@ class UserCandyItemRepositoryImpl
 		const lockedIds = await UserCandyItemRepositoryImpl.findAll({
 			attributes: ["id"],
 			where: {
+				guildId: guildId.getValue(),
 				userId: userId.getValue(),
 				itemId: type.getValue(),
 				expiredAt: { [Op.gt]: dayjs().toDate() },
@@ -133,12 +141,14 @@ class UserCandyItemRepositoryImpl
 
 	toDto({
 		id,
+		guildId,
 		userId,
 		itemId,
 		expiredAt,
 	}: UserCandyItemRepositoryImpl): UserCandyItemDto {
 		return new UserCandyItemDto(
 			new UserCandyItemId(id),
+			new DiscordGuildId(guildId),
 			new DiscordUserId(userId),
 			new CandyItemId(itemId),
 			new UserCandyItemExpire(expiredAt),
