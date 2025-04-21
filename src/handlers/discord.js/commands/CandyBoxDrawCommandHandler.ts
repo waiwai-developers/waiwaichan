@@ -11,7 +11,7 @@ export class CandyBoxDrawCommandHandler implements SlashCommandHandler {
 	private candyLogic!: ICandyLogic;
 
 	isHandle(commandName: string): boolean {
-		return commandName === "candyBoxdraw";
+		return commandName === "candyboxdraw";
 	}
 
 	async handle(
