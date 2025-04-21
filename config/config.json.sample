@@ -27,6 +27,7 @@
 	},
 	"backend": {
 		"candyEmoji": "",
-		"candyLogChannel": ""
+		"candyLogChannel": "",
+		"candyBoxAmount": ""
 	}
 }
