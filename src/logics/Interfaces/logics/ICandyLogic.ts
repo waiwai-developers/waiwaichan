@@ -13,7 +13,7 @@ export interface ICandyLogic {
 		amount: UserCandyItemCount,
 	): Promise<string>;
 	drawItem(userId: DiscordUserId): Promise<string>;
-	drawSeriesItem(userId: DiscordUserId): Promise<string>;
+	drawBoxItem(userId: DiscordUserId): Promise<string>;
 	getItems(userId: DiscordUserId): Promise<string>;
 	giveCandy(
 		receiver: DiscordUserId,

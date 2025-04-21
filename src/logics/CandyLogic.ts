@@ -93,13 +93,13 @@ export class CandyLogic implements ICandyLogic {
 			.catch((_err) => "アイテムは持ってないよ！っ");
 	}
 
-	async drawSeriesItem(userId: DiscordUserId): Promise<string> {
+	async drawBoxItem(userId: DiscordUserId): Promise<string> {
 		return await this.transaction
 			.startTransaction(async () => {
 				// candyの消費
 				const success = await this.candyRepository.ConsumeCandies(
 					userId,
-					new CandyCount(AppConfig.backend.candySeriesAmount),
+					new CandyCount(AppConfig.backend.candyBoxAmount),
 				);
 				if (!success) {
 					throw new Error(
@@ -111,7 +111,7 @@ export class CandyLogic implements ICandyLogic {
 				let randomNums = [];
 				do {
 					const selectRandomNums = [];
-					for (let i = 0; i < AppConfig.backend.candySeriesAmount; i++) {
+					for (let i = 0; i < AppConfig.backend.candyBoxAmount; i++) {
 						// NOTE:todo より良い乱数生成に変える
 						selectRandomNums.push(
 							Math.floor(Math.random() * PROBABILITY_JACKPOT + 1),

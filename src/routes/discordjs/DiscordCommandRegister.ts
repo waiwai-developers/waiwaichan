@@ -104,8 +104,8 @@ export class DiscordCommandRegister {
 				.setName("candydraw")
 				.setDescription("candydraw"),
 			new SlashCommandBuilder()
-				.setName("candyseriesdraw")
-				.setDescription("candyseriesdraw"),
+				.setName("candyboxdraw")
+				.setDescription("candysboxdraw"),
 			new SlashCommandBuilder()
 				.setName("candyitem")
 				.setDescription("candyitem"),
