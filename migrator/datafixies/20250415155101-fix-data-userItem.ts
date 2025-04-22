@@ -13,8 +13,8 @@ export const up: Datafix = async () => {
 				where: {
 					id: { [Op.notIn]: candyIds },
 					receiveUserId: ui.userId,
-					createdAt: {
-						[Op.lte]: ui.deletedAt,
+					deletedAt: {
+						[Op.lte]: ui.createdAt,
 					},
 				},
 				order: [[col("createdAt"), "DESC"]],
