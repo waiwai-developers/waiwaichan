@@ -49,10 +49,13 @@ export class DiscordCommandRegister {
 				.setDescription("dice2 string")
 				.addStringOption((option) =>
 					option
-						.setName("parameter")
+						.setName("source")
 						.setDescription("string")
 						.setRequired(true),
-				),
+				).addBooleanOption((option) =>
+					option
+						.setName("secret")
+						.setDescription("boolean")),
 			new SlashCommandBuilder()
 				.setName("choice")
 				.setDescription("choice [string]")
