@@ -29,8 +29,8 @@
 				},	
 				{
 					"name": "/dice2",
-					"example": "/dice2 message: 10",
-					"parameter": "message: string",
+					"example": "/dice2 source: 10",
+					"parameter": "source: string, secret: boolean?",
 					"description": "仮のダイスだよ"
 				},
 				{
