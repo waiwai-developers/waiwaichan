@@ -45,6 +45,15 @@ export class DiscordCommandRegister {
 						.setRequired(true),
 				),
 			new SlashCommandBuilder()
+				.setName("dice2")
+				.setDescription("dice2 string")
+				.addStringOption((option) =>
+					option
+						.setName("parameter")
+						.setDescription("string")
+						.setRequired(true),
+				),
+			new SlashCommandBuilder()
 				.setName("choice")
 				.setDescription("choice [string]")
 				.addStringOption((option) =>

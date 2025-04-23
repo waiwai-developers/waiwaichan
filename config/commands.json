@@ -26,6 +26,12 @@
 					"example": "/dice message: 10",
 					"parameter": "message: integer",
 					"description": "指定した数の目のサイコロを転がす"
+				},	
+				{
+					"name": "/dice2",
+					"example": "/dice2 message: 10",
+					"parameter": "message: string",
+					"description": "仮のダイスだよ"
 				},
 				{
 					"name": "/choice",
