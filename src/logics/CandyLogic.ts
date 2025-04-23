@@ -1,10 +1,10 @@
 import { AppConfig } from "@/src/entities/config/AppConfig";
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import {
-	PITY_COUNT,
 	ID_HIT,
 	ID_JACKPOT,
 	ID_OUT,
+	PITY_COUNT,
 	PROBABILITY_HIT,
 	PROBABILITY_JACKPOT,
 } from "@/src/entities/constants/Items";
@@ -23,6 +23,7 @@ import { UserCandyItemId } from "@/src/entities/vo/UserCandyItemId";
 import type { ICandyLogic } from "@/src/logics/Interfaces/logics/ICandyLogic";
 import type { ICandyItemRepository } from "@/src/logics/Interfaces/repositories/database/ICandyItemRepository";
 import type { ICandyRepository } from "@/src/logics/Interfaces/repositories/database/ICandyRepository";
+import type { ITransaction } from "@/src/logics/Interfaces/repositories/database/ITransaction";
 import type { IUserCandyItemRepository } from "@/src/logics/Interfaces/repositories/database/IUserCandyItemRepository";
 import type { IMutex } from "@/src/logics/Interfaces/repositories/mutex/IMutex";
 import dayjs from "dayjs";
@@ -93,7 +94,7 @@ export class CandyLogic implements ICandyLogic {
 						return `${item.name.getValue()}${amount.getValue() > 1 ? `${amount.getValue()}個` : ""}と交換したよ！っ`;
 					});
 			})
-			.catch((_err) => "アイテムは持ってないよ！っ");
+			.catch((_err: Error) => "アイテムは持ってないよ！っ");
 	}
 
 	async drawSeriesItem(userId: DiscordUserId): Promise<string> {
@@ -137,8 +138,7 @@ export class CandyLogic implements ICandyLogic {
 							? new CandyId(lastJackpodCandyId?.getValue())
 							: undefined,
 					);
-				const pityIndex =
-					PITY_COUNT - candyCountFromJackpod.getValue() - 1;
+				const pityIndex = PITY_COUNT - candyCountFromJackpod.getValue() - 1;
 				const isOverPity =
 					candyCountFromJackpod.getValue() +
 						AppConfig.backend.candySeriesAmount >=
@@ -194,7 +194,7 @@ export class CandyLogic implements ICandyLogic {
 
 				return texts.join("\n");
 			})
-			.catch((_err) => "キャンディの数が足りないよ！っ");
+			.catch((_err: Error) => "キャンディの数が足りないよ！っ");
 	}
 
 	async drawItem(userId: DiscordUserId): Promise<string> {
