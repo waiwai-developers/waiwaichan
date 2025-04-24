@@ -150,7 +150,7 @@ describe("Test Candy Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 			await waitSlashUntilReply(commandMock);
-			verify(commandMock.reply(anything())).once(1);
+			verify(commandMock.reply(anything())).once();
 			expect(value).to.include("キャンディがないよ！っ");
 		})();
 	});
