@@ -159,8 +159,10 @@ describe("Test Candy Commands", () => {
 	it("test /candydraw", function(this: Mocha.Context) {
 		this.timeout(60_000);
 	return (async () => {
-			// テストデータ量を減らす
-			const candyLength = 10; // 917から10に減らす
+			// P = 1-(1-p)^n
+			// → 0.9999(99.99%) = 1-(1-0.01(1%))^n
+			// → n = log(1-0.9999)/log(1-0.01) = 916.421 ≒ 917
+			const candyLength = 917; // 917から10に減らす
 			const insertData = new Array(candyLength).fill({
 				receiveUserId: 1234,
 				giveUserId: 12345,
