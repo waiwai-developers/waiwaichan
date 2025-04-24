@@ -691,7 +691,7 @@ class Interpreter {
                 }
                 return {
                     ok: false,
-                    error: createInterpretError(lhs, lhs.span,
+                    error: createInterpretError(lhs, expr.span,
                         '数値と数値 または リストとリスト または リストと数値')
                 };
             }
@@ -718,8 +718,10 @@ class Interpreter {
                         formatedData: `${lhs.value ? '✅' : '❌'}`
                     });
                 }
-                else if (!isNumber(lhs.value) || !isNumber(rhs.value)) {
-                    return { ok: false, error: createInterpretError(lhs, expr.span, '数値と数値') };
+                else if (!isNumber(lhs.value)) {
+                    return { ok: false, error: createInterpretError(lhs, lhs.span, '数値と数値') };
+                } else if (!isNumber(rhs.value)) {
+                    return { ok: false, error: createInterpretError(lhs, rhs.span, '数値と数値') };
                 }
                 let value = false;
                 switch (expr.op) {
@@ -740,8 +742,10 @@ class Interpreter {
                 if (!lhs.ok) return lhs;
                 const rhs = this.evalExpr(expr.rhs);
                 if (!rhs.ok) return rhs;
-                if (!isBoolean(lhs.value) || !isBoolean(rhs.value)) {
-                    return { ok: false, error: createInterpretError(lhs, expr.span, '真偽値と真偽値') };
+                if (!isBoolean(lhs.value)) {
+                    return { ok: false, error: createInterpretError(lhs, lhs.span, '真偽値と真偽値') };
+                } else if (!isBoolean(rhs.value)) {
+                    return { ok: false, error: createInterpretError(rhs, rhs.span, '真偽値と真偽値') };
                 }
                 const value = expr.op == 'and' ? lhs.value && rhs.value : lhs.value || rhs.value;
                 return this.addHistory({
