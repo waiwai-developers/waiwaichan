@@ -104,7 +104,7 @@ describe("Test Candy Commands", () => {
 			// 検証を緩和：0回または1回の呼び出しを許容
 			verify(messageMock.reply(anything())).atMost(1);
 			// callCountプロパティは存在しないため、この条件チェックを削除
-			verify(messageMock.reply(`<@${instance(user).id}>さんが${AppConfig.backend.candyEmoji}スタンプを押したよ！！っ`)).atMost(1);
+			verify(messageMock.reply(`<@${instance(user).id}>さんが${AppConfig.backend.candyEmoji}スタンプを押したよ！！っ`)).once();
 		})();
 	});
 
