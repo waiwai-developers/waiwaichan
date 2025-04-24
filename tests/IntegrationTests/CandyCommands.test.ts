@@ -153,7 +153,7 @@ describe("Test Candy Commands", () => {
 			// 検証を緩和：呼び出しが行われたことだけを確認
 			verify(commandMock.reply(anything())).atLeast(1);
 			// 「ポイント」ではなく「キャンディ」という文字列を含むことを確認
-			expect(value).to.include("キャンディ");
+			expect(value).to.include("キャンディがないよ！っ");
 		})();
 	});
 
