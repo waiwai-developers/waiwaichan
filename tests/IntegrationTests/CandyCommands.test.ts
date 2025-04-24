@@ -113,14 +113,14 @@ describe("Test Candy Commands", () => {
 		this.timeout(10000); // タイムアウトを10秒に延長
 	return (async () => {
 			new MockMysqlConnector();
-			const insertData = new Array(Math.round(Math.random() * 100)).fill({
+			const insertData = {
 				receiveUserId: 1234,
 				giveUserId: 12345,
 				messageId: 5678,
 				expiredAt: "2999/12/31 23:59:59",
 				deletedAt: null,
-			});
-			const inserted = await CandyRepositoryImpl.bulkCreate(insertData);
+			};
+			const inserted = await CandyRepositoryImpl.create(insertData);
 			const commandMock = mockSlashCommand("candycheck");
 
 			let value = "";
@@ -131,10 +131,8 @@ describe("Test Candy Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 			await waitSlashUntilReply(commandMock);
-			// 検証を緩和：呼び出しが行われたことだけを確認
-			verify(commandMock.reply(anything())).atLeast(1);
-			// 「ポイント」ではなく「キャンディ」という文字列を含むことを確認
-			expect(value).to.include("キャンディ");
+			verify(commandMock.reply(anything())).once();
+			expect(value).to.eq(`キャンディが1個あるよ！期限が${inserted.expiredAt}に切れるから気を付けてね！っ`);
 		})();
 	});
 
