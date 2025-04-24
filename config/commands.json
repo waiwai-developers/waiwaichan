@@ -30,7 +30,7 @@
 				{
 					"name": "/dice2",
 					"example": "/dice2 source: 10",
-					"parameter": "source: string, secret: boolean?",
+					"parameter": "source: string, secret: boolean, details: boolean",
 					"description": "仮のダイスだよ"
 				},
 				{

@@ -51,10 +51,14 @@ export class DiscordCommandRegister {
 					option
 						.setName("source")
 						.setDescription("string")
-						.setRequired(true),
-				).addBooleanOption((option) =>
+						.setRequired(true))
+				.addBooleanOption((option) =>
 					option
 						.setName("secret")
+						.setDescription("boolean"))
+				.addBooleanOption((option) =>
+					option
+						.setName("details")
 						.setDescription("boolean")),
 			new SlashCommandBuilder()
 				.setName("choice")
