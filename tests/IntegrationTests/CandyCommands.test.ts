@@ -132,7 +132,7 @@ describe("Test Candy Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 			await waitSlashUntilReply(commandMock);
 			verify(commandMock.reply(anything())).once();
-			expect(value).to.eq(`キャンディが1個あるよ！期限が${inserted.expiredAt}に切れるから気を付けてね！っ`);
+			expect(value).to.eq(`キャンディが1個あるよ！期限が2999/12/30に切れるから気を付けてね！っ`);
 		})();
 	});
 
