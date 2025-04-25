@@ -112,7 +112,7 @@ function createInterpretError(expr: Extract<InterpretResult, { ok: true }>, span
     return {
         span: expr.span,
         expected,
-        found: `${expr.value}`,
+        found: `${expr.formatedData}`,
         errorPointer: pointerLine,
     }
 }
