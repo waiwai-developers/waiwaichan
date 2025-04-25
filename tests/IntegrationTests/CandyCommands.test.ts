@@ -346,7 +346,7 @@ describe("Test Candy Commands", () => {
 		this.timeout(10000);
 		return (async () => {
 			// キャンディが少ない状態を作成
-			const candyLength = 2;
+			const candyLength = 6;
 			const insertData = new Array(candyLength).fill({
 				receiveUserId: 1234,
 				giveUserId: 12345,
@@ -357,9 +357,7 @@ describe("Test Candy Commands", () => {
 			new MockMysqlConnector();
 			await CandyRepositoryImpl.bulkCreate(insertData);
 
-			const commandMock = mockSlashCommand("candyseriesdraw", {
-				amount: 10 // 10回分のドロー（キャンディ不足）
-			});
+			const commandMock = mockSlashCommand("candyseriesdraw");
 
 			let value = "";
 			when(commandMock.reply(anything())).thenCall((args) => {
@@ -371,9 +369,8 @@ describe("Test Candy Commands", () => {
 
 			await waitSlashUntilReply(commandMock);
 
-			// 検証を緩和：呼び出しが行われたことだけを確認
 			verify(commandMock.reply(anything())).atLeast(1);
-			expect(value).to.include("キャンディ"); // エラーメッセージにはキャンディという単語が含まれるはず
+			expect(value).to.include("キャンディの数が足りないよ！っ");
 		})();
 	});
 
