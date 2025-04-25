@@ -158,13 +158,13 @@ function updatePos(input: LocatedInput, consumed: string): LocatedInput {
         }
     }
     input.span.length = consumed.length;
-    // return remaining
+    // Return remaining.
     return {
         text: input.text.slice(consumed.length),
         span: {
             line: line,
             column: column,
-            length: input.text.length - consumed.length,
+            length: consumed.length,
         }
     };
 }
