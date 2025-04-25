@@ -718,20 +718,31 @@ class Interpreter {
                         formatedData: `${lhs.value ? '✅' : '❌'}`
                     });
                 }
-                else if (!isNumber(lhs.value)) {
-                    return { ok: false, error: createInterpretError(lhs, lhs.span, '数値と数値') };
-                } else if (!isNumber(rhs.value)) {
-                    return { ok: false, error: createInterpretError(lhs, rhs.span, '数値と数値') };
+                const compareOps = {
+                    '!=': (a: number, b: number) => a != b,
+                    '=': (a: number, b: number) => a == b,
+                    '<': (a: number, b: number) => a < b,
+                    '<=': (a: number, b: number) => a <= b,
+                    '>': (a: number, b: number) => a > b,
+                    '>=': (a: number, b: number) => a >= b,
+                };
+                const compare = compareOps[expr.op];
+                // 配列フィルタリング
+                if (isArray(lhs.value) && isNumber(rhs.value)) {
+                    const filteredList = lhs.value.filter(x => compare(x, rhs.value as number));
+                    return this.addHistory({
+                        ok: true,
+                        value: filteredList,
+                        span: expr.span,
+                        formatedData: `[${lhs.value}] ${expr.op} ${rhs.value} → [${filteredList}]`,
+                    });
                 }
-                let value = false;
-                switch (expr.op) {
-                    case '!=': value = lhs.value != rhs.value; break;
-                    case '=': value = lhs.value == rhs.value; break;
-                    case '<': value = lhs.value < rhs.value; break;
-                    case '<=': value = lhs.value <= rhs.value; break;
-                    case '>': value = lhs.value > rhs.value; break;
-                    case '>=': value = lhs.value >= rhs.value; break;
+                // 通常比較
+                if (!isNumber(lhs.value) || !isNumber(rhs.value)) {
+                    const e = !isNumber(lhs.value) ? lhs : rhs;
+                    return { ok: false, error: createInterpretError(e, e.span, '数値と数値 または リストと数値(フィルタ)') };
                 }
+                const value = compare(lhs.value, rhs.value);
                 return this.addHistory({
                     ok: true, value, span: expr.span,
                     formatedData: `${lhs.value} ${expr.op} ${rhs.value} → ${value ? '✅' : '❌'}`
