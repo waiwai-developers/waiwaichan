@@ -59,7 +59,7 @@ interface BinaryOp {
     span: Span;
 }
 
-type ArithmeticOp = '+' | '-';
+type ArithmeticOp = '+' | '-' | '*' | '//' | '/';
 type KeepOp = 'kh' | 'kl';
 type CompareOp = '!=' | '=' | '>=' | '<=' | '>' | '<';
 type LogicalOp = 'and' | 'or';
@@ -451,7 +451,7 @@ const spreadRoll: Parser<Expr> = (input) => {
     if (!countResult.ok) return countResult;
     return foldOnce(
         pair(spaceDelimited(alt(tag('b'), tag('B'))),
-            withErrorContext(alt(standardRoll), 'ダイスの面(数値)')),
+            withErrorContext(standardRoll, 'ダイスの面(数値)')),
         countResult.value,
         (acc, [tag, val]) => {
             const span = {
@@ -502,15 +502,22 @@ const access: Parser<Expr> = (input) => {
     )(exprResult.remaining);
 }
 
-const arithmetic: Parser<Expr> = binary(
+const multiplicative: Parser<Expr> = binary(
     access,
+    alt(tag('*'), tag('//'), tag('/')),
+    'Arithmetic',
+    '右側の項',
+);
+
+const additive: Parser<Expr> = binary(
+    multiplicative,
     alt(tag('+'), tag('-')),
     'Arithmetic',
     '右側の項',
 );
 
 const compare: Parser<Expr> = binary(
-    arithmetic,
+    additive,
     alt(tag('!='), tag('='), tag('<='), tag('>='), tag('<'), tag('>')),
     'Compare',
     '比較する項',
@@ -663,7 +670,14 @@ class Interpreter {
                 if (!lhs.ok) return lhs;
                 const rhs = this.evalExpr(expr.rhs);
                 if (!rhs.ok) return rhs;
-
+                const arithmeticOps = {
+                    '+': (a: number, b: number) => a + b,
+                    '-': (a: number, b: number) => a - b,
+                    '*': (a: number, b: number) => a * b,
+                    '//': (a: number, b: number) => Math.floor(a / b),
+                    '/': (a: number, b: number) => a / b,
+                };
+                const calc = arithmeticOps[expr.op];
                 let err = lhs;
                 if (isArray(lhs.value)) {
                     if (isArray(rhs.value) && expr.op == '+') {
@@ -675,8 +689,7 @@ class Interpreter {
                         });
                     } else if (isNumber(rhs.value)) {
                         // スカラー演算
-                        const rhsValue = expr.op == '+' ? rhs.value : -rhs.value;
-                        const value = lhs.value.map(x => x + rhsValue);
+                        const value = lhs.value.map(x => calc(x, rhs.value as number));
                         return this.addHistory({
                             ok: true, value, span: expr.span,
                             formatedData: `${lhs.value} ${expr.op} ${rhs.value} → ${value}`
@@ -687,7 +700,7 @@ class Interpreter {
                 } else if (isNumber(lhs.value)) {
                     if (isNumber(rhs.value)) {
                         // 数値の演算
-                        const value = expr.op == '+' ? lhs.value + rhs.value : lhs.value - rhs.value;
+                        const value = calc(lhs.value as number, rhs.value as number);
                         return this.addHistory({
                             ok: true, value, span: expr.span,
                             formatedData: `${lhs.value} ${expr.op} ${rhs.value} → ${value}`
