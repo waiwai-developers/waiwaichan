@@ -193,19 +193,25 @@ describe("Test Candy Commands", () => {
 		})();
 	});
 
-	// 天井（pity）ケースのテスト - 非常に簡略化したテスト
 	it("test /candydraw with pity", function(this: Mocha.Context) {
-		this.timeout(5000); // タイムアウトを短く設定
+		this.timeout(10000);
 		return (async () => {
-			// テストデータを少なくする
-			const candyLength = 10;
-			const insertData = new Array(candyLength).fill({
-				receiveUserId: 1234,
-				giveUserId: 12345,
-				messageId: 5678,
-				expiredAt: "2999/12/31 23:59:59",
-				deletedAt: null,
-			});
+			const candyLength = 150;
+			const insertData = [];
+			for (let i = 0; i < candyLength; i++) {
+				const date = new Date();
+				date.setDate(date.getDate() - (candyLength - i));
+				insertData.push({
+					receiveUserId: 1234,
+					giveUserId: 12345,
+					messageId: 10000 + i,
+					expiredAt: "2999/12/31 23:59:59",
+					deletedAt: i < 149 ? date.toISOString() : null,
+					createdAt: date.toISOString(),
+					updatedAt: date.toISOString()
+				});
+			}
+
 			new MockMysqlConnector();
 			await CandyRepositoryImpl.bulkCreate(insertData);
 
@@ -219,11 +225,10 @@ describe("Test Candy Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
-			await waitSlashUntilReply(commandMock, 3000);
+			await waitSlashUntilReply(commandMock);
 
-			// 検証：応答に何らかのメッセージが含まれていることを確認
-			verify(commandMock.reply(anything())).atLeast(1);
-			expect(value).to.include("よ！っ"); // 応答メッセージに共通する部分を確認
+			const jackpotResult = `${ITEM_RECORDS[0].name}が当たったよ👕！っ`;
+			expect(value).to.equal(jackpotResult);
 		})();
 	});
 
