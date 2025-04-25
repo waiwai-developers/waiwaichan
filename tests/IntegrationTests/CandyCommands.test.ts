@@ -369,7 +369,7 @@ describe("Test Candy Commands", () => {
 
 			await waitSlashUntilReply(commandMock);
 
-			verify(commandMock.reply(anything())).atLeast(1);
+			verify(commandMock.reply(anything())).once();
 			expect(value).to.include("キャンディの数が足りないよ！っ");
 		})();
 	});
