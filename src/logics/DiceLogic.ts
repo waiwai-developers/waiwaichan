@@ -667,31 +667,42 @@ class Interpreter {
                 if (!lhs.ok) return lhs;
                 const rhs = this.evalExpr(expr.rhs);
                 if (!rhs.ok) return rhs;
+
+                let err = lhs;
                 if (isArray(lhs.value)) {
                     if (isArray(rhs.value) && expr.op == '+') {
+                        // リストの連結
                         const value = lhs.value.concat(rhs.value);
                         return this.addHistory({
                             ok: true, value, span: expr.span,
                             formatedData: `${lhs.value} ${expr.op} ${rhs.value} → ${value}`
                         });
                     } else if (isNumber(rhs.value)) {
+                        // スカラー演算
                         const rhsValue = expr.op == '+' ? rhs.value : -rhs.value;
                         const value = lhs.value.map(x => x + rhsValue);
                         return this.addHistory({
                             ok: true, value, span: expr.span,
                             formatedData: `${lhs.value} ${expr.op} ${rhs.value} → ${value}`
                         });
+                    } else {
+                        err = rhs;
                     }
-                } else if (isNumber(lhs.value) && isNumber(rhs.value)) {
-                    const value = expr.op == '+' ? lhs.value + rhs.value : lhs.value - rhs.value;
-                    return this.addHistory({
-                        ok: true, value, span: expr.span,
-                        formatedData: `${lhs.value} ${expr.op} ${rhs.value} → ${value}`
-                    });
+                } else if (isNumber(lhs.value)) {
+                    if (isNumber(rhs.value)) {
+                        // 数値の演算
+                        const value = expr.op == '+' ? lhs.value + rhs.value : lhs.value - rhs.value;
+                        return this.addHistory({
+                            ok: true, value, span: expr.span,
+                            formatedData: `${lhs.value} ${expr.op} ${rhs.value} → ${value}`
+                        });
+                    } else {
+                        err = rhs;
+                    }
                 }
                 return {
                     ok: false,
-                    error: createInterpretError(lhs, expr.span,
+                    error: createInterpretError(err, err.span,
                         '数値と数値 または リストとリスト または リストと数値')
                 };
             }
