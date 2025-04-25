@@ -267,14 +267,11 @@ describe("Test Candy Commands", () => {
 		})();
 	});
 
-	// 10回実行して必ず当たりがあることを確認するテスト
 	it("test /candyseriesdraw always has at least one hit in 10 draws", function(this: Mocha.Context) {
 		this.timeout(60_000);
 
 		return (async () => {
-			// 十分なキャンディを用意（candySeriesAmountは7に設定されている）
-			// 10回のテストを実行するので、少なくとも70個のキャンディが必要
-			const candyLength = 100; // 余裕を持って100個用意
+			const candyLength = 100;
 			const insertData = new Array(candyLength).fill({
 				receiveUserId: 1234,
 				giveUserId: 12345,
@@ -285,7 +282,6 @@ describe("Test Candy Commands", () => {
 			new MockMysqlConnector();
 			await CandyRepositoryImpl.bulkCreate(insertData);
 
-			// 各テスト実行で新しいコマンドを作成
 			const commandMock = mockSlashCommand("candyseriesdraw", {});
 
 			let value = "";
@@ -298,18 +294,10 @@ describe("Test Candy Commands", () => {
 
 			await waitSlashUntilReply(commandMock, 10_000);
 
-			// 検証：呼び出しが行われたことを確認
-			verify(commandMock.reply(anything())).atLeast(1);
-
-			// 結果に「当たった」という文字列が含まれていることを確認
-			// これは少なくとも1つのアイテムが当たったことを意味する
-			expect(value).to.include("当たった");
-			// 結果の行数をカウント
+			verify(commandMock.reply(anything())).once();
 			const lines = value.split("\n");
-			// 結果の行には「- 」で始まる行があり、その中に「当たった」という文字列を含む行が少なくとも1つあることを確認
 			const resultLines = lines.filter(line => line.startsWith("- "));
 			const hitLines = resultLines.filter(line => line.includes("当たった"));
-			// 少なくとも1つの当たりがあることを確認
 			expect(hitLines.length).to.be.at.least(1);
 		})();
 	});
