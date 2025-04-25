@@ -15,22 +15,36 @@ import { anything, instance, mock, verify, when } from "ts-mockito";
 import type Mocha from "mocha";
 
 describe("Test Candy Commands", () => {
-	it("test  adding", function(this: Mocha.Context) {
+	/**
+	 * テスト実行前に毎回実行される共通のセットアップ
+	 */
+	beforeEach(() => {
+		new MockMysqlConnector();
+	});
+
+	/**
+	 * キャンディスタンプを押した時のテスト
+	 * ユーザーがキャンディスタンプを押すと、キャンディが追加されることを確認する
+	 */
+	it("should add candy when reaction is added", function(this: Mocha.Context) {
 		this.timeout(10000);
-	return (async () => {
+
+		return (async () => {
 			const giverId = "1234";
 			const receiverId = "5678";
 			const creationDate = dayjs().add(1, "month").hour(0).minute(0).second(0).millisecond(0).add(1, "day").subtract(1, "second");
 			const { reaction, user, messageMock } = mockReaction(AppConfig.backend.candyEmoji, giverId, receiverId);
 			const TEST_CLIENT = await TestDiscordServer.getClient();
+
+			// リアクション追加イベントを発火
 			TEST_CLIENT.emit("messageReactionAdd", instance(reaction), instance(user), instance(mock<MessageReactionEventDetails>()));
 
 			await waitUntilMessageReply(messageMock);
 
+			// 応答の検証
 			verify(messageMock.reply(anything())).once();
 			verify(messageMock.reply(`<@${instance(user).id}>さんが${AppConfig.backend.candyEmoji}スタンプを押したよ！！っ`)).once();
 
-			new MockMysqlConnector();
 			const res = await CandyRepositoryImpl.findAll();
 			expect(res.length).to.eq(1);
 
@@ -44,11 +58,18 @@ describe("Test Candy Commands", () => {
 		})();
 	});
 
-	it("test  adding limit", function(this: Mocha.Context) {
+	/**
+	 * キャンディスタンプの1日の上限をテスト
+	 * 1日に付与できるキャンディの上限（3個）を超えると、エラーメッセージが表示されることを確認する
+	 */
+	it("should limit candy additions per day", function(this: Mocha.Context) {
 		this.timeout(20000);
-	return (async () => {
+
+		return (async () => {
 			const reaction = mockReaction(AppConfig.backend.candyEmoji, "1234", "5678");
 			const TEST_CLIENT = await TestDiscordServer.getClient();
+
+			// 4回のリアクションを追加（上限は3回）
 			for (let i = 0; i < 4; i++) {
 				when(reaction.messageMock.id).thenReturn(String(i));
 				when(reaction.reaction.message).thenReturn(instance(reaction.messageMock));
@@ -57,55 +78,78 @@ describe("Test Candy Commands", () => {
 
 			await waitUntilMessageReply(reaction.messageMock, 15_000, 4);
 
+			// 応答の検証
 			verify(reaction.messageMock.reply(anything())).times(4);
 			verify(reaction.messageMock.reply(`<@${instance(reaction.user).id}>さんが${AppConfig.backend.candyEmoji}スタンプを押したよ！！っ`)).times(3);
 			verify(reaction.messageMock.reply("今はスタンプを押してもポイントをあげられないよ！っ")).times(1);
 
-			new MockMysqlConnector();
 			const res = await CandyRepositoryImpl.findAll();
 			expect(res.length).to.eq(3);
 		})();
 	});
 
-	it("test  not add same user", async () => {
+	/**
+	 * 同じユーザーへのキャンディ付与をテスト
+	 * 自分自身にキャンディを付与しようとした場合、何も起こらないことを確認する
+	 */
+	it("should not add candy when giver and receiver are the same user", async () => {
 		const giverId = "1234";
-		const receiverId = "1234";
+		const receiverId = "1234"; // 同じユーザーID
 
 		const { reaction, user, messageMock } = mockReaction(AppConfig.backend.candyEmoji, giverId, receiverId);
 		const TEST_CLIENT = await TestDiscordServer.getClient();
+
+		// リアクション追加イベントを発火
 		TEST_CLIENT.emit("messageReactionAdd", instance(reaction), instance(user), instance(mock<MessageReactionEventDetails>()));
 
 		try {
+			// 応答がないことを期待してタイムアウトを待つ
 			await waitUntilMessageReply(messageMock, 300);
 		} catch (e) {
+			// 応答がないことを確認
 			verify(messageMock.reply(anything())).never();
 			return;
 		}
-		expect("expect not reach here").to.false;
+		// ここに到達した場合はテスト失敗
+		expect("expected timeout but got response").to.be.false;
 	});
 
-	it("test  not adding for same message", function(this: Mocha.Context) {
+	/**
+	 * 同じメッセージに対する重複キャンディ付与をテスト
+	 * 同じメッセージに対して複数回キャンディスタンプを押しても、1回しかカウントされないことを確認する
+	 */
+	it("should not add candy for the same message multiple times", function(this: Mocha.Context) {
 		this.timeout(10000);
-	return (async () => {
+
+		return (async () => {
 			const giverId = "1234";
 			const receiverId = "5678";
 			const { reaction, user, messageMock } = mockReaction(AppConfig.backend.candyEmoji, giverId, receiverId);
 
 			const TEST_CLIENT = await TestDiscordServer.getClient();
+
+			// 同じメッセージに対して2回リアクションを追加
 			TEST_CLIENT.emit("messageReactionAdd", instance(reaction), instance(user), instance(mock<MessageReactionEventDetails>()));
 			TEST_CLIENT.emit("messageReactionAdd", instance(reaction), instance(user), instance(mock<MessageReactionEventDetails>()));
 
+			// 処理完了を待つ
 			await new Promise((resolve) => setTimeout(resolve, 3000));
 
+			// 応答の検証（1回だけ応答があることを確認）
 			verify(messageMock.reply(anything())).atMost(1);
 			verify(messageMock.reply(`<@${instance(user).id}>さんが${AppConfig.backend.candyEmoji}スタンプを押したよ！！っ`)).once();
 		})();
 	});
 
-	it("test /candycheck when Candies exists", function(this: Mocha.Context) {
+	/**
+	 * キャンディ所持時の/candycheckコマンドをテスト
+	 * キャンディを所持している場合、個数と期限が正しく表示されることを確認する
+	 */
+	it("should display candy count and expiration when candies exist", function(this: Mocha.Context) {
 		this.timeout(10000);
-	return (async () => {
-			new MockMysqlConnector();
+
+		return (async () => {
+			// テストデータの作成
 			const insertData = {
 				receiveUserId: 1234,
 				giveUserId: 12345,
@@ -114,6 +158,8 @@ describe("Test Candy Commands", () => {
 				deletedAt: null,
 			};
 			const inserted = await CandyRepositoryImpl.create(insertData);
+
+			// コマンドのモック作成
 			const commandMock = mockSlashCommand("candycheck");
 
 			let value = "";
@@ -121,17 +167,27 @@ describe("Test Candy Commands", () => {
 				value = args;
 			});
 
+			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
 			await waitSlashUntilReply(commandMock);
+
+			// 応答の検証
 			verify(commandMock.reply(anything())).once();
 			expect(value).to.eq(`キャンディが1個あるよ！期限が2999/12/30に切れるから気を付けてね！っ`);
 		})();
 	});
 
-	it("test /candycheck when no Candies", function(this: Mocha.Context) {
+	/**
+	 * キャンディ未所持時の/candycheckコマンドをテスト
+	 * キャンディを所持していない場合、適切なメッセージが表示されることを確認する
+	 */
+	it("should display message when no candies exist", function(this: Mocha.Context) {
 		this.timeout(10000);
-	return (async () => {
+
+		return (async () => {
+			// コマンドのモック作成
 			const commandMock = mockSlashCommand("candycheck");
 
 			let value = "";
@@ -139,56 +195,84 @@ describe("Test Candy Commands", () => {
 				value = args;
 			});
 
+			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
 			await waitSlashUntilReply(commandMock);
+
+			// 応答の検証
 			verify(commandMock.reply(anything())).once();
 			expect(value).to.include("キャンディがないよ！っ");
 		})();
 	});
 
-	it("test /candydraw", function(this: Mocha.Context) {
+	/**
+	 * 通常のキャンディドローをテスト
+	 * 十分な数のキャンディドローを行い、確率通りにアイテムが当選することを確認する
+	 */
+	it("should draw items with expected probabilities", function(this: Mocha.Context) {
 		this.timeout(60_000);
-	return (async () => {
-		// P = 1-(1-p)^n
-		// → 0.9999(99.99%) = 1-(1-0.01(1%))^n
-		// → n = log(1-0.9999)/log(1-0.01) = 916.421 ≒ 917
-		const candyLength = 917;
-		const insertData = new Array(candyLength).fill({
-			receiveUserId: 1234,
-			giveUserId: 12345,
-			messageId: 5678,
-			expiredAt: "2999/12/31 23:59:59",
-			deletedAt: null,
-		});
-		new MockMysqlConnector();
-		await CandyRepositoryImpl.bulkCreate(insertData);
 
-		const commandMock = mockSlashCommand("candydraw");
+		return (async () => {
+			// 確率計算の説明
+			// P = 1-(1-p)^n
+			// → 0.9999(99.99%) = 1-(1-0.01(1%))^n
+			// → n = log(1-0.9999)/log(1-0.01) = 916.421 ≒ 917
+			const candyLength = 917;
 
-		const TEST_CLIENT = await TestDiscordServer.getClient();
-		// +1 is checking for atomic
-		for (let i = 0; i < candyLength + 1; i++) {
-			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-		}
-		await waitSlashUntilReply(commandMock, 10_000, candyLength);
-		verify(commandMock.reply(anything())).times(candyLength + 1);
-		// 実装はバグってないが落ちるので原因を探る
-		// verify(commandMock.reply("キャンディがないよ！っ")).once();
-		verify(commandMock.reply("ハズレちゃったよ！っ")).atLeast(1);
-		verify(commandMock.reply("ハズレちゃったよ！っ")).atMost(candyLength);
-		const hitResult = `${ITEM_RECORDS[1].name}が当たったよ🍭！っ`;
-		verify(commandMock.reply(hitResult)).atLeast(1);
-		const jackpotResult = `${ITEM_RECORDS[0].name}が当たったよ👕！っ`;
-		verify(commandMock.reply(jackpotResult)).atLeast(1);
+			// テストデータの作成
+			const insertData = new Array(candyLength).fill({
+				receiveUserId: 1234,
+				giveUserId: 12345,
+				messageId: 5678,
+				expiredAt: "2999/12/31 23:59:59",
+				deletedAt: null,
+			});
+			await CandyRepositoryImpl.bulkCreate(insertData);
+
+			// コマンドのモック作成
+			const commandMock = mockSlashCommand("candydraw");
+
+			// コマンド実行（全てのキャンディを使い切る + 1回）
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			for (let i = 0; i < candyLength + 1; i++) {
+				TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+			}
+
+			// 応答を待つ
+			await waitSlashUntilReply(commandMock, 10_000, candyLength);
+
+			// 応答の検証
+			verify(commandMock.reply(anything())).times(candyLength + 1);
+			// 実装はバグってないが落ちるので原因を探る
+			// verify(commandMock.reply("キャンディがないよ！っ")).once();
+
+			// ハズレの確認
+			verify(commandMock.reply("ハズレちゃったよ！っ")).atLeast(1);
+			verify(commandMock.reply("ハズレちゃったよ！っ")).atMost(candyLength);
+
+			// ヒットとジャックポットの確認
+			const hitResult = `${ITEM_RECORDS[1].name}が当たったよ🍭！っ`;
+			verify(commandMock.reply(hitResult)).atLeast(1);
+			const jackpotResult = `${ITEM_RECORDS[0].name}が当たったよ👕！っ`;
+			verify(commandMock.reply(jackpotResult)).atLeast(1);
 		})();
 	});
 
-	it("test /candydraw with pity", function(this: Mocha.Context) {
+	/**
+	 * 天井機能付きキャンディドローをテスト
+	 * 150回目のドローで必ずジャックポットが当選することを確認する
+	 */
+	it("should guarantee jackpot on 150th draw with pity system", function(this: Mocha.Context) {
 		this.timeout(10000);
+
 		return (async () => {
+			// 150個のキャンディを用意（149個は使用済み、1個は未使用）
 			const candyLength = 150;
 			const insertData = [];
+
+			// 日付を設定して、149個は使用済み、最後の1個は未使用に
 			for (let i = 0; i < candyLength; i++) {
 				const date = new Date();
 				date.setDate(date.getDate() - (candyLength - i));
@@ -197,15 +281,15 @@ describe("Test Candy Commands", () => {
 					giveUserId: 12345,
 					messageId: 10000 + i,
 					expiredAt: "2999/12/31 23:59:59",
-					deletedAt: i < 149 ? date.toISOString() : null,
+					deletedAt: i < 149 ? date.toISOString() : null, // 149個目までは使用済み
 					createdAt: date.toISOString(),
 					updatedAt: date.toISOString()
 				});
 			}
 
-			new MockMysqlConnector();
 			await CandyRepositoryImpl.bulkCreate(insertData);
 
+			// コマンドのモック作成
 			const commandMock = mockSlashCommand("candydraw");
 
 			let value = "";
@@ -213,22 +297,28 @@ describe("Test Candy Commands", () => {
 				value = args;
 			});
 
+			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			await waitSlashUntilReply(commandMock);
 
+			// 天井機能によりジャックポットが当選することを確認
 			const jackpotResult = `${ITEM_RECORDS[0].name}が当たったよ👕！っ`;
 			expect(value).to.equal(jackpotResult);
 		})();
 	});
 
-	it("test /candyseriesdraw", function(this: Mocha.Context) {
+	/**
+	 * 連続キャンディドローをテスト
+	 * 連続ドローで複数のアイテムが表示されることを確認する
+	 */
+	it("should draw multiple items in series", function(this: Mocha.Context) {
 		this.timeout(60_000);
 
 		return (async () => {
-			// テストデータ量を減らす
-			const candyLength = 30; // 複数回のドローに必要な十分なキャンディ
+			// テストデータの作成（複数回のドローに必要な十分なキャンディ）
+			const candyLength = 30;
 			const insertData = new Array(candyLength).fill({
 				receiveUserId: 1234,
 				giveUserId: 12345,
@@ -236,9 +326,9 @@ describe("Test Candy Commands", () => {
 				expiredAt: "2999/12/31 23:59:59",
 				deletedAt: null,
 			});
-			new MockMysqlConnector();
 			await CandyRepositoryImpl.bulkCreate(insertData);
 
+			// コマンドのモック作成
 			const commandMock = mockSlashCommand("candyseriesdraw", {});
 
 			let value = "";
@@ -246,21 +336,31 @@ describe("Test Candy Commands", () => {
 				value = args;
 			});
 
+			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			await waitSlashUntilReply(commandMock, 10_000);
 
+			// 応答の検証
 			verify(commandMock.reply(anything())).once();
+
+			// 結果の行数を確認（7回のドロー結果が表示されることを確認）
 			const lines = value.split("\n");
 			const resultLines = lines.filter(line => line.startsWith("- "));
-			expect(resultLines.length).eq(7)
+			expect(resultLines.length).eq(7);
 		})();
 	});
 
-	it("test /candyseriesdraw always has at least one hit", function(this: Mocha.Context) {
+	/**
+	 * 連続ドローで必ず1つ以上のヒットがあることをテスト
+	 * 連続ドローでは少なくとも1つのアイテムが当選することを確認する
+	 */
+	it("should guarantee at least one hit in series draw", function(this: Mocha.Context) {
 		this.timeout(60_000);
+
 		return (async () => {
+			// テストデータの作成
 			const candyLength = 100;
 			const insertData = new Array(candyLength).fill({
 				receiveUserId: 1234,
@@ -269,9 +369,9 @@ describe("Test Candy Commands", () => {
 				expiredAt: "2999/12/31 23:59:59",
 				deletedAt: null,
 			});
-			new MockMysqlConnector();
 			await CandyRepositoryImpl.bulkCreate(insertData);
 
+			// コマンドのモック作成
 			const commandMock = mockSlashCommand("candyseriesdraw", {});
 
 			let value = "";
@@ -279,12 +379,16 @@ describe("Test Candy Commands", () => {
 				value = args;
 			});
 
+			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			await waitSlashUntilReply(commandMock, 10_000);
 
+			// 応答の検証
 			verify(commandMock.reply(anything())).once();
+
+			// 結果に少なくとも1つのヒットがあることを確認
 			const lines = value.split("\n");
 			const resultLines = lines.filter(line => line.startsWith("- "));
 			const hitLines = resultLines.filter(line => line.includes("当たった"));
@@ -292,11 +396,19 @@ describe("Test Candy Commands", () => {
 		})();
 	});
 
-	it("test /candyseriesdraw with pity", function(this: Mocha.Context) {
+	/**
+	 * 連続ドローでの天井機能をテスト
+	 * 連続ドローでも天井機能が働き、ジャックポットが当選することを確認する
+	 */
+	it("should guarantee jackpot in series draw with pity system", function(this: Mocha.Context) {
 		this.timeout(5000);
+
 		return (async () => {
+			// 156個のキャンディを用意（149個は使用済み、残りは未使用）
 			const candyLength = 156;
 			const insertData = [];
+
+			// 日付を設定して、149個は使用済み、残りは未使用に
 			for (let i = 0; i < candyLength; i++) {
 				const date = new Date();
 				date.setDate(date.getDate() - (candyLength - i));
@@ -305,15 +417,15 @@ describe("Test Candy Commands", () => {
 					giveUserId: 12345,
 					messageId: 10000 + i,
 					expiredAt: "2999/12/31 23:59:59",
-					deletedAt: i < 149 ? date.toISOString() : null,
+					deletedAt: i < 149 ? date.toISOString() : null, // 149個目までは使用済み
 					createdAt: date.toISOString(),
 					updatedAt: date.toISOString()
 				});
 			}
 
-			new MockMysqlConnector();
 			await CandyRepositoryImpl.bulkCreate(insertData);
 
+			// コマンドのモック作成
 			const commandMock = mockSlashCommand("candyseriesdraw", {});
 
 			let value = "";
@@ -321,12 +433,16 @@ describe("Test Candy Commands", () => {
 				value = args;
 			});
 
+			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			await waitSlashUntilReply(commandMock, 3000);
 
+			// 応答の検証
 			verify(commandMock.reply(anything())).once();
+
+			// 結果にジャックポットが含まれることを確認
 			const lines = value.split("\n");
 			const resultLines = lines.filter(line => line.startsWith("- "));
 			const jackpotLines = resultLines.filter(line => line.includes("Tシャツが当たったよ👕！っ"));
@@ -334,9 +450,15 @@ describe("Test Candy Commands", () => {
 		})();
 	});
 
-	it("test /candyseriesdraw when not enough candies", function(this: Mocha.Context) {
+	/**
+	 * キャンディ不足時の連続ドローをテスト
+	 * 連続ドローに必要なキャンディが足りない場合、エラーメッセージが表示されることを確認する
+	 */
+	it("should display error message when not enough candies for series draw", function(this: Mocha.Context) {
 		this.timeout(10000);
+
 		return (async () => {
+			// 連続ドローに必要な数より少ないキャンディを用意（7個必要だが6個しか用意しない）
 			const candyLength = 6;
 			const insertData = new Array(candyLength).fill({
 				receiveUserId: 1234,
@@ -345,9 +467,9 @@ describe("Test Candy Commands", () => {
 				expiredAt: "2999/12/31 23:59:59",
 				deletedAt: null,
 			});
-			new MockMysqlConnector();
 			await CandyRepositoryImpl.bulkCreate(insertData);
 
+			// コマンドのモック作成
 			const commandMock = mockSlashCommand("candyseriesdraw");
 
 			let value = "";
@@ -355,58 +477,68 @@ describe("Test Candy Commands", () => {
 				value = args;
 			});
 
+			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			await waitSlashUntilReply(commandMock);
 
+			// 応答の検証
 			verify(commandMock.reply(anything())).once();
 			expect(value).to.include("キャンディの数が足りないよ！っ");
 		})();
 	});
 
+	/**
+	 * アイテムIDからアイテム情報を取得するヘルパー関数
+	 */
 	const getItem = (id: number) => {
 		// auto_increment start with id 1
 		// but first index of array is 0
 		return ITEM_RECORDS[id - 1];
 	};
 
-	it("test /candyitem", async () => {
-		new MockMysqlConnector();
+	/**
+	 * /candyitemコマンドのテスト
+	 * 所持しているアイテムが正しく表示されることを確認する
+	 */
+	it("should display owned items with /candyitem command", async () => {
+		// テストデータの作成
 		const insertData = [
 			{
 				userId: 1234,
 				itemId: ID_HIT,
 				expiredAt: "2999/12/31 23:59:59",
-				deletedAt: null,
+				deletedAt: null, // 有効なアイテム
 			},
 			{
 				userId: 1234,
 				itemId: ID_HIT,
 				expiredAt: "2999/12/31 23:59:59",
-				deletedAt: null,
+				deletedAt: null, // 有効なアイテム
 			},
 			{
 				userId: 1234,
 				itemId: ID_JACKPOT,
 				expiredAt: "2999/12/31 23:59:59",
-				deletedAt: "1970/01/01 00:00:00",
+				deletedAt: "1970/01/01 00:00:00", // 削除済みアイテム
 			},
 			{
 				userId: 1234,
 				itemId: ID_JACKPOT,
 				expiredAt: "2999/12/31 23:59:59",
-				deletedAt: "1970/01/01 00:00:00",
+				deletedAt: "1970/01/01 00:00:00", // 削除済みアイテム
 			},
 			{
 				userId: 1234,
 				itemId: ID_JACKPOT,
 				expiredAt: "2999/12/31 23:59:59",
-				deletedAt: null,
+				deletedAt: null, // 有効なアイテム
 			},
 		];
 		const inserted = await UserCandyItemRepositoryImpl.bulkCreate(insertData);
 
+		// コマンドのモック作成
 		const commandMock = mockSlashCommand("candyitem");
 
 		let value = "";
@@ -414,21 +546,29 @@ describe("Test Candy Commands", () => {
 			value = args;
 		});
 
+		// コマンド実行
 		const TEST_CLIENT = await TestDiscordServer.getClient();
 		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 		await waitSlashUntilReply(commandMock);
+
+		// 応答の検証
 		verify(commandMock.reply(anything())).once();
 		expect(value).to.include("以下のアイテムが交換できるよ！っ");
-		expect(value).to.include(`${getItem(inserted[0].itemId).name}`);
-		expect(value).to.include(`${getItem(inserted[1].itemId).name}`);
-		expect(value).to.include(`${getItem(inserted[4].itemId).name}`);
+
+		// 有効なアイテムのみが表示されることを確認
+		expect(value).to.include(`${getItem(inserted[0].itemId).name}`); // HIT
+		expect(value).to.include(`${getItem(inserted[1].itemId).name}`); // HIT
+		expect(value).to.include(`${getItem(inserted[4].itemId).name}`); // JACKPOT
 		expect(value).to.include(`説明：${getItem(inserted[0].itemId).description}`);
 	});
 
-	it("test /candyitem when no item", async () => {
-		new MockMysqlConnector();
-
+	/**
+	 * アイテムがない場合の/candyitemコマンドをテスト
+	 * アイテムを所持していない場合、適切なメッセージが表示されることを確認する
+	 */
+	it("should display message when no items exist", async () => {
+		// コマンドのモック作成
 		const commandMock = mockSlashCommand("candyitem");
 
 		let value = "";
@@ -436,19 +576,26 @@ describe("Test Candy Commands", () => {
 			value = args;
 		});
 
+		// コマンド実行
 		const TEST_CLIENT = await TestDiscordServer.getClient();
 		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 		await waitSlashUntilReply(commandMock);
+
+		// 応答の検証
 		verify(commandMock.reply(anything())).once();
 		expect(value).to.eq("アイテムは持ってないよ！っ");
 	});
 
-	it("test /candyexchange", function(this: Mocha.Context) {
+	/**
+	 * /candyexchangeコマンドのテスト
+	 * アイテムを正常に交換できることを確認する
+	 */
+	it("should exchange items successfully with /candyexchange command", function(this: Mocha.Context) {
 		this.timeout(10000);
 
 		return (async () => {
-			new MockMysqlConnector();
+			// テストデータの作成
 			const itemId = ID_HIT;
 			await UserCandyItemRepositoryImpl.create({
 				userId: "1234",
@@ -457,6 +604,7 @@ describe("Test Candy Commands", () => {
 				expiredAt: "2999/12/31 23:59:59",
 			});
 
+			// コマンドのモック作成
 			const commandMock = mockSlashCommand("candyexchange", {
 				type: itemId,
 				amount: 1
@@ -467,17 +615,24 @@ describe("Test Candy Commands", () => {
 				value = args;
 			});
 
+			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			await waitSlashUntilReply(commandMock);
 
+			// 応答の検証
 			verify(commandMock.reply(anything())).atLeast(1);
 			expect(value).to.include("交換");
 		})();
 	});
 
-	it("test /candyexchange when no item", async () => {
+	/**
+	 * アイテムがない場合の/candyexchangeコマンドをテスト
+	 * アイテムを所持していない場合、エラーメッセージが表示されることを確認する
+	 */
+	it("should display error message when no items exist for exchange", async () => {
+		// コマンドのモック作成
 		const commandMock = mockSlashCommand("candyexchange", {
 			type: 0,
 			amount: 1
@@ -488,18 +643,26 @@ describe("Test Candy Commands", () => {
 			value = args;
 		});
 
+		// コマンド実行
 		const TEST_CLIENT = await TestDiscordServer.getClient();
 		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 		await waitSlashUntilReply(commandMock);
+
+		// 応答の検証
 		verify(commandMock.reply(anything())).once();
 		expect(value).to.eq("アイテムは持ってないよ！っ");
 	});
 
-	it("test /candyexchange with invalid item id", async () => {
-		new MockMysqlConnector();
+	/**
+	 * 無効なアイテムIDでの/candyexchangeコマンドをテスト
+	 * 存在しないアイテムIDを指定した場合、エラーメッセージが表示されることを確認する
+	 */
+	it("should display error message when exchanging with invalid item id", async () => {
+		// 無効なアイテムIDを設定
 		const invalidItemId = 9999;
 
+		// コマンドのモック作成
 		const commandMock = mockSlashCommand("candyexchange", {
 			type: invalidItemId,
 			amount: 1
@@ -510,16 +673,23 @@ describe("Test Candy Commands", () => {
 			value = args;
 		});
 
+		// コマンド実行
 		const TEST_CLIENT = await TestDiscordServer.getClient();
 		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 		await waitSlashUntilReply(commandMock);
+
+		// 応答の検証
 		verify(commandMock.reply(anything())).once();
 		expect(value).to.eq("アイテムは持ってないよ！っ");
 	});
 
-	it("test /candyexchange with too many items", async () => {
-		new MockMysqlConnector();
+	/**
+	 * 所持数以上のアイテム交換をテスト
+	 * 所持数以上のアイテムを交換しようとした場合、エラーメッセージが表示されることを確認する
+	 */
+	it("should display error message when exchanging too many items", async () => {
+		// テストデータの作成（1個のアイテムを所持）
 		const itemId = ID_HIT;
 		await UserCandyItemRepositoryImpl.create({
 			userId: "1234",
@@ -528,6 +698,7 @@ describe("Test Candy Commands", () => {
 			expiredAt: "2999/12/31 23:59:59",
 		});
 
+		// コマンドのモック作成（10個のアイテムを交換しようとする）
 		const commandMock = mockSlashCommand("candyexchange", {
 			type: itemId,
 			amount: 10,
@@ -538,28 +709,39 @@ describe("Test Candy Commands", () => {
 			value = args;
 		});
 
+		// コマンド実行
 		const TEST_CLIENT = await TestDiscordServer.getClient();
 		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 		await waitSlashUntilReply(commandMock);
+
+		// 応答の検証
 		verify(commandMock.reply(anything())).once();
 		expect(value).to.eq("アイテムは持ってないよ！っ");
 	});
 
-	it("test giveCandy with invalid message id", function(this: Mocha.Context) {
+	/**
+	 * 無効なメッセージIDでのキャンディ付与をテスト
+	 * メッセージIDが無効な場合、キャンディが追加されないことを確認する
+	 */
+	it("should not add candy when message id is invalid", function(this: Mocha.Context) {
 		this.timeout(10000);
+
 		return (async () => {
 			const giverId = "1234";
 			const receiverId = "5678";
 			const { reaction, user, messageMock } = mockReaction(AppConfig.backend.candyEmoji, giverId, receiverId);
 			when(messageMock.id).thenReturn(null as any); // 無効なID
 
+			// リアクション追加イベントを発火
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("messageReactionAdd", instance(reaction), instance(user), instance(mock<MessageReactionEventDetails>()));
 
 			try {
+				// 応答がないことを期待してタイムアウトを待つ
 				await waitUntilMessageReply(messageMock, 300);
 			} catch (e) {
+				// 応答がないことを確認
 				verify(messageMock.reply(anything())).never();
 				return;
 			}
