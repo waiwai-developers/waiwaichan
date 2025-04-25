@@ -9,8 +9,8 @@ export const SequelizeLogger = (
 	if (typeof timing === "object" && timing?.bind) {
 		//@ts-ignore
 		const bind = timing.bind;
-		// logger.info(`${sql} params:{${bind}}`);
+		logger.info(`${sql} params:{${bind}}`);
 	} else {
-		// logger.info(sql);
+		logger.info(sql);
 	}
 };
