@@ -263,7 +263,9 @@ describe("Test Candy Commands", () => {
 			await waitSlashUntilReply(commandMock, 10_000);
 
 			verify(commandMock.reply(anything())).once();
-			expect(value).to.include("当たったよ");
+			const lines = value.split("\n");
+			const resultLines = lines.filter(line => line.startsWith("- "));
+			expect(resultLines.length).eq(10)
 		})();
 	});
 
