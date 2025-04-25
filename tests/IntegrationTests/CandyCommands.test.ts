@@ -232,7 +232,6 @@ describe("Test Candy Commands", () => {
 		})();
 	});
 
-	// candySeriesDrawのテストを追加
 	it("test /candyseriesdraw", function(this: Mocha.Context) {
 		this.timeout(60_000);
 
@@ -250,7 +249,7 @@ describe("Test Candy Commands", () => {
 			await CandyRepositoryImpl.bulkCreate(insertData);
 
 			const commandMock = mockSlashCommand("candyseriesdraw", {
-				amount: 10 // 10回分のドロー
+				amount: 10
 			});
 
 			let value = "";
@@ -263,9 +262,8 @@ describe("Test Candy Commands", () => {
 
 			await waitSlashUntilReply(commandMock, 10_000);
 
-			// 検証を緩和：呼び出しが行われたことだけを確認
-			verify(commandMock.reply(anything())).atLeast(1);
-			expect(value).to.include("結果は以下だよ"); // 応答メッセージに共通する部分を確認
+			verify(commandMock.reply(anything())).once();
+			expect(value).to.include("当たったよ");
 		})();
 	});
 
