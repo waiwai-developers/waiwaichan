@@ -248,9 +248,7 @@ describe("Test Candy Commands", () => {
 			new MockMysqlConnector();
 			await CandyRepositoryImpl.bulkCreate(insertData);
 
-			const commandMock = mockSlashCommand("candyseriesdraw", {
-				amount: 10
-			});
+			const commandMock = mockSlashCommand("candyseriesdraw", {});
 
 			let value = "";
 			when(commandMock.reply(anything())).thenCall((args) => {
@@ -265,7 +263,7 @@ describe("Test Candy Commands", () => {
 			verify(commandMock.reply(anything())).once();
 			const lines = value.split("\n");
 			const resultLines = lines.filter(line => line.startsWith("- "));
-			expect(resultLines.length).eq(10)
+			expect(resultLines.length).eq(7)
 		})();
 	});
 
@@ -304,12 +302,11 @@ describe("Test Candy Commands", () => {
 		})();
 	});
 
-	// 天井（pity）ケースのテスト - drawSeriesItem - 非常に簡略化したテスト
 	it("test /candyseriesdraw with pity", function(this: Mocha.Context) {
 		this.timeout(5000); // タイムアウトを短く設定
 		return (async () => {
 			// テストデータを少なくする
-			const candyLength = 10;
+			const candyLength = 149;
 			const insertData = new Array(candyLength).fill({
 				receiveUserId: 1234,
 				giveUserId: 12345,
