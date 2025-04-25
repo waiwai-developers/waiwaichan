@@ -267,7 +267,7 @@ describe("Test Candy Commands", () => {
 		})();
 	});
 
-	it("test /candyseriesdraw always has at least one hit in 10 draws", function(this: Mocha.Context) {
+	it("test /candyseriesdraw always has at least one hit", function(this: Mocha.Context) {
 		this.timeout(60_000);
 
 		return (async () => {
