@@ -402,12 +402,6 @@ const primary: Parser<Expr> = (input) => {
     return alt(paren, integerExpr)(input);
 }
 
-// const standardRoll: Parser<Expr> = binary(
-//     primary,
-//     spaceDelimited(alt(tag('d'), tag('D'))),
-//     'StandardRoll',
-//     'ダイスの面',
-// );
 const standardRoll: Parser<Expr> = (input) => {
     const r0 = primary(input);
     if (!r0.ok) return r0;
