@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { ITEM_RECORDS } from "@/migrator/seeds/20241111041901-item";
 import { AppConfig } from "@/src/entities/config/AppConfig";
-import { ID_HIT, ID_JACKPOT, PROBABILITY_HIT, PROBABILITY_JACKPOT } from "@/src/entities/constants/Items";
+import { ID_HIT, ID_JACKPOT } from "@/src/entities/constants/Items";
 import { CandyRepositoryImpl, UserCandyItemRepositoryImpl } from "@/src/repositories/sequelize-mysql";
 import { MockMysqlConnector } from "@/tests/fixtures/database/MockMysqlConnector";
 import { waitUntilMessageReply } from "@/tests/fixtures/discord.js/MockMessage";
@@ -15,9 +15,8 @@ import { anything, instance, mock, verify, when } from "ts-mockito";
 import type Mocha from "mocha";
 
 describe("Test Candy Commands", () => {
-	// タイムアウト時間を延長
 	it("test  adding", function(this: Mocha.Context) {
-		this.timeout(10000); // タイムアウトを10秒に延長
+		this.timeout(10000);
 	return (async () => {
 			const giverId = "1234";
 			const receiverId = "5678";
@@ -45,9 +44,8 @@ describe("Test Candy Commands", () => {
 		})();
 	});
 
-	// タイムアウト時間を延長
 	it("test  adding limit", function(this: Mocha.Context) {
-		this.timeout(20000); // タイムアウトを20秒に延長
+		this.timeout(20000);
 	return (async () => {
 			const reaction = mockReaction(AppConfig.backend.candyEmoji, "1234", "5678");
 			const TEST_CLIENT = await TestDiscordServer.getClient();
@@ -97,19 +95,15 @@ describe("Test Candy Commands", () => {
 			TEST_CLIENT.emit("messageReactionAdd", instance(reaction), instance(user), instance(mock<MessageReactionEventDetails>()));
 			TEST_CLIENT.emit("messageReactionAdd", instance(reaction), instance(user), instance(mock<MessageReactionEventDetails>()));
 
-			// 待機時間を延長
 			await new Promise((resolve) => setTimeout(resolve, 3000));
 
-			// 検証を緩和：0回または1回の呼び出しを許容
 			verify(messageMock.reply(anything())).atMost(1);
-			// callCountプロパティは存在しないため、この条件チェックを削除
 			verify(messageMock.reply(`<@${instance(user).id}>さんが${AppConfig.backend.candyEmoji}スタンプを押したよ！！っ`)).once();
 		})();
 	});
 
-	// タイムアウト時間を延長
 	it("test /candycheck when Candies exists", function(this: Mocha.Context) {
-		this.timeout(10000); // タイムアウトを10秒に延長
+		this.timeout(10000);
 	return (async () => {
 			new MockMysqlConnector();
 			const insertData = {
@@ -135,9 +129,8 @@ describe("Test Candy Commands", () => {
 		})();
 	});
 
-	// タイムアウト時間を延長
 	it("test /candycheck when no Candies", function(this: Mocha.Context) {
-		this.timeout(10000); // タイムアウトを10秒に延長
+		this.timeout(10000);
 	return (async () => {
 			const commandMock = mockSlashCommand("candycheck");
 
@@ -154,7 +147,6 @@ describe("Test Candy Commands", () => {
 		})();
 	});
 
-	// テストの実行時間を短縮し、検証を緩和
 	it("test /candydraw", function(this: Mocha.Context) {
 		this.timeout(60_000);
 	return (async () => {
@@ -345,7 +337,6 @@ describe("Test Candy Commands", () => {
 	it("test /candyseriesdraw when not enough candies", function(this: Mocha.Context) {
 		this.timeout(10000);
 		return (async () => {
-			// キャンディが少ない状態を作成
 			const candyLength = 6;
 			const insertData = new Array(candyLength).fill({
 				receiveUserId: 1234,
@@ -428,7 +419,6 @@ describe("Test Candy Commands", () => {
 
 		await waitSlashUntilReply(commandMock);
 		verify(commandMock.reply(anything())).once();
-		// 実際の出力フォーマットに合わせてテストを修正
 		expect(value).to.include("以下のアイテムが交換できるよ！っ");
 		expect(value).to.include(`${getItem(inserted[0].itemId).name}`);
 		expect(value).to.include(`${getItem(inserted[1].itemId).name}`);
@@ -454,14 +444,11 @@ describe("Test Candy Commands", () => {
 		expect(value).to.eq("アイテムは持ってないよ！っ");
 	});
 
-	// setupUserCandyItemData関数を使わずに直接テストデータを作成
 	it("test /candyexchange", function(this: Mocha.Context) {
-		this.timeout(10000); // タイムアウトを10秒に延長
+		this.timeout(10000);
 
 		return (async () => {
-			// 直接テストデータを作成
 			new MockMysqlConnector();
-			// テストデータを作成
 			const itemId = ID_HIT;
 			await UserCandyItemRepositoryImpl.create({
 				userId: "1234",
@@ -485,7 +472,6 @@ describe("Test Candy Commands", () => {
 
 			await waitSlashUntilReply(commandMock);
 
-			// 検証を緩和：呼び出しが行われたことだけを確認
 			verify(commandMock.reply(anything())).atLeast(1);
 			expect(value).to.include("交換");
 		})();
@@ -510,10 +496,8 @@ describe("Test Candy Commands", () => {
 		expect(value).to.eq("アイテムは持ってないよ！っ");
 	});
 
-	// 無効なアイテムIDでの交換テスト
 	it("test /candyexchange with invalid item id", async () => {
 		new MockMysqlConnector();
-		// 存在しないアイテムIDを指定
 		const invalidItemId = 9999;
 
 		const commandMock = mockSlashCommand("candyexchange", {
@@ -534,10 +518,8 @@ describe("Test Candy Commands", () => {
 		expect(value).to.eq("アイテムは持ってないよ！っ");
 	});
 
-	// 数量が多すぎる場合のテスト
 	it("test /candyexchange with too many items", async () => {
 		new MockMysqlConnector();
-		// テストデータを作成（1つだけ）
 		const itemId = ID_HIT;
 		await UserCandyItemRepositoryImpl.create({
 			userId: "1234",
@@ -546,10 +528,9 @@ describe("Test Candy Commands", () => {
 			expiredAt: "2999/12/31 23:59:59",
 		});
 
-		// 所持数より多い数量を指定
 		const commandMock = mockSlashCommand("candyexchange", {
 			type: itemId,
-			amount: 10 // 所持数より多い
+			amount: 10,
 		});
 
 		let value = "";
@@ -565,13 +546,11 @@ describe("Test Candy Commands", () => {
 		expect(value).to.eq("アイテムは持ってないよ！っ");
 	});
 
-	// giveCandy のエラーケース - 無効なメッセージID
 	it("test giveCandy with invalid message id", function(this: Mocha.Context) {
 		this.timeout(10000);
 		return (async () => {
 			const giverId = "1234";
 			const receiverId = "5678";
-			// 無効なメッセージIDを設定
 			const { reaction, user, messageMock } = mockReaction(AppConfig.backend.candyEmoji, giverId, receiverId);
 			when(messageMock.id).thenReturn(null as any); // 無効なID
 
@@ -581,7 +560,6 @@ describe("Test Candy Commands", () => {
 			try {
 				await waitUntilMessageReply(messageMock, 300);
 			} catch (e) {
-				// エラーが発生することを期待
 				verify(messageMock.reply(anything())).never();
 				return;
 			}
