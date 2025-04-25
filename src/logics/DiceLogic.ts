@@ -245,11 +245,13 @@ function delimited<F, G, H>(prefixParser: Parser<F>, parser: Parser<G>, postfixP
         if (!reuslt.ok) return reuslt;
         const postfixResult = postfixParser(reuslt.remaining);
         if (!postfixResult.ok) return cut(postfixResult);
+        // 全体で消費したテキスト
+        const totalConsumed = input.text.slice(0, input.text.length - postfixResult.remaining.text.length);
         return {
             ok: true,
             value: reuslt.value,
-            remaining: postfixResult.remaining,
-        }
+            remaining: updatePos(input, totalConsumed)
+        };
     }
 }
 
@@ -487,7 +489,7 @@ const access: Parser<Expr> = (input) => {
             const span = {
                 line: acc.span.line,
                 column: acc.span.column,
-                length: acc.span.length + index.span.length + 2
+                length: acc.span.length + index.span.length
             };
             return {
                 ok: true,
