@@ -596,9 +596,9 @@ class Interpreter {
                 );
             }
             case 'StandardRoll': {
-                const count = validateNumber(this.evalExpr(expr.lhs));
+                const count = validateNaturalNumber(this.evalExpr(expr.lhs));
                 if (!count.ok) return count;
-                const sides = validateNumber(this.evalExpr(expr.rhs));
+                const sides = validateNaturalNumber(this.evalExpr(expr.rhs));
                 if (!sides.ok) return sides;
                 const value = [...Array(count.value)]
                     .map(_ => random(sides.value as number))
@@ -606,7 +606,7 @@ class Interpreter {
                 // クリティカル判定
                 let crit = "";
                 if (expr.threshold) {
-                    const threshold = validateNumber(this.evalExpr(expr.threshold));
+                    const threshold = validateNaturalNumber(this.evalExpr(expr.threshold));
                     if (!threshold.ok) return threshold;
                     crit = (value as number) <= (threshold.value as number) ? '🎯'
                         : ((value as number) >= (sides.value as number) - (threshold.value as number)) ? '💀'
@@ -618,9 +618,9 @@ class Interpreter {
                 });
             }
             case 'SpreadRoll': {
-                const count = validateNumber(this.evalExpr(expr.lhs));
+                const count = validateNaturalNumber(this.evalExpr(expr.lhs));
                 if (!count.ok) return count;
-                const sides = validateNumber(this.evalExpr(expr.rhs));
+                const sides = validateNaturalNumber(this.evalExpr(expr.rhs));
                 if (!sides.ok) return sides;
                 const value = [...Array(count.value)]
                     .map(_ => random(sides.value as number));
@@ -633,7 +633,7 @@ class Interpreter {
                 const lhs = validateArray(this.evalExpr(expr.lhs));
                 if (!lhs.ok) return lhs;
                 lhs.value = lhs.value as number[];
-                const rhs = validateNumber(this.evalExpr(expr.rhs));
+                const rhs = validateNaturalNumber(this.evalExpr(expr.rhs));
                 if (!rhs.ok) return rhs;
                 rhs.value = rhs.value as number;
                 if (rhs.value > lhs.value.length || rhs.value < 0) {
@@ -650,7 +650,7 @@ class Interpreter {
                 let data = validateArray(this.evalExpr(expr.expr));
                 if (!data.ok) return data;
                 data.value = data.value as number[];
-                const index = validateNumber(this.evalExpr(expr.index));
+                const index = validateNaturalNumber(this.evalExpr(expr.index));
                 if (!index.ok) return index;
                 index.value = index.value as number;
                 if (index.value >= data.value.length || index.value < 0) {
@@ -778,7 +778,6 @@ class Interpreter {
         }
     }
 
-
 }
 
 function random(limit: number): number {
@@ -793,14 +792,18 @@ function isNumber(value: any): value is number {
     return typeof value == 'number';
 }
 
+function isNaturalNumber(value: any): boolean {
+    return isNumber(value) && (value % 1 == 0) && (value >= 0);
+}
+
 function isArray(value: any): value is number[] {
     return typeof value == 'object' && value != null;
 }
 
-function validateNumber(result: InterpretResult): InterpretResult {
+function validateNaturalNumber(result: InterpretResult): InterpretResult {
     if (!result.ok) return result;
-    if (!isNumber(result.value)) {
-        return { ok: false, error: createInterpretError(result, result.span, '数値') };
+    if (!isNaturalNumber(result.value)) {
+        return { ok: false, error: createInterpretError(result, result.span, '自然数') };
     }
     return result;
 }
