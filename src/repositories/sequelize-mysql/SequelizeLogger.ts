@@ -1,5 +1,3 @@
-import { MockLogger } from "@/tests/fixtures/repositories/MockLogger";
-
 export const SequelizeLogger = (
 	sql: string,
 	timing: number | undefined,
