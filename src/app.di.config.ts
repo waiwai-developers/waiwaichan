@@ -5,6 +5,7 @@ import {
 	CandyDrawCommandHandler,
 	CandyExchangeCommandHandler,
 	CandyItemCommandHandler,
+	CandyBoxDrawCommandHandler,
 	ChoiceCommandHandler,
 	DiceCommandHandler,
 	HelpCommandHandler,
@@ -123,6 +124,7 @@ appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(Remi
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(ReminderDeleteCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(CandyCheckCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(CandyDrawCommandHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(CandyBoxDrawCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(CandyItemCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(CandyExchangeCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(ReviewGachaCommandHandler);

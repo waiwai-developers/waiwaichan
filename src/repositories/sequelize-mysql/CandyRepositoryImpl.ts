@@ -1,3 +1,4 @@
+import { AppConfig } from "@/src/entities/config/AppConfig";
 import { CandyDto } from "@/src/entities/dto/CandyDto";
 import { CandyCount } from "@/src/entities/vo/CandyCount";
 import { CandyExpire } from "@/src/entities/vo/CandyExpire";
@@ -93,6 +94,7 @@ class CandyRepositoryImpl extends Model implements ICandyRepository {
 			limit: Candies.getValue(),
 		}).then((res) => res === Candies.getValue());
 	}
+
 	async findByGiverAndMessageId(
 		giver: DiscordChannelId,
 		messageId: DiscordMessageId,
