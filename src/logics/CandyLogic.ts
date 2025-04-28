@@ -152,7 +152,7 @@ export class CandyLogic implements ICandyLogic {
 				}
 
 				// itemの作成
-				const mapCandyIdHitIds = [...Array(AppConfig.backend.candyBoxAmount)]
+				const mapCandyIdHitIds = [...Array(AppConfig.backend.candyBoxAmount).keys()]
 					.map((v, i) => i)
 					.map((i) => ({
 						candyId: candyIds[i],
