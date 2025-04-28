@@ -2,12 +2,9 @@ import type { Datafix } from "@/migrator/umzug";
 import { DatafixUserItemModel } from "./models/DatafixUserItemModel";
 import { DatafixCandyModel } from "./models/DatafixCandyModel";
 import { Op, col } from "sequelize";
-import { SequelizeTransaction } from "@/src/repositories/sequelize-mysql/SequelizeTransaction";
-import type { ITransaction } from "@/src/logics/Interfaces/repositories/database/ITransaction";
 
-export const up: Datafix = async () => {
-	const transaction :ITransaction = new SequelizeTransaction();
-	return transaction.startTransaction(async () => {
+export const up: Datafix = async ({ context: sequelize }) => {
+	return sequelize.transaction(async (t) => {
 		const userItems = await DatafixUserItemModel.findAll();
 		let candyIds: number[] = []
 
@@ -22,10 +19,11 @@ export const up: Datafix = async () => {
 						},
 					},
 					order: [[col("createdAt"), "DESC"]],
+					transaction: t,
 				}
 			).then(async (c) => {
 				if (!c) {return}
-				await ui.update({ candyId: c.id })
+				await ui.update({ candyId: c.id }, { transaction: t })
 				candyIds.push(c.id)
 			})
 		}
