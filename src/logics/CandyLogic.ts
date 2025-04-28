@@ -96,13 +96,13 @@ export class CandyLogic implements ICandyLogic {
 			.catch((_err) => "アイテムは持ってないよ！っ");
 	}
 
-	async drawSeriesItem(userId: DiscordUserId): Promise<string> {
+	async drawBoxItem(userId: DiscordUserId): Promise<string> {
 		return await this.transaction
 			.startTransaction(async () => {
 				// candyの消費
 				const candyIds = await this.candyRepository.consumeCandies(
 					userId,
-					new CandyCount(AppConfig.backend.candySeriesAmount),
+					new CandyCount(AppConfig.backend.candyBoxAmount),
 				);
 				if (candyIds.length !== AppConfig.backend.candySeriesAmount) {
 					throw new Error(
@@ -114,7 +114,7 @@ export class CandyLogic implements ICandyLogic {
 				let randomNums: number[] = [];
 				do {
 					const selectRandomNums = [];
-					for (let i = 0; i < AppConfig.backend.candySeriesAmount; i++) {
+					for (let i = 0; i < AppConfig.backend.candyBoxAmount; i++) {
 						// NOTE:todo より良い乱数生成に変える
 						selectRandomNums.push(
 							Math.floor(Math.random() * PROBABILITY_JACKPOT + 1),
@@ -255,7 +255,7 @@ export class CandyLogic implements ICandyLogic {
 
 			if (userCandyItems.length === 0) return "アイテムは持ってないよ！っ";
 			const texts = userCandyItems.flatMap((u) => [
-				`- ${u.name.getValue()} id: ${u.minId.getValue()}`,
+				`- ${u.name.getValue()}`,
 				`  - 説明：${u.description.getValue()}`,
 				`  - 期限：${dayjs(u.minExpiredAt.getValue()).subtract(1, "d").format("YYYY/MM/DD")}`,
 				`  - 個数：${u.count.getValue()}`,

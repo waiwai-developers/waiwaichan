@@ -6,19 +6,19 @@ import type { CacheType, ChatInputCommandInteraction } from "discord.js";
 import { inject, injectable } from "inversify";
 
 @injectable()
-export class CandySeriesDrawCommandHandler implements SlashCommandHandler {
+export class CandyBoxDrawCommandHandler implements SlashCommandHandler {
 	@inject(LogicTypes.CandyLogic)
 	private candyLogic!: ICandyLogic;
 
 	isHandle(commandName: string): boolean {
-		return commandName === "candyseriesdraw";
+		return commandName === "candyboxdraw";
 	}
 
 	async handle(
 		interaction: ChatInputCommandInteraction<CacheType>,
 	): Promise<void> {
 		await interaction.reply(
-			await this.candyLogic.drawSeriesItem(
+			await this.candyLogic.drawBoxItem(
 				new DiscordUserId(interaction.user.id),
 			),
 		);

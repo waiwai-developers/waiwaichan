@@ -104,8 +104,8 @@ export class DiscordCommandRegister {
 				.setName("candydraw")
 				.setDescription("candydraw"),
 			new SlashCommandBuilder()
-				.setName("candyseriesdraw")
-				.setDescription("candyseriesdraw"),
+				.setName("candyboxdraw")
+				.setDescription("candyboxdraw"),
 			new SlashCommandBuilder()
 				.setName("candyitem")
 				.setDescription("candyitem"),
@@ -147,9 +147,8 @@ export class DiscordCommandRegister {
 	async register(token: string) {
 		const rest = new REST({ version: "10" }).setToken(token);
 		await rest.put(
-			Routes.applicationGuildCommands(
+			Routes.applicationCommands(
 				AppConfig.discord.clientId,
-				AppConfig.discord.guildId,
 			),
 			{
 				body: this.commands.map((command) => command.toJSON()),
