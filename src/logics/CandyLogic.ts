@@ -23,6 +23,7 @@ import { UserCandyItemId } from "@/src/entities/vo/UserCandyItemId";
 import type { ICandyLogic } from "@/src/logics/Interfaces/logics/ICandyLogic";
 import type { ICandyItemRepository } from "@/src/logics/Interfaces/repositories/database/ICandyItemRepository";
 import type { ICandyRepository } from "@/src/logics/Interfaces/repositories/database/ICandyRepository";
+import type { ITransaction } from "@/src/logics/Interfaces/repositories/database/ITransaction";
 import type { IUserCandyItemRepository } from "@/src/logics/Interfaces/repositories/database/IUserCandyItemRepository";
 import type { IMutex } from "@/src/logics/Interfaces/repositories/mutex/IMutex";
 import dayjs from "dayjs";
