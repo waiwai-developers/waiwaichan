@@ -104,7 +104,7 @@ export class CandyLogic implements ICandyLogic {
 					userId,
 					new CandyCount(AppConfig.backend.candyBoxAmount),
 				);
-				if (candyIds.length !== AppConfig.backend.candySeriesAmount) {
+				if (candyIds.length !== AppConfig.backend.candyBoxAmount) {
 					throw new Error(
 						"Have less than the number of consecutive items need to consume",
 					);
@@ -141,7 +141,7 @@ export class CandyLogic implements ICandyLogic {
 					PITY_COUNT - candyCountFromJackpod.getValue() - 1;
 				const isOverPity =
 					candyCountFromJackpod.getValue() +
-						AppConfig.backend.candySeriesAmount >=
+						AppConfig.backend.candyBoxAmount >=
 					PITY_COUNT;
 				const isNotJackpotToPity = !randomNums
 					.slice(pityIndex)
@@ -151,7 +151,7 @@ export class CandyLogic implements ICandyLogic {
 				}
 
 				// itemの作成
-				const mapCandyIdHitIds = [...Array(AppConfig.backend.candySeriesAmount)]
+				const mapCandyIdHitIds = [...Array(AppConfig.backend.candyBoxAmount)]
 					.map((v, i) => i)
 					.map((i) => ({
 						candyId: candyIds[i],
