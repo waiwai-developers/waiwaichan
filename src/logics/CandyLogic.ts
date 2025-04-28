@@ -129,15 +129,7 @@ export class CandyLogic implements ICandyLogic {
 				);
 
 				//天上の場合に置換
-				const lastJackpodCandyId =
-					await this.userCandyItemRepository.lastJackpodCandyId(userId);
-				const candyCountFromJackpod =
-					await this.candyRepository.candyCountFromJackpod(
-						userId,
-						lastJackpodCandyId
-							? new CandyId(lastJackpodCandyId?.getValue())
-							: undefined,
-					);
+				const candyCountFromJackpod = await this.candyCountFromJackpod(userId);
 				const pityIndex =
 					PITY_COUNT - candyCountFromJackpod.getValue() - 1;
 				const isOverPity =
@@ -209,14 +201,7 @@ export class CandyLogic implements ICandyLogic {
 				let randomNum = Math.floor(Math.random() * PROBABILITY_JACKPOT + 1);
 
 				//天上の場合に置換
-				const lastJackpodId =
-					await this.userCandyItemRepository.lastJackpodCandyId(userId);
-
-				const candyCountFromJackpod =
-					await this.candyRepository.candyCountFromJackpod(
-						userId,
-						lastJackpodId ? new CandyId(lastJackpodId?.getValue()) : undefined,
-					);
+				const candyCountFromJackpod = await this.candyCountFromJackpod(userId);
 				if (candyCountFromJackpod.getValue() >= PITY_COUNT) {
 					randomNum = PROBABILITY_JACKPOT;
 				}
@@ -304,5 +289,18 @@ export class CandyLogic implements ICandyLogic {
 				return `<@${giver.getValue()}>さんが<@${receiver.getValue()}>さんに${AppConfig.backend.candyEmoji}スタンプを押したよ！！っ\nリンク先はこちら！っ: ${messageLink.getValue()}`;
 			}),
 		);
+	}
+
+	private async candyCountFromJackpod(userId: DiscordUserId): Promise<CandyCount> {
+		const lastJackpodCandyId =
+			await this.userCandyItemRepository.lastJackpodCandyId(userId);
+		const candyCountFromJackpod =
+			await this.candyRepository.candyCountFromJackpod(
+				userId,
+				lastJackpodCandyId
+					? new CandyId(lastJackpodCandyId?.getValue())
+					: undefined,
+			);
+		return candyCountFromJackpod;
 	}
 }
