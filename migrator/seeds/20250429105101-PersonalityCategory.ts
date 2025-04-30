@@ -366,60 +366,86 @@ export const ITEM_RECORDS = [
 		"domain_of_questions": "以下の「バックエンドに関するカテゴリ」に属する質問を前提に回答してください。",
 		"backend_knowledge_domains": {
 			"programming_languages": [
-				"JavaScript / TypeScript (Node.js)",
-				"Go",
-				"Python",
-				"Java / Kotlin"
+				"JavaScript / TypeScript（Node.js + Deno）",
+				"Go（標準ライブラリ + Gin / Echo）",
+				"Python（Flask / FastAPI / Django）",
+				"Java / Kotlin（Spring Boot / Ktor）",
+				"Rust（Actix / Axum）"
 			],
 			"language_theory": [
-				"Type System（静的・動的型付け）",
-				"Concurrency（goroutine, thread）",
-				"Async I/O / Event Loop（非同期プログラミング）",
-				"Garbage Collection（GC最適化）"
+				"型システム（静的 / 動的型付け、構造的部分型）",
+				"並行処理モデル（goroutine, thread, green thread, actor model）",
+				"非同期プログラミング（Promise, async/await, Future）",
+				"ガーベジコレクションとメモリ管理最適化",
+				"実行モデル（イベントループ / スレッドプール / エンジン最適化）"
 			],
 			"application_architecture": [
-				"Clean Architecture",
+				"クリーンアーキテクチャ / Onion Architecture",
 				"DDD（ドメイン駆動設計）",
-				"MVC / MVVM",
-				"Hexagonal / Onion Architecture"
+				"マイクロサービス / サーバレスアーキテクチャ",
+				"MVC / MVVM / CQRS",
+				"BFF（Backend For Frontend）",
+				"Event-driven Architecture（EDA）"
 			],
 			"api_design": [
-				"RESTful API 設計（エンティティ分離、HTTPステータス）",
-				"GraphQL（スキーマ駆動開発、リゾルバ）",
-				"gRPC / Protocol Buffers（IDLベース通信）"
+				"RESTful API（URI設計 / ステータスコード / OpenAPI）",
+				"GraphQL（Schema-first / Code-first, Federation）",
+				"gRPC / Protocol Buffers（IDL設計と双方向通信）",
+				"WebSocket / SSE / HTTP/2 & HTTP/3",
+				"API Gateway設計（認証・認可・スロットリング）"
 			],
 			"database": {
 				"relational": [
-					"PostgreSQL",
-					"MySQL",
-					"SQL Server / Oracle（任意）"
+					"PostgreSQL（拡張機能：PostGIS / JSONB）",
+					"MySQL / MariaDB（InnoDB, MyRocks）",
+					"SQL Server / Oracle（業務要件次第）"
 				],
 				"nosql": [
-					"Redis",
-					"MongoDB",
-					"Cassandra / DynamoDB（任意レベル）"
+					"Redis（Pub/Sub, Stream）",
+					"MongoDB（Aggregation Pipeline, Sharding）",
+					"DynamoDB（Partition Key設計）",
+					"Cassandra / ScyllaDB（高スループットNoSQL）"
 				],
 				"modeling": [
-					"正規化（Normal Forms）",
-					"非正規化と末端最適化",
-					"Index設計（B+ Tree, Hash）",
-					"トランザクション制御（ACID, Locking, Isolation Levels）",
-					"セマフォとメモリ同期制御"
+					"正規化 / 非正規化（第1〜第5正規形）",
+					"データ構造選定（Array / JSON / Key-Value / Document）",
+					"インデックス設計（B+ Tree, Hash Index, GIN/GiST）",
+					"トランザクション制御（ACID, Isolation Level, Lock）",
+					"分散トランザクション（2PC / SAGA パターン）"
 				]
 			},
 			"testing": {
 				"unit_and_integration": [
-					"Jest",
-					"Mocha + Chai",
-					"Supertest / MSW"
+					"Jest / Mocha / Chai（JS系）",
+					"Pytest / unittest（Python）",
+					"JUnit / TestNG / Kotest（JVM）",
+					"Supertest / MSW / HTTPX"
 				],
 				"contract_testing": [
-					"Pact"
+					"Pact（Consumer-Driven Contract）",
+					"OpenAPI Mock Server"
 				],
-				"mocking": [
-					"Sinon / Testdouble / Mock Service Worker"
+				"mocking_and_tools": [
+					"Sinon / Testdouble / Mock Service Worker",
+					"Testcontainers（DB / Kafka / Redis などの実環境モック）",
+					"Faker / FactoryBot / randomgen"
 				]
-			}
+			},
+			"performance_and_scalability": [
+				"キャッシュ戦略（Redis, CDN, メモリキャッシュ）",
+				"Connection Pool / Circuit Breaker",
+				"非同期キュー（RabbitMQ / Kafka / SQS）",
+				"分散処理基盤（Celery / Sidekiq / Resque）",
+				"水平スケーリング / シャーディング / レプリケーション"
+			],
+			"security": [
+				"認証（JWT / OAuth2 / OIDC / Magic Link）",
+				"認可（RBAC / ABAC / Scope設計）",
+				"セキュア通信（HTTPS, HSTS, TLS設定）",
+				"入力バリデーション / エスケープ処理",
+				"OWASP Top 10 対策（XSS, SQLi, SSRF等）",
+				"Secrets管理（HashiCorp Vault / AWS Secrets Manager）"
+			]
 		}
 	}
 }
