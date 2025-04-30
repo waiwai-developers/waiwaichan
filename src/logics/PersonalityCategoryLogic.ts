@@ -9,7 +9,7 @@ import type { IPersonalityCategoryRepository } from "@/src/logics/Interfaces/rep
 import { inject, injectable } from "inversify";
 
 @injectable()
-export class PersonalityLogic implements IPersonalityCategoryLogic {
+export class PersonalityCategoryLogic implements IPersonalityCategoryLogic {
 	@inject(RepoTypes.ThreadRepository)
 	private readonly personalityRepository!: IPersonalityCategoryRepository;
 
