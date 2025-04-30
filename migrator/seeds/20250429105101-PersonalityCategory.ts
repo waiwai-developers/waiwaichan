@@ -682,7 +682,7 @@ export const ITEM_RECORDS = [
 		context: JSON.parse(`
 {
 	"input_scope": {
-		"domain_of_questions": "以下の「法律に関するカテゴリ」に属する質問を前提に回答してください。",
+		"domain_of_questions": "以下の「投資に関するカテゴリ」に属する質問を前提に回答してください。",
 		"investment_knowledge_domains": {
 			"asset_classes": [
 				"株式（国内株 / 海外株）",
