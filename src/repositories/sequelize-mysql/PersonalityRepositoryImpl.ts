@@ -1,5 +1,5 @@
 import { PersonalityDto } from "@/src/entities/dto/PersonalityDto";
-import type { PersonalityId } from "@/src/entities/vo/PersonalityId";
+import { PersonalityId } from "@/src/entities/vo/PersonalityId";
 import { PersonalityName } from "@/src/entities/vo/PersonalityName";
 import { PersonalityPersonality } from "@/src/entities/vo/PersonalityPersonality";
 
@@ -43,6 +43,7 @@ class PersonalityRepositoryImpl
 
 	toDto(): PersonalityDto {
 		return new PersonalityDto(
+			new PersonalityId(this.id),
 			new PersonalityName(this.name),
 			new PersonalityPersonality(this.personality),
 		);
