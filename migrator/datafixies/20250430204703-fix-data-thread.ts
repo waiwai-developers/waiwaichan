@@ -35,7 +35,7 @@ export const up: Datafix = async ({ context: sequelize }) => {
 				throw new Error("PersonalityCategory not found. Rolling back transaction.");
 			}
 
-			const mergedObj = Object.assign(personality.personality, personalityCategory.context); // オブジェクトをマージ
+			const mergedObj = Object.assign(personality.personality, personalityCategory.context);
 			const threads = await DatafixThreadModel.findAll(
 				{
 					where: {
