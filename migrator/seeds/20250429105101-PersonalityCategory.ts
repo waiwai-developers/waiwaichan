@@ -5,6 +5,16 @@ export const ITEM_RECORDS = [
 	{
 		id: 1,
 		personalityId: 1,
+		name: "カテゴリなし",
+		context: JSON.parse(`
+{
+	"input_scope": {}
+}
+		`),
+	},
+	{
+		id: 2,
+		personalityId: 1,
 		name: "ライティング",
 		context: JSON.parse(`
 {
@@ -59,7 +69,7 @@ export const ITEM_RECORDS = [
 		`),
 	},
 	{
-		id: 2,
+		id: 3,
 		personalityId: 1,
 		name: "マーケティング",
 		context: JSON.parse(`
@@ -115,7 +125,7 @@ export const ITEM_RECORDS = [
 		`),
 	},
 	{
-		id: 3,
+		id: 4,
 		personalityId: 1,
 		name: "プロダクトマネージメント",
 		context: JSON.parse(`
@@ -171,7 +181,7 @@ export const ITEM_RECORDS = [
 		`),
 	},
 	{
-		id: 4,
+		id: 5,
 		personalityId: 1,
 		name: "webデザイン",
 		context: JSON.parse(`
@@ -223,7 +233,7 @@ export const ITEM_RECORDS = [
 		`),
 	},
 	{
-		id: 5,
+		id: 6,
 		personalityId: 1,
 		name: "マークアップ",
 		context: JSON.parse(`
@@ -275,7 +285,7 @@ export const ITEM_RECORDS = [
 		`),
 	},
 	{
-		id: 6,
+		id: 7,
 		personalityId: 1,
 		name: "フロントエンド",
 		context: JSON.parse(`
@@ -347,7 +357,7 @@ export const ITEM_RECORDS = [
 		`),
 	},
 	{
-		id: 7,
+		id: 8,
 		personalityId: 1,
 		name: "バックエンド",
 		context: JSON.parse(`
@@ -416,7 +426,7 @@ export const ITEM_RECORDS = [
 		`),
 	},
 	{
-		id: 8,
+		id: 9,
 		personalityId: 1,
 		name: "インフラストラクチャ",
 		context: JSON.parse(`
@@ -487,7 +497,7 @@ export const ITEM_RECORDS = [
 		`),
 	},
 	{
-		id: 9,
+		id: 10,
 		personalityId: 1,
 		name: "経営",
 		context: JSON.parse(`
@@ -550,7 +560,7 @@ export const ITEM_RECORDS = [
 		`),
 	},
 	{
-		id: 10,
+		id: 11,
 		personalityId: 1,
 		name: "経理",
 		context: JSON.parse(`
@@ -613,7 +623,7 @@ export const ITEM_RECORDS = [
 		`),
 	},
 	{
-		id: 11,
+		id: 12,
 		personalityId: 1,
 		name: "法律",
 		context: JSON.parse(`
@@ -676,7 +686,7 @@ export const ITEM_RECORDS = [
 		`),
 	},
 	{
-		id: 12,
+		id: 13,
 		personalityId: 1,
 		name: "投資",
 		context: JSON.parse(`
