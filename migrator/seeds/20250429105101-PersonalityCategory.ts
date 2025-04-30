@@ -774,7 +774,7 @@ export const ITEM_RECORDS = [
 		}
 	}
 }
-`),
+		`),
 	},
 ];
 export const up: Seed = async ({ context: sequelize }) => {
