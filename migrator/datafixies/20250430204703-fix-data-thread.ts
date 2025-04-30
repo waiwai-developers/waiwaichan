@@ -2,6 +2,7 @@ import type { Datafix } from "@/migrator/umzug";
 import { DatafixThreadModel } from "./models/DatafixThreadModel";
 import { DatafixPersonalityModel } from "./models/DatafixPersonalityModel";
 import { DatafixPersonalityCategoryModel } from "./models/DatafixPersonalityCategoryModel";
+import  { PersonalityId } from "@/src/entities/vo/PersonalityId";
 import  { ThreadCategoryType } from "@/src/entities/vo/ThreadCategoryType";
 import { Transaction } from "sequelize";
 
@@ -12,8 +13,7 @@ export const up: Datafix = async ({ context: sequelize }) => {
 			const personality = await DatafixPersonalityModel.findOne(
 				{
 					where: {
-						// ここマジックナンバーになるかもなので後で直す
-						id: 1,
+						id: PersonalityId.PERSONALITY_ID_WAIWAICHAN,
 					},
 					transaction
 				}
@@ -25,8 +25,7 @@ export const up: Datafix = async ({ context: sequelize }) => {
 			const personalityCategory = await DatafixPersonalityCategoryModel.findOne(
 				{
 					where: {
-						// ここマジックナンバーになるかもなので後で直す
-						id: 1,
+						id: PersonalityId.PERSONALITY_ID_WAIWAICHAN,
 					},
 					transaction
 				}
