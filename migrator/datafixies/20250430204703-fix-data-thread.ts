@@ -2,8 +2,8 @@ import type { Datafix } from "@/migrator/umzug";
 import { DatafixThreadModel } from "./models/DatafixThreadModel";
 import { DatafixPersonalityModel } from "./models/DatafixPersonalityModel";
 import { DatafixPersonalityCategoryModel } from "./models/DatafixPersonalityCategoryModel";
-import  { PersonalityId } from "@/src/entities/vo/PersonalityId";
-import  { ThreadCategoryType } from "@/src/entities/vo/ThreadCategoryType";
+import { PersonalityId } from "@/src/entities/vo/PersonalityId";
+import { ThreadCategoryType } from "@/src/entities/vo/ThreadCategoryType";
 import { Transaction } from "sequelize";
 
 export const up: Datafix = async ({ context: sequelize }) => {
@@ -34,7 +34,7 @@ export const up: Datafix = async ({ context: sequelize }) => {
 				throw new Error("PersonalityCategory not found. Rolling back transaction.");
 			}
 
-			const mergedObj = Object.assign(personality.personality, personalityCategory.context);
+			const metadata = Object.assign(personality.personality, personalityCategory.context);
 			const threads = await DatafixThreadModel.findAll(
 				{
 					where: {
@@ -46,7 +46,7 @@ export const up: Datafix = async ({ context: sequelize }) => {
 
 			for (const thread of threads) {
 				await thread.update({
-					metadata: mergedObj
+					metadata: metadata
 				}, { transaction });
 			}
 		} catch (error) {
