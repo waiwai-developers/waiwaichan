@@ -1,7 +1,6 @@
 import * as fs from "node:fs";
 import { AppConfig } from "@/src/entities/config/AppConfig";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
-import { MAX_REPLY_CHARACTERS } from "@/src/entities/constants/Discord";
 import { ChatAIMessageDto } from "@/src/entities/dto/ChatAIMessageDto";
 import { ChatAIContent } from "@/src/entities/vo/ChatAIContent";
 import { ChatAIRole } from "@/src/entities/vo/ChatAIRole";
