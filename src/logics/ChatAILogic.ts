@@ -1,6 +1,7 @@
 import { AppConfig } from "@/src/entities/config/AppConfig";
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import { ChatAIMessageDto } from "@/src/entities/dto/ChatAIMessageDto";
+import { ChatAIPrompt } from "@/src/entities/vo/ChatAIPrompt";
 import { ChatAIContent } from "@/src/entities/vo/ChatAIContent";
 import { ChatAIRole } from "@/src/entities/vo/ChatAIRole";
 import type { IChatAILogic } from "@/src/logics/Interfaces/logics/IChatAILogic";
@@ -15,11 +16,11 @@ export class ChatAILogic implements IChatAILogic {
 	createTopic(): Promise<string> {
 		throw new Error("Method not implemented.");
 	}
-	async replyTalk(context: Array<ChatAIMessageDto>): Promise<string> {
+	async replyTalk(prompt: ChatAIPrompt, context: Array<ChatAIMessageDto>): Promise<string> {
 		const promptInserted = [
 			new ChatAIMessageDto(
 				ChatAIRole.SYSTEM,
-				new ChatAIContent(AppConfig.openai.gptPrompt),
+				new ChatAIContent(JSON.stringify(prompt.getValue())),
 			),
 			...context,
 		];
