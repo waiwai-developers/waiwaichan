@@ -67,17 +67,16 @@ export class TalkCommandHandler implements SlashCommandHandler {
 			content: "以下にお話する場を用意したよ！っ",
 			fetchReply: true,
 		});
-		const metadata = Object.assign(
-			personality.personality.getValue(),
-			personalityCategory.context.getValue(),
-		);
+		const metadata = {
+			...personality.personality.getValue(),
+			...personalityCategory.context.getValue(),
+		};
 
 		await this.threadLogic.create(
 			new ThreadDto(
 				new ThreadGuildId(message.guildId),
 				new ThreadMessageId(message.id),
 				ThreadCategoryType.CATEGORY_TYPE_CHATGPT,
-				//ここJSONの型を後で矯正する
 				new ThreadMetadataChatgpt(metadata),
 			),
 		);
