@@ -108,8 +108,8 @@ appContainer.bind<ILogger>(RepoTypes.Logger).to(PinoLogger);
 
 // Logics
 appContainer.bind<IThreadLogic>(LogicTypes.ThreadLogic).to(ThreadLogic);
-appContainer.bind<IPersonalityLogic>(LogicTypes.ThreadLogic).to(PersonalityLogic);
-appContainer.bind<IPersonalityCategoryLogic>(LogicTypes.ThreadLogic).to(PersonalityCategoryLogic);
+appContainer.bind<IPersonalityLogic>(LogicTypes.PersonalityLogic).to(PersonalityLogic);
+appContainer.bind<IPersonalityCategoryLogic>(LogicTypes.PersonalityCategoryLogic).to(PersonalityCategoryLogic);
 appContainer.bind<IChatAILogic>(LogicTypes.ChatAILogic).to(ChatAILogic);
 appContainer.bind<IMinecraftServerLogic>(LogicTypes.MinecraftServerLogic).to(MinecraftServerLogic);
 appContainer.bind<ICandyLogic>(LogicTypes.CandyLogic).to(CandyLogic);
