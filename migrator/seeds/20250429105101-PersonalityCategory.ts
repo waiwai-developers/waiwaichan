@@ -1,7 +1,7 @@
 import type { Seed } from "@/migrator/umzug";
 import { Op } from "sequelize";
 import { MigratePersonalityCategoryModel } from "./models/MigratePersonalityCategoryModel";
-export const ITEM_RECORDS = [
+export const PERSONALITY_CATEGORY_RECORDS = [
 	{
 		id: 1,
 		personalityId: 1,
@@ -779,14 +779,14 @@ export const ITEM_RECORDS = [
 ];
 export const up: Seed = async ({ context: sequelize }) => {
 	sequelize.addModels([MigratePersonalityCategoryModel]);
-	await new MigratePersonalityCategoryModel().bulkUpsert(ITEM_RECORDS);
+	await new MigratePersonalityCategoryModel().bulkUpsert(PERSONALITY_CATEGORY_RECORDS);
 };
 
 export const down: Seed = async ({ context: sequelize }) => {
 	await sequelize.getQueryInterface().bulkDelete(
 		"PersonalityCategories",
 		{
-			id: { [Op.in]: ITEM_RECORDS.map((r) => r.id) },
+			id: { [Op.in]: PERSONALITY_CATEGORY_RECORDS.map((r) => r.id) },
 		},
 		{},
 	);
