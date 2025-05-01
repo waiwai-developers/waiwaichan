@@ -29,7 +29,7 @@ export class AIReplyHandler implements DiscordEventHandler<Message> {
 		const thread = await this.threadLogic.find(
 			new ThreadGuildId(message.channel.guildId),
 			new ThreadMessageId(message.channel.id),
-		)
+		);
 		if (
 			thread?.categoryType.getValue() !==
 			ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue()
