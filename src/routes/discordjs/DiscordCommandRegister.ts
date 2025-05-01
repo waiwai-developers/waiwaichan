@@ -1,4 +1,5 @@
 import { ITEM_RECORDS } from "@/migrator/seeds/20241111041901-item";
+import { PERSONALITY_CATEGORY_RECORDS } from "@/migrator/seeds/20250429105101-personalityCategory";
 import { AppConfig } from "@/src/entities/config/AppConfig";
 import { CommandsConfig } from "@/src/entities/config/CommandsConfig";
 import { TranslateConst } from "@/src/entities/constants/translate";
@@ -72,7 +73,19 @@ export class DiscordCommandRegister {
 				),
 			new SlashCommandBuilder()
 				.setName("talk")
-				.setDescription("talk string")
+				.setDescription("talk integer string")
+				.addIntegerOption((option) =>
+					option
+						.setName("type")
+						.setDescription("integer")
+						.setRequired(true)
+						.addChoices(
+							// TODO read from in memory db
+							PERSONALITY_CATEGORY_RECORDS.map((r) => {
+								return { name: r.name, value: r.id };
+							}),
+						),
+				)
 				.addStringOption((option) =>
 					option.setName("title").setDescription("string").setRequired(true),
 				),
@@ -146,13 +159,8 @@ export class DiscordCommandRegister {
 	}
 	async register(token: string) {
 		const rest = new REST({ version: "10" }).setToken(token);
-		await rest.put(
-			Routes.applicationCommands(
-				AppConfig.discord.clientId,
-			),
-			{
-				body: this.commands.map((command) => command.toJSON()),
-			},
-		);
+		await rest.put(Routes.applicationCommands(AppConfig.discord.clientId), {
+			body: this.commands.map((command) => command.toJSON()),
+		});
 	}
 }
