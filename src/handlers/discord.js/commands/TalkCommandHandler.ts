@@ -55,7 +55,7 @@ export class TalkCommandHandler implements SlashCommandHandler {
 			return;
 		}
 		const personalityCategory = await this.personalityCategoryLogic.find(
-			new PersonalityCategoryId(interaction.options.getInteger("id", true)),
+			new PersonalityCategoryId(interaction.options.getInteger("type", true)),
 			new PersonalityCategoryPersonalityId(personality.id.getValue()),
 		);
 		if (!personalityCategory) {
