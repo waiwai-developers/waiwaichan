@@ -530,6 +530,69 @@ export const PERSONALITY_CATEGORY_RECORDS = [
 {
 	"input_scope": {
 		"domain_of_questions": "以下の「経営に関するカテゴリ」に属する質問を前提に回答してください。",
+		"business_management_knowledge_domains": {
+			"corporate_strategy": [
+				"企業ビジョン / ミッション / バリュー策定",
+				"競争戦略（ポーターの5フォース / 差別化・コストリーダー戦略）",
+				"グローバル戦略 / 多角化戦略（GEマトリクス, アンゾフの成長マトリクス）",
+				"M&A戦略 / PMI（Post Merger Integration）",
+				"サステナビリティ・ESG経営（CSR・SDGsとの整合）"
+			],
+			"organizational_design": [
+				"組織構造設計（職能別 / 事業部制 / マトリクス組織）",
+				"権限委譲と意思決定フロー設計（RACI / RAPID）",
+				"組織文化と心理的安全性の構築",
+				"報酬制度 / 評価制度設計（OKR / MBO / 360度評価）",
+				"ダイバーシティ & インクルージョン施策"
+			],
+			"financial_management": [
+				"損益計算書 / 貸借対照表 / キャッシュフロー分析",
+				"財務指標（ROE / ROA / EBITDA / CCC など）",
+				"予算策定と資金繰り計画",
+				"資本政策（株式 / 負債 / バリュエーション）",
+				"原価管理 / 固定費・変動費コントロール"
+			],
+			"marketing_and_growth": [
+				"4P / STP / ポジショニング戦略",
+				"カスタマージャーニー設計 / ブランド体験戦略",
+				"リテンション・LTV最適化",
+				"グロース戦略（AARRRモデル / CAC-LTV管理）",
+				"リード獲得 / パイプラインマネジメント（B2B / B2C）"
+			],
+			"operations_and_execution": [
+				"バリューチェーン分析（Porter）",
+				"SCM（サプライチェーンマネジメント）",
+				"業務改善 / BPR（業務プロセス再設計）",
+				"KPIダッシュボードとPDCA運用",
+				"リーン / シックスシグマ / TOC"
+			],
+			"risk_and_governance": [
+				"コーポレートガバナンス（取締役会 / 内部監査）",
+				"法務・コンプライアンス（労働法 / 個人情報保護 / 独禁法）",
+				"リスクマネジメント（定量 / 定性評価）",
+				"BCP（事業継続計画） / 危機管理計画",
+				"情報セキュリティガバナンス（ISMS / SOC 2）"
+			],
+			"leadership_and_change": [
+				"リーダーシップ理論（トランスフォーマティブ / サーバント等）",
+				"組織変革（Change Management / Kotterモデル）",
+				"社内コミュニケーション / 1on1 / 評価面談設計",
+				"エンゲージメント向上施策",
+				"経営者とミドルマネジメントの役割分担"
+			]
+		}
+	}
+}
+		`),
+	},
+	{
+		id: 11,
+		personalityId: 1,
+		name: "経理",
+		context: JSON.parse(`
+{
+	"input_scope": {
+		"domain_of_questions": "以下の「経理に関するカテゴリ」に属する質問を前提に回答してください。",
 		"accounting_knowledge_domains": {
 			"financial_accounting": [
 				"仕訳・伝票処理",
@@ -573,69 +636,6 @@ export const PERSONALITY_CATEGORY_RECORDS = [
 				"電子帳簿保存システム",
 				"銀行明細・クレカ明細の自動連携",
 				"RPA / AI-OCRなどによる自動化・効率化"
-			]
-		}
-	}
-}
-		`),
-	},
-	{
-		id: 11,
-		personalityId: 1,
-		name: "経理",
-		context: JSON.parse(`
-{
-	"input_scope": {
-		"domain_of_questions": "以下の「経理に関するカテゴリ」に属する質問を前提に回答してください。",
-		"business_management_knowledge_domains": {
-			"corporate_strategy": [
-				"企業ビジョン / ミッション / バリュー策定",
-				"競争戦略（ポーターの5フォース / 差別化・コストリーダー戦略）",
-				"グローバル戦略 / 多角化戦略（GEマトリクス, アンゾフの成長マトリクス）",
-				"M&A戦略 / PMI（Post Merger Integration）",
-				"サステナビリティ・ESG経営（CSR・SDGsとの整合）"
-			],
-			"organizational_design": [
-				"組織構造設計（職能別 / 事業部制 / マトリクス組織）",
-				"権限委譲と意思決定フロー設計（RACI / RAPID）",
-				"組織文化と心理的安全性の構築",
-				"報酬制度 / 評価制度設計（OKR / MBO / 360度評価）",
-				"ダイバーシティ & インクルージョン施策"
-			],
-			"financial_management": [
-				"損益計算書 / 貸借対照表 / キャッシュフロー分析",
-				"財務指標（ROE / ROA / EBITDA / CCC など）",
-				"予算策定と資金繰り計画",
-				"資本政策（株式 / 負債 / バリュエーション）",
-				"原価管理 / 固定費・変動費コントロール"
-			],
-			"marketing_and_growth": [
-				"4P / STP / ポジショニング戦略",
-				"カスタマージャーニー設計 / ブランド体験戦略",
-				"リテンション・LTV最適化",
-				"グロース戦略（AARRRモデル / CAC-LTV管理）",
-				"リード獲得 / パイプラインマネジメント（B2B / B2C）"
-			],
-			"operations_and_execution": [
-				"バリューチェーン分析（Porter）",
-				"SCM（サプライチェーンマネジメント）",
-				"業務改善 / BPR（業務プロセス再設計）",
-				"KPIダッシュボードとPDCA運用",
-				"リーン / シックスシグマ / TOC"
-			],
-			"risk_and_governance": [
-				"コーポレートガバナンス（取締役会 / 内部監査）",
-				"法務・コンプライアンス（労働法 / 個人情報保護 / 独占禁止法）",
-				"リスクマネジメント（定量 / 定性評価）",
-				"BCP（事業継続計画） / 危機管理計画",
-				"情報セキュリティガバナンス（ISMS / SOC 2）"
-			],
-			"leadership_and_change": [
-				"リーダーシップ理論（トランスフォーマティブ / サーバント等）",
-				"組織変革（Change Management / Kotterモデル）",
-				"社内コミュニケーション / 1on1 / 評価面談設計",
-				"エンゲージメント向上施策",
-				"経営者とミドルマネジメントの役割分担"
 			]
 		}
 	}
