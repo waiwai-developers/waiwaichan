@@ -83,7 +83,7 @@ export class TalkCommandHandler implements SlashCommandHandler {
 		);
 
 		await message.startThread({
-			name: title,
+			name: `${personalityCategory.name.getValue()}: ${title}`,
 			autoArchiveDuration: 60,
 		});
 	}
