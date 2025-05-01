@@ -67,10 +67,23 @@ export class TalkCommandHandler implements SlashCommandHandler {
 			content: "以下にお話する場を用意したよ！っ",
 			fetchReply: true,
 		});
-		const metadata = {
-			...personality.personality.getValue(),
-			...personalityCategory.context.getValue(),
-		};
+
+		const personalityData = JSON.parse(
+			JSON.stringify(personality.personality.getValue()),
+		);
+		const personalityCategoryData = JSON.parse(
+			JSON.stringify(personalityCategory.context.getValue()),
+		);
+		const metadata = JSON.parse(
+			JSON.stringify({
+				persona_role: personalityData.value.persona_role,
+				speaking_style_rules: personalityData.speaking_style_rules,
+				response_directives: personalityData.response_directives,
+				emotion_model: personalityData.emotion_model,
+				notes: personalityData.notes,
+				input_scope: personalityCategoryData.input_scope,
+			}),
+		);
 
 		await this.threadLogic.create(
 			new ThreadDto(
