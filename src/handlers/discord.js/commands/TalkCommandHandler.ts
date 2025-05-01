@@ -11,7 +11,6 @@ import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/Sla
 import type { IPersonalityCategoryLogic } from "@/src/logics/Interfaces/logics/IPersonalityCategoryLogic";
 import type { IPersonalityLogic } from "@/src/logics/Interfaces/logics/IPersonalityLogic";
 import type { IThreadLogic } from "@/src/logics/Interfaces/logics/IThreadLogic";
-import { metadata } from "@abraham/reflection";
 import type {
 	CacheType,
 	ChatInputCommandInteraction,
@@ -67,23 +66,10 @@ export class TalkCommandHandler implements SlashCommandHandler {
 			content: "以下にお話する場を用意したよ！っ",
 			fetchReply: true,
 		});
-
-		const personalityData = JSON.parse(
-			JSON.stringify(personality.personality.getValue()),
-		);
-		const personalityCategoryData = JSON.parse(
-			JSON.stringify(personalityCategory.context.getValue()),
-		);
-		const metadata = JSON.parse(
-			JSON.stringify({
-				persona_role: personalityData.value.persona_role,
-				speaking_style_rules: personalityData.speaking_style_rules,
-				response_directives: personalityData.response_directives,
-				emotion_model: personalityData.emotion_model,
-				notes: personalityData.notes,
-				input_scope: personalityCategoryData.input_scope,
-			}),
-		);
+		const metadata = {
+			...personality.personality.getValue(),
+			...personalityCategory.context.getValue(),
+		};
 
 		await this.threadLogic.create(
 			new ThreadDto(
