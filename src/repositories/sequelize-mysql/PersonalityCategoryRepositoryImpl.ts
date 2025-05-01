@@ -17,9 +17,8 @@ import {
 
 @injectable()
 @Table({
-	tableName: "PersonalityCategorys",
+	tableName: "PersonalityCategories",
 	timestamps: true,
-	paranoid: true,
 })
 class PersonalityCategoryRepositoryImpl
 	extends Model
@@ -42,8 +41,8 @@ class PersonalityCategoryRepositoryImpl
 	): Promise<PersonalityCategoryDto | undefined> {
 		return PersonalityCategoryRepositoryImpl.findOne({
 			where: {
-				id: id,
-				personalityId: personalityId,
+				id: id.getValue(),
+				personalityId: personalityId.getValue(),
 			},
 		}).then((res) => (res ? res.toDto() : undefined));
 	}
