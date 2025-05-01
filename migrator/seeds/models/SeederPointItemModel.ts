@@ -11,7 +11,7 @@ import {
 	tableName: "Items",
 	timestamps: true,
 })
-class MigratePointItemModel extends Model {
+class SeederPointItemModel extends Model {
 	@PrimaryKey
 	@AutoIncrement
 	@Column(DataType.INTEGER)
@@ -25,9 +25,9 @@ class MigratePointItemModel extends Model {
 		data: Array<{ id: number; name: string; description: string }>,
 	) {
 		await Promise.all(
-			data.map(async (d) => await MigratePointItemModel.upsert(d)),
+			data.map(async (d) => await SeederPointItemModel.upsert(d)),
 		);
 	}
 }
 
-export { MigratePointItemModel };
+export { SeederPointItemModel };

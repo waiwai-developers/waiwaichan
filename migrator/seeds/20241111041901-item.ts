@@ -1,6 +1,6 @@
 import type { Seed } from "@/migrator/umzug";
 import { Op } from "sequelize";
-import { MigratePointItemModel } from "./models/MigratePointItemModel";
+import { SeederPointItemModel } from "./models/SeederPointItemModel";
 export const ITEM_RECORDS = [
 	{
 		id: 1,
@@ -14,8 +14,8 @@ export const ITEM_RECORDS = [
 	},
 ];
 export const up: Seed = async ({ context: sequelize }) => {
-	sequelize.addModels([MigratePointItemModel]);
-	await new MigratePointItemModel().bulkUpsert(ITEM_RECORDS);
+	sequelize.addModels([SeederPointItemModel]);
+	await new SeederPointItemModel().bulkUpsert(ITEM_RECORDS);
 };
 
 export const down: Seed = async ({ context: sequelize }) => {
