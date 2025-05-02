@@ -7,7 +7,6 @@ import type { UserCandyItemCount } from "@/src/entities/vo/UserCandyItemCount";
 import type { UserCandyItemId } from "@/src/entities/vo/UserCandyItemId";
 
 export interface IUserCandyItemRepository {
-	create(data: UserCandyItemDto): Promise<UserCandyItemId>;
 	bulkCreate(data: UserCandyItemDto[]): Promise<UserCandyItemId[]>;
 	findByNotUsed(
 		userId: DiscordUserId,

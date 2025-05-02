@@ -60,15 +60,6 @@ class UserCandyItemRepositoryImpl
 	@BelongsTo(() => CandyItemRepositoryImpl)
 	declare item: CandyItemRepositoryImpl;
 
-	async create(data: UserCandyItemDto): Promise<UserCandyItemId> {
-		return UserCandyItemRepositoryImpl.create({
-			userId: data.userId.getValue(),
-			itemId: data.itemId.getValue(),
-			candyId: data.candyId.getValue(),
-			expiredAt: data.expiredAt.getValue(),
-		}).then((res) => new UserCandyItemId(res.id));
-	}
-
 	async bulkCreate(data: UserCandyItemDto[]): Promise<UserCandyItemId[]> {
 		return UserCandyItemRepositoryImpl.bulkCreate(
 			data.map((u) => ({
