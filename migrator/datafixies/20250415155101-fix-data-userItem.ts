@@ -2,9 +2,14 @@ import type { Datafix } from "@/migrator/umzug";
 import { DatafixUserItemModel } from "./models/DatafixUserItemModel";
 import { DatafixCandyModel } from "./models/DatafixCandyModel";
 import { Op, col } from "sequelize";
+import { Transaction } from 'sequelize';
 
 export const up: Datafix = async ({ context: sequelize }) => {
-	return sequelize.transaction(async (t) => {
+	return sequelize.transaction(
+		{
+			isolationLevel: Transaction.ISOLATION_LEVELS.SERIALIZABLE,
+		},
+		async (t) => {
 		const userItems = await DatafixUserItemModel.findAll();
 		let candyIds: number[] = []
 
