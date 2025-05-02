@@ -1,11 +1,11 @@
 import { LogicTypes, RepoTypes, RouteTypes } from "@/src/entities/constants/DIContainerTypes";
 import { HandlerTypes } from "@/src/entities/constants/DIContainerTypes";
 import {
+	CandyBoxDrawCommandHandler,
 	CandyCheckCommandHandler,
 	CandyDrawCommandHandler,
 	CandyExchangeCommandHandler,
 	CandyItemCommandHandler,
-	CandyBoxDrawCommandHandler,
 	ChoiceCommandHandler,
 	DiceCommandHandler,
 	HelpCommandHandler,

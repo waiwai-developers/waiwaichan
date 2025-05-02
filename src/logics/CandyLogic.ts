@@ -1,10 +1,10 @@
 import { AppConfig } from "@/src/entities/config/AppConfig";
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import {
-	PITY_COUNT,
 	ID_HIT,
 	ID_JACKPOT,
 	ID_OUT,
+	PITY_COUNT,
 	PROBABILITY_HIT,
 	PROBABILITY_JACKPOT,
 } from "@/src/entities/constants/Items";
@@ -130,11 +130,9 @@ export class CandyLogic implements ICandyLogic {
 
 				//天上の場合に置換
 				const candyCountFromJackpod = await this.candyCountFromJackpod(userId);
-				const pityIndex =
-					PITY_COUNT - candyCountFromJackpod.getValue() - 1;
+				const pityIndex = PITY_COUNT - candyCountFromJackpod.getValue() - 1;
 				const isOverPity =
-					candyCountFromJackpod.getValue() +
-						AppConfig.backend.candyBoxAmount >=
+					candyCountFromJackpod.getValue() + AppConfig.backend.candyBoxAmount >=
 					PITY_COUNT;
 				const isNotJackpotToPity = !randomNums
 					.slice(pityIndex)
@@ -144,16 +142,17 @@ export class CandyLogic implements ICandyLogic {
 				}
 
 				// itemの作成
-				const mapCandyIdHitIds = [...Array(AppConfig.backend.candyBoxAmount).keys()]
-					.map((i) => ({
-						candyId: candyIds[i],
-						hitId:
-							randomNums[i] % PROBABILITY_JACKPOT === 0
-								? new CandyItemId(ID_JACKPOT)
-								: randomNums[i] % PROBABILITY_HIT === 0
-									? new CandyItemId(ID_HIT)
-									: new CandyItemId(ID_OUT),
-					}));
+				const mapCandyIdHitIds = [
+					...Array(AppConfig.backend.candyBoxAmount).keys(),
+				].map((i) => ({
+					candyId: candyIds[i],
+					hitId:
+						randomNums[i] % PROBABILITY_JACKPOT === 0
+							? new CandyItemId(ID_JACKPOT)
+							: randomNums[i] % PROBABILITY_HIT === 0
+								? new CandyItemId(ID_HIT)
+								: new CandyItemId(ID_OUT),
+				}));
 				const mapWinCandyIdHitIds = mapCandyIdHitIds.filter(
 					(m) => m.hitId.getValue() !== ID_OUT,
 				);
@@ -290,7 +289,9 @@ export class CandyLogic implements ICandyLogic {
 		);
 	}
 
-	private async candyCountFromJackpod(userId: DiscordUserId): Promise<CandyCount> {
+	private async candyCountFromJackpod(
+		userId: DiscordUserId,
+	): Promise<CandyCount> {
 		const lastJackpodCandyId =
 			await this.userCandyItemRepository.lastJackpodCandyId(userId);
 		const candyCountFromJackpod =
