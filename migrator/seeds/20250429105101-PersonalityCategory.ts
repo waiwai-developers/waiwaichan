@@ -1,6 +1,6 @@
 import type { Seed } from "@/migrator/umzug";
 import { Op } from "sequelize";
-import { MigratePersonalityCategoryModel } from "./models/MigratePersonalityCategoryModel";
+import { SeederPersonalityCategoryModel } from "./models/SeederPersonalityCategoryModel";
 export const PERSONALITY_CATEGORY_RECORDS = [
 	{
 		id: 1,
@@ -772,8 +772,8 @@ export const PERSONALITY_CATEGORY_RECORDS = [
 	},
 ];
 export const up: Seed = async ({ context: sequelize }) => {
-	sequelize.addModels([MigratePersonalityCategoryModel]);
-	await new MigratePersonalityCategoryModel().bulkUpsert(PERSONALITY_CATEGORY_RECORDS);
+	sequelize.addModels([SeederPersonalityCategoryModel]);
+	await new SeederPersonalityCategoryModel().bulkUpsert(PERSONALITY_CATEGORY_RECORDS);
 };
 
 export const down: Seed = async ({ context: sequelize }) => {

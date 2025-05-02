@@ -11,7 +11,7 @@ import {
 	tableName: "Personalities",
 	timestamps: true,
 })
-class MigratePersonalityModel extends Model {
+class SeederPersonalityModel extends Model {
 	@PrimaryKey
 	@AutoIncrement
 	@Column(DataType.INTEGER)
@@ -25,9 +25,9 @@ class MigratePersonalityModel extends Model {
 		data: Array<{ id: number; name: string; personality: JSON }>,
 	) {
 		await Promise.all(
-			data.map(async (d) => await MigratePersonalityModel.upsert(d)),
+			data.map(async (d) => await SeederPersonalityModel.upsert(d)),
 		);
 	}
 }
 
-export { MigratePersonalityModel };
+export { SeederPersonalityModel };
