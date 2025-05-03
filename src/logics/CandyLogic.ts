@@ -1,5 +1,4 @@
 import { AppConfig } from "@/src/entities/config/AppConfig";
-import { SUPER_CANDY_COUNT } from "@/src/entities/constants/Candies";
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import {
 	ID_HIT,
