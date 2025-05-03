@@ -1,6 +1,8 @@
+import { AppConfig } from "@/src/entities/config/AppConfig";
 import { CandyDto } from "@/src/entities/dto/CandyDto";
 import { CandyCount } from "@/src/entities/vo/CandyCount";
 import { CandyExpire } from "@/src/entities/vo/CandyExpire";
+import { CandyId } from "@/src/entities/vo/CandyId";
 import type { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
 import { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
 import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
@@ -56,6 +58,20 @@ class CandyRepositoryImpl extends Model implements ICandyRepository {
 		}).then((c) => new CandyCount(c));
 	}
 
+	async candyCountFromJackpod(
+		userId: DiscordUserId,
+		candyId: CandyId | undefined,
+	): Promise<CandyCount> {
+		return CandyRepositoryImpl.count({
+			where: {
+				receiveUserId: userId.getValue(),
+				deletedAt: { [Op.ne]: null },
+				...(candyId ? { id: { [Op.gt]: candyId.getValue() } } : {}),
+			},
+			paranoid: false,
+		}).then((c) => new CandyCount(c));
+	}
+
 	async candyExpire(userId: DiscordUserId): Promise<CandyExpire | undefined> {
 		return CandyRepositoryImpl.findOne({
 			where: {
@@ -82,17 +98,31 @@ class CandyRepositoryImpl extends Model implements ICandyRepository {
 		}).then((c) => new CandyCount(c));
 	}
 
-	async ConsumeCandies(
+	async consumeCandies(
 		userId: DiscordUserId,
-		Candies: CandyCount = new CandyCount(1),
-	): Promise<boolean> {
-		return CandyRepositoryImpl.destroy({
+		candyCount: CandyCount,
+	): Promise<CandyId[]> {
+		return CandyRepositoryImpl.findAll({
 			where: {
 				receiveUserId: userId.getValue(),
 			},
-			limit: Candies.getValue(),
-		}).then((res) => res === Candies.getValue());
+			limit: candyCount.getValue(),
+		}).then((cs) => {
+			CandyRepositoryImpl.destroy({
+				where: {
+					id: {
+						[Op.in]: cs.map((c) => {
+							return c.id;
+						}),
+					},
+				},
+			});
+			return cs.map((c) => {
+				return new CandyId(c.id);
+			});
+		});
 	}
+
 	async findByGiverAndMessageId(
 		giver: DiscordChannelId,
 		messageId: DiscordMessageId,
