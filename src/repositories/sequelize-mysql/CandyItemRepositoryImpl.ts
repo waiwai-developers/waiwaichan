@@ -34,6 +34,11 @@ class CandyItemRepositoryImpl extends Model implements ICandyItemRepository {
 			where: { id: id.getValue() },
 		}).then((r) => (r ? this.toDto(r) : undefined));
 	}
+	async findAll(): Promise<CandyItemDto[] | undefined> {
+		return await CandyItemRepositoryImpl.findAll().then((results) =>
+			results.map((r) => this.toDto(r)),
+		);
+	}
 
 	toDto({ id, name, description }: CandyItemRepositoryImpl): CandyItemDto {
 		return new CandyItemDto(

@@ -1,3 +1,4 @@
+import { CandyBoxDrawCommandHandler } from "@/src/handlers/discord.js/commands/CandyBoxDrawCommandHandler";
 import { CandyCheckCommandHandler } from "@/src/handlers/discord.js/commands/CandyCheckCommandHandler";
 import { CandyDrawCommandHandler } from "@/src/handlers/discord.js/commands/CandyDrawCommandHandler";
 import { CandyExchangeCommandHandler } from "@/src/handlers/discord.js/commands/CandyExchangeCommandHandler";
@@ -31,6 +32,7 @@ export {
 	CandyCheckCommandHandler,
 	CandyExchangeCommandHandler,
 	CandyDrawCommandHandler,
+	CandyBoxDrawCommandHandler,
 	CandyItemCommandHandler,
 	TalkCommandHandler,
 	TranslateCommandHandler,
