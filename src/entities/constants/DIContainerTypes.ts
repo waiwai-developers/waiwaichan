@@ -9,6 +9,7 @@ export const RepoTypes = {
 	ThreadRepository: Symbol.for("ThreadRepository"),
 	ChatAIRepository: Symbol.for("ChatAIRepository"),
 	TranslateRepository: Symbol.for("TranslateRepository"),
+	ShiritoriWordRepository: Symbol.for("ShiritoriWordRepository"),
 	VMInstanceRepository: Symbol.for("VMInstanceRepository"),
 	PullRequestRepository: Symbol.for("PullRequestRepository"),
 	SequelizeModels: Symbol.for("SequelizeModels"),
@@ -22,6 +23,7 @@ export const LogicTypes = {
 	ReminderLogic: Symbol.for("ReminderLogic"),
 	PullRequestLogic: Symbol.for("PullRequestLogic"),
 	TranslatorLogic: Symbol.for("TranslateLogic"),
+	ShiritoriLogic: Symbol.for("ShiritoriLogic"),
 	UtilityLogic: Symbol.for("UtilityLogic"),
 };
 
