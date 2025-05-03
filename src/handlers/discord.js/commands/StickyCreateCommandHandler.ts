@@ -1,4 +1,4 @@
-import { AccountsConfig } from "@/src/entities/config/AccountsConfig";
+import { RoleConfig } from "@/src/entities/config/RoleConfig";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
 import { StickyDto } from "@/src/entities/dto/StickyDto";
 import { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
@@ -33,7 +33,7 @@ export class StickyCreateCommandHandler implements SlashCommandHandler {
 			return;
 		}
 		if (
-			AccountsConfig.users.find((u) => u.discordId === interaction.user.id)
+			RoleConfig.users.find((u) => u.discordId === interaction.user.id)
 				?.role !== "admin"
 		) {
 			interaction.reply("スティッキーを登録する権限を持っていないよ！っ");

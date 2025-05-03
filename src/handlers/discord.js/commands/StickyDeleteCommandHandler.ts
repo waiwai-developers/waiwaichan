@@ -1,4 +1,4 @@
-import { AccountsConfig } from "@/src/entities/config/AccountsConfig";
+import { RoleConfig } from "@/src/entities/config/RoleConfig";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
 import { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
 import { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
@@ -23,7 +23,7 @@ export class StickyDeleteCommandHandler implements SlashCommandHandler {
 			return;
 		}
 		if (
-			AccountsConfig.users.find((u) => u.discordId === interaction.user.id)
+			RoleConfig.users.find((u) => u.discordId === interaction.user.id)
 				?.role !== "admin"
 		) {
 			interaction.reply("スティッキーを登録する権限を持っていないよ！っ");
