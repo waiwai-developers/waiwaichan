@@ -28,7 +28,7 @@ export const up: Migration = async ({ context: sequelize }) => {
 			allowNull: false,
 			type: DataTypes.BIGINT,
 		},
-		text: {
+		message: {
 			allowNull: false,
 			type: DataTypes.STRING,
 		},
