@@ -1,11 +1,11 @@
 import { LogicTypes, RepoTypes, RouteTypes } from "@/src/entities/constants/DIContainerTypes";
 import { HandlerTypes } from "@/src/entities/constants/DIContainerTypes";
 import {
+	CandyBoxDrawCommandHandler,
 	CandyCheckCommandHandler,
 	CandyDrawCommandHandler,
 	CandyExchangeCommandHandler,
 	CandyItemCommandHandler,
-	CandyBoxDrawCommandHandler,
 	ChoiceCommandHandler,
 	DiceCommandHandler,
 	HelpCommandHandler,
@@ -44,6 +44,7 @@ import type { ICandyRepository } from "@/src/logics/Interfaces/repositories/data
 import type { IDataBaseConnector } from "@/src/logics/Interfaces/repositories/database/IDataBaseConnector";
 import type { IReminderRepository } from "@/src/logics/Interfaces/repositories/database/IReminderRepository";
 import type { IThreadRepository } from "@/src/logics/Interfaces/repositories/database/IThreadRepository";
+import type { ITransaction } from "@/src/logics/Interfaces/repositories/database/ITransaction";
 import type { IUserCandyItemRepository } from "@/src/logics/Interfaces/repositories/database/IUserCandyItemRepository";
 import type { IPullRequestRepository } from "@/src/logics/Interfaces/repositories/githubapi/IPullRequestRepository";
 import type { IMutex } from "@/src/logics/Interfaces/repositories/mutex/IMutex";

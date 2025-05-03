@@ -146,13 +146,8 @@ export class DiscordCommandRegister {
 	}
 	async register(token: string) {
 		const rest = new REST({ version: "10" }).setToken(token);
-		await rest.put(
-			Routes.applicationCommands(
-				AppConfig.discord.clientId,
-			),
-			{
-				body: this.commands.map((command) => command.toJSON()),
-			},
-		);
+		await rest.put(Routes.applicationCommands(AppConfig.discord.clientId), {
+			body: this.commands.map((command) => command.toJSON()),
+		});
 	}
 }

@@ -1,8 +1,8 @@
+import { CandyBoxDrawCommandHandler } from "@/src/handlers/discord.js/commands/CandyBoxDrawCommandHandler";
 import { CandyCheckCommandHandler } from "@/src/handlers/discord.js/commands/CandyCheckCommandHandler";
 import { CandyDrawCommandHandler } from "@/src/handlers/discord.js/commands/CandyDrawCommandHandler";
 import { CandyExchangeCommandHandler } from "@/src/handlers/discord.js/commands/CandyExchangeCommandHandler";
 import { CandyItemCommandHandler } from "@/src/handlers/discord.js/commands/CandyItemCommandHandler";
-import { CandyBoxDrawCommandHandler } from "@/src/handlers/discord.js/commands/CandyBoxDrawCommandHandler";
 import { ChoiceCommandHandler } from "@/src/handlers/discord.js/commands/ChoiceCommandHandler";
 import { DiceCommandHandler } from "@/src/handlers/discord.js/commands/DiceCommandHandler";
 import { HelpCommandHandler } from "@/src/handlers/discord.js/commands/HelpCommandHandler";
