@@ -1,3 +1,4 @@
+import { AppConfig } from "@/src/entities/config/AppConfig";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
 import { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
 import { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
@@ -14,7 +15,8 @@ export class StickyEventHandler implements DiscordEventHandler<Message> {
 	private readonly stickyLogic!: IStickyLogic;
 
 	async handle(message: Message) {
-		if (message.author.bot) return;
+		if (message.author.bot && message.author.id !== AppConfig.discord.clientId)
+			return;
 		if (message.channel.isThread()) return;
 
 		const sticky = await this.stickyLogic.find(
@@ -35,7 +37,7 @@ export class StickyEventHandler implements DiscordEventHandler<Message> {
 		const success = await stickyOldMessage.delete();
 		if (!success) return;
 
-		const stickyNewMessage = await channel.send(stickyOldMessage.content);
+		const stickyNewMessage = await channel.send(sticky.message.getValue());
 		if (!stickyNewMessage) return;
 
 		await this.stickyLogic.update(
