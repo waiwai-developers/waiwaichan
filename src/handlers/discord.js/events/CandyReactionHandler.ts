@@ -1,8 +1,12 @@
 import { AppConfig } from "@/src/entities/config/AppConfig";
+import { SUPER_CANDY_COUNT } from "@/src/entities/constants/Candies";
+import { NORMAL_CANDY_COUNT } from "@/src/entities/constants/Candies";
 import {
 	LogicTypes,
 	RepoTypes,
 } from "@/src/entities/constants/DIContainerTypes";
+import { CandyAmount } from "@/src/entities/vo/CandyAmount";
+import { CandyCategoryType } from "@/src/entities/vo/CandyCategoryType";
 import { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
 import { DiscordMessageLink } from "@/src/entities/vo/DiscordMessageLink";
 import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
@@ -55,19 +59,24 @@ export class CandyReactionHandler
 
 		let res: string | undefined;
 
-		if (reaction.emoji.name === AppConfig.backend.candyEmoji) {
-			res = await this.candyLogic.giveCandy(
+		const isCandyEmoji = reaction.emoji.name === AppConfig.backend.candyEmoji;
+		const isCandySuperEmoji =
+			reaction.emoji.name === AppConfig.backend.candySuperEmoji;
+
+		if (isCandyEmoji || isCandySuperEmoji) {
+			res = await this.candyLogic.giveCandys(
 				new DiscordUserId(reaction.message.author.id),
 				new DiscordUserId(user.id),
 				new DiscordMessageId(reaction.message.id),
 				new DiscordMessageLink(reaction.message.url),
-			);
-		} else if (reaction.emoji.name === AppConfig.backend.candySuperEmoji) {
-			res = await this.candyLogic.giveSuperCandy(
-				new DiscordUserId(reaction.message.author.id),
-				new DiscordUserId(user.id),
-				new DiscordMessageId(reaction.message.id),
-				new DiscordMessageLink(reaction.message.url),
+				new CandyCategoryType(
+					isCandySuperEmoji
+						? CandyCategoryType.CATEGORY_TYPE_SUPER.getValue()
+						: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
+				),
+				new CandyAmount(
+					isCandySuperEmoji ? SUPER_CANDY_COUNT : NORMAL_CANDY_COUNT,
+				),
 			);
 		} else {
 			this.logger.debug("not peer bonus emoji");
