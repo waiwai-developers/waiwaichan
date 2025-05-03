@@ -5,10 +5,17 @@ import { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
 import { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
 import { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
 import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
+import { StickyMessage } from "@/src/entities/vo/StickyMessage";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
 import type { IStickyLogic } from "@/src/logics/Interfaces/logics/IStickyLogic";
 import type { CacheType, ChatInputCommandInteraction } from "discord.js";
-import { TextChannel,  ModalBuilder, TextInputBuilder, ActionRowBuilder, TextInputStyle  } from "discord.js";
+import {
+	ActionRowBuilder,
+	ModalBuilder,
+	TextChannel,
+	TextInputBuilder,
+	TextInputStyle,
+} from "discord.js";
 import { inject, injectable } from "inversify";
 
 @injectable()
@@ -55,38 +62,44 @@ export class StickyCreateCommandHandler implements SlashCommandHandler {
 		}
 
 		const modal = new ModalBuilder()
-			.setCustomId('stickyModal')
-			.setTitle('スティッキーモーダル');
+			.setCustomId("stickyModal")
+			.setTitle("スティッキーモーダル");
 		const textInput = new TextInputBuilder()
-			.setCustomId('stickyInput')
+			.setCustomId("stickyInput")
 			.setLabel("スティッキーの文章")
 			.setStyle(TextInputStyle.Paragraph);
-		modal.addComponents(new ActionRowBuilder<TextInputBuilder>().addComponents(textInput));
+		modal.addComponents(
+			new ActionRowBuilder<TextInputBuilder>().addComponents(textInput),
+		);
 
 		await interaction.showModal(modal);
-		await interaction.awaitModalSubmit({ time: 60000 }).then(async (t) => {
-			const modalInputText = t.fields.getTextInputValue('stickyInput')
-			if (!modalInputText) {
-				t.reply("スティッキーに登録するメッセージがないよ！っ");
-				return;
-			}
-			const message = await channel.send(modalInputText);
-			if (!message) {
-				await t.reply("スティッキーの投稿に失敗したよ！っ");
-				return;
-			}
-			await t.reply(
-				await this.stickyLogic.create(
-					new StickyDto(
-						new DiscordGuildId(interaction.guildId),
-						new DiscordChannelId(
-							interaction.options.getString("channelid", true),
+		await interaction
+			.awaitModalSubmit({ time: 60000 })
+			.then(async (t) => {
+				const modalInputText = t.fields.getTextInputValue("stickyInput");
+				if (!modalInputText) {
+					t.reply("スティッキーに登録するメッセージがないよ！っ");
+					return;
+				}
+				const message = await channel.send(modalInputText);
+				if (!message) {
+					await t.reply("スティッキーの投稿に失敗したよ！っ");
+					return;
+				}
+				await t.reply(
+					await this.stickyLogic.create(
+						new StickyDto(
+							new DiscordGuildId(interaction.guildId),
+							new DiscordChannelId(
+								interaction.options.getString("channelid", true),
+							),
+							new DiscordUserId(interaction.user.id),
+							new DiscordMessageId(message.id),
+							new StickyMessage(message.content),
 						),
-						new DiscordUserId(interaction.user.id),
-						new DiscordMessageId(message.id),
 					),
-				),
-			);
-		}).catch(console.error);
+				);
+			})
+			.catch(console.error);
 	}
 }
