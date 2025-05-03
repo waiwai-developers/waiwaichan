@@ -11,6 +11,7 @@ import {
 } from "@/src/entities/constants/Items";
 import { CandyDto } from "@/src/entities/dto/CandyDto";
 import { UserCandyItemDto } from "@/src/entities/dto/UserCandyItemDto";
+import type { CandyAmount } from "@/src/entities/vo/CandyAmount";
 import { CandyCategoryType } from "@/src/entities/vo/CandyCategoryType";
 import { CandyCount } from "@/src/entities/vo/CandyCount";
 import { CandyCreatedAt } from "@/src/entities/vo/CandyCreatedAt";
@@ -226,60 +227,14 @@ export class CandyLogic implements ICandyLogic {
 			return ["以下のアイテムが交換できるよ！っ", ...texts].join("\n");
 		});
 	}
-	async giveCandy(
-		receiver: DiscordUserId,
-		giver: DiscordUserId,
-		messageId: DiscordMessageId,
-		messageLink: DiscordMessageLink,
-	): Promise<string | undefined> {
-		if (receiver.getValue() === giver.getValue()) {
-			return;
-		}
-		return this.mutex.useMutex("GiveCandy", async () =>
-			this.transaction.startTransaction(async () => {
-				const todayStartDatetime = new CandyCreatedAt(
-					dayjs().add(9, "h").startOf("day").subtract(9, "h").toDate(),
-				);
-				const todayNormalCandyCount = await this.candyRepository.countByPeriod(
-					giver,
-					CandyCategoryType.CATEGORY_TYPE_NORMAL,
-					todayStartDatetime,
-				);
-				// reaction limit
-				// todo reaction limit to constant
-				if (todayNormalCandyCount.getValue() > 2) {
-					return "今はスタンプを押してもキャンディをあげられないよ！っ";
-				}
 
-				const candies = await this.candyRepository.findByGiverAndMessageId(
-					giver,
-					messageId,
-					CandyCategoryType.CATEGORY_TYPE_NORMAL,
-				);
-				// duplicate reaction
-				if (candies.length > 0) {
-					return;
-				}
-				await this.candyRepository.createCandy(
-					new CandyDto(
-						receiver,
-						giver,
-						messageId,
-						CandyCategoryType.CATEGORY_TYPE_NORMAL,
-						new CandyExpire(
-							dayjs().add(1, "day").add(1, "month").startOf("day").toDate(),
-						),
-					),
-				);
-				return `<@${giver.getValue()}>さんが<@${receiver.getValue()}>さんに${AppConfig.backend.candyEmoji}スタンプを押したよ！！っ\nリンク先はこちら！っ: ${messageLink.getValue()}`;
-			}),
-		);
-	}
-	async giveSuperCandy(
+	async giveCandys(
 		receiver: DiscordUserId,
 		giver: DiscordUserId,
 		messageId: DiscordMessageId,
 		messageLink: DiscordMessageLink,
+		candyCategoryType: CandyCategoryType,
+		candyAmount: CandyAmount,
 	): Promise<string | undefined> {
 		if (receiver.getValue() === giver.getValue()) {
 			return;
@@ -291,7 +246,7 @@ export class CandyLogic implements ICandyLogic {
 				);
 				const monthCount = await this.candyRepository.countByPeriod(
 					giver,
-					CandyCategoryType.CATEGORY_TYPE_SUPER,
+					candyCategoryType,
 					monthStartDatetime,
 				);
 				// reaction limit
@@ -310,20 +265,20 @@ export class CandyLogic implements ICandyLogic {
 					return;
 				}
 				await this.candyRepository.bulkCreateCandy(
-					[...Array(SUPER_CANDY_COUNT)].map(
+					[...Array(candyAmount.getValue())].map(
 						() =>
 							new CandyDto(
 								receiver,
 								giver,
 								messageId,
-								CandyCategoryType.CATEGORY_TYPE_SUPER,
+								candyCategoryType,
 								new CandyExpire(
 									dayjs().add(1, "day").add(1, "month").startOf("day").toDate(),
 								),
 							),
 					),
 				);
-				return `<@${giver.getValue()}>さんが<@${receiver.getValue()}>さんに特別な${AppConfig.backend.candySuperEmoji}スタンプを押したよ！！っ\nリンク先はこちら！っ: ${messageLink.getValue()}`;
+				return `<@${giver.getValue()}>さんが<@${receiver.getValue()}>さんに${candyCategoryType.getValue() === CandyCategoryType.CATEGORY_TYPE_SUPER.getValue() ? "特別な" : ""}${AppConfig.backend.candySuperEmoji}スタンプを押したよ！！っ\nリンク先はこちら！っ: ${messageLink.getValue()}`;
 			}),
 		);
 	}
