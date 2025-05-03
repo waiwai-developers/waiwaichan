@@ -9,7 +9,6 @@ import type { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
 import type { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
 
 export interface ICandyRepository {
-	createCandy(data: CandyDto): Promise<boolean>;
 	bulkCreateCandy(data: CandyDto[]): Promise<boolean>;
 	candyCount(userId: DiscordUserId): Promise<CandyCount>;
 	candyExpire(userId: DiscordUserId): Promise<CandyExpire | undefined>;

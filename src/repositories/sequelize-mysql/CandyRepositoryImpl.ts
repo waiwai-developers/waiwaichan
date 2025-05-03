@@ -42,17 +42,6 @@ class CandyRepositoryImpl extends Model implements ICandyRepository {
 	@Column(DataType.DATE)
 	declare expiredAt: Date;
 
-	async createCandy(data: CandyDto): Promise<boolean> {
-		await CandyRepositoryImpl.create({
-			receiveUserId: data.receiveUserId.getValue(),
-			giveUserId: data.giveUserId.getValue(),
-			messageId: data.messageId.getValue(),
-			categoryType: data.categoryType.getValue(),
-			expiredAt: data.expiredAt.getValue(),
-		});
-		return true;
-	}
-
 	async bulkCreateCandy(data: CandyDto[]): Promise<boolean> {
 		await CandyRepositoryImpl.bulkCreate(
 			data.map((d) => ({
