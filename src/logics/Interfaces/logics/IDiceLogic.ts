@@ -1,6 +1,6 @@
-import { DiceExpression } from "@/src/entities/vo/DiceExpression";
-import { EmbedBuilder } from "discord.js";
+import type { DiceExpressionDto } from "@/src/entities/dto/DiceContextDto";
+import type { EmbedBuilder } from "discord.js";
 
 export interface IDiceLogic {
-    dice2(expr: DiceExpression): Promise<EmbedBuilder>;
+    dice2(expr: DiceExpressionDto): Promise<EmbedBuilder>;
 }
