@@ -19,9 +19,7 @@ export class CandyDrawCommandHandler implements SlashCommandHandler {
 		interaction: ChatInputCommandInteraction<CacheType>,
 	): Promise<void> {
 		await interaction.reply(
-			await this.candyLogic.drawItems(
-				new DiscordUserId(interaction.user.id),
-			),
+			await this.candyLogic.drawItems(new DiscordUserId(interaction.user.id)),
 		);
 	}
 }
