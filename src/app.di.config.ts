@@ -70,8 +70,7 @@ import { SlashCommandRouter } from "@/src/routes/discordjs/events/SlashCommandRo
 import type { Message } from "discord.js";
 import { Container } from "inversify";
 import type { Sequelize } from "sequelize";
-import { Dice2CommandHandler } from "./handlers/discord.js/commands/Dice2CommandHandler";
-import { IDiceLogic } from "./logics/Interfaces/logics/IDiceLogic";
+import type { IDiceLogic } from "./logics/Interfaces/logics/IDiceLogic";
 import { DiceLogic } from "./logics/DiceLogic";
 
 // for app
@@ -119,7 +118,6 @@ appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(Help
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(WaiwaiCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(ParrotCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(DiceCommandHandler);
-appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(Dice2CommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(ChoiceCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(TranslateCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(TalkCommandHandler);

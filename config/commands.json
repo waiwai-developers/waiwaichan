@@ -23,15 +23,9 @@
 				},
 				{
 					"name": "/dice",
-					"example": "/dice message: 10",
-					"parameter": "message: integer",
-					"description": "指定した数の目のサイコロを転がす"
-				},	
-				{
-					"name": "/dice2",
-					"example": "/dice2 source: 10",
+					"example": "/dice source: 1d6",
 					"parameter": "source: string, secret: boolean, details: boolean",
-					"description": "仮のダイスだよ"
+					"description": "指定された形式でサイコロを振る"
 				},
 				{
 					"name": "/choice",

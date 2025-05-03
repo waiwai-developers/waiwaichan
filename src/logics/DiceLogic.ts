@@ -5,7 +5,7 @@ import type { DiceContextDto } from "../entities/dto/DiceContextDto";
 
 @injectable()
 export class DiceLogic implements IDiceLogic {
-	async dice2(expr: DiceContextDto): Promise<EmbedBuilder> {
+	async dice(expr: DiceContextDto): Promise<EmbedBuilder> {
 		const result = new Interpreter().interpret(expr.source.getValue());
 		const source = expr.source.getValue();
 		const user = expr.user;
