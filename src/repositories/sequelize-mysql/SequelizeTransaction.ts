@@ -1,8 +1,9 @@
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import type { IDataBaseConnector } from "@/src/logics/Interfaces/repositories/database/IDataBaseConnector";
+import type { ITransaction } from "@/src/logics/Interfaces/repositories/database/ITransaction";
 import { createNamespace } from "cls-hooked";
 import { inject, injectable } from "inversify";
-import { Sequelize, type Transaction } from "sequelize";
+import { Sequelize } from "sequelize";
 
 @injectable()
 export class SequelizeTransaction implements ITransaction {

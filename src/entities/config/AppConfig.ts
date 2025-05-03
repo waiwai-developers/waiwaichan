@@ -37,6 +37,7 @@ interface AppConfigJson {
 	backend: {
 		candyEmoji: string;
 		candyLogChannel: string;
+		candyBoxAmount: number;
 	};
 }
 
