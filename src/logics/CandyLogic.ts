@@ -99,7 +99,7 @@ export class CandyLogic implements ICandyLogic {
 
 	async drawItems(
 		userId: DiscordUserId,
-		candyConsumeAmount: CandyCount = new CandyCount(1)
+		candyConsumeAmount: CandyCount = new CandyCount(1),
 	): Promise<string> {
 		return await this.transaction
 			.startTransaction(async () => {
