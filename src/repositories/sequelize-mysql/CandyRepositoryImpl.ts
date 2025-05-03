@@ -1,4 +1,3 @@
-import { AppConfig } from "@/src/entities/config/AppConfig";
 import { CandyDto } from "@/src/entities/dto/CandyDto";
 import { CandyCategoryType } from "@/src/entities/vo/CandyCategoryType";
 import { CandyCount } from "@/src/entities/vo/CandyCount";
