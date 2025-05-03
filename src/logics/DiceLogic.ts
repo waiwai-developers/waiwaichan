@@ -79,14 +79,14 @@ type CompareOp = "!=" | "=" | ">=" | "<=" | ">" | "<";
 type LogicalOp = "and" | "or";
 
 type Expr =
-	| { type: "Integer"; value: number; span: Span }
-	| ({ type: "StandardRoll"; threshold?: Expr } & BinaryOp)
-	| ({ type: "SpreadRoll" } & BinaryOp)
-	| ({ type: "Keep"; op: KeepOp } & BinaryOp)
-	| { type: "Access"; expr: Expr; index: Expr; span: Span }
-	| ({ type: "Arithmetic"; op: ArithmeticOp } & BinaryOp)
-	| ({ type: "Compare"; op: CompareOp } & BinaryOp)
-	| ({ type: "Logical"; op: LogicalOp } & BinaryOp);
+	| { type: "Integer"; value: number; span: Span } // 定数
+	| ({ type: "StandardRoll"; threshold?: Expr } & BinaryOp) // 通常ダイス
+	| ({ type: "SpreadRoll" } & BinaryOp) // ダイスの一覧
+	| ({ type: "Keep"; op: KeepOp } & BinaryOp) // 配列からn個取り出す
+	| { type: "Access"; expr: Expr; index: Expr; span: Span } // 配列アクセス
+	| ({ type: "Arithmetic"; op: ArithmeticOp } & BinaryOp) // 算術演算
+	| ({ type: "Compare"; op: CompareOp } & BinaryOp) // 比較演算
+	| ({ type: "Logical"; op: LogicalOp } & BinaryOp); // 論理演算
 
 // ==== Value =========================
 type Value = number | number[] | boolean;
@@ -115,7 +115,7 @@ type DiceError = {
 	expected: string;
 	found: string;
 	errorPointer: string;
-	fatal?: boolean;
+	fatal?: boolean; // 回復不能なエラーか
 };
 
 type ParseResult<T> =
@@ -128,6 +128,7 @@ type InterpretOk = {
 	span: Span;
 	formatedData: string;
 };
+
 type InterpretResult = InterpretOk | { ok: false; error: DiceError };
 
 type ExecuteResult =
@@ -181,11 +182,19 @@ function extractLine(text: string, line: number): string {
 }
 
 // ==== Mynom =========================
+/** rust::nomを参考にしたパーサ */
 
 type Parser<T> = (input: LocatedInput) => ParseResult<T>;
 
+// alt関数のエラー文の区切り文字
 const ALT_TEXT = " または ";
 
+/**
+ * 入力位置情報を更新する
+ * @param input
+ * @param consumed
+ * @returns remaining
+ */
 function updatePos(input: LocatedInput, consumed: string): LocatedInput {
 	if (!consumed) return input;
 
@@ -201,7 +210,6 @@ function updatePos(input: LocatedInput, consumed: string): LocatedInput {
 		}
 	}
 	input.span.length = consumed.length;
-	// Return remaining.
 	return {
 		text: input.text.slice(consumed.length),
 		span: {
@@ -212,6 +220,10 @@ function updatePos(input: LocatedInput, consumed: string): LocatedInput {
 	};
 }
 
+/**
+ * 空白文字(スペース・タブ・改行)を認識する
+ * 空白が無くても成功するオプショナルパーサ
+ */
 function whitespace(): Parser<string> {
 	return (input) => {
 		const whitespace = input.text.match(/^[\s\n]+/);
@@ -223,7 +235,6 @@ function whitespace(): Parser<string> {
 				remaining: updatePos(input, matched),
 			};
 		}
-		// 空白が無くても成功するオプショナルパーサ
 		return {
 			ok: true,
 			value: "",
@@ -232,6 +243,7 @@ function whitespace(): Parser<string> {
 	};
 }
 
+/** 整数リテラルを認識する */
 const integer: Parser<number> = (input) => {
 	const match = input.text.match(/^\d+/);
 	if (!match)
@@ -246,11 +258,13 @@ const integer: Parser<number> = (input) => {
 	};
 };
 
+/** 特定の文字列を認識する */
 function tag(token: string): Parser<string> {
 	return (input) => {
 		if (input.text.startsWith(token)) {
 			return { ok: true, value: token, remaining: updatePos(input, token) };
 		}
+		// "("の場合はエラー文を分かりやすくする
 		const expected = token === "(" ? "括弧付き式{例: (1d6 + 3)}" : `'${token}'`;
 		return {
 			ok: false,
@@ -259,7 +273,7 @@ function tag(token: string): Parser<string> {
 	};
 }
 
-// 一旦これで
+/** パーサのリストを１つずつテストし成功するまで繰り返す */
 function alt<T>(...parsers: Parser<T>[]): Parser<T> {
 	return (input) => {
 		const errors: string[] = [];
@@ -278,6 +292,7 @@ function alt<T>(...parsers: Parser<T>[]): Parser<T> {
 	};
 }
 
+/** パーサを前後のパーサで囲み、中央のパーサの結果を取得する */
 function delimited<F, G, H>(
 	prefixParser: Parser<F>,
 	parser: Parser<G>,
@@ -303,14 +318,7 @@ function delimited<F, G, H>(
 	};
 }
 
-function spaceDelimited<T>(parser: Parser<T>): Parser<T> {
-	return (input) => {
-		const result = delimited(whitespace(), parser, whitespace())(input);
-		if (!result.ok) return result;
-		return result;
-	};
-}
-
+/** ２つのパーサを順に適用し、それぞれの結果を配列で返す */
 function pair<F, G>(first: Parser<F>, second: Parser<G>): Parser<[F, G]> {
 	return (input) => {
 		const firstResult = first(input);
@@ -333,6 +341,7 @@ function pair<F, G>(first: Parser<F>, second: Parser<G>): Parser<[F, G]> {
 	};
 }
 
+/** 0回以上の繰り返しに対応したfold処理 */
 function foldMany0<F, H>(
 	parser: Parser<F>,
 	init: H,
@@ -358,6 +367,7 @@ function foldMany0<F, H>(
 	};
 }
 
+/** 1回だけ認識を試みるfold */
 function foldOnce<F, H>(
 	parser: Parser<F>,
 	init: H,
@@ -380,6 +390,7 @@ function foldOnce<F, H>(
 	};
 }
 
+/** エラー発生時のexpectedの情報を付与する */
 function withErrorContext<T>(parser: Parser<T>, context: string): Parser<T> {
 	return (input) => {
 		const result = parser(input);
@@ -396,6 +407,7 @@ function withErrorContext<T>(parser: Parser<T>, context: string): Parser<T> {
 	};
 }
 
+/** 失敗した結果に回復不能を付与する */
 function cut<T, E extends DiceError>(result: {
 	ok: false;
 	error: E;
@@ -405,6 +417,15 @@ function cut<T, E extends DiceError>(result: {
 }
 
 // ==== Parser ========================
+function spaceDelimited<T>(parser: Parser<T>): Parser<T> {
+	return (input) => {
+		const result = delimited(whitespace(), parser, whitespace())(input);
+		if (!result.ok) return result;
+		return result;
+	};
+}
+
+/** 二項演算子 */
 function binary(
 	operandParser: Parser<Expr>,
 	opParser: Parser<string>,
@@ -643,12 +664,14 @@ const parseProgram: Parser<Expr> = (input) => {
 
 // ==== Interpreter ===================
 class Interpreter {
+	// 評価の履歴
 	private history: InterpretOk[];
 
 	constructor() {
 		this.history = [];
 	}
 
+	// 与えられたソースコードを解析して結果を返す
 	public interpret(source: string): ExecuteResult {
 		const expr = parseProgram(locatedInput(source));
 		if (!expr.ok) {
@@ -957,10 +980,12 @@ class Interpreter {
 	}
 }
 
+/** ダイスのランダム値生成(1～limit) */
 function random(limit: number): number {
 	return limit === 0 ? 0 : Math.floor(Math.random() * limit) + 1;
 }
 
+/** 評価結果が自然数か検証する */
 function validateNaturalNumber(result: InterpretResult): InterpretResult {
 	if (!result.ok) return result;
 	if (!isNaturalNumber(result.value)) {
@@ -972,6 +997,7 @@ function validateNaturalNumber(result: InterpretResult): InterpretResult {
 	return result;
 }
 
+/** 評価結果がリストか検証する */
 function validateArray(result: InterpretResult): InterpretResult {
 	if (!result.ok) return result;
 	if (!isArray(result.value)) {
