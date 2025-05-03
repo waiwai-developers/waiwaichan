@@ -136,10 +136,9 @@ type ExecuteResult =
 	| { ok: false; error: string };
 
 function createParseError(input: LocatedInput, expected: string): DiceError {
-	const pointerLine = `${
-		" ".repeat(input.span.column - 1) +
+	const pointerLine = `${" ".repeat(input.span.column - 1) +
 		"^".repeat(Math.max(1, input.span.length))
-	}🤔`;
+		}🤔`;
 	return {
 		span: input.span,
 		expected,
@@ -417,6 +416,7 @@ function cut<T, E extends DiceError>(result: {
 }
 
 // ==== Parser ========================
+
 function spaceDelimited<T>(parser: Parser<T>): Parser<T> {
 	return (input) => {
 		const result = delimited(whitespace(), parser, whitespace())(input);
@@ -483,7 +483,7 @@ const integerExpr: Parser<Expr> = (input) => {
 const paren: Parser<Expr> = (input) => {
 	const exprResult = delimited(
 		spaceDelimited(tag("(")),
-		spaceDelimited(expr),
+		expr,
 		spaceDelimited(tag(")")),
 	)(input);
 	if (!exprResult.ok) return exprResult;
@@ -501,7 +501,7 @@ const standardRoll: Parser<Expr> = (input) => {
 	return foldMany0<{ dice: [string, Expr]; crit?: [string, Expr] }, Expr>(
 		(input): ParseResult<{ dice: [string, Expr]; crit?: [string, Expr] }> => {
 			const diceResult = pair(
-				spaceDelimited(alt(tag("d"), tag("D"))),
+				alt(tag("d"), tag("D")),
 				withErrorContext(primary, "ダイスの面"),
 			)(input);
 			if (!diceResult.ok) return diceResult;
@@ -510,7 +510,7 @@ const standardRoll: Parser<Expr> = (input) => {
 			// クリティカルがある？
 			let crit: [string, Expr] | undefined = undefined;
 			const critResult = pair(
-				spaceDelimited(alt(tag("critical"), tag("crit"), tag("c"), tag("C"))),
+				alt(tag("critical"), tag("crit"), tag("c"), tag("C")),
 				withErrorContext(
 					alt(standardRoll, primary),
 					"クリティカル、ファンブルの閾値(数値)",
@@ -549,30 +549,12 @@ const standardRoll: Parser<Expr> = (input) => {
 	)(r0.remaining);
 };
 
-const spreadRoll: Parser<Expr> = (input) => {
-	const countResult = standardRoll(input);
-	if (!countResult.ok) return countResult;
-	return foldOnce(
-		pair(
-			spaceDelimited(alt(tag("b"), tag("B"))),
-			withErrorContext(standardRoll, "ダイスの面(数値)"),
-		),
-		countResult.value,
-		(acc, [tag, val]) => {
-			const span = {
-				line: acc.span.line,
-				column: acc.span.column,
-				length: acc.span.length + val.span.length + tag.length,
-			};
-			return {
-				type: "SpreadRoll",
-				lhs: acc,
-				rhs: val,
-				span,
-			} as Expr;
-		},
-	)(countResult.remaining);
-};
+const spreadRoll: Parser<Expr> = binary(
+	standardRoll,
+	alt(tag("b"), tag("B")),
+	"SpreadRoll",
+	"ダイスの面(数値)"
+);
 
 const keep: Parser<Expr> = binary(
 	spreadRoll,
@@ -587,7 +569,7 @@ const access: Parser<Expr> = (input) => {
 	return foldOnce(
 		delimited(
 			spaceDelimited(tag("[")),
-			withErrorContext(spaceDelimited(expr), "インデックス(数値)"),
+			withErrorContext(expr, "インデックス(数値)"),
 			spaceDelimited(tag("]")),
 		),
 		exprResult.value,
@@ -597,11 +579,12 @@ const access: Parser<Expr> = (input) => {
 				column: acc.span.column,
 				length: acc.span.length + index.span.length,
 			};
+			index.span.column = acc.span.column + acc.span.length + 1;
 			return {
 				ok: true,
 				type: "Access",
 				expr: acc,
-				index: index,
+				index,
 				span,
 			} as Expr;
 		},
@@ -725,7 +708,7 @@ class Interpreter {
 						(value as number) <= (threshold.value as number)
 							? "🎯"
 							: (value as number) >=
-									(sides.value as number) - (threshold.value as number)
+								(sides.value as number) - (threshold.value as number)
 								? "💀"
 								: "";
 				}
