@@ -21,7 +21,6 @@ export class CandyDrawCommandHandler implements SlashCommandHandler {
 		await interaction.reply(
 			await this.candyLogic.drawItems(
 				new DiscordUserId(interaction.user.id),
-				new CandyCount(1),
 			),
 		);
 	}

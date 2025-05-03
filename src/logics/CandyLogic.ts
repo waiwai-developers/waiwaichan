@@ -10,7 +10,7 @@ import {
 } from "@/src/entities/constants/Items";
 import { CandyDto } from "@/src/entities/dto/CandyDto";
 import { UserCandyItemDto } from "@/src/entities/dto/UserCandyItemDto";
-import type { CandyCount } from "@/src/entities/vo/CandyCount";
+import { CandyCount } from "@/src/entities/vo/CandyCount";
 import { CandyExpire } from "@/src/entities/vo/CandyExpire";
 import { CandyId } from "@/src/entities/vo/CandyId";
 import { CandyItemId } from "@/src/entities/vo/CandyItemId";
@@ -99,7 +99,7 @@ export class CandyLogic implements ICandyLogic {
 
 	async drawItems(
 		userId: DiscordUserId,
-		candyConsumeAmount: CandyCount,
+		candyConsumeAmount: CandyCount = new CandyCount(1)
 	): Promise<string> {
 		return await this.transaction
 			.startTransaction(async () => {
@@ -229,17 +229,17 @@ export class CandyLogic implements ICandyLogic {
 		messageId: DiscordMessageId,
 		messageLink: DiscordMessageLink,
 	): Promise<string | undefined> {
-		if (receiver.getValue() === giver.getValue()) {
-			return;
-		}
+		// if (receiver.getValue() === giver.getValue()) {
+		// 	return;
+		// }
 		return this.mutex.useMutex("GiveCandy", async () =>
 			this.transaction.startTransaction(async () => {
 				const todayCount = await this.candyRepository.countByToday(giver);
 				// reaction limit
 				// todo reaction limit to constant
-				if (todayCount.getValue() > 2) {
-					return "今はスタンプを押してもキャンディをあげられないよ！っ";
-				}
+				// if (todayCount.getValue() > 2) {
+				// 	return "今はスタンプを押してもキャンディをあげられないよ！っ";
+				// }
 
 				const Candies = await this.candyRepository.findByGiverAndMessageId(
 					giver,
