@@ -142,6 +142,24 @@ export class DiscordCommandRegister {
 			new SlashCommandBuilder()
 				.setName("minecraftstop")
 				.setDescription("minecraftstop"),
+			new SlashCommandBuilder()
+				.setName("stickycreate")
+				.setDescription("sticky create")
+				.addStringOption((option) =>
+					option
+						.setName("channelid")
+						.setDescription("string")
+						.setRequired(true),
+				),
+			new SlashCommandBuilder()
+				.setName("stickydelete")
+				.setDescription("sticky delete")
+				.addStringOption((option) =>
+					option
+						.setName("channelid")
+						.setDescription("string")
+						.setRequired(true),
+				),
 		];
 	}
 	async register(token: string) {
