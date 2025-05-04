@@ -270,6 +270,9 @@ export class CandyLogic implements ICandyLogic {
 					CandyCategoryType.CATEGORY_TYPE_SUPER.getValue()
 						? SUPER_CANDY_AMOUNT
 						: NORMAL_CANDY_AMOUNT;
+				const candyExpire = new CandyExpire(
+					dayjs().add(1, "day").add(1, "month").startOf("day").toDate(),
+				);
 				await this.candyRepository.bulkCreateCandy(
 					[...Array(candyAmount)].map(
 						() =>
@@ -278,9 +281,7 @@ export class CandyLogic implements ICandyLogic {
 								giver,
 								messageId,
 								candyCategoryType,
-								new CandyExpire(
-									dayjs().add(1, "day").add(1, "month").startOf("day").toDate(),
-								),
+								candyExpire,
 							),
 					),
 				);
