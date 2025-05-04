@@ -1,14 +1,17 @@
-import { EmbedBuilder } from "discord.js";
+import { EmbedBuilder, type ImageURLOptions } from "discord.js";
 import { injectable } from "inversify";
 import type { IDiceLogic } from "./Interfaces/logics/IDiceLogic";
 import type { DiceContextDto } from "../entities/dto/DiceContextDto";
 
 @injectable()
 export class DiceLogic implements IDiceLogic {
-	async dice(expr: DiceContextDto): Promise<EmbedBuilder> {
-		const result = new Interpreter().interpret(expr.source.getValue());
-		const source = expr.source.getValue();
-		const user = expr.user;
+	async dice(
+		ctx: DiceContextDto,
+		avatarURL: (options?: ImageURLOptions) => string | null,
+		send: (embed: EmbedBuilder) => Promise<void>,
+	): Promise<EmbedBuilder> {
+		const result = new Interpreter().interpret(ctx.source.getValue());
+		const source = ctx.source.getValue();
 
 		let embed: EmbedBuilder;
 		if (result.ok) {
@@ -19,12 +22,12 @@ export class DiceLogic implements IDiceLogic {
 			embed = new EmbedBuilder()
 				.setColor(0x2ecc71)
 				.setAuthor({
-					name: user.displayName,
-					iconURL: user.avatarURL() ?? user.defaultAvatarURL,
+					name: ctx.userDisplayName.getValue(),
+					iconURL: avatarURL() ?? ctx.userDefaultAvatarURL.getValue(),
 				})
 				.setTitle(source)
 				.setDescription(
-					expr.showDetails.getValue()
+					ctx.showDetails.getValue()
 						? filteredHistory.join("\n")
 						: lastOrValue(filteredHistory),
 				);
@@ -32,14 +35,14 @@ export class DiceLogic implements IDiceLogic {
 			embed = new EmbedBuilder()
 				.setColor(0xe74c3c)
 				.setAuthor({
-					name: user.displayName,
-					iconURL: user.avatarURL() ?? user.defaultAvatarURL,
+					name: ctx.userDisplayName.getValue(),
+					iconURL: avatarURL() ?? ctx.userDefaultAvatarURL.getValue(),
 				})
 				.setTitle(`エラー: ${source}`)
 				.setDescription(result.error);
 		}
-		if (expr.isSecret.getValue()) {
-			await user.send({ embeds: [embed] });
+		if (ctx.isSecret.getValue()) {
+			await send(embed);
 			embed = new EmbedBuilder()
 				.setColor(0x2ecc71)
 				.setTitle("🎲シークレットダイス🎲");

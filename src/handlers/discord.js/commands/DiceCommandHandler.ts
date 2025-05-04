@@ -7,6 +7,8 @@ import { DiceSource } from "@/src/entities/vo/DiceSource";
 import { DiceIsSecret } from "@/src/entities/vo/DiceIsSecret";
 import { DiceShowDetails } from "@/src/entities/vo/DiceShowDetails";
 import { DiceContextDto } from "@/src/entities/dto/DiceContextDto";
+import { DiscordUserDisplayName } from "@/src/entities/vo/DiscordUserDisplayName";
+import { DiscordUserDefaultAvatarURL } from "@/src/entities/vo/DiscordUserDefaultAvatarURL";
 
 @injectable()
 export class DiceCommandHandler implements SlashCommandHandler {
@@ -31,10 +33,13 @@ export class DiceCommandHandler implements SlashCommandHandler {
 						new DiceShowDetails(
 							!!interaction.options?.getBoolean("details", false),
 						),
-						interaction.user,
+						new DiscordUserDisplayName(interaction.user.displayName),
+						new DiscordUserDefaultAvatarURL(interaction.user.defaultAvatarURL),
 					),
-				),
-			],
+					(options?) => { return interaction.user.avatarURL(options); },
+					async (embed) => { interaction.user.send({ embeds: [embed] }); }
+				)
+			]
 		});
 	}
 }
