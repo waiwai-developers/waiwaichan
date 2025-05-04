@@ -1,4 +1,6 @@
 import { AppConfig } from "@/src/entities/config/AppConfig";
+import { SUPER_CANDY_AMOUNT } from "@/src/entities/constants/Candies";
+import { NORMAL_CANDY_AMOUNT } from "@/src/entities/constants/Candies";
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import {
 	ID_HIT,
@@ -10,7 +12,7 @@ import {
 } from "@/src/entities/constants/Items";
 import { CandyDto } from "@/src/entities/dto/CandyDto";
 import { UserCandyItemDto } from "@/src/entities/dto/UserCandyItemDto";
-import type { CandyAmount } from "@/src/entities/vo/CandyAmount";
+import { CandyAmount } from "@/src/entities/vo/CandyAmount";
 import { CandyCategoryType } from "@/src/entities/vo/CandyCategoryType";
 import { CandyCount } from "@/src/entities/vo/CandyCount";
 import { CandyCreatedAt } from "@/src/entities/vo/CandyCreatedAt";
@@ -233,7 +235,6 @@ export class CandyLogic implements ICandyLogic {
 		messageId: DiscordMessageId,
 		messageLink: DiscordMessageLink,
 		candyCategoryType: CandyCategoryType,
-		candyAmount: CandyAmount,
 	): Promise<string | undefined> {
 		if (receiver.getValue() === giver.getValue()) {
 			return;
@@ -263,8 +264,14 @@ export class CandyLogic implements ICandyLogic {
 				if (candies.length > 0) {
 					return;
 				}
+
+				const candyAmount =
+					candyCategoryType.getValue() ===
+					CandyCategoryType.CATEGORY_TYPE_SUPER.getValue()
+						? SUPER_CANDY_AMOUNT
+						: NORMAL_CANDY_AMOUNT;
 				await this.candyRepository.bulkCreateCandy(
-					[...Array(candyAmount.getValue())].map(
+					[...Array(candyAmount)].map(
 						() =>
 							new CandyDto(
 								receiver,

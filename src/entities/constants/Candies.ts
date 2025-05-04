@@ -1,2 +1,2 @@
-export const NORMAL_CANDY_COUNT = 1;
-export const SUPER_CANDY_COUNT = 3;
+export const NORMAL_CANDY_AMOUNT = 1;
+export const SUPER_CANDY_AMOUNT = 3;

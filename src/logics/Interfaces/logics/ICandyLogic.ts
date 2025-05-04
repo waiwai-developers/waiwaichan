@@ -22,6 +22,5 @@ export interface ICandyLogic {
 		messageId: DiscordMessageId,
 		messageLink: DiscordMessageLink,
 		candyCategoryType: CandyCategoryType,
-		CandyAmount: CandyAmount,
 	): Promise<string | undefined>;
 }

@@ -1,11 +1,8 @@
 import { AppConfig } from "@/src/entities/config/AppConfig";
-import { SUPER_CANDY_COUNT } from "@/src/entities/constants/Candies";
-import { NORMAL_CANDY_COUNT } from "@/src/entities/constants/Candies";
 import {
 	LogicTypes,
 	RepoTypes,
 } from "@/src/entities/constants/DIContainerTypes";
-import { CandyAmount } from "@/src/entities/vo/CandyAmount";
 import { CandyCategoryType } from "@/src/entities/vo/CandyCategoryType";
 import { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
 import { DiscordMessageLink } from "@/src/entities/vo/DiscordMessageLink";
@@ -73,9 +70,6 @@ export class CandyReactionHandler
 					isCandySuperEmoji
 						? CandyCategoryType.CATEGORY_TYPE_SUPER.getValue()
 						: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
-				),
-				new CandyAmount(
-					isCandySuperEmoji ? SUPER_CANDY_COUNT : NORMAL_CANDY_COUNT,
 				),
 			);
 		} else {
