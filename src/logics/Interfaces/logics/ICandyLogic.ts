@@ -1,3 +1,5 @@
+import type { CandyAmount } from "@/src/entities/vo/CandyAmount";
+import type { CandyCategoryType } from "@/src/entities/vo/CandyCategoryType";
 import type { CandyCount } from "@/src/entities/vo/CandyCount";
 import type { CandyItemId } from "@/src/entities/vo/CandyItemId";
 import type { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
@@ -14,10 +16,11 @@ export interface ICandyLogic {
 	): Promise<string>;
 	drawItems(userId: DiscordUserId, candyCount?: CandyCount): Promise<string>;
 	getItems(userId: DiscordUserId): Promise<string>;
-	giveCandy(
+	giveCandys(
 		receiver: DiscordUserId,
 		giver: DiscordUserId,
 		messageId: DiscordMessageId,
 		messageLink: DiscordMessageLink,
+		candyCategoryType: CandyCategoryType,
 	): Promise<string | undefined>;
 }
