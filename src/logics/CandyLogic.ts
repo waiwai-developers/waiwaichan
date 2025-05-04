@@ -305,6 +305,8 @@ export class CandyLogic implements ICandyLogic {
 								countBylimit: undefined,
 								candyExpire: undefined,
 								candyAmount: undefined,
+								prefixText: undefined,
+								candyEmoji: undefined,
 							};
 					}
 				})(candyCategoryType);
@@ -312,7 +314,9 @@ export class CandyLogic implements ICandyLogic {
 					startDatetime == null ||
 					countBylimit == null ||
 					candyExpire == null ||
-					candyAmount == null
+					candyAmount == null ||
+					prefixText == null ||
+					candyEmoji == null
 				) {
 					return;
 				}
