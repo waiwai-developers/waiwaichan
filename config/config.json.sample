@@ -26,6 +26,7 @@
 	},
 	"backend": {
 		"candyEmoji": "",
+		"candySuperEmoji": "",
 		"candyLogChannel": "",
 		"candyBoxAmount": ""
 	}

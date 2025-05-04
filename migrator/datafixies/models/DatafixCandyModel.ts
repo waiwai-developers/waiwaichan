@@ -21,6 +21,8 @@ class DatafixCandyModel extends Model {
 	declare giveUserId: number;
 	@Column(DataType.STRING)
 	declare messageId: string;
+	@Column(DataType.INTEGER)
+	declare categoryType: number;
 	@Column(DataType.DATE)
 	declare expiredAt: Date;
 	@Column(DataType.DATE)
