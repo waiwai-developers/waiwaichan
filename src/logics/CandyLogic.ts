@@ -239,9 +239,9 @@ export class CandyLogic implements ICandyLogic {
 		messageLink: DiscordMessageLink,
 		candyCategoryType: CandyCategoryType,
 	): Promise<string | undefined> {
-		// if (receiver.getValue() === giver.getValue()) {
-		// 	return;
-		// }
+		if (receiver.getValue() === giver.getValue()) {
+			return;
+		}
 		return this.mutex.useMutex("GiveCandy", async () =>
 			this.transaction.startTransaction(async () => {
 				const { startDatetime, countBylimit, candyExpire, candyAmount } = ((
