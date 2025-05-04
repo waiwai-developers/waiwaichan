@@ -265,11 +265,17 @@ export class CandyLogic implements ICandyLogic {
 					return;
 				}
 
-				const candyAmount =
-					candyCategoryType.getValue() ===
-					CandyCategoryType.CATEGORY_TYPE_SUPER.getValue()
-						? SUPER_CANDY_AMOUNT
-						: NORMAL_CANDY_AMOUNT;
+				const candyAmount = ((ct: CandyCategoryType) => {
+					switch (ct.getValue()) {
+						case CandyCategoryType.CATEGORY_TYPE_SUPER.getValue():
+							return SUPER_CANDY_AMOUNT
+						case CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue():
+							return NORMAL_CANDY_AMOUNT
+						default:
+							return 0
+					  }
+				  })(candyCategoryType);
+
 				const candyExpire = new CandyExpire(
 					dayjs().add(1, "day").add(1, "month").startOf("day").toDate(),
 				);
