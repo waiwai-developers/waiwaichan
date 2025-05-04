@@ -1,6 +1,10 @@
 import { AppConfig } from "@/src/entities/config/AppConfig";
-import { SUPER_CANDY_AMOUNT } from "@/src/entities/constants/Candies";
-import { NORMAL_CANDY_AMOUNT } from "@/src/entities/constants/Candies";
+import {
+	NORMAL_CANDY_AMOUNT,
+	NORMAL_CANDY_LIMIT,
+	SUPER_CANDY_AMOUNT,
+	SUPER_CANDY_LIMIT,
+} from "@/src/entities/constants/Candies";
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import {
 	ID_HIT,
@@ -12,7 +16,6 @@ import {
 } from "@/src/entities/constants/Items";
 import { CandyDto } from "@/src/entities/dto/CandyDto";
 import { UserCandyItemDto } from "@/src/entities/dto/UserCandyItemDto";
-import { CandyAmount } from "@/src/entities/vo/CandyAmount";
 import { CandyCategoryType } from "@/src/entities/vo/CandyCategoryType";
 import { CandyCount } from "@/src/entities/vo/CandyCount";
 import { CandyCreatedAt } from "@/src/entities/vo/CandyCreatedAt";
@@ -241,17 +244,79 @@ export class CandyLogic implements ICandyLogic {
 		}
 		return this.mutex.useMutex("GiveCandy", async () =>
 			this.transaction.startTransaction(async () => {
-				const monthStartDatetime = new CandyCreatedAt(
-					dayjs().add(9, "h").startOf("month").subtract(9, "h").toDate(),
-				);
-				const monthCount = await this.candyRepository.countByPeriod(
+				const { startDatetime, countBylimit, candyExpire, candyAmount } = ((
+					ct: CandyCategoryType,
+				) => {
+					switch (ct.getValue()) {
+						case CandyCategoryType.CATEGORY_TYPE_SUPER.getValue():
+							return {
+								startDatetime: new CandyCreatedAt(
+									//super candyの場合は過去一ヶ月の付与を調べる
+									dayjs()
+										.add(9, "h")
+										.startOf("month")
+										.subtract(9, "h")
+										.toDate(),
+								),
+								countBylimit: SUPER_CANDY_LIMIT,
+								candyExpire: new CandyExpire(
+									//super candyもcandyも共通で有効期限は一ヶ月
+									dayjs()
+										.add(1, "day")
+										.add(1, "month")
+										.startOf("day")
+										.toDate(),
+								),
+								candyAmount: SUPER_CANDY_AMOUNT,
+							};
+						case CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue():
+							return {
+								startDatetime: new CandyCreatedAt(
+									//candyの場合は過去一日の付与を調べる
+									dayjs()
+										.add(9, "h")
+										.startOf("day")
+										.subtract(9, "h")
+										.toDate(),
+								),
+								countBylimit: NORMAL_CANDY_LIMIT,
+								candyExpire: new CandyExpire(
+									//super candyもcandyも共通で有効期限は一ヶ月
+									dayjs()
+										.add(1, "day")
+										.add(1, "month")
+										.startOf("day")
+										.toDate(),
+								),
+								candyAmount: NORMAL_CANDY_AMOUNT,
+							};
+						default:
+							return {
+								startDatetime: undefined,
+								countBylimit: undefined,
+								candyExpire: undefined,
+								candyAmount: undefined,
+							};
+					}
+				})(candyCategoryType);
+				if (
+					startDatetime == null ||
+					countBylimit == null ||
+					candyExpire == null ||
+					candyAmount == null
+				) {
+					return;
+				}
+
+				const countByPeriod = await this.candyRepository.countByPeriod(
 					giver,
 					candyCategoryType,
-					monthStartDatetime,
+					startDatetime,
 				);
+
 				// reaction limit
 				// todo reaction limit to constant
-				if (monthCount.getValue() > 0) {
+				if (countByPeriod.getValue() >= countBylimit) {
 					return "今はスタンプを押してもキャンディをあげられないよ！っ";
 				}
 
@@ -265,20 +330,6 @@ export class CandyLogic implements ICandyLogic {
 					return;
 				}
 
-				const candyAmount = ((ct: CandyCategoryType) => {
-					switch (ct.getValue()) {
-						case CandyCategoryType.CATEGORY_TYPE_SUPER.getValue():
-							return SUPER_CANDY_AMOUNT
-						case CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue():
-							return NORMAL_CANDY_AMOUNT
-						default:
-							return 0
-					  }
-				  })(candyCategoryType);
-
-				const candyExpire = new CandyExpire(
-					dayjs().add(1, "day").add(1, "month").startOf("day").toDate(),
-				);
 				await this.candyRepository.bulkCreateCandy(
 					[...Array(candyAmount)].map(
 						() =>
