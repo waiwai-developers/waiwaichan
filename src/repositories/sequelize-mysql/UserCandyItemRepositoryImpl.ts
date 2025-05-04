@@ -1,5 +1,7 @@
+import { ID_JACKPOT } from "@/src/entities/constants/Items";
 import { UserCandyItemDto } from "@/src/entities/dto/UserCandyItemDto";
 import { UserCandyItemWithItemGroupByDto } from "@/src/entities/dto/UserCandyItemWithItemGroupByDto";
+import { CandyId } from "@/src/entities/vo/CandyId";
 import { CandyItemDescription } from "@/src/entities/vo/CandyItemDescription";
 import { CandyItemId } from "@/src/entities/vo/CandyItemId";
 import { CandyItemName } from "@/src/entities/vo/CandyItemName";
@@ -44,6 +46,8 @@ class UserCandyItemRepositoryImpl
 	@Column(DataType.STRING)
 	@ForeignKey(() => CandyItemRepositoryImpl)
 	declare itemId: number;
+	@Column(DataType.INTEGER)
+	declare candyId: number;
 	@Column(DataType.DATE)
 	declare expiredAt: Date;
 	@Column(DataType.INTEGER)
@@ -56,12 +60,15 @@ class UserCandyItemRepositoryImpl
 	@BelongsTo(() => CandyItemRepositoryImpl)
 	declare item: CandyItemRepositoryImpl;
 
-	async create(data: UserCandyItemDto): Promise<UserCandyItemId> {
-		return UserCandyItemRepositoryImpl.create({
-			userId: data.userId.getValue(),
-			itemId: data.itemId.getValue(),
-			expiredAt: data.expiredAt.getValue(),
-		}).then((res) => new UserCandyItemId(res.id));
+	async bulkCreate(data: UserCandyItemDto[]): Promise<UserCandyItemId[]> {
+		return UserCandyItemRepositoryImpl.bulkCreate(
+			data.map((u) => ({
+				userId: u.userId.getValue(),
+				itemId: u.itemId.getValue(),
+				candyId: u.candyId.getValue(),
+				expiredAt: u.expiredAt.getValue(),
+			})),
+		).then((res) => res.map((r) => new UserCandyItemId(r.id)));
 	}
 
 	async findByNotUsed(
@@ -94,6 +101,19 @@ class UserCandyItemRepositoryImpl
 				);
 			}),
 		);
+	}
+
+	async lastJackpodCandyId(
+		userId: DiscordUserId,
+	): Promise<CandyId | undefined> {
+		return UserCandyItemRepositoryImpl.findOne({
+			attributes: ["candyId"],
+			where: {
+				itemId: ID_JACKPOT,
+				userId: userId.getValue(),
+			},
+			order: [["createdAt", "DESC"]],
+		}).then((i) => (i ? new CandyId(i.candyId) : undefined));
 	}
 
 	/**
@@ -135,12 +155,14 @@ class UserCandyItemRepositoryImpl
 		id,
 		userId,
 		itemId,
+		candyId,
 		expiredAt,
 	}: UserCandyItemRepositoryImpl): UserCandyItemDto {
 		return new UserCandyItemDto(
 			new UserCandyItemId(id),
 			new DiscordUserId(userId),
 			new CandyItemId(itemId),
+			new CandyId(candyId),
 			new UserCandyItemExpire(expiredAt),
 		);
 	}

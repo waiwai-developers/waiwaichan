@@ -3,6 +3,7 @@ import {
 	LogicTypes,
 	RepoTypes,
 } from "@/src/entities/constants/DIContainerTypes";
+import { CandyCategoryType } from "@/src/entities/vo/CandyCategoryType";
 import { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
 import { DiscordMessageLink } from "@/src/entities/vo/DiscordMessageLink";
 import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
@@ -53,17 +54,28 @@ export class CandyReactionHandler
 			return;
 		}
 
-		if (reaction.emoji.name !== AppConfig.backend.candyEmoji) {
+		let res: string | undefined;
+
+		const isCandyEmoji = reaction.emoji.name === AppConfig.backend.candyEmoji;
+		const isCandySuperEmoji =
+			reaction.emoji.name === AppConfig.backend.candySuperEmoji;
+
+		if (isCandyEmoji || isCandySuperEmoji) {
+			res = await this.candyLogic.giveCandys(
+				new DiscordUserId(reaction.message.author.id),
+				new DiscordUserId(user.id),
+				new DiscordMessageId(reaction.message.id),
+				new DiscordMessageLink(reaction.message.url),
+				new CandyCategoryType(
+					isCandySuperEmoji
+						? CandyCategoryType.CATEGORY_TYPE_SUPER.getValue()
+						: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
+				),
+			);
+		} else {
 			this.logger.debug("not peer bonus emoji");
 			return;
 		}
-
-		const res = await this.candyLogic.giveCandy(
-			new DiscordUserId(reaction.message.author.id),
-			new DiscordUserId(user.id),
-			new DiscordMessageId(reaction.message.id),
-			new DiscordMessageLink(reaction.message.url),
-		);
 
 		if (!res) {
 			return;

@@ -86,6 +86,12 @@
 					"description": "キャンディを消費しガチャを回す"
 				},
 				{
+					"name": "/candyboxdraw ",
+					"example": "/candyboxdraw",
+					"parameter": "none",
+					"description": "キャンディを複数消費しガチャを回す"
+				},
+				{
 					"name": "/candyitem",
 					"example": "/candyitem",
 					"parameter": "none",
@@ -130,6 +136,23 @@
 					"example": "/minecraftstop",
 					"parameter": "none",
 					"description": "minecraftサーバーを停止する"
+				}
+			]
+		},
+		{
+			"name": "stickyコマンド",
+			"commands": [
+				{
+					"name": "/stickycreate",
+					"example": "/stickycreate channelId: 1",
+					"parameter": "id: integer",
+					"description": "stickyをチャンネルに登録する"
+				},
+				{
+					"name": "/stickydelete",
+					"example": "/stickydelete channelId: 1",
+					"parameter": "id: integer",
+					"description": "stickyをチャンネルから削除する"
 				}
 			]
 		}

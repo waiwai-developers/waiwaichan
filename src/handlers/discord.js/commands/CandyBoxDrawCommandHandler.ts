@@ -1,3 +1,4 @@
+import { AppConfig } from "@/src/entities/config/AppConfig";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
 import { CandyCount } from "@/src/entities/vo/CandyCount";
 import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
@@ -7,19 +8,22 @@ import type { CacheType, ChatInputCommandInteraction } from "discord.js";
 import { inject, injectable } from "inversify";
 
 @injectable()
-export class CandyDrawCommandHandler implements SlashCommandHandler {
+export class CandyBoxDrawCommandHandler implements SlashCommandHandler {
 	@inject(LogicTypes.CandyLogic)
 	private candyLogic!: ICandyLogic;
 
 	isHandle(commandName: string): boolean {
-		return commandName === "candydraw";
+		return commandName === "candyboxdraw";
 	}
 
 	async handle(
 		interaction: ChatInputCommandInteraction<CacheType>,
 	): Promise<void> {
 		await interaction.reply(
-			await this.candyLogic.drawItems(new DiscordUserId(interaction.user.id)),
+			await this.candyLogic.drawItems(
+				new DiscordUserId(interaction.user.id),
+				new CandyCount(AppConfig.backend.candyBoxAmount),
+			),
 		);
 	}
 }
