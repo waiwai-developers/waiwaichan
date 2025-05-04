@@ -261,7 +261,11 @@ export class CandyLogic implements ICandyLogic {
 								countBylimit: SUPER_CANDY_LIMIT,
 								candyExpire: new CandyExpire(
 									//super candyもcandyも共通で有効期限は一ヶ月
-									dayjs().add(1, "day").add(1, "month").startOf("day").toDate(),
+									dayjs()
+										.add(1, "day")
+										.add(1, "month")
+										.startOf("day")
+										.toDate(),
 								),
 								candyAmount: SUPER_CANDY_AMOUNT,
 							};
@@ -269,12 +273,20 @@ export class CandyLogic implements ICandyLogic {
 							return {
 								startDatetime: new CandyCreatedAt(
 									//candyの場合は過去一日の付与を調べる
-									dayjs().add(9, "h").startOf("day").subtract(9, "h").toDate(),
+									dayjs()
+										.add(9, "h")
+										.startOf("day")
+										.subtract(9, "h")
+										.toDate(),
 								),
 								countBylimit: NORMAL_CANDY_LIMIT,
 								candyExpire: new CandyExpire(
 									//super candyもcandyも共通で有効期限は一ヶ月
-									dayjs().add(1, "day").add(1, "month").startOf("day").toDate(),
+									dayjs()
+										.add(1, "day")
+										.add(1, "month")
+										.startOf("day")
+										.toDate(),
 								),
 								candyAmount: NORMAL_CANDY_AMOUNT,
 							};
@@ -287,16 +299,12 @@ export class CandyLogic implements ICandyLogic {
 							};
 					}
 				})(candyCategoryType);
-				if (startDatetime === undefined) {
-					return;
-				}
-				if (countBylimit === undefined) {
-					return;
-				}
-				if (candyExpire === undefined) {
-					return;
-				}
-				if (candyAmount === undefined) {
+				if (
+					startDatetime == null ||
+					countBylimit == null ||
+					candyExpire == null ||
+					candyAmount == null
+				) {
 					return;
 				}
 
