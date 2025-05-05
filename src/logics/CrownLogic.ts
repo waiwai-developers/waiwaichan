@@ -17,11 +17,9 @@ export class CrownLogic implements ICrownLogic {
 	@inject(RepoTypes.CrownRepository)
 	private readonly crownRepository!: ICrownRepository;
 
-	//memo→transactionってなんだった？
 	@inject(RepoTypes.Transaction)
 	private readonly transaction!: ITransaction;
 
-	//memo→mutexってなんだった？
 	@inject(RepoTypes.Mutex)
 	private readonly mutex!: IMutex;
 
