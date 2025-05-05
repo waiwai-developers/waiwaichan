@@ -20,11 +20,8 @@ export class ChatAILogic implements IChatAILogic {
 		prompt: ChatAIPrompt,
 		context: Array<ChatAIMessageDto>,
 	): Promise<string> {
-
 		//JSONのmetadataは順不同なので整列させる
-		const promptData = JSON.parse(
-			JSON.stringify(prompt.getValue()),
-		);
+		const promptData = JSON.parse(JSON.stringify(prompt.getValue()));
 		const orderPrompt = JSON.stringify({
 			persona_role: promptData.persona_role,
 			speaking_style_rules: promptData.speaking_style_rules,
@@ -35,10 +32,7 @@ export class ChatAILogic implements IChatAILogic {
 		});
 
 		const promptInserted = [
-			new ChatAIMessageDto(
-				ChatAIRole.SYSTEM,
-				new ChatAIContent(orderPrompt),
-			),
+			new ChatAIMessageDto(ChatAIRole.SYSTEM, new ChatAIContent(orderPrompt)),
 			...context,
 		];
 		return this.chatAIRepository

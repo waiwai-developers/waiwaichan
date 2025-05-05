@@ -1,7 +1,7 @@
 import { ITEM_RECORDS } from "@/migrator/seeds/20241111041901-item";
-import { PERSONALITY_CATEGORY_RECORDS } from "@/migrator/seeds/20250429105101-personalityCategory";
 import { AppConfig } from "@/src/entities/config/AppConfig";
 import { CommandsConfig } from "@/src/entities/config/CommandsConfig";
+import { CategoriesConst } from "@/src/entities/constants/personalityCategory";
 import { TranslateConst } from "@/src/entities/constants/translate";
 import {
 	REST,
@@ -81,7 +81,7 @@ export class DiscordCommandRegister {
 						.setRequired(true)
 						.addChoices(
 							// TODO read from in memory db
-							PERSONALITY_CATEGORY_RECORDS.map((r) => {
+							CategoriesConst.categories.map((r) => {
 								return { name: r.name, value: r.id };
 							}),
 						),

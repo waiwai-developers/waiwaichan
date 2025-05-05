@@ -13,7 +13,7 @@ export const up: Datafix = async ({ context: sequelize }) => {
 			const personality = await DatafixPersonalityModel.findOne(
 				{
 					where: {
-						id: PersonalityId.PERSONALITY_ID_WAIWAICHAN,
+						id: PersonalityId.PERSONALITY_ID_WAIWAICHAN.getValue(),
 					},
 					transaction
 				}
@@ -25,7 +25,7 @@ export const up: Datafix = async ({ context: sequelize }) => {
 			const personalityCategory = await DatafixPersonalityCategoryModel.findOne(
 				{
 					where: {
-						id: PersonalityId.PERSONALITY_ID_WAIWAICHAN,
+						id: PersonalityId.PERSONALITY_ID_WAIWAICHAN.getValue(),
 					},
 					transaction
 				}
@@ -38,7 +38,7 @@ export const up: Datafix = async ({ context: sequelize }) => {
 			const threads = await DatafixThreadModel.findAll(
 				{
 					where: {
-						categoryType: ThreadCategoryType.CATEGORY_TYPE_CHATGPT,
+						categoryType: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
 					},
 					transaction
 				}
