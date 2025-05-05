@@ -244,9 +244,14 @@ export class CandyLogic implements ICandyLogic {
 		}
 		return this.mutex.useMutex("GiveCandy", async () =>
 			this.transaction.startTransaction(async () => {
-				const { startDatetime, countBylimit, candyExpire, candyAmount } = ((
-					ct: CandyCategoryType,
-				) => {
+				const {
+					startDatetime,
+					countBylimit,
+					candyExpire,
+					candyAmount,
+					prefixText,
+					candyEmoji,
+				} = ((ct: CandyCategoryType) => {
 					switch (ct.getValue()) {
 						case CandyCategoryType.CATEGORY_TYPE_SUPER.getValue():
 							return {
@@ -268,6 +273,8 @@ export class CandyLogic implements ICandyLogic {
 										.toDate(),
 								),
 								candyAmount: SUPER_CANDY_AMOUNT,
+								prefixText: "特別な",
+								candyEmoji: AppConfig.backend.candySuperEmoji,
 							};
 						case CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue():
 							return {
@@ -289,6 +296,8 @@ export class CandyLogic implements ICandyLogic {
 										.toDate(),
 								),
 								candyAmount: NORMAL_CANDY_AMOUNT,
+								prefixText: "",
+								candyEmoji: AppConfig.backend.candyEmoji,
 							};
 						default:
 							return {
@@ -296,6 +305,8 @@ export class CandyLogic implements ICandyLogic {
 								countBylimit: undefined,
 								candyExpire: undefined,
 								candyAmount: undefined,
+								prefixText: undefined,
+								candyEmoji: undefined,
 							};
 					}
 				})(candyCategoryType);
@@ -303,7 +314,9 @@ export class CandyLogic implements ICandyLogic {
 					startDatetime == null ||
 					countBylimit == null ||
 					candyExpire == null ||
-					candyAmount == null
+					candyAmount == null ||
+					prefixText == null ||
+					candyEmoji == null
 				) {
 					return;
 				}
@@ -342,7 +355,7 @@ export class CandyLogic implements ICandyLogic {
 							),
 					),
 				);
-				return `<@${giver.getValue()}>さんが<@${receiver.getValue()}>さんに${candyCategoryType.getValue() === CandyCategoryType.CATEGORY_TYPE_SUPER.getValue() ? "特別な" : ""}${AppConfig.backend.candySuperEmoji}スタンプを押したよ！！っ\nリンク先はこちら！っ: ${messageLink.getValue()}`;
+				return `<@${giver.getValue()}>さんが<@${receiver.getValue()}>さんに${prefixText + candyEmoji}スタンプを押したよ！！っ\nリンク先はこちら！っ: ${messageLink.getValue()}`;
 			}),
 		);
 	}
