@@ -88,7 +88,10 @@ class CandyRepositoryImpl extends Model implements ICandyRepository {
 		}).then((c) => new CandyCount(c));
 	}
 
-	async candyExpire(guildId: DiscordGuildId, userId: DiscordUserId): Promise<CandyExpire | undefined> {
+	async candyExpire(
+		guildId: DiscordGuildId,
+		userId: DiscordUserId,
+	): Promise<CandyExpire | undefined> {
 		return CandyRepositoryImpl.findOne({
 			where: {
 				guildId: guildId.getValue(),

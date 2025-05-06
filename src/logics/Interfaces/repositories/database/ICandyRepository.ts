@@ -11,8 +11,14 @@ import type { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
 
 export interface ICandyRepository {
 	bulkCreateCandy(data: CandyDto[]): Promise<boolean>;
-	candyCount(guildId: DiscordGuildId, userId: DiscordUserId): Promise<CandyCount>;
-	candyExpire(guildId: DiscordGuildId, userId: DiscordUserId): Promise<CandyExpire | undefined>;
+	candyCount(
+		guildId: DiscordGuildId,
+		userId: DiscordUserId,
+	): Promise<CandyCount>;
+	candyExpire(
+		guildId: DiscordGuildId,
+		userId: DiscordUserId,
+	): Promise<CandyExpire | undefined>;
 	countByPeriod(
 		guildId: DiscordGuildId,
 		userId: DiscordUserId,

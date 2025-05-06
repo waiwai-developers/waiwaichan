@@ -63,25 +63,16 @@ class UserCandyItemRepositoryImpl
 	@BelongsTo(() => CandyItemRepositoryImpl)
 	declare item: CandyItemRepositoryImpl;
 
-<<<<<<< HEAD
-	async create(data: UserCandyItemDto): Promise<UserCandyItemId> {
-		return UserCandyItemRepositoryImpl.create({
-			guildId: DiscordGuildId,
-			userId: data.userId.getValue(),
-			itemId: data.itemId.getValue(),
-			expiredAt: data.expiredAt.getValue(),
-		}).then((res) => new UserCandyItemId(res.id));
-=======
 	async bulkCreate(data: UserCandyItemDto[]): Promise<UserCandyItemId[]> {
 		return UserCandyItemRepositoryImpl.bulkCreate(
 			data.map((u) => ({
+				guildId: DiscordGuildId,
 				userId: u.userId.getValue(),
 				itemId: u.itemId.getValue(),
 				candyId: u.candyId.getValue(),
 				expiredAt: u.expiredAt.getValue(),
 			})),
 		).then((res) => res.map((r) => new UserCandyItemId(r.id)));
->>>>>>> develop
 	}
 
 	async findByNotUsed(
@@ -119,11 +110,13 @@ class UserCandyItemRepositoryImpl
 	}
 
 	async lastJackpodCandyId(
+		guildId: DiscordGuildId,
 		userId: DiscordUserId,
 	): Promise<CandyId | undefined> {
 		return UserCandyItemRepositoryImpl.findOne({
 			attributes: ["candyId"],
 			where: {
+				guildId: guildId.getValue(),
 				itemId: ID_JACKPOT,
 				userId: userId.getValue(),
 			},

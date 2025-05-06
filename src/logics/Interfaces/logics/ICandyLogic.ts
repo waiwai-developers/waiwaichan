@@ -16,7 +16,11 @@ export interface ICandyLogic {
 		type: CandyItemId,
 		amount: UserCandyItemCount,
 	): Promise<string>;
-	drawItems(guildId: DiscordGuildId, userId: DiscordUserId, candyCount?: CandyCount): Promise<string>;
+	drawItems(
+		guildId: DiscordGuildId,
+		userId: DiscordUserId,
+		candyCount?: CandyCount,
+	): Promise<string>;
 	getItems(guildId: DiscordGuildId, userId: DiscordUserId): Promise<string>;
 	giveCandys(
 		guildId: DiscordGuildId,

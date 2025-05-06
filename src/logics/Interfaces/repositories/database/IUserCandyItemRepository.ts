@@ -13,7 +13,10 @@ export interface IUserCandyItemRepository {
 		guildId: DiscordGuildId,
 		userId: DiscordUserId,
 	): Promise<UserCandyItemWithItemGroupByDto[]>;
-	lastJackpodCandyId(userId: DiscordUserId): Promise<CandyId | undefined>;
+	lastJackpodCandyId(
+		guildId: DiscordGuildId,
+		userId: DiscordUserId,
+	): Promise<CandyId | undefined>;
 	exchangeByTypeAndAmount(
 		guildId: DiscordGuildId,
 		userId: DiscordUserId,
