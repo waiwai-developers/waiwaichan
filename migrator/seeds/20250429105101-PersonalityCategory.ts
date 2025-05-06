@@ -10,7 +10,7 @@ export const up: Seed = async ({ context: sequelize }) => {
 			"id": c.id,
 			"personalityId": c.personalityId,
 			"name": c.name,
-			"context": JSON.parse(c.input_scope)
+			"context": JSON.parse(`{"input_scope": ${c.input_scope}}`)
 		}
 	)));
 };

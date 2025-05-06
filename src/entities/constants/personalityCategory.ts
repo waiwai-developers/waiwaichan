@@ -222,45 +222,45 @@ export const CategoriesConst: {
 			personalityId: 1,
 			name: "マークアップ",
 			input_scope: `{
-				"domain_of_questions": "以下の「webデザインに関するカテゴリ」に属する質問を前提に回答してください。",
-				"web_design_knowledge_domains": {
-					"visual_design": [
-						"カラースキームと配色理論（色相環、補色、トライアド等）",
-						"タイポグラフィ設計（フォント分類、階層、可読性）",
-						"ホワイトスペースとレイアウトグリッド（黄金比 / 12列グリッド）",
-						"UIアイコンとビジュアル要素の一貫性",
-						"ダークモードデザインのベストプラクティス"
+				"domain_of_questions": "以下の「マークアップに関するカテゴリ」に属する質問を前提に回答してください。",
+				"markup_knowledge_domains": {
+					"html_core": [
+						"HTML5 セマンティックタグ",
+						"グローバル属性（lang, id, class, aria-* 等）",
+						"入力フォーム（<input>, <form>, <fieldset>）",
+						"メディア要素（<img>, <video>, <audio>, <source>）",
+						"リンクとナビゲーション（<a>, <nav>, rel 属性）"
 					],
-					"user_experience": [
-						"UX原則（ヒューリスティック評価、ユーザビリティ10原則）",
-						"情報アーキテクチャ（カードソーティング / ナビゲーション設計）",
-						"ペルソナとユーザーストーリーマッピング",
-						"マイクロインタラクション設計（hover, loading, success feedback）",
-						"認知心理学的デザイン（ヒックスの法則 / ミラーの法則）"
+					"css_core": [
+						"CSS Box Model（margin, padding, border）",
+						"レイアウト：Flexbox / CSS Grid",
+						"ポジショニング（absolute, relative, fixed, sticky）",
+						"Pseudo-classes / Pseudo-elements（:hover, ::before など）",
+						"CSS 変数（Custom Properties）"
 					],
-					"branding_and_identity": [
-						"ロゴ設計とFavicon体系",
-						"トーン＆マナー（ビジュアルブランドガイド）",
-						"コンテンツ戦略とスタイルガイド整備",
-						"一貫したビジュアル言語（Design Tokens活用）"
+					"responsive_design": [
+						"メディアクエリ（@media）",
+						"モバイルファースト設計（min-width 戦略）",
+						"fluid grid / fit-content / clamp() 設計",
+						"ビューポート制御（meta viewport）"
 					],
-					"ui_components_and_patterns": [
-						"デザインパターン（Accordion, Modal, Tabs, Carousel）",
-						"コンポーネントライブラリ設計（Figma, Storybook連携）",
-						"UI状態の視覚設計（Disabled, Hover, Error等）",
-						"フォームUIのアクセシビリティ設計（Field validation, Placeholder）"
+					"accessibility": [
+						"ARIA属性（aria-label, aria-live, role など）",
+						"キーボードナビゲーション",
+						"対応スクリーンリーダー考慮設計",
+						"コントラスト・フォントサイズ指針（WCAG）"
 					],
-					"prototyping_and_tools": [
-						"デザインツール：Figma / Adobe XD / Sketch",
-						"ワイヤーフレームとプロトタイピング（Low-fi / Hi-fi）",
-						"コンポーネント化とAuto Layout（Figmaベース設計）",
-						"ユーザーテストとA/Bテスト"
+					"semantics_and_structure": [
+						"HTML構造設計（<header>, <main>, <footer>, <article>, <section>）",
+						"読みやすいHead構成（SEOタグ・favicon・meta各種）",
+						"構造的な見出し階層（h1〜h6 の適切な配置）",
+						"テーブル設計（caption, th, scope 属性対応）"
 					],
-					"responsive_and_device_design": [
-						"デバイス別最適化（モバイル, タブレット, デスクトップ）",
-						"タッチUI / モバイルファースト考慮",
-						"Retinaディスプレイ対応とSVG活用",
-						"スクロールやタップのUX考慮（タッチ領域・可視フィードバック）"
+					"motion_and_transitions": [
+						"CSS アニメーション（@keyframes）",
+						"CSS Transitions（transition-delay, timing-function）",
+						"JavaScript APIによる動的class操作と連携（IntersectionObserver 活用 etc.）",
+						"prefers-reduced-motion 対応によるユーザー設定尊重"
 					]
 				}
 			}`,

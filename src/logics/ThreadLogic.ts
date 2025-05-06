@@ -5,6 +5,7 @@ import type { ThreadMessageId } from "@/src/entities/vo/ThreadMessageId";
 import type { IThreadLogic } from "@/src/logics/Interfaces/logics/IThreadLogic";
 import type { IThreadRepository } from "@/src/logics/Interfaces/repositories/database/IThreadRepository";
 import { inject, injectable } from "inversify";
+import { ITransaction } from "./Interfaces/repositories/database/ITransaction";
 
 @injectable()
 export class ThreadLogic implements IThreadLogic {
