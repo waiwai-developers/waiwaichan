@@ -1,3 +1,4 @@
+import type { CandyId } from "@/src/entities/vo/CandyId";
 import type { CandyItemId } from "@/src/entities/vo/CandyItemId";
 import type { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
 import type { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
@@ -9,6 +10,7 @@ export class UserCandyItemDto {
 		public guildId: DiscordGuildId,
 		public userId: DiscordUserId,
 		public itemId: CandyItemId,
+		public candyId: CandyId,
 		public expiredAt: UserCandyItemExpire,
 	) {}
 }

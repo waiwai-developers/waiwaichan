@@ -19,6 +19,8 @@ class DatafixUserItemModel extends Model {
 	declare guildId: number;
 	@Column(DataType.BIGINT)
 	declare userId: number;
+	@Column(DataType.BIGINT)
+	declare candyId: number;
 	@Column(DataType.INTEGER)
 	declare itemId: number;
 	@Column(DataType.DATE)
