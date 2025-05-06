@@ -11,7 +11,7 @@ export const up: Seed = async ({ context: sequelize }) => {
 			{
 				"id": p.id,
 				"name": p.name,
-				"personality": JSON.parse(p.personality)
+				"personality": JSON.parse(`{"persona_role": ${p.personality.persona_role}, "speaking_style_rules": ${p.personality.speaking_style_rules}, "response_directives": ${p.personality.response_directives}, "emotion_model": ${p.personality.emotion_model}, "notes": ${p.personality.notes}}`)
 			}
 		)
 	));
