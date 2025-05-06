@@ -18,6 +18,8 @@ class DatafixCandyModel extends Model {
 	@Column(DataType.BIGINT)
 	declare receiveUserId: number;
 	@Column(DataType.BIGINT)
+	@Column(DataType.BIGINT)
+	declare guildId: number;
 	declare giveUserId: number;
 	@Column(DataType.STRING)
 	declare messageId: string;
