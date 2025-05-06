@@ -1,4 +1,6 @@
+import { AppConfig } from "@/src/entities/config/AppConfig";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
+import { CandyCount } from "@/src/entities/vo/CandyCount";
 import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
 import type { ICandyLogic } from "@/src/logics/Interfaces/logics/ICandyLogic";
@@ -18,7 +20,10 @@ export class CandyBoxDrawCommandHandler implements SlashCommandHandler {
 		interaction: ChatInputCommandInteraction<CacheType>,
 	): Promise<void> {
 		await interaction.reply(
-			await this.candyLogic.drawBoxItem(new DiscordUserId(interaction.user.id)),
+			await this.candyLogic.drawItems(
+				new DiscordUserId(interaction.user.id),
+				new CandyCount(AppConfig.backend.candyBoxAmount),
+			),
 		);
 	}
 }

@@ -8,6 +8,7 @@ import { PersonalityCategoryRepositoryImpl } from "@/src/repositories/sequelize-
 import { PersonalityRepositoryImpl } from "@/src/repositories/sequelize-mysql/PersonalityRepositoryImpl";
 import { ReminderRepositoryImpl } from "@/src/repositories/sequelize-mysql/ReminderRepositoryImpl";
 import { SequelizeLogger } from "@/src/repositories/sequelize-mysql/SequelizeLogger";
+import { StickyRepositoryImpl } from "@/src/repositories/sequelize-mysql/StickyRepositoryImpl";
 import { ThreadRepositoryImpl } from "@/src/repositories/sequelize-mysql/ThreadRepositoryImpl";
 import { UserCandyItemRepositoryImpl } from "@/src/repositories/sequelize-mysql/UserCandyItemRepositoryImpl";
 import { inject, injectable } from "inversify";
@@ -40,6 +41,7 @@ export class MysqlConnector implements IDataBaseConnector<Sequelize, "mysql"> {
 					ThreadRepositoryImpl,
 					PersonalityRepositoryImpl,
 					PersonalityCategoryRepositoryImpl,
+					StickyRepositoryImpl,
 				],
 			},
 		);

@@ -1,19 +1,16 @@
 {
 	"users": [
 		{
-			"githubId": "",
 			"discordId": "",
-			"grade": ""
+			"role": ""
 		},
 		{
-			"githubId": "",
 			"discordId": "",
-			"grade": ""
+			"role": ""
 		},
 		{
-			"githubId": "",
 			"discordId": "",
-			"grade": ""
+			"role": ""
 		}
 	]
 }
