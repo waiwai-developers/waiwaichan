@@ -159,6 +159,7 @@ export class CandyLogic implements ICandyLogic {
 					await this.userCandyItemRepository.lastJackpodCandyId(userId);
 				const candyCountFromJackpod =
 					await this.candyRepository.candyCountFromJackpod(
+						guildId,
 						userId,
 						lastJackpodCandyId
 							? new CandyId(lastJackpodCandyId?.getValue())
@@ -333,6 +334,7 @@ export class CandyLogic implements ICandyLogic {
 				}
 
 				const countByPeriod = await this.candyRepository.countByPeriod(
+					guildId,
 					giver,
 					candyCategoryType,
 					startDatetime,

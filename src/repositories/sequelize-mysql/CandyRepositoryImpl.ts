@@ -48,7 +48,7 @@ class CandyRepositoryImpl extends Model implements ICandyRepository {
 	async bulkCreateCandy(data: CandyDto[]): Promise<boolean> {
 		await CandyRepositoryImpl.bulkCreate(
 			data.map((d) => ({
-				guildId: data.guildId.getValue(),
+				guildId: d.guildId.getValue(),
 				receiveUserId: d.receiveUserId.getValue(),
 				giveUserId: d.giveUserId.getValue(),
 				messageId: d.messageId.getValue(),

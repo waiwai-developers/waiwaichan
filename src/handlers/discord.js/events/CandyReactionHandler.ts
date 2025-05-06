@@ -73,12 +73,8 @@ export class CandyReactionHandler
 			return;
 		}
 
-<<<<<<< HEAD
-		const res = await this.candyLogic.giveCandy(
-			new DiscordGuildId(reaction.message.guildId),
-=======
 		const res = await this.candyLogic.giveCandys(
->>>>>>> develop
+			new DiscordGuildId(reaction.message.guildId),
 			new DiscordUserId(reaction.message.author.id),
 			new DiscordUserId(user.id),
 			new DiscordMessageId(reaction.message.id),
