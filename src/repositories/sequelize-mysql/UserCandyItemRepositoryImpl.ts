@@ -66,7 +66,7 @@ class UserCandyItemRepositoryImpl
 	async bulkCreate(data: UserCandyItemDto[]): Promise<UserCandyItemId[]> {
 		return UserCandyItemRepositoryImpl.bulkCreate(
 			data.map((u) => ({
-				guildId: DiscordGuildId,
+				guildId: u.guildId.getValue(),
 				userId: u.userId.getValue(),
 				itemId: u.itemId.getValue(),
 				candyId: u.candyId.getValue(),
