@@ -1,6 +1,7 @@
 import { DatafixCandyModel } from "@/migrator/datafixies/models/DatafixCandyModel";
 import { DatafixUserItemModel } from "@/migrator/datafixies/models/DatafixUserItemModel";
 import { DatafixThreadModel } from "@/migrator/datafixies/models/DatafixThreadModel";
+import { DatafixReminderModel } from "@/migrator/datafixies/models/DatafixReminderModel";
 import {
 	type DatabaseConfigType,
 	GetEnvDBConfig,
@@ -42,7 +43,7 @@ export const seeder = (dbConfig: DatabaseConfigType = GetEnvDBConfig()) => {
 			host: dbConfig.host,
 			port: dbConfig.port,
 			dialect: "mysql",
-			models: [DatafixUserItemModel, DatafixCandyModel, DatafixThreadModel],
+			models: [DatafixUserItemModel, DatafixCandyModel, DatafixThreadModel, DatafixReminderModel],
 		},
 	);
 
@@ -68,7 +69,7 @@ export const datafixer = (dbConfig: DatabaseConfigType = GetEnvDBConfig()) => {
 			host: dbConfig.host,
 			port: dbConfig.port,
 			dialect: "mysql",
-			models: [DatafixUserItemModel, DatafixCandyModel, DatafixThreadModel],
+			models: [DatafixUserItemModel, DatafixCandyModel, DatafixThreadModel, DatafixReminderModel],
 		},
 	);
 

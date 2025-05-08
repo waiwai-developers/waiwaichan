@@ -1,4 +1,5 @@
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
+import { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
 import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
 import { ReminderId } from "@/src/entities/vo/ReminderId";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
@@ -18,9 +19,13 @@ export class ReminderDeleteCommandHandler implements SlashCommandHandler {
 	async handle(
 		interaction: ChatInputCommandInteraction<CacheType>,
 	): Promise<void> {
+		if (!interaction.guildId) {
+			return;
+		}
 		await interaction.reply(
 			await this.reminderLogic.delete(
 				new ReminderId(interaction.options?.getInteger("id", true)),
+				new DiscordGuildId(interaction.guildId),
 				new DiscordUserId(interaction.user.id),
 			),
 		);
