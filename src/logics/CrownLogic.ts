@@ -1,4 +1,3 @@
-import { AppConfig } from "@/src/entities/config/AppConfig";
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import { CrownDto } from "@/src/entities/dto/CrownDto";
 import type { CrownMessage } from "@/src/entities/vo/CrownMessage";
@@ -44,7 +43,7 @@ export class CrownLogic implements ICrownLogic {
 						if (!res) {
 							throw new Error("crown registration failed");
 						}
-						return `<@${userId.getValue()}>さんが殿堂入り ${AppConfig.backend.crownEmoji} したよ！っ\n- 投稿内容\n  - メッセージ: ${crownMessage.getValue()}\n  - リンク: ${crownMessageLink.getValue()}`;
+						return `<@${userId.getValue()}>さんが殿堂入り 👑 したよ！っ\n- 投稿内容\n  - メッセージ: ${crownMessage.getValue()}\n  - リンク: ${crownMessageLink.getValue()}`;
 					});
 			})
 			.catch((_err) => "クラウンを登録出来なかったよ！っ");
