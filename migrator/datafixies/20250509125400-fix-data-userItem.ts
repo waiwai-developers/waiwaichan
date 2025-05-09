@@ -1,9 +1,9 @@
 import type { Datafix } from "@/migrator/umzug";
-import { DatafixReminderModel } from "./models/DatafixReminderModel";
+import { DatafixUserItemModel } from "./models/DatafixUserItemModel";
 import { AppConfig } from "@/src/entities/config/AppConfig";
 
 export const up: Datafix = async () => {
-	const candies = await DatafixReminderModel.findAll(
+	const candies = await DatafixUserItemModel.findAll(
         {
 			where: {
 				guildId: null,
