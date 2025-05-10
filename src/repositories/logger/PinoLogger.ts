@@ -1,3 +1,4 @@
+import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 import { pino } from "pino";
 
 const Logger = pino({

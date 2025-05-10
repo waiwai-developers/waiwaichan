@@ -6,6 +6,7 @@ import type { DiscordEventHandler } from "@/src/handlers/discord.js/events/Disco
 import type { DiscordEventRouter } from "@/src/routes/discordjs/events/DiscordEventRouter";
 import type { Client, Message } from "discord.js";
 import { inject, injectable, multiInject } from "inversify";
+import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 
 @injectable()
 export class MessageReplyRouter implements DiscordEventRouter {
