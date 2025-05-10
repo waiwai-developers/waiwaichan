@@ -32,6 +32,7 @@ export const RouteTypes = {
 	MessageReplyRoute: Symbol.for("MessageReplyRoute"),
 	ReadyStateRoute: Symbol.for("ReadyStateRoute"),
 	ReactionRoute: Symbol.for("ReactionRoute"),
+	ActionAddBotRoute: Symbol.for("ActionAddBotRoute"),
 };
 
 export const SchedulerRepoTypes = {
@@ -42,4 +43,5 @@ export const HandlerTypes = {
 	SlashCommandHandler: Symbol.for("SlashCommandHandler"),
 	ReactionHandler: Symbol.for("ReactionHandler"),
 	MessageHandler: Symbol.for("MessageHandler"),
+	ActionAddBotHandler: Symbol.for("ActionAddBotHandler"),
 };
