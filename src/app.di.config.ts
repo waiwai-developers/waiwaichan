@@ -32,12 +32,12 @@ import type { DiscordEventHandler } from "@/src/handlers/discord.js/events/Disco
 import type { ReactionInteraction } from "@/src/handlers/discord.js/events/DiscordEventHandler";
 import { StickyEventHandler } from "@/src/handlers/discord.js/events/StickyEventHandler";
 import { TranslateReplyHandler } from "@/src/handlers/discord.js/events/TranslateReplyHandler";
-import { CommunityLogic } from "@/src/logics/ CommunityLogic";
 import { CandyLogic } from "@/src/logics/CandyLogic";
 import { ChatAILogic } from "@/src/logics/ChatAILogic";
-import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
+import { CommunityLogic } from "@/src/logics/CommunityLogic";
 import type { ICandyLogic } from "@/src/logics/Interfaces/logics/ICandyLogic";
 import type { IChatAILogic } from "@/src/logics/Interfaces/logics/IChatAILogic";
+import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { IMinecraftServerLogic } from "@/src/logics/Interfaces/logics/IMinecraftServerLogic";
 import type { IPullRequestLogic } from "@/src/logics/Interfaces/logics/IPullRequestLogic";
 import type { IReminderLogic } from "@/src/logics/Interfaces/logics/IReminderLogic";
@@ -47,9 +47,9 @@ import type { ITranslatorLogic } from "@/src/logics/Interfaces/logics/ITranslato
 import type { IUtilityLogic } from "@/src/logics/Interfaces/logics/IUtilityLogic";
 import type { IChatAIRepository } from "@/src/logics/Interfaces/repositories/chataiapi/IChatAIRepository";
 import type { IVirtualMachineAPI } from "@/src/logics/Interfaces/repositories/cloudprovider/IVirtualMachineAPI";
-import type { ICommunityRepository } from "@/src/logics/Interfaces/repositories/database/ICommunityRepository";
 import type { ICandyItemRepository } from "@/src/logics/Interfaces/repositories/database/ICandyItemRepository";
 import type { ICandyRepository } from "@/src/logics/Interfaces/repositories/database/ICandyRepository";
+import type { ICommunityRepository } from "@/src/logics/Interfaces/repositories/database/ICommunityRepository";
 import type { IDataBaseConnector } from "@/src/logics/Interfaces/repositories/database/IDataBaseConnector";
 import type { IReminderRepository } from "@/src/logics/Interfaces/repositories/database/IReminderRepository";
 import type { IStickyRepository } from "@/src/logics/Interfaces/repositories/database/IStickyRepository.ts";
@@ -74,7 +74,7 @@ import { GithubPullRequestRepositoryImpl } from "@/src/repositories/githubapi/Gi
 import { PinoLogger } from "@/src/repositories/logger/PinoLogger";
 import { AwaitSemaphoreMutex } from "@/src/repositories/mutex/AwaitSemaphoreMutex";
 import { CandyItemRepositoryImpl, CandyRepositoryImpl, ReminderRepositoryImpl, StickyRepositoryImpl, ThreadRepositoryImpl, UserCandyItemRepositoryImpl } from "@/src/repositories/sequelize-mysql";
-import { CommunityRepositoryImpl } from "@/src/repositories/sequelize-mysql/ CommunityRepositoryImpl";
+import { CommunityRepositoryImpl } from "@/src/repositories/sequelize-mysql/CommunityRepositoryImpl";
 import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnector";
 import { SequelizeTransaction } from "@/src/repositories/sequelize-mysql/SequelizeTransaction";
 import { ActionAddBotRouter } from "@/src/routes/discordjs/events/ActionAddBotRouter";
