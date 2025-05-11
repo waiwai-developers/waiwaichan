@@ -1,21 +1,18 @@
-export const CategoriesConst: {
-	categories: {
+export const ContextsConst: {
+	contexts: {
 		id: number;
-		personalityId: number;
 		name: string;
 		input_scope: string;
 	}[];
 } = {
-	categories: [
+	contexts: [
 		{
 			id: 1,
-			personalityId: 1,
 			name: "カテゴリなし",
 			input_scope: "{}",
 		},
 		{
 			id: 2,
-			personalityId: 1,
 			name: "ライティング",
 			input_scope: `{
 				"domain_of_questions": "以下の「ライティングに関するカテゴリ」に属する質問を前提に回答してください。",
@@ -67,7 +64,6 @@ export const CategoriesConst: {
 		},
 		{
 			id: 3,
-			personalityId: 1,
 			name: "マーケティング",
 			input_scope: `{
 				"domain_of_questions": "以下の「マーケティングに関するカテゴリ」に属する質問を前提に回答してください。",
@@ -119,7 +115,6 @@ export const CategoriesConst: {
 		},
 		{
 			id: 4,
-			personalityId: 1,
 			name: "プロダクトマネージメント",
 			input_scope: `{
 				"domain_of_questions": "以下の「プロダクトマネージメントに関するカテゴリ」に属する質問を前提に回答してください。",
@@ -171,7 +166,6 @@ export const CategoriesConst: {
 		},
 		{
 			id: 5,
-			personalityId: 1,
 			name: "webデザイン",
 			input_scope: `{
 				"domain_of_questions": "以下の「webデザインに関するカテゴリ」に属する質問を前提に回答してください。",
@@ -219,7 +213,6 @@ export const CategoriesConst: {
 		},
 		{
 			id: 6,
-			personalityId: 1,
 			name: "マークアップ",
 			input_scope: `{
 				"domain_of_questions": "以下の「マークアップに関するカテゴリ」に属する質問を前提に回答してください。",
@@ -267,7 +260,6 @@ export const CategoriesConst: {
 		},
 		{
 			id: 7,
-			personalityId: 1,
 			name: "フロントエンド",
 			input_scope: `{
 				"domain_of_questions": "以下の「フロントエンドに関するカテゴリ」に属する質問を前提に回答してください。",
@@ -335,7 +327,6 @@ export const CategoriesConst: {
 		},
 		{
 			id: 8,
-			personalityId: 1,
 			name: "バックエンド",
 			input_scope: `{
 				"domain_of_questions": "以下の「バックエンドに関するカテゴリ」に属する質問を前提に回答してください。",
@@ -426,7 +417,6 @@ export const CategoriesConst: {
 		},
 		{
 			id: 9,
-			personalityId: 1,
 			name: "インフラストラクチャ",
 			input_scope: `{
 				"domain_of_questions": "以下の「インフラストラクチャに関するカテゴリ」に属する質問を前提に回答してください。",
@@ -493,7 +483,6 @@ export const CategoriesConst: {
 		},
 		{
 			id: 10,
-			personalityId: 1,
 			name: "経営",
 			input_scope: `{
 				"domain_of_questions": "以下の「経営に関するカテゴリ」に属する質問を前提に回答してください。",
@@ -552,7 +541,6 @@ export const CategoriesConst: {
 		},
 		{
 			id: 11,
-			personalityId: 1,
 			name: "経理",
 			input_scope: `{
 				"domain_of_questions": "以下の「経理に関するカテゴリ」に属する質問を前提に回答してください。",
@@ -605,7 +593,6 @@ export const CategoriesConst: {
 		},
 		{
 			id: 12,
-			personalityId: 1,
 			name: "法律",
 			input_scope: `{
 				"domain_of_questions": "以下の「法律に関するカテゴリ」に属する質問を前提に回答してください。",
@@ -664,7 +651,6 @@ export const CategoriesConst: {
 		},
 		{
 			id: 13,
-			personalityId: 1,
 			name: "投資",
 			input_scope: `{
 				"domain_of_questions": "以下の「投資に関するカテゴリ」に属する質問を前提に回答してください。",
