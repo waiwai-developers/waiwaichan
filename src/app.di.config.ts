@@ -74,7 +74,7 @@ import { GithubPullRequestRepositoryImpl } from "@/src/repositories/githubapi/Gi
 import { PinoLogger } from "@/src/repositories/logger/PinoLogger";
 import { AwaitSemaphoreMutex } from "@/src/repositories/mutex/AwaitSemaphoreMutex";
 import { CandyItemRepositoryImpl, CandyRepositoryImpl, ReminderRepositoryImpl, StickyRepositoryImpl, ThreadRepositoryImpl, UserCandyItemRepositoryImpl } from "@/src/repositories/sequelize-mysql";
-import { CommunityRepositoryImpl } from "@/src/repositories/sequelize-mysql/CommunityRepositoryImpl";
+import { CommunityRepositoryImpl } from "@/src/repositories/sequelize-mysql/ CommunityRepositoryImpl";
 import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnector";
 import { SequelizeTransaction } from "@/src/repositories/sequelize-mysql/SequelizeTransaction";
 import { ActionAddBotRouter } from "@/src/routes/discordjs/events/ActionAddBotRouter";
