@@ -12,7 +12,7 @@ import { inject, injectable, multiInject } from "inversify";
 export class ActionAddBotRouter implements DiscordEventRouter {
 	@inject(RepoTypes.Logger)
 	private readonly logger!: ILogger;
-	@multiInject(HandlerTypes.ActionAddBotHandler)
+	@inject(HandlerTypes.ActionAddBotHandler)
 	private readonly handler!: DiscordEventHandler<Guild>;
 	register(client: Client): void {
 		client.on("guildCreate", async (guild) => {
@@ -20,7 +20,7 @@ export class ActionAddBotRouter implements DiscordEventRouter {
 				this.logger.info(
 					`Bot is added to new server for guildIs: ${guild.id}.`,
 				);
-				await this.handler.handle(guild)
+				await this.handler.handle(guild);
 			} catch (e) {
 				this.logger.error(`Error: ${e}`);
 			}
