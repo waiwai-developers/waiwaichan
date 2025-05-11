@@ -30,12 +30,6 @@ export const up: Migration = async ({ context: sequelize }) => {
 			type: DataTypes.DATE,
 		},
 	})
-
-    await sequelize.getQueryInterface().addConstraint(TABLE_NAME, {
-        fields: ["categoryType", "clientId"],
-        type: "unique",
-        name: "unique_category_type_and_client_id", // 制約名つけようねっ
-    });
 };
 export const down: Migration = async ({ context: sequelize }) => {
 	await sequelize.getQueryInterface().dropTable(TABLE_NAME);
