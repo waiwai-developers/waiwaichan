@@ -1,14 +1,16 @@
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
 import { ThreadDto } from "@/src/entities/dto/ThreadDto";
-import { PersonalityCategoryId } from "@/src/entities/vo/PersonalityCategoryId";
-import { PersonalityCategoryPersonalityId } from "@/src/entities/vo/PersonalityCategoryPersonalityId";
+import { ContextId } from "@/src/entities/vo/ContextId";
+import { PersonalityContextContextId } from "@/src/entities/vo/PersonalityContextContextId";
+import { PersonalityContextPersonalityId } from "@/src/entities/vo/PersonalityContextPersonalityId";
 import { PersonalityId } from "@/src/entities/vo/PersonalityId";
 import { ThreadCategoryType } from "@/src/entities/vo/ThreadCategoryType";
 import { ThreadGuildId } from "@/src/entities/vo/ThreadGuildId";
 import { ThreadMessageId } from "@/src/entities/vo/ThreadMessageId";
 import { ThreadMetadataChatgpt } from "@/src/entities/vo/ThreadMetadataChatgpt";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
-import type { IPersonalityCategoryLogic } from "@/src/logics/Interfaces/logics/IPersonalityCategoryLogic";
+import type { IContextLogic } from "@/src/logics/Interfaces/logics/IContextLogic";
+import type { IPersonalityContextLogic } from "@/src/logics/Interfaces/logics/IPersonalityContextLogic";
 import type { IPersonalityLogic } from "@/src/logics/Interfaces/logics/IPersonalityLogic";
 import type { IThreadLogic } from "@/src/logics/Interfaces/logics/IThreadLogic";
 import type {
@@ -24,8 +26,11 @@ export class TalkCommandHandler implements SlashCommandHandler {
 	private readonly threadLogic!: IThreadLogic;
 	@inject(LogicTypes.PersonalityLogic)
 	private readonly personalityLogic!: IPersonalityLogic;
-	@inject(LogicTypes.PersonalityCategoryLogic)
-	private readonly personalityCategoryLogic!: IPersonalityCategoryLogic;
+	@inject(LogicTypes.ContextLogic)
+	private readonly contextLogic!: IContextLogic;
+	@inject(LogicTypes.PersonalityContextLogic)
+	private readonly personalityContextLogic!: IPersonalityContextLogic;
+
 	isHandle(commandName: string): boolean {
 		return commandName === "talk";
 	}
@@ -53,11 +58,19 @@ export class TalkCommandHandler implements SlashCommandHandler {
 		if (!personality) {
 			return;
 		}
-		const personalityCategory = await this.personalityCategoryLogic.find(
-			new PersonalityCategoryId(interaction.options.getInteger("type", true)),
-			new PersonalityCategoryPersonalityId(personality.id.getValue()),
+
+		const personalityContext = await this.personalityContextLogic.find(
+			new PersonalityContextPersonalityId(personality.id.getValue()),
+			new PersonalityContextContextId(interaction.options.getInteger("type", true)),
 		);
-		if (!personalityCategory) {
+		if (!personalityContext) {
+			return;
+		}
+
+		const context = await this.contextLogic.find(
+			new ContextId(personalityContext.contextId.getValue()),
+		);
+		if (!context) {
 			return;
 		}
 
@@ -67,8 +80,8 @@ export class TalkCommandHandler implements SlashCommandHandler {
 			fetchReply: true,
 		});
 		const metadata = {
-			...personality.personality.getValue(),
-			...personalityCategory.context.getValue(),
+			...personality.prompt.getValue(),
+			...context.prompt.getValue(),
 		};
 
 		await this.threadLogic.create(
@@ -81,7 +94,7 @@ export class TalkCommandHandler implements SlashCommandHandler {
 		);
 
 		await message.startThread({
-			name: `${personalityCategory.name.getValue()}: ${title}`,
+			name: `${context.name.getValue()}: ${title}`,
 			autoArchiveDuration: 60,
 		});
 	}
