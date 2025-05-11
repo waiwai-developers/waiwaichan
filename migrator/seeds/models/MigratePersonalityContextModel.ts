@@ -16,10 +16,10 @@ class MigratePersonalityContextModel extends Model {
 	declare personalityId: number;
 	@PrimaryKey
 	@Column(DataType.INTEGER)
-	declare categoryId: number;
+	declare contextId: number;
 
 	async bulkUpsert(
-		data: Array<{ personalityId: number; categoryId: number; }>,
+		data: Array<{ personalityId: number; contextId: number; }>,
 	) {
 		await Promise.all(
 			data.map(async (d) => await MigratePersonalityContextModel.upsert(d)),

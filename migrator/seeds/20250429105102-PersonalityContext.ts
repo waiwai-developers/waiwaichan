@@ -7,7 +7,7 @@ export const up: Seed = async ({ context: sequelize }) => {
 	await new MigratePersonalityContextModel().bulkUpsert(PersonalityContextsConst.personalityContexts.map((pc) => (
 		{
 			"personalityId": pc.personalityId,
-			"categoryId": pc.contextId,
+			"contextId": pc.contextId,
 		}
 	)));
 };
