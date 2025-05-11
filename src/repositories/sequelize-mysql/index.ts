@@ -1,4 +1,4 @@
-import { CommunityRepositoryImpl } from "@/src/repositories/sequelize-mysql/ CommunityRepositoryImpl";
+import { CommunityRepositoryImpl } from "@/src/repositories/sequelize-mysql/CommunityRepositoryImpl";
 import { ReminderRepositoryImpl } from "@/src/repositories/sequelize-mysql/ReminderRepositoryImpl";
 import { ReminderSchedulerRepositoryImpl } from "@/src/repositories/sequelize-mysql/ReminderSchedulerRepositoryImpl";
 import { CandyItemRepositoryImpl } from "./CandyItemRepositoryImpl";
