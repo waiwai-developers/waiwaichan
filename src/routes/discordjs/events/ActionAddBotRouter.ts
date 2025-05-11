@@ -6,7 +6,7 @@ import type { DiscordEventHandler } from "@/src/handlers/discord.js/events/Disco
 import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 import type { DiscordEventRouter } from "@/src/routes/discordjs/events/DiscordEventRouter";
 import type { Client, Guild } from "discord.js";
-import { inject, injectable, multiInject } from "inversify";
+import { inject, injectable } from "inversify";
 
 @injectable()
 export class ActionAddBotRouter implements DiscordEventRouter {
