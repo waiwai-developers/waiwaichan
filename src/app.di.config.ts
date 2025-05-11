@@ -32,10 +32,12 @@ import { StickyEventHandler } from "@/src/handlers/discord.js/events/StickyEvent
 import { TranslateReplyHandler } from "@/src/handlers/discord.js/events/TranslateReplyHandler";
 import { CandyLogic } from "@/src/logics/CandyLogic";
 import { ChatAILogic } from "@/src/logics/ChatAILogic";
+import { ContextLogic } from "@/src/logics/ContextLogic";
 import type { ICandyLogic } from "@/src/logics/Interfaces/logics/ICandyLogic";
 import type { IChatAILogic } from "@/src/logics/Interfaces/logics/IChatAILogic";
+import type { IContextLogic } from "@/src/logics/Interfaces/logics/IContextLogic";
 import type { IMinecraftServerLogic } from "@/src/logics/Interfaces/logics/IMinecraftServerLogic";
-import type { IPersonalityCategoryLogic } from "@/src/logics/Interfaces/logics/IPersonalityCategoryLogic";
+import type { IPersonalityContextLogic } from "@/src/logics/Interfaces/logics/IPersonalityContextLogic";
 import type { IPersonalityLogic } from "@/src/logics/Interfaces/logics/IPersonalityLogic";
 import type { IPullRequestLogic } from "@/src/logics/Interfaces/logics/IPullRequestLogic";
 import type { IReminderLogic } from "@/src/logics/Interfaces/logics/IReminderLogic";
@@ -47,11 +49,12 @@ import type { IChatAIRepository } from "@/src/logics/Interfaces/repositories/cha
 import type { IVirtualMachineAPI } from "@/src/logics/Interfaces/repositories/cloudprovider/IVirtualMachineAPI";
 import type { ICandyItemRepository } from "@/src/logics/Interfaces/repositories/database/ICandyItemRepository";
 import type { ICandyRepository } from "@/src/logics/Interfaces/repositories/database/ICandyRepository";
+import type { IContextRepository } from "@/src/logics/Interfaces/repositories/database/IContextRepository";
 import type { IDataBaseConnector } from "@/src/logics/Interfaces/repositories/database/IDataBaseConnector";
-import type { IPersonalityCategoryRepository } from "@/src/logics/Interfaces/repositories/database/IPersonalityCategoryRepository";
+import type { IPersonalityContextRepository } from "@/src/logics/Interfaces/repositories/database/IPersonalityContextRepository";
 import type { IPersonalityRepository } from "@/src/logics/Interfaces/repositories/database/IPersonalityRepository";
 import type { IReminderRepository } from "@/src/logics/Interfaces/repositories/database/IReminderRepository";
-import type { IStickyRepository } from "@/src/logics/Interfaces/repositories/database/IStickyRepository.ts";
+import type { IStickyRepository } from "@/src/logics/Interfaces/repositories/database/IStickyRepository";
 import type { IThreadRepository } from "@/src/logics/Interfaces/repositories/database/IThreadRepository";
 import type { ITransaction } from "@/src/logics/Interfaces/repositories/database/ITransaction";
 import type { IUserCandyItemRepository } from "@/src/logics/Interfaces/repositories/database/IUserCandyItemRepository";
@@ -60,7 +63,7 @@ import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogge
 import type { IMutex } from "@/src/logics/Interfaces/repositories/mutex/IMutex";
 import type { ITranslatorRepository } from "@/src/logics/Interfaces/repositories/translator/ITranslatorRepository";
 import { MinecraftServerLogic } from "@/src/logics/MinecraftServerLogic";
-import { PersonalityCategoryLogic } from "@/src/logics/PersonalityCategoryLogic";
+import { PersonalityContextLogic } from "@/src/logics/PersonalityContextLogic";
 import { PersonalityLogic } from "@/src/logics/PersonalityLogic";
 import { PullRequestLogic } from "@/src/logics/PullRequestLogic";
 import { ReminderLogic } from "@/src/logics/ReminderLogic";
@@ -77,7 +80,8 @@ import { AwaitSemaphoreMutex } from "@/src/repositories/mutex/AwaitSemaphoreMute
 import {
 	CandyItemRepositoryImpl,
 	CandyRepositoryImpl,
-	PersonalityCategoryRepositoryImpl,
+	ContextRepositoryImpl,
+	PersonalityContextRepositoryImpl,
 	PersonalityRepositoryImpl,
 	ReminderRepositoryImpl,
 	StickyRepositoryImpl,
@@ -111,7 +115,8 @@ appContainer.bind<IUserCandyItemRepository>(RepoTypes.UserCandyItemRepository).t
 appContainer.bind<IReminderRepository>(RepoTypes.ReminderRepository).to(ReminderRepositoryImpl);
 appContainer.bind<IThreadRepository>(RepoTypes.ThreadRepository).to(ThreadRepositoryImpl);
 appContainer.bind<IPersonalityRepository>(RepoTypes.PersonalityRepository).to(PersonalityRepositoryImpl);
-appContainer.bind<IPersonalityCategoryRepository>(RepoTypes.PersonalityCategoryRepository).to(PersonalityCategoryRepositoryImpl);
+appContainer.bind<IContextRepository>(RepoTypes.ContextRepository).to(ContextRepositoryImpl);
+appContainer.bind<IPersonalityContextRepository>(RepoTypes.PersonalityContextRepository).to(PersonalityContextRepositoryImpl);
 appContainer.bind<IStickyRepository>(RepoTypes.StickyRepository).to(StickyRepositoryImpl);
 // ChatGPT
 appContainer.bind<IChatAIRepository>(RepoTypes.ChatAIRepository).to(ChatGPTRepositoryImpl);
@@ -127,7 +132,8 @@ appContainer.bind<ILogger>(RepoTypes.Logger).to(PinoLogger);
 // Logics
 appContainer.bind<IThreadLogic>(LogicTypes.ThreadLogic).to(ThreadLogic);
 appContainer.bind<IPersonalityLogic>(LogicTypes.PersonalityLogic).to(PersonalityLogic);
-appContainer.bind<IPersonalityCategoryLogic>(LogicTypes.PersonalityCategoryLogic).to(PersonalityCategoryLogic);
+appContainer.bind<IContextLogic>(LogicTypes.ContextLogic).to(ContextLogic);
+appContainer.bind<IPersonalityContextLogic>(LogicTypes.PersonalityContextLogic).to(PersonalityContextLogic);
 appContainer.bind<IChatAILogic>(LogicTypes.ChatAILogic).to(ChatAILogic);
 appContainer.bind<IMinecraftServerLogic>(LogicTypes.MinecraftServerLogic).to(MinecraftServerLogic);
 appContainer.bind<ICandyLogic>(LogicTypes.CandyLogic).to(CandyLogic);

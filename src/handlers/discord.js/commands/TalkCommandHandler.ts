@@ -61,7 +61,9 @@ export class TalkCommandHandler implements SlashCommandHandler {
 
 		const personalityContext = await this.personalityContextLogic.find(
 			new PersonalityContextPersonalityId(personality.id.getValue()),
-			new PersonalityContextContextId(interaction.options.getInteger("type", true)),
+			new PersonalityContextContextId(
+				interaction.options.getInteger("type", true),
+			),
 		);
 		if (!personalityContext) {
 			return;
