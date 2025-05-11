@@ -18,6 +18,6 @@ class DatafixPersonalityModel extends Model {
 	@Column(DataType.STRING)
 	declare name: string;
 	@Column(DataType.JSON)
-	declare personality: JSON;
+	declare prompt: JSON;
 }
 export { DatafixPersonalityModel };

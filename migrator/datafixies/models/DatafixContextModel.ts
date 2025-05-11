@@ -8,18 +8,16 @@ import {
 } from "sequelize-typescript";
 
 @Table({
-	tableName: "PersonalityCategories",
+	tableName: "Contexts",
 })
-class DatafixPersonalityCategoryModel extends Model {
+class DatafixContextModel extends Model {
 	@PrimaryKey
 	@AutoIncrement
 	@Column(DataType.INTEGER)
 	declare id: number;
-	@Column(DataType.INTEGER)
-	declare personalityId: number;
 	@Column(DataType.STRING)
 	declare name: string;
 	@Column(DataType.JSON)
-	declare context: JSON;
+	declare prompt: JSON;
 }
-export { DatafixPersonalityCategoryModel };
+export { DatafixContextModel };
