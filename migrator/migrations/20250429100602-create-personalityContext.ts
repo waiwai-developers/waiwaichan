@@ -1,23 +1,19 @@
 import type { Migration } from "@/migrator/umzug";
 import { DataTypes } from "sequelize";
 
-const TABLE_NAME = "Personalities";
+const TABLE_NAME = "PersonalityContexts";
 
 export const up: Migration = async ({ context: sequelize }) => {
 	await sequelize.getQueryInterface().createTable(TABLE_NAME, {
-		id: {
+		personalityId: {
 			allowNull: false,
-			autoIncrement: true,
 			primaryKey: true,
 			type: DataTypes.INTEGER,
 		},
-		name: {
+		categoryId: {
 			allowNull: false,
-			type: DataTypes.STRING,
-		},
-		prompt: {
-			allowNull: false,
-			type: DataTypes.JSON,
+			primaryKey: true,
+			type: DataTypes.INTEGER,
 		},
 		createdAt: {
 			allowNull: false,

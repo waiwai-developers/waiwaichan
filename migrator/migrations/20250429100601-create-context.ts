@@ -1,7 +1,7 @@
 import type { Migration } from "@/migrator/umzug";
 import { DataTypes } from "sequelize";
 
-const TABLE_NAME = "PersonalityCategories";
+const TABLE_NAME = "Contexts";
 
 export const up: Migration = async ({ context: sequelize }) => {
 	await sequelize.getQueryInterface().createTable(TABLE_NAME, {
@@ -11,15 +11,11 @@ export const up: Migration = async ({ context: sequelize }) => {
 			primaryKey: true,
 			type: DataTypes.INTEGER,
 		},
-		personalityId: {
-			allowNull: false,
-			type: DataTypes.INTEGER,
-		},
 		name: {
 			allowNull: false,
 			type: DataTypes.STRING,
 		},
-		context: {
+		prompt: {
 			allowNull: false,
 			type: DataTypes.JSON,
 		},
