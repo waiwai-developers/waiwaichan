@@ -65,18 +65,12 @@ export class CrownReactionHandler
 			return;
 		}
 
-		const crown = await this.crownLogic.find(
-			new CrownDto(
-				new DiscordGuildId(reaction.message.guildId),
-				new DiscordMessageId(reaction.message.id),
-			),
-		);
-
-		if (crown) {
+		if (reaction.message.guildId == null) {
+			console.log("guildId is null");
 			return;
 		}
 
-		const res = await this.crownLogic.create(
+		const res = await this.crownLogic.createCrownIfNotExists(
 			new DiscordGuildId(reaction.message.guildId),
 			new DiscordUserId(reaction.message.author.id),
 			new DiscordMessageId(reaction.message.id),
@@ -84,7 +78,7 @@ export class CrownReactionHandler
 			new CrownMessageLink(reaction.message.url),
 		);
 
-		if (!res) {
+		if (res == null) {
 			return;
 		}
 
