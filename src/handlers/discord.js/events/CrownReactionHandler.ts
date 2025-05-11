@@ -1,7 +1,9 @@
 import { AppConfig } from "@/src/entities/config/AppConfig";
 import { APPLY_CROWN_NUM } from "@/src/entities/constants/Crown";
-import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
-import { CrownDto } from "@/src/entities/dto/CrownDto";
+import {
+	LogicTypes,
+	RepoTypes
+} from "@/src/entities/constants/DIContainerTypes";
 import { CrownMessage } from "@/src/entities/vo/CrownMessage";
 import { CrownMessageLink } from "@/src/entities/vo/CrownMessageLink";
 import { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
@@ -15,12 +17,16 @@ import type {
 import type { ICrownLogic } from "@/src/logics/Interfaces/logics/ICrownLogic";
 import { TextChannel } from "discord.js";
 import { inject, injectable } from "inversify";
+import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 
 @injectable()
 export class CrownReactionHandler
 	implements DiscordEventHandler<ReactionInteraction> {
 	@inject(LogicTypes.CrownLogic)
 	private crownLogic!: ICrownLogic;
+
+	@inject(RepoTypes.Logger)
+	private readonly logger!: ILogger;
 
 	async handle({ reaction, user }: ReactionInteraction): Promise<void> {
 		if (reaction.partial) {
@@ -29,12 +35,12 @@ export class CrownReactionHandler
 				await reaction.message.fetch();
 				await reaction.message.guild?.channels.fetch();
 			} catch (err) {
-				console.log("fail to fetch old message");
+				this.logger.error("fail to fetch old message");
 				return;
 			}
 		}
 		if (user.bot) {
-			console.log("reaction by bot");
+			this.logger.debug("reaction by bot");
 			return;
 		}
 
@@ -42,22 +48,22 @@ export class CrownReactionHandler
 			(reaction.message.author?.bot ?? true) ||
 			(reaction.message.author?.id ?? null) == null
 		) {
-			console.log("some data is null");
+			this.logger.error("some data is null");
 			return;
 		}
 
 		if (reaction.message.author?.id == null) {
-			console.log("author id is null");
+			this.logger.error("author id is null");
 			return;
 		}
 
 		if (reaction.message.content == null) {
-			console.log("content is null");
+			this.logger.error("content is null");
 			return;
 		}
 
 		if (reaction.count == null) {
-			console.log("count is null");
+			this.logger.error("count is null");
 			return;
 		}
 
@@ -66,7 +72,7 @@ export class CrownReactionHandler
 		}
 
 		if (reaction.message.guildId == null) {
-			console.log("guildId is null");
+			this.logger.error("guildId is null");
 			return;
 		}
 
