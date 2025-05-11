@@ -31,8 +31,10 @@ import type { DiscordEventHandler } from "@/src/handlers/discord.js/events/Disco
 import type { ReactionInteraction } from "@/src/handlers/discord.js/events/DiscordEventHandler";
 import { StickyEventHandler } from "@/src/handlers/discord.js/events/StickyEventHandler";
 import { TranslateReplyHandler } from "@/src/handlers/discord.js/events/TranslateReplyHandler";
+import { ActionLogic } from "@/src/logics/ActionLogic";
 import { CandyLogic } from "@/src/logics/CandyLogic";
 import { ChatAILogic } from "@/src/logics/ChatAILogic";
+import type { IActionLogic } from "@/src/logics/Interfaces/logics/IActionLogic";
 import type { ICandyLogic } from "@/src/logics/Interfaces/logics/ICandyLogic";
 import type { IChatAILogic } from "@/src/logics/Interfaces/logics/IChatAILogic";
 import type { IMinecraftServerLogic } from "@/src/logics/Interfaces/logics/IMinecraftServerLogic";
@@ -44,6 +46,7 @@ import type { ITranslatorLogic } from "@/src/logics/Interfaces/logics/ITranslato
 import type { IUtilityLogic } from "@/src/logics/Interfaces/logics/IUtilityLogic";
 import type { IChatAIRepository } from "@/src/logics/Interfaces/repositories/chataiapi/IChatAIRepository";
 import type { IVirtualMachineAPI } from "@/src/logics/Interfaces/repositories/cloudprovider/IVirtualMachineAPI";
+import type { IActionRepository } from "@/src/logics/Interfaces/repositories/database/IActionRepository";
 import type { ICandyItemRepository } from "@/src/logics/Interfaces/repositories/database/ICandyItemRepository";
 import type { ICandyRepository } from "@/src/logics/Interfaces/repositories/database/ICandyRepository";
 import type { IDataBaseConnector } from "@/src/logics/Interfaces/repositories/database/IDataBaseConnector";
@@ -70,6 +73,7 @@ import { GithubPullRequestRepositoryImpl } from "@/src/repositories/githubapi/Gi
 import { PinoLogger } from "@/src/repositories/logger/PinoLogger";
 import { AwaitSemaphoreMutex } from "@/src/repositories/mutex/AwaitSemaphoreMutex";
 import { CandyItemRepositoryImpl, CandyRepositoryImpl, ReminderRepositoryImpl, StickyRepositoryImpl, ThreadRepositoryImpl, UserCandyItemRepositoryImpl } from "@/src/repositories/sequelize-mysql";
+import { ActionRepositoryImpl } from "@/src/repositories/sequelize-mysql/ActionRepositoryImpl";
 import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnector";
 import { SequelizeTransaction } from "@/src/repositories/sequelize-mysql/SequelizeTransaction";
 import { ActionAddBotRouter } from "@/src/routes/discordjs/events/ActionAddBotRouter";
@@ -78,7 +82,7 @@ import { MessageReplyRouter } from "@/src/routes/discordjs/events/MessageReplyRo
 import { ReactionRouter } from "@/src/routes/discordjs/events/ReactionRouter";
 import { ReadyStateRouter } from "@/src/routes/discordjs/events/ReadyStateRouter";
 import { SlashCommandRouter } from "@/src/routes/discordjs/events/SlashCommandRouter";
-import type { Message, Guild } from "discord.js";
+import type { Guild, Message } from "discord.js";
 import { Container } from "inversify";
 import type { Sequelize } from "sequelize";
 
@@ -98,6 +102,7 @@ appContainer.bind<IUserCandyItemRepository>(RepoTypes.UserCandyItemRepository).t
 appContainer.bind<IReminderRepository>(RepoTypes.ReminderRepository).to(ReminderRepositoryImpl);
 appContainer.bind<IThreadRepository>(RepoTypes.ThreadRepository).to(ThreadRepositoryImpl);
 appContainer.bind<IStickyRepository>(RepoTypes.StickyRepository).to(StickyRepositoryImpl);
+appContainer.bind<IActionRepository>(RepoTypes.ActionRepository).to(ActionRepositoryImpl);
 // ChatGPT
 appContainer.bind<IChatAIRepository>(RepoTypes.ChatAIRepository).to(ChatGPTRepositoryImpl);
 // DeepL
@@ -119,6 +124,7 @@ appContainer.bind<IPullRequestLogic>(LogicTypes.PullRequestLogic).to(PullRequest
 appContainer.bind<ITranslatorLogic>(LogicTypes.TranslatorLogic).to(TranslatorLogic);
 appContainer.bind<IStickyLogic>(LogicTypes.StickyLogic).to(StickyLogic);
 appContainer.bind<IUtilityLogic>(LogicTypes.UtilityLogic).to(UtilityLogic);
+appContainer.bind<IActionLogic>(LogicTypes.ActionLogic).to(ActionLogic);
 
 // Handlers
 appContainer.bind<DiscordEventHandler<Message>>(HandlerTypes.MessageHandler).to(AIReplyHandler);
