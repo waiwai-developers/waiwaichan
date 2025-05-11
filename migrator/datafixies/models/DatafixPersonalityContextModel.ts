@@ -16,6 +16,6 @@ class DatafixPersonalityContextModel extends Model {
 	declare personalityId: number;
 	@PrimaryKey
 	@Column(DataType.INTEGER)
-	declare categoryId: number;
+	declare contextId: number;
 }
 export { DatafixPersonalityContextModel };
