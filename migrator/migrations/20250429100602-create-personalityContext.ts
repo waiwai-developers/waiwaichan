@@ -10,7 +10,7 @@ export const up: Migration = async ({ context: sequelize }) => {
 			primaryKey: true,
 			type: DataTypes.INTEGER,
 		},
-		categoryId: {
+		contextId: {
 			allowNull: false,
 			primaryKey: true,
 			type: DataTypes.INTEGER,
