@@ -1,4 +1,3 @@
-import * as fs from "node:fs";
 import { AppConfig } from "@/src/entities/config/AppConfig";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
 import { ChatAIMessageDto } from "@/src/entities/dto/ChatAIMessageDto";
