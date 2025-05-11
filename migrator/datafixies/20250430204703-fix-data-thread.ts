@@ -47,7 +47,7 @@ export const up: Datafix = async ({ context: sequelize }) => {
 				}
 			);
 			if (!context) {
-				throw new Error("PersonalityCategory not found. Rolling back transaction.");
+				throw new Error("Context not found. Rolling back transaction.");
 			}
 
 			const metadata = Object.assign(personality.prompt, context.prompt);
