@@ -29,19 +29,19 @@ export const up: Datafix = async ({ context: sequelize }) => {
 				{
 					where: {
 						personalityId: PersonalityId.PERSONALITY_ID_WAIWAICHAN.getValue(),
-						categoryId: ContextsConst.contexts.find((c) => c.name === "カテゴリなし")?.id,
+						contextId: ContextsConst.contexts.find((c) => c.name === "カテゴリなし")?.id,
 					},
 					transaction
 				}
 			);
 			if (!personalityContext) {
-				throw new Error("PersonalityContext not found. Rolling back transaction.");
+				throw new Error("PersonalityContexts not found. Rolling back transaction.");
 			}
 
 			const context = await DatafixContextModel.findOne(
 				{
 					where: {
-						id: personalityContext.categoryId,
+						id: personalityContext.contextId,
 					},
 					transaction
 				}
