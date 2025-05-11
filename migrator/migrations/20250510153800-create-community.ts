@@ -10,11 +10,11 @@ export const up: Migration = async ({ context: sequelize }) => {
 			primaryKey: true,
 			type: DataTypes.INTEGER,
 		},
-		communityType: {
+		categoryType: {
 			allowNull: false,
 			type: DataTypes.INTEGER,
 		},
-		clientCommunityId: {
+		clientId: {
 			allowNull: false,
 			type: DataTypes.STRING,
 		},
@@ -32,9 +32,9 @@ export const up: Migration = async ({ context: sequelize }) => {
 	})
 
     await sequelize.getQueryInterface().addConstraint(TABLE_NAME, {
-        fields: ["communityType", "clientCommunityId"],
+        fields: ["categoryType", "clientId"],
         type: "unique",
-        name: "unique_community_type_and_client_community_id", // 制約名つけようねっ
+        name: "unique_category_type_and_client_id", // 制約名つけようねっ
     });
 };
 export const down: Migration = async ({ context: sequelize }) => {
