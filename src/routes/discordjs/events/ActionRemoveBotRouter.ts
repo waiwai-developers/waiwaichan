@@ -17,9 +17,7 @@ export class ActionRemoveBotRouter implements DiscordEventRouter {
 	register(client: Client): void {
 		client.on("guildDelete", async (guild) => {
 			try {
-				this.logger.info(
-					`Bot is removed to server for guildIs: ${guild.id}.`,
-				);
+				this.logger.info(`Bot is removed to server for guildIs: ${guild.id}.`);
 				await this.handler.handle(guild);
 			} catch (e) {
 				this.logger.error(`Error: ${e}`);
