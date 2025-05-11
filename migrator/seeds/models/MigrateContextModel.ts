@@ -8,10 +8,10 @@ import {
 } from "sequelize-typescript";
 
 @Table({
-	tableName: "Personalities",
+	tableName: "Contexts",
 	timestamps: true,
 })
-class MigratePersonalityModel extends Model {
+class MigrateContextModel extends Model {
 	@PrimaryKey
 	@AutoIncrement
 	@Column(DataType.INTEGER)
@@ -25,9 +25,9 @@ class MigratePersonalityModel extends Model {
 		data: Array<{ id: number; name: string; prompt: JSON }>,
 	) {
 		await Promise.all(
-			data.map(async (d) => await MigratePersonalityModel.upsert(d)),
+			data.map(async (d) => await MigrateContextModel.upsert(d)),
 		);
 	}
 }
 
-export { MigratePersonalityModel };
+export { MigrateContextModel };
