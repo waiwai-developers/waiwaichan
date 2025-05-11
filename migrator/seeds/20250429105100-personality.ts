@@ -1,4 +1,4 @@
-import { PersonalitiesConst } from "@/src/entities/constants/personality";
+import { PersonalitiesConst } from "@/src/entities/constants/Personalities";
 import type { Seed } from "@/migrator/umzug";
 import { Op } from "sequelize";
 import { MigratePersonalityModel } from "./models/MigratePersonalityModel";
@@ -11,7 +11,7 @@ export const up: Seed = async ({ context: sequelize }) => {
 			{
 				"id": p.id,
 				"name": p.name,
-				"personality": JSON.parse(`{"persona_role": ${p.personality.persona_role}, "speaking_style_rules": ${p.personality.speaking_style_rules}, "response_directives": ${p.personality.response_directives}, "emotion_model": ${p.personality.emotion_model}, "notes": ${p.personality.notes}}`)
+				"prompt": JSON.parse(`{"persona_role": ${p.personality.persona_role}, "speaking_style_rules": ${p.personality.speaking_style_rules}, "response_directives": ${p.personality.response_directives}, "emotion_model": ${p.personality.emotion_model}, "notes": ${p.personality.notes}}`)
 			}
 		)
 	));
@@ -19,7 +19,7 @@ export const up: Seed = async ({ context: sequelize }) => {
 
 export const down: Seed = async ({ context: sequelize }) => {
 	await sequelize.getQueryInterface().bulkDelete(
-		"Personalities",
+		"PersonalityContexts",
 		{
 			id: { [Op.in]: PersonalitiesConst.personalities.map((r) => r.id) },
 		},
