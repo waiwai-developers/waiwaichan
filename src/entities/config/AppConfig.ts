@@ -39,7 +39,6 @@ interface AppConfigJson {
 		candySuperEmoji: string;
 		candyLogChannel: string;
 		candyBoxAmount: number;
-		crownEmoji: string;
 		crownLogChannel: string;
 	};
 }
