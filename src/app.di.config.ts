@@ -26,6 +26,7 @@ import {
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
 import { AIReplyHandler } from "@/src/handlers/discord.js/events/AIReplyHandler";
 import { ActionAddBotHandler } from "@/src/handlers/discord.js/events/ActionAddBotHandler";
+import { ActionRemoveBotHandler } from "@/src/handlers/discord.js/events/ActionRemoveBotHandler";
 import { CandyReactionHandler } from "@/src/handlers/discord.js/events/CandyReactionHandler";
 import type { DiscordEventHandler } from "@/src/handlers/discord.js/events/DiscordEventHandler";
 import type { ReactionInteraction } from "@/src/handlers/discord.js/events/DiscordEventHandler";
@@ -77,6 +78,7 @@ import { ActionRepositoryImpl } from "@/src/repositories/sequelize-mysql/ActionR
 import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnector";
 import { SequelizeTransaction } from "@/src/repositories/sequelize-mysql/SequelizeTransaction";
 import { ActionAddBotRouter } from "@/src/routes/discordjs/events/ActionAddBotRouter";
+import { ActionRemoveBotRouter } from "@/src/routes/discordjs/events/ActionRemoveBotRouter";
 import type { DiscordEventRouter } from "@/src/routes/discordjs/events/DiscordEventRouter";
 import { MessageReplyRouter } from "@/src/routes/discordjs/events/MessageReplyRouter";
 import { ReactionRouter } from "@/src/routes/discordjs/events/ReactionRouter";
@@ -132,6 +134,7 @@ appContainer.bind<DiscordEventHandler<Message>>(HandlerTypes.MessageHandler).to(
 appContainer.bind<DiscordEventHandler<Message>>(HandlerTypes.MessageHandler).to(TranslateReplyHandler);
 appContainer.bind<DiscordEventHandler<ReactionInteraction>>(HandlerTypes.ReactionHandler).to(CandyReactionHandler);
 appContainer.bind<DiscordEventHandler<Guild>>(HandlerTypes.ActionAddBotHandler).to(ActionAddBotHandler);
+appContainer.bind<DiscordEventHandler<Guild>>(HandlerTypes.ActionRemoveBotHandler).to(ActionRemoveBotHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(HelpCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(WaiwaiCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(ParrotCommandHandler);
@@ -160,5 +163,6 @@ appContainer.bind<DiscordEventRouter>(RouteTypes.MessageReplyRoute).to(MessageRe
 appContainer.bind<DiscordEventRouter>(RouteTypes.ReadyStateRoute).to(ReadyStateRouter);
 appContainer.bind<DiscordEventRouter>(RouteTypes.ReactionRoute).to(ReactionRouter);
 appContainer.bind<DiscordEventRouter>(RouteTypes.ActionAddBotRoute).to(ActionAddBotRouter);
+appContainer.bind<DiscordEventRouter>(RouteTypes.ActionRemoveBotRoute).to(ActionRemoveBotRouter);
 
 export { appContainer };
