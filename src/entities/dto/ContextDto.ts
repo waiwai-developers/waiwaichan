@@ -4,6 +4,6 @@ import type { ContextPrompt } from "@/src/entities/vo/ContextPrompt";
 export class ContextDto {
 	constructor(
 		public name: ContextName,
-		public context: ContextPrompt,
+		public prompt: ContextPrompt,
 	) {}
 }
