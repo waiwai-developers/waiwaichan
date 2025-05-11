@@ -12,7 +12,7 @@ export const RepoTypes = {
 	VMInstanceRepository: Symbol.for("VMInstanceRepository"),
 	PullRequestRepository: Symbol.for("PullRequestRepository"),
 	StickyRepository: Symbol.for("StickyRepository"),
-	ActionRepository: Symbol.for("ActionRepository"),
+	CommunityRepository: Symbol.for("CommunityRepository"),
 	SequelizeModels: Symbol.for("SequelizeModels"),
 	Logger: Symbol.for("Logger"),
 };
@@ -26,7 +26,7 @@ export const LogicTypes = {
 	TranslatorLogic: Symbol.for("TranslateLogic"),
 	StickyLogic: Symbol.for("StickyLogic"),
 	UtilityLogic: Symbol.for("UtilityLogic"),
-	ActionLogic: Symbol.for("ActionLogic"),
+	CommunityLogic: Symbol.for("CommunityLogic"),
 };
 
 export const RouteTypes = {

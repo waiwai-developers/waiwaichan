@@ -2,7 +2,7 @@ import { GetEnvDBConfig } from "@/src/entities/config/DatabaseConfig";
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import type { IDataBaseConnector } from "@/src/logics/Interfaces/repositories/database/IDataBaseConnector";
 import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
-import { ActionRepositoryImpl } from "@/src/repositories/sequelize-mysql/ActionRepositoryImpl";
+import { CommunityRepositoryImpl } from "@/src/repositories/sequelize-mysql/ CommunityRepositoryImpl";
 import { CandyItemRepositoryImpl } from "@/src/repositories/sequelize-mysql/CandyItemRepositoryImpl";
 import { CandyRepositoryImpl } from "@/src/repositories/sequelize-mysql/CandyRepositoryImpl";
 import { ReminderRepositoryImpl } from "@/src/repositories/sequelize-mysql/ReminderRepositoryImpl";
@@ -39,7 +39,7 @@ export class MysqlConnector implements IDataBaseConnector<Sequelize, "mysql"> {
 					ReminderRepositoryImpl,
 					ThreadRepositoryImpl,
 					StickyRepositoryImpl,
-					ActionRepositoryImpl,
+					CommunityRepositoryImpl,
 				],
 			},
 		);

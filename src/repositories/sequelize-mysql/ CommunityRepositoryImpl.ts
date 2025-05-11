@@ -1,7 +1,7 @@
 import { ActionDto } from "@/src/entities/dto/ActionDto";
 import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
 import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
-import type { IActionRepository } from "@/src/logics/Interfaces/repositories/database/IActionRepository";
+import type { ICommunityRepository } from "@/src/logics/Interfaces/repositories/database/ICommunityRepository";
 import { injectable } from "inversify";
 import {
 	AutoIncrement,
@@ -18,7 +18,7 @@ import {
 	timestamps: true,
 	paranoid: true,
 })
-class ActionRepositoryImpl extends Model implements IActionRepository {
+class CommunityRepositoryImpl extends Model implements ICommunityRepository {
 	@PrimaryKey
 	@AutoIncrement
 	@Column(DataType.INTEGER)
@@ -29,14 +29,14 @@ class ActionRepositoryImpl extends Model implements IActionRepository {
 	declare clientId: string;
 
 	async create(data: ActionDto): Promise<boolean> {
-		return ActionRepositoryImpl.create({
+		return CommunityRepositoryImpl.create({
 			categoryType: data.categoryType.getValue(),
 			clientId: data.clientId.getValue(),
 		}).then((res) => !!res);
 	}
 
 	async delete(data: ActionDto): Promise<boolean> {
-		return ActionRepositoryImpl.destroy({
+		return CommunityRepositoryImpl.destroy({
 			where: {
 				categoryType: data.categoryType.getValue(),
 				clientId: data.clientId.getValue(),
@@ -51,4 +51,4 @@ class ActionRepositoryImpl extends Model implements IActionRepository {
 		);
 	}
 }
-export { ActionRepositoryImpl };
+export { CommunityRepositoryImpl };

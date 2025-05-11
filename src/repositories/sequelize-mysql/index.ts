@@ -1,4 +1,4 @@
-import { ActionRepositoryImpl } from "@/src/repositories/sequelize-mysql/ActionRepositoryImpl";
+import { CommunityRepositoryImpl } from "@/src/repositories/sequelize-mysql/ CommunityRepositoryImpl";
 import { ReminderRepositoryImpl } from "@/src/repositories/sequelize-mysql/ReminderRepositoryImpl";
 import { ReminderSchedulerRepositoryImpl } from "@/src/repositories/sequelize-mysql/ReminderSchedulerRepositoryImpl";
 import { CandyItemRepositoryImpl } from "./CandyItemRepositoryImpl";
@@ -8,7 +8,7 @@ import { ThreadRepositoryImpl } from "./ThreadRepositoryImpl";
 import { UserCandyItemRepositoryImpl } from "./UserCandyItemRepositoryImpl";
 
 export {
-	ActionRepositoryImpl,
+	CommunityRepositoryImpl,
 	ReminderRepositoryImpl,
 	ReminderSchedulerRepositoryImpl,
 	CandyItemRepositoryImpl,
