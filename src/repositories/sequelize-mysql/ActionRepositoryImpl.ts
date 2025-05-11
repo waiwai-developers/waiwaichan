@@ -35,6 +35,15 @@ class ActionRepositoryImpl extends Model implements IActionRepository {
 		}).then((res) => !!res);
 	}
 
+	async delete(data: ActionDto): Promise<boolean> {
+		return ActionRepositoryImpl.destroy({
+			where: {
+				categoryType: data.categoryType.getValue(),
+				clientId: data.clientId.getValue(),
+			},
+		}).then((res) => !!res);
+	}
+
 	toDto(): ActionDto {
 		return new ActionDto(
 			new CommunityCategoryType(this.categoryType),
