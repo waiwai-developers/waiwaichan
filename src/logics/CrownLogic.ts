@@ -22,13 +22,34 @@ export class CrownLogic implements ICrownLogic {
 	@inject(RepoTypes.Mutex)
 	private readonly mutex!: IMutex;
 
-	async find(data: CrownDto): Promise<CrownDto | undefined> {
+	async createCrownIfNotExists(
+		guildId: DiscordGuildId,
+		userId: DiscordUserId,
+		messageId: DiscordMessageId,
+		crownMessage: CrownMessage,
+		crownMessageLink: CrownMessageLink,
+	): Promise<string | undefined> {
+		return await this.find(new CrownDto(guildId, messageId)).then((c) => {
+			if (c != null) {
+				return undefined;
+			}
+			return this.create(
+				guildId,
+				userId,
+				messageId,
+				crownMessage,
+				crownMessageLink,
+			);
+		});
+	}
+
+	private async find(data: CrownDto): Promise<CrownDto | undefined> {
 		return this.transaction.startTransaction(async () => {
 			return await this.crownRepository.findOne(data);
 		});
 	}
 
-	async create(
+	private async create(
 		guildId: DiscordGuildId,
 		userId: DiscordUserId,
 		messageId: DiscordMessageId,

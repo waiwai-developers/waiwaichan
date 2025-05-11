@@ -6,12 +6,11 @@ import type { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
 import type { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
 
 export interface ICrownLogic {
-	find(data: CrownDto): Promise<CrownDto | undefined>;
-	create(
+	createCrownIfNotExists(
 		guildId: DiscordGuildId,
 		userId: DiscordUserId,
 		messageId: DiscordMessageId,
 		crownMessage: CrownMessage,
 		crownMessageLink: CrownMessageLink,
-	): Promise<string>;
+	): Promise<string | undefined>;
 }
