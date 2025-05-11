@@ -18,4 +18,9 @@ export class ActionLogic implements IActionLogic {
 			return await this.ActionRepository.create(data);
 		});
 	}
+	async delete(data: ActionDto): Promise<boolean> {
+		return this.transaction.startTransaction(async () => {
+			return await this.ActionRepository.delete(data);
+		});
+	}
 }
