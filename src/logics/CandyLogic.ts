@@ -22,6 +22,7 @@ import { CandyCreatedAt } from "@/src/entities/vo/CandyCreatedAt";
 import { CandyExpire } from "@/src/entities/vo/CandyExpire";
 import { CandyId } from "@/src/entities/vo/CandyId";
 import { CandyItemId } from "@/src/entities/vo/CandyItemId";
+import type { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
 import type { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
 import type { DiscordMessageLink } from "@/src/entities/vo/DiscordMessageLink";
 import type { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
@@ -54,9 +55,9 @@ export class CandyLogic implements ICandyLogic {
 	@inject(RepoTypes.Mutex)
 	private readonly mutex!: IMutex;
 
-	async check(userId: DiscordUserId): Promise<string> {
+	async check(guildId: DiscordGuildId, userId: DiscordUserId): Promise<string> {
 		const candyCount = await this.candyRepository
-			.candyCount(userId)
+			.candyCount(guildId, userId)
 			.then((candyCount) => candyCount.getValue());
 
 		if (candyCount <= 0) {
@@ -64,7 +65,7 @@ export class CandyLogic implements ICandyLogic {
 		}
 
 		const candyExpire = await this.candyRepository
-			.candyExpire(userId)
+			.candyExpire(guildId, userId)
 			.then((e) =>
 				e
 					? dayjs(e.getValue()).subtract(1, "d").format("YYYY/MM/DD")
@@ -79,6 +80,7 @@ export class CandyLogic implements ICandyLogic {
 	}
 
 	async exchange(
+		guildId: DiscordGuildId,
 		userId: DiscordUserId,
 		type: CandyItemId,
 		amount: UserCandyItemCount,
@@ -86,7 +88,7 @@ export class CandyLogic implements ICandyLogic {
 		return this.transaction
 			.startTransaction(async () => {
 				return this.userCandyItemRepository
-					.exchangeByTypeAndAmount(userId, type, amount)
+					.exchangeByTypeAndAmount(guildId, userId, type, amount)
 					.then(async (updated) => {
 						if (updated !== amount.getValue()) {
 							throw new Error(
@@ -106,6 +108,7 @@ export class CandyLogic implements ICandyLogic {
 	}
 
 	async drawItems(
+		guildId: DiscordGuildId,
 		userId: DiscordUserId,
 		candyConsumeAmount: CandyCount = new CandyCount(1),
 	): Promise<string> {
@@ -113,6 +116,7 @@ export class CandyLogic implements ICandyLogic {
 			.startTransaction(async () => {
 				// candyの消費
 				const candyIds = await this.candyRepository.consumeCandies(
+					guildId,
 					userId,
 					candyConsumeAmount,
 				);
@@ -152,9 +156,10 @@ export class CandyLogic implements ICandyLogic {
 
 				//天上の場合に置換
 				const lastJackpodCandyId =
-					await this.userCandyItemRepository.lastJackpodCandyId(userId);
+					await this.userCandyItemRepository.lastJackpodCandyId(guildId, userId);
 				const candyCountFromJackpod =
 					await this.candyRepository.candyCountFromJackpod(
+						guildId,
 						userId,
 						lastJackpodCandyId
 							? new CandyId(lastJackpodCandyId?.getValue())
@@ -189,6 +194,7 @@ export class CandyLogic implements ICandyLogic {
 					(m) =>
 						new UserCandyItemDto(
 							new UserCandyItemId(0),
+							guildId,
 							userId,
 							m.hitId,
 							m.candyId,
@@ -215,10 +221,15 @@ export class CandyLogic implements ICandyLogic {
 			.catch((_err) => "キャンディの数が足りないよ！っ");
 	}
 
-	async getItems(userId: DiscordUserId): Promise<string> {
+	async getItems(
+		guildId: DiscordGuildId,
+		userId: DiscordUserId,
+	): Promise<string> {
 		return this.transaction.startTransaction(async () => {
-			const userCandyItems =
-				await this.userCandyItemRepository.findByNotUsed(userId);
+			const userCandyItems = await this.userCandyItemRepository.findByNotUsed(
+				guildId,
+				userId,
+			);
 
 			if (userCandyItems.length === 0) return "アイテムは持ってないよ！っ";
 			const texts = userCandyItems.flatMap((u) => [
@@ -233,6 +244,7 @@ export class CandyLogic implements ICandyLogic {
 	}
 
 	async giveCandys(
+		guildId: DiscordGuildId,
 		receiver: DiscordUserId,
 		giver: DiscordUserId,
 		messageId: DiscordMessageId,
@@ -322,6 +334,7 @@ export class CandyLogic implements ICandyLogic {
 				}
 
 				const countByPeriod = await this.candyRepository.countByPeriod(
+					guildId,
 					giver,
 					candyCategoryType,
 					startDatetime,
@@ -334,6 +347,7 @@ export class CandyLogic implements ICandyLogic {
 				}
 
 				const candies = await this.candyRepository.findByGiverAndMessageId(
+					guildId,
 					giver,
 					messageId,
 					CandyCategoryType.CATEGORY_TYPE_SUPER,
@@ -347,6 +361,7 @@ export class CandyLogic implements ICandyLogic {
 					[...Array(candyAmount)].map(
 						() =>
 							new CandyDto(
+								guildId,
 								receiver,
 								giver,
 								messageId,
