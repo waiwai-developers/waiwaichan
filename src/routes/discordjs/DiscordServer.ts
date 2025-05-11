@@ -24,6 +24,7 @@ export class DiscordServer {
 			appContainer.get<DiscordEventRouter>(RouteTypes.MessageReplyRoute),
 			appContainer.get<DiscordEventRouter>(RouteTypes.ReactionRoute),
 			appContainer.get<DiscordEventRouter>(RouteTypes.ActionAddBotRoute),
+			appContainer.get<DiscordEventRouter>(RouteTypes.ActionRemoveBotRoute),
 		]);
 		await new DiscordCommandRegister().register(token);
 		this.EventRoutes.forEach((event) => {
