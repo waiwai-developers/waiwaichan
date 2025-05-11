@@ -1,7 +1,7 @@
 import { PersonalityDto } from "@/src/entities/dto/PersonalityDto";
 import { PersonalityId } from "@/src/entities/vo/PersonalityId";
 import { PersonalityName } from "@/src/entities/vo/PersonalityName";
-import { PersonalityPersonality } from "@/src/entities/vo/PersonalityPersonality";
+import { PersonalityPrompt } from "@/src/entities/vo/PersonalityPrompt";
 
 import type { IPersonalityRepository } from "@/src/logics/Interfaces/repositories/database/IPersonalityRepository";
 import { injectable } from "inversify";
@@ -30,7 +30,7 @@ class PersonalityRepositoryImpl
 	@Column(DataType.STRING)
 	declare name: string;
 	@Column(DataType.JSON)
-	declare personality: JSON;
+	declare prompt: JSON;
 
 	async findById(id: PersonalityId): Promise<PersonalityDto | undefined> {
 		return PersonalityRepositoryImpl.findOne({
@@ -44,7 +44,7 @@ class PersonalityRepositoryImpl
 		return new PersonalityDto(
 			new PersonalityId(this.id),
 			new PersonalityName(this.name),
-			new PersonalityPersonality(this.personality),
+			new PersonalityPrompt(this.prompt),
 		);
 	}
 }
