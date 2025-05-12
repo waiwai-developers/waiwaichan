@@ -1,10 +1,14 @@
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
+import { CommunityDto } from "@/src/entities/dto/CommunityDto";
 import { UserDto } from "@/src/entities/dto/UserDto";
+import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
+import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
 import { UserCategoryType } from "@/src/entities/vo/UserCategoryType";
 import { UserClientId } from "@/src/entities/vo/UserClientId";
 import { UserCommunityId } from "@/src/entities/vo/UserCommunityId";
 import type { DiscordEventHandler } from "@/src/handlers/discord.js/events/DiscordEventHandler";
+import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { IUserLogic } from "@/src/logics/Interfaces/logics/IUserLogic";
 import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 import type { GuildMember } from "discord.js";
@@ -15,23 +19,36 @@ export class ActionAddUserHandler implements DiscordEventHandler<GuildMember> {
 	@inject(RepoTypes.Logger)
 	private readonly logger!: ILogger;
 
+	@inject(LogicTypes.CommunityLogic)
+	private readonly CommunityLogic!: ICommunityLogic;
+
 	@inject(LogicTypes.UserLogic)
 	private readonly UserLogic!: IUserLogic;
 
 	async handle(member: GuildMember): Promise<void> {
 		try {
 			this.logger.info(
-				`ActionAddBotHandler: Bot was added to guild ${member.guild.id}`,
+				`ActionAddUserHandler: User was added to guild ${member.guild.id}`,
 			);
+			const communityId = await this.CommunityLogic.getId(
+				new CommunityDto(
+					CommunityCategoryType.Discord,
+					new CommunityClientId(BigInt(member.guild.id)),
+				),
+			);
+			if (communityId == null) {
+				return;
+			}
+
 			await this.UserLogic.create(
 				new UserDto(
 					UserCategoryType.Discord,
 					new UserClientId(BigInt(member.id)),
-					new UserCommunityId(Number.parseInt(member.guild.id)),
+					new UserCommunityId(communityId.getValue()),
 				),
 			);
 		} catch (error) {
-			this.logger.error(`ActionAddBotHandler error: ${error}`);
+			this.logger.error(`ActionAddUserHandler error: ${error}`);
 		}
 	}
 }
