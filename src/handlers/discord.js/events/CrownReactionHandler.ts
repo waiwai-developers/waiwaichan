@@ -2,7 +2,7 @@ import { AppConfig } from "@/src/entities/config/AppConfig";
 import { APPLY_CROWN_NUM } from "@/src/entities/constants/Crown";
 import {
 	LogicTypes,
-	RepoTypes
+	RepoTypes,
 } from "@/src/entities/constants/DIContainerTypes";
 import { CrownMessage } from "@/src/entities/vo/CrownMessage";
 import { CrownMessageLink } from "@/src/entities/vo/CrownMessageLink";
@@ -15,13 +15,14 @@ import type {
 	ReactionInteraction,
 } from "@/src/handlers/discord.js/events/DiscordEventHandler";
 import type { ICrownLogic } from "@/src/logics/Interfaces/logics/ICrownLogic";
+import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 import { TextChannel } from "discord.js";
 import { inject, injectable } from "inversify";
-import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 
 @injectable()
 export class CrownReactionHandler
-	implements DiscordEventHandler<ReactionInteraction> {
+	implements DiscordEventHandler<ReactionInteraction>
+{
 	@inject(LogicTypes.CrownLogic)
 	private crownLogic!: ICrownLogic;
 
