@@ -5,8 +5,9 @@ import type { ITransaction } from "@/src/logics/Interfaces/repositories/database
 import type { IUserRepository } from "@/src/logics/Interfaces/repositories/database/IUserRepository";
 import { inject, injectable } from "inversify";
 
-import type { UserCategoryType } from "@/src/entities/vo/UserCategoryType";
 import type { UserClientId } from "@/src/entities/vo/UserClientId";
+import type { UserCommunityId } from "@/src/entities/vo/UserCommunityId";
+import type { UserId } from "@/src/entities/vo/UserId";
 
 @injectable()
 export class UserLogic implements IUserLogic {
@@ -16,17 +17,27 @@ export class UserLogic implements IUserLogic {
 	@inject(RepoTypes.Transaction)
 	private readonly transaction!: ITransaction;
 
-	async create(data: UserDto): Promise<boolean> {
+	async bulkCreate(data: UserDto[]): Promise<boolean> {
 		return this.transaction.startTransaction(async () => {
-			return await this.UserRepository.create(data);
+			return await this.UserRepository.bulkCreate(data);
 		});
 	}
-	async delete(
-		categoryType: UserCategoryType,
-		clientId: UserClientId,
-	): Promise<boolean> {
+
+	async deletebyCommunityId(communityId: UserCommunityId): Promise<boolean> {
 		return this.transaction.startTransaction(async () => {
-			return await this.UserRepository.delete(categoryType, clientId);
+			return await this.UserRepository.deletebyCommunityId(communityId);
+		});
+	}
+
+	async deletebyClientId(clientId: UserClientId): Promise<boolean> {
+		return this.transaction.startTransaction(async () => {
+			return await this.UserRepository.deletebyClientId(clientId);
+		});
+	}
+
+	async getId(data: UserDto): Promise<UserId | undefined> {
+		return this.transaction.startTransaction(async () => {
+			return await this.UserRepository.getId(data);
 		});
 	}
 }

@@ -14,7 +14,7 @@ export class CommunityLogic implements ICommunityLogic {
 	@inject(RepoTypes.Transaction)
 	private readonly transaction!: ITransaction;
 
-	async create(data: CommunityDto): Promise<boolean> {
+	async create(data: CommunityDto): Promise<CommunityId> {
 		return this.transaction.startTransaction(async () => {
 			return await this.CommunityRepository.create(data);
 		});
