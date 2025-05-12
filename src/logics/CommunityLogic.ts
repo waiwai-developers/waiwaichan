@@ -1,5 +1,6 @@
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import type { CommunityDto } from "@/src/entities/dto/CommunityDto";
+import type { CommunityId } from "@/src/entities/vo/CommunityId";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { ICommunityRepository } from "@/src/logics/Interfaces/repositories/database/ICommunityRepository";
 import type { ITransaction } from "@/src/logics/Interfaces/repositories/database/ITransaction";
@@ -21,6 +22,11 @@ export class CommunityLogic implements ICommunityLogic {
 	async delete(data: CommunityDto): Promise<boolean> {
 		return this.transaction.startTransaction(async () => {
 			return await this.CommunityRepository.delete(data);
+		});
+	}
+	async getId(data: CommunityDto): Promise<CommunityId | undefined> {
+		return this.transaction.startTransaction(async () => {
+			return await this.CommunityRepository.getId(data);
 		});
 	}
 }

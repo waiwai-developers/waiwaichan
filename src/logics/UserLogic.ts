@@ -5,6 +5,9 @@ import type { ITransaction } from "@/src/logics/Interfaces/repositories/database
 import type { IUserRepository } from "@/src/logics/Interfaces/repositories/database/IUserRepository";
 import { inject, injectable } from "inversify";
 
+import type { UserCategoryType } from "@/src/entities/vo/UserCategoryType";
+import type { UserClientId } from "@/src/entities/vo/UserClientId";
+
 @injectable()
 export class UserLogic implements IUserLogic {
 	@inject(RepoTypes.UserRepository)
@@ -18,9 +21,12 @@ export class UserLogic implements IUserLogic {
 			return await this.UserRepository.create(data);
 		});
 	}
-	async delete(data: UserDto): Promise<boolean> {
+	async delete(
+		categoryType: UserCategoryType,
+		clientId: UserClientId,
+	): Promise<boolean> {
 		return this.transaction.startTransaction(async () => {
-			return await this.UserRepository.delete(data);
+			return await this.UserRepository.delete(categoryType, clientId);
 		});
 	}
 }
