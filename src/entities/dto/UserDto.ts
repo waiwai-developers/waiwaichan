@@ -6,6 +6,6 @@ export class UserDto {
 	constructor(
 		public categoryType: UserCategoryType,
 		public clientId: UserClientId,
-		public clientCommunityId: UserCommunityId,
+		public communityId: UserCommunityId,
 	) {}
 }
