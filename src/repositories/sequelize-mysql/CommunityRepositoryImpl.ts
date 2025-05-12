@@ -29,11 +29,11 @@ class CommunityRepositoryImpl extends Model implements ICommunityRepository {
 	@Column(DataType.BIGINT)
 	declare clientId: bigint;
 
-	async create(data: CommunityDto): Promise<boolean> {
+	async create(data: CommunityDto): Promise<CommunityId> {
 		return CommunityRepositoryImpl.create({
 			categoryType: data.categoryType.getValue(),
 			clientId: data.clientId.getValue(),
-		}).then((res) => !!res);
+		}).then((res) => new CommunityId(res.id));
 	}
 
 	async delete(data: CommunityDto): Promise<boolean> {

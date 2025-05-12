@@ -2,6 +2,7 @@ import { UserDto } from "@/src/entities/dto/UserDto";
 import { UserCategoryType } from "@/src/entities/vo/UserCategoryType";
 import { UserClientId } from "@/src/entities/vo/UserClientId";
 import { UserCommunityId } from "@/src/entities/vo/UserCommunityId";
+import { UserId } from "@/src/entities/vo/UserId";
 import type { IUserRepository } from "@/src/logics/Interfaces/repositories/database/IUserRepository";
 import { injectable } from "inversify";
 import {
@@ -31,24 +32,40 @@ class UserRepositoryImpl extends Model implements IUserRepository {
 	@Column(DataType.INTEGER)
 	declare communityId: number;
 
-	async create(data: UserDto): Promise<boolean> {
-		return UserRepositoryImpl.create({
-			categoryType: data.categoryType.getValue(),
-			clientId: data.clientId.getValue(),
-			communityId: data.communityId.getValue(),
+	async bulkCreate(data: UserDto[]): Promise<boolean> {
+		return await UserRepositoryImpl.bulkCreate(
+			data.map((d) => ({
+				categoryType: d.categoryType.getValue(),
+				clientId: d.clientId.getValue(),
+				communityId: d.communityId.getValue(),
+			})),
+		).then((res) => !!res);
+	}
+
+	async deletebyCommunityId(communityId: UserCommunityId): Promise<boolean> {
+		return UserRepositoryImpl.destroy({
+			where: {
+				communityId: communityId.getValue(),
+			},
 		}).then((res) => !!res);
 	}
 
-	async delete(
-		categoryType: UserCategoryType,
-		clientId: UserClientId,
-	): Promise<boolean> {
+	async deletebyClientId(clientId: UserClientId): Promise<boolean> {
 		return UserRepositoryImpl.destroy({
 			where: {
-				categoryType: categoryType.getValue(),
 				clientId: clientId.getValue(),
 			},
 		}).then((res) => !!res);
+	}
+
+	async getId(data: UserDto): Promise<UserId | undefined> {
+		return UserRepositoryImpl.findOne({
+			where: {
+				categoryType: data.categoryType,
+				clientId: data.clientId,
+				communityId: data.communityId,
+			},
+		}).then((res) => (res ? new UserId(res.id) : undefined));
 	}
 
 	toDto(): UserDto {
