@@ -1,4 +1,4 @@
-import { ActionDto } from "@/src/entities/dto/ActionDto";
+import { CommunityDto } from "@/src/entities/dto/CommunityDto";
 import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
 import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
 import type { ICommunityRepository } from "@/src/logics/Interfaces/repositories/database/ICommunityRepository";
@@ -28,14 +28,14 @@ class CommunityRepositoryImpl extends Model implements ICommunityRepository {
 	@Column(DataType.STRING)
 	declare clientId: string;
 
-	async create(data: ActionDto): Promise<boolean> {
+	async create(data: CommunityDto): Promise<boolean> {
 		return CommunityRepositoryImpl.create({
 			categoryType: data.categoryType.getValue(),
 			clientId: data.clientId.getValue(),
 		}).then((res) => !!res);
 	}
 
-	async delete(data: ActionDto): Promise<boolean> {
+	async delete(data: CommunityDto): Promise<boolean> {
 		return CommunityRepositoryImpl.destroy({
 			where: {
 				categoryType: data.categoryType.getValue(),
@@ -44,8 +44,8 @@ class CommunityRepositoryImpl extends Model implements ICommunityRepository {
 		}).then((res) => !!res);
 	}
 
-	toDto(): ActionDto {
-		return new ActionDto(
+	toDto(): CommunityDto {
+		return new CommunityDto(
 			new CommunityCategoryType(this.categoryType),
 			new CommunityClientId(this.clientId),
 		);
