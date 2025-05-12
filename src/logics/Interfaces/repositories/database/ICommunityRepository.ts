@@ -1,6 +1,6 @@
-import type { ActionDto } from "@/src/entities/dto/ActionDto";
+import type { CommunityDto } from "@/src/entities/dto/CommunityDto";
 
 export interface ICommunityRepository {
-	create(data: ActionDto): Promise<boolean>;
-	delete(data: ActionDto): Promise<boolean>;
+	create(data: CommunityDto): Promise<boolean>;
+	delete(data: CommunityDto): Promise<boolean>;
 }
