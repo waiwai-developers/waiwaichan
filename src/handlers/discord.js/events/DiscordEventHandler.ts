@@ -1,5 +1,4 @@
 import type {
-	Guild,
 	MessageReaction,
 	MessageReactionEventDetails,
 	PartialMessageReaction,
