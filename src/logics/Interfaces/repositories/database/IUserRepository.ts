@@ -1,11 +1,11 @@
 import type { UserDto } from "@/src/entities/dto/UserDto";
-import type { UserCategoryType } from "@/src/entities/vo/UserCategoryType";
 import type { UserClientId } from "@/src/entities/vo/UserClientId";
+import type { UserCommunityId } from "@/src/entities/vo/UserCommunityId";
+import type { UserId } from "@/src/entities/vo/UserId";
 
 export interface IUserRepository {
-	create(data: UserDto): Promise<boolean>;
-	delete(
-		categoryType: UserCategoryType,
-		clientId: UserClientId,
-	): Promise<boolean>;
+	bulkCreate(data: UserDto[]): Promise<boolean>;
+	deletebyCommunityId(communityId: UserCommunityId): Promise<boolean>;
+	deletebyClientId(clientId: UserClientId): Promise<boolean>;
+	getId(data: UserDto): Promise<UserId | undefined>;
 }
