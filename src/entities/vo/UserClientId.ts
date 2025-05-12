@@ -1,3 +1,3 @@
 import { ValueObject } from "./ValueObject";
 
-export class UserClientId extends ValueObject<string> {}
+export class UserClientId extends ValueObject<bigint> {}
