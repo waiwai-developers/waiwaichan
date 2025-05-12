@@ -25,8 +25,8 @@ class CommunityRepositoryImpl extends Model implements ICommunityRepository {
 	declare id: number;
 	@Column(DataType.INTEGER)
 	declare categoryType: number;
-	@Column(DataType.STRING)
-	declare clientId: string;
+	@Column(DataType.BIGINT)
+	declare clientId: bigint;
 
 	async create(data: CommunityDto): Promise<boolean> {
 		return CommunityRepositoryImpl.create({

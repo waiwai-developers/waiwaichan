@@ -1,7 +1,7 @@
 import { UserDto } from "@/src/entities/dto/UserDto";
 import { UserCategoryType } from "@/src/entities/vo/UserCategoryType";
 import { UserClientId } from "@/src/entities/vo/UserClientId";
-import { UserCommunityClientId } from "@/src/entities/vo/UserCommunityClientId";
+import { UserCommunityId } from "@/src/entities/vo/UserCommunityId";
 import type { IUserRepository } from "@/src/logics/Interfaces/repositories/database/IUserRepository";
 import { injectable } from "inversify";
 import {
@@ -26,8 +26,11 @@ class UserRepositoryImpl extends Model implements IUserRepository {
 	declare id: number;
 	@Column(DataType.INTEGER)
 	declare categoryType: number;
-	@Column(DataType.STRING)
-	declare clientId: string;
+	@Column(DataType.BIGINT)
+	declare clientId: bigint;
+	@Column(DataType.INTEGER)
+	declare communityId: number;
+
 
 	async create(data: UserDto): Promise<boolean> {
 		return UserRepositoryImpl.create({
@@ -49,7 +52,7 @@ class UserRepositoryImpl extends Model implements IUserRepository {
 		return new UserDto(
 			new UserCategoryType(this.categoryType),
 			new UserClientId(this.clientId),
-			new UserCommunityClientId(this.clientId),
+			new UserCommunityId(this.communityId),
 		);
 	}
 }
