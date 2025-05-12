@@ -27,7 +27,7 @@ export const LogicTypes = {
 	TranslatorLogic: Symbol.for("TranslateLogic"),
 	StickyLogic: Symbol.for("StickyLogic"),
 	UtilityLogic: Symbol.for("UtilityLogic"),
-	CommunityLogic: Symbol.for("UserLogic"),
+	CommunityLogic: Symbol.for("CommunityLogic"),
 	UserLogic: Symbol.for("UserLogic"),
 };
 
