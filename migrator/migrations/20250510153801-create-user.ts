@@ -1,7 +1,7 @@
 import type { Migration } from "@/migrator/umzug";
 import { DataTypes } from "sequelize";
 
-const TABLE_NAME = "Communities";
+const TABLE_NAME = "Users";
 
 export const up: Migration = async ({ context: sequelize }) => {
 	await sequelize.getQueryInterface().createTable(TABLE_NAME, {
@@ -17,6 +17,10 @@ export const up: Migration = async ({ context: sequelize }) => {
 		clientId: {
 			allowNull: false,
 			type: DataTypes.BIGINT,
+		},
+		communityId: {
+			allowNull: false,
+			type: DataTypes.INTEGER,
 		},
 		deletedAt: {
 			type: DataTypes.DATE,
