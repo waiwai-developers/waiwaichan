@@ -6,9 +6,11 @@ import { CandyRepositoryImpl } from "./CandyRepositoryImpl";
 import { StickyRepositoryImpl } from "./StickyRepositoryImpl";
 import { ThreadRepositoryImpl } from "./ThreadRepositoryImpl";
 import { UserCandyItemRepositoryImpl } from "./UserCandyItemRepositoryImpl";
+import { UserRepositoryImpl } from "./UserRepositoryImpl";
 
 export {
 	CommunityRepositoryImpl,
+	UserRepositoryImpl,
 	ReminderRepositoryImpl,
 	ReminderSchedulerRepositoryImpl,
 	CandyItemRepositoryImpl,
