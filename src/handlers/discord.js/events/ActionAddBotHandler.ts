@@ -1,6 +1,6 @@
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
-import { ActionDto } from "@/src/entities/dto/ActionDto";
+import { CommunityDto } from "@/src/entities/dto/CommunityDto";
 import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
 import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
 import type { DiscordEventHandler } from "@/src/handlers/discord.js/events/DiscordEventHandler";
@@ -23,7 +23,7 @@ export class ActionAddBotHandler implements DiscordEventHandler<Guild> {
 				`ActionAddBotHandler: Bot was added to guild ${guild.id}`,
 			);
 			await this.CommunityLogic.create(
-				new ActionDto(
+				new CommunityDto(
 					CommunityCategoryType.Discord,
 					new CommunityClientId(guild.id),
 				),
