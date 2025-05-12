@@ -1,6 +1,5 @@
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
-import { UserCategoryType } from "@/src/entities/vo/UserCategoryType";
 import { UserClientId } from "@/src/entities/vo/UserClientId";
 import type { DiscordEventHandler } from "@/src/handlers/discord.js/events/DiscordEventHandler";
 import type { IUserLogic } from "@/src/logics/Interfaces/logics/IUserLogic";
@@ -23,10 +22,12 @@ export class ActionRemoveUserHandler
 			this.logger.info(
 				`ActionRemoveUserHandler: User was removed from guild ${member.guild.id}`,
 			);
-			await this.UserLogic.delete(
-				UserCategoryType.Discord,
+			const isDeletebyClientId = await this.UserLogic.deletebyClientId(
 				new UserClientId(BigInt(member.id)),
 			);
+			if (!isDeletebyClientId) {
+				return;
+			}
 		} catch (error) {
 			this.logger.error(`ActionRemoveUserHandler error: ${error}`);
 		}

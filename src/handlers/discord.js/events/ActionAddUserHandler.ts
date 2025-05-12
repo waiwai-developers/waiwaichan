@@ -40,13 +40,16 @@ export class ActionAddUserHandler implements DiscordEventHandler<GuildMember> {
 				return;
 			}
 
-			await this.UserLogic.create(
+			const isBulkCreate = await this.UserLogic.bulkCreate([
 				new UserDto(
 					UserCategoryType.Discord,
 					new UserClientId(BigInt(member.id)),
 					new UserCommunityId(communityId.getValue()),
 				),
-			);
+			]);
+			if (!isBulkCreate) {
+				return;
+			}
 		} catch (error) {
 			this.logger.error(`ActionAddUserHandler error: ${error}`);
 		}
