@@ -25,7 +25,7 @@ export class ActionAddBotHandler implements DiscordEventHandler<Guild> {
 			await this.CommunityLogic.create(
 				new CommunityDto(
 					CommunityCategoryType.Discord,
-					new CommunityClientId(guild.id),
+					new CommunityClientId(BigInt(guild.id)),
 				),
 			);
 		} catch (error) {

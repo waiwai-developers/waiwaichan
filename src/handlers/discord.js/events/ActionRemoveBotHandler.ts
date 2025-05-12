@@ -25,7 +25,7 @@ export class ActionRemoveBotHandler implements DiscordEventHandler<Guild> {
 			await this.CommunityLogic.delete(
 				new CommunityDto(
 					CommunityCategoryType.Discord,
-					new CommunityClientId(guild.id),
+					new CommunityClientId(BigInt(guild.id)),
 				),
 			);
 		} catch (error) {
