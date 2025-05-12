@@ -156,7 +156,10 @@ export class CandyLogic implements ICandyLogic {
 
 				//天上の場合に置換
 				const lastJackpodCandyId =
-					await this.userCandyItemRepository.lastJackpodCandyId(guildId, userId);
+					await this.userCandyItemRepository.lastJackpodCandyId(
+						guildId,
+						userId,
+					);
 				const candyCountFromJackpod =
 					await this.candyRepository.candyCountFromJackpod(
 						guildId,
@@ -350,7 +353,7 @@ export class CandyLogic implements ICandyLogic {
 					guildId,
 					giver,
 					messageId,
-					CandyCategoryType.CATEGORY_TYPE_SUPER,
+					candyCategoryType,
 				);
 				// duplicate reaction
 				if (candies.length > 0) {

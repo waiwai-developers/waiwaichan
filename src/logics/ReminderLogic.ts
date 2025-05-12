@@ -7,7 +7,7 @@ import type { IReminderLogic } from "@/src/logics/Interfaces/logics/IReminderLog
 import type { IReminderRepository } from "@/src/logics/Interfaces/repositories/database/IReminderRepository";
 import dayjs from "dayjs";
 import { inject, injectable } from "inversify";
-import { ITransaction } from "./Interfaces/repositories/database/ITransaction";
+import type { ITransaction } from "./Interfaces/repositories/database/ITransaction";
 
 @injectable()
 export class ReminderLogic implements IReminderLogic {
