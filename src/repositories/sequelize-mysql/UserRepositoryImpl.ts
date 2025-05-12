@@ -31,19 +31,22 @@ class UserRepositoryImpl extends Model implements IUserRepository {
 	@Column(DataType.INTEGER)
 	declare communityId: number;
 
-
 	async create(data: UserDto): Promise<boolean> {
 		return UserRepositoryImpl.create({
 			categoryType: data.categoryType.getValue(),
 			clientId: data.clientId.getValue(),
+			communityId: data.communityId.getValue(),
 		}).then((res) => !!res);
 	}
 
-	async delete(data: UserDto): Promise<boolean> {
+	async delete(
+		categoryType: UserCategoryType,
+		clientId: UserClientId,
+	): Promise<boolean> {
 		return UserRepositoryImpl.destroy({
 			where: {
-				categoryType: data.categoryType.getValue(),
-				clientId: data.clientId.getValue(),
+				categoryType: categoryType.getValue(),
+				clientId: clientId.getValue(),
 			},
 		}).then((res) => !!res);
 	}

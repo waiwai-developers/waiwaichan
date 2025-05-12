@@ -1,6 +1,7 @@
 import { CommunityDto } from "@/src/entities/dto/CommunityDto";
 import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
 import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
+import { CommunityId } from "@/src/entities/vo/CommunityId";
 import type { ICommunityRepository } from "@/src/logics/Interfaces/repositories/database/ICommunityRepository";
 import { injectable } from "inversify";
 import {
@@ -42,6 +43,15 @@ class CommunityRepositoryImpl extends Model implements ICommunityRepository {
 				clientId: data.clientId.getValue(),
 			},
 		}).then((res) => !!res);
+	}
+
+	async getId(data: CommunityDto): Promise<CommunityId | undefined> {
+		return CommunityRepositoryImpl.findOne({
+			where: {
+				categoryType: data.categoryType.getValue(),
+				clientId: data.clientId.getValue(),
+			},
+		}).then((res) => (res ? new CommunityId(res.id) : undefined));
 	}
 
 	toDto(): CommunityDto {

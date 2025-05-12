@@ -10,6 +10,7 @@ import { SequelizeLogger } from "@/src/repositories/sequelize-mysql/SequelizeLog
 import { StickyRepositoryImpl } from "@/src/repositories/sequelize-mysql/StickyRepositoryImpl";
 import { ThreadRepositoryImpl } from "@/src/repositories/sequelize-mysql/ThreadRepositoryImpl";
 import { UserCandyItemRepositoryImpl } from "@/src/repositories/sequelize-mysql/UserCandyItemRepositoryImpl";
+import { UserRepositoryImpl } from "@/src/repositories/sequelize-mysql/UserRepositoryImpl";
 import { inject, injectable } from "inversify";
 import type { Dialect } from "sequelize";
 import { Sequelize } from "sequelize-typescript";
@@ -40,6 +41,7 @@ export class MysqlConnector implements IDataBaseConnector<Sequelize, "mysql"> {
 					ThreadRepositoryImpl,
 					StickyRepositoryImpl,
 					CommunityRepositoryImpl,
+					UserRepositoryImpl,
 				],
 			},
 		);
