@@ -12,3 +12,7 @@ export const up: Datafix = async () => {
 		}
 	);
 };
+
+export const down: Datafix = async () => {
+	await DatafixCommunityModel.destroy();
+};
