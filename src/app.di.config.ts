@@ -38,10 +38,10 @@ import { TranslateReplyHandler } from "@/src/handlers/discord.js/events/Translat
 import { CandyLogic } from "@/src/logics/CandyLogic";
 import { ChatAILogic } from "@/src/logics/ChatAILogic";
 import { CommunityLogic } from "@/src/logics/CommunityLogic";
+import { CrownLogic } from "@/src/logics/CrownLogic";
 import type { ICandyLogic } from "@/src/logics/Interfaces/logics/ICandyLogic";
 import type { IChatAILogic } from "@/src/logics/Interfaces/logics/IChatAILogic";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
-import { CrownLogic } from "@/src/logics/CrownLogic";
 import type { ICrownLogic } from "@/src/logics/Interfaces/logics/ICrownLogic";
 import type { IMinecraftServerLogic } from "@/src/logics/Interfaces/logics/IMinecraftServerLogic";
 import type { IPullRequestLogic } from "@/src/logics/Interfaces/logics/IPullRequestLogic";
