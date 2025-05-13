@@ -1,3 +1,4 @@
+import { AppConfig } from "@/src/entities/config/AppConfig";
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
 import { CommunityDto } from "@/src/entities/dto/CommunityDto";
@@ -27,6 +28,9 @@ export class ActionAddUserHandler implements DiscordEventHandler<GuildMember> {
 
 	async handle(member: GuildMember): Promise<void> {
 		try {
+			if (member.id === AppConfig.discord.clientId) {
+				return;
+			}
 			this.logger.info(
 				`ActionAddUserHandler: User was added to guild ${member.guild.id}`,
 			);

@@ -26,16 +26,6 @@ export class ActionRemoveBotHandler implements DiscordEventHandler<Guild> {
 			this.logger.info(
 				`ActionRemoveBotHandler: Bot was added to guild ${guild.id}`,
 			);
-			const isDelete = await this.CommunityLogic.delete(
-				new CommunityDto(
-					CommunityCategoryType.Discord,
-					new CommunityClientId(BigInt(guild.id)),
-				),
-			);
-			if (!isDelete) {
-				return;
-			}
-
 			const communityId = await this.CommunityLogic.getId(
 				new CommunityDto(
 					CommunityCategoryType.Discord,
@@ -43,6 +33,16 @@ export class ActionRemoveBotHandler implements DiscordEventHandler<Guild> {
 				),
 			);
 			if (communityId == null) {
+				return;
+			}
+
+			const isDelete = await this.CommunityLogic.delete(
+				new CommunityDto(
+					CommunityCategoryType.Discord,
+					new CommunityClientId(BigInt(guild.id)),
+				),
+			);
+			if (!isDelete) {
 				return;
 			}
 

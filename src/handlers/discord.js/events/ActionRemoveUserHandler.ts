@@ -1,3 +1,4 @@
+import { AppConfig } from "@/src/entities/config/AppConfig";
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
 import { UserClientId } from "@/src/entities/vo/UserClientId";
@@ -19,6 +20,9 @@ export class ActionRemoveUserHandler
 
 	async handle(member: GuildMember): Promise<void> {
 		try {
+			if (member.id === AppConfig.discord.clientId) {
+				return;
+			}
 			this.logger.info(
 				`ActionRemoveUserHandler: User was removed from guild ${member.guild.id}`,
 			);
