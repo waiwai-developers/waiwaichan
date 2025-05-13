@@ -26,6 +26,7 @@ import {
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
 import { AIReplyHandler } from "@/src/handlers/discord.js/events/AIReplyHandler";
 import { CandyReactionHandler } from "@/src/handlers/discord.js/events/CandyReactionHandler";
+import { CrownReactionHandler } from "@/src/handlers/discord.js/events/CrownReactionHandler";
 import type { DiscordEventHandler } from "@/src/handlers/discord.js/events/DiscordEventHandler";
 import type { ReactionInteraction } from "@/src/handlers/discord.js/events/DiscordEventHandler";
 import { StickyEventHandler } from "@/src/handlers/discord.js/events/StickyEventHandler";
@@ -36,6 +37,8 @@ import { ContextLogic } from "@/src/logics/ContextLogic";
 import type { ICandyLogic } from "@/src/logics/Interfaces/logics/ICandyLogic";
 import type { IChatAILogic } from "@/src/logics/Interfaces/logics/IChatAILogic";
 import type { IContextLogic } from "@/src/logics/Interfaces/logics/IContextLogic";
+import { CrownLogic } from "@/src/logics/CrownLogic";
+import type { ICrownLogic } from "@/src/logics/Interfaces/logics/ICrownLogic";
 import type { IMinecraftServerLogic } from "@/src/logics/Interfaces/logics/IMinecraftServerLogic";
 import type { IPersonalityContextLogic } from "@/src/logics/Interfaces/logics/IPersonalityContextLogic";
 import type { IPersonalityLogic } from "@/src/logics/Interfaces/logics/IPersonalityLogic";
@@ -50,6 +53,7 @@ import type { IVirtualMachineAPI } from "@/src/logics/Interfaces/repositories/cl
 import type { ICandyItemRepository } from "@/src/logics/Interfaces/repositories/database/ICandyItemRepository";
 import type { ICandyRepository } from "@/src/logics/Interfaces/repositories/database/ICandyRepository";
 import type { IContextRepository } from "@/src/logics/Interfaces/repositories/database/IContextRepository";
+import type { ICrownRepository } from "@/src/logics/Interfaces/repositories/database/ICrownRepository";
 import type { IDataBaseConnector } from "@/src/logics/Interfaces/repositories/database/IDataBaseConnector";
 import type { IPersonalityContextRepository } from "@/src/logics/Interfaces/repositories/database/IPersonalityContextRepository";
 import type { IPersonalityRepository } from "@/src/logics/Interfaces/repositories/database/IPersonalityRepository";
@@ -83,6 +87,7 @@ import {
 	ContextRepositoryImpl,
 	PersonalityContextRepositoryImpl,
 	PersonalityRepositoryImpl,
+	CrownRepositoryImpl,
 	ReminderRepositoryImpl,
 	StickyRepositoryImpl,
 	ThreadRepositoryImpl,
@@ -98,8 +103,6 @@ import { SlashCommandRouter } from "@/src/routes/discordjs/events/SlashCommandRo
 import type { Message } from "discord.js";
 import { Container } from "inversify";
 import type { Sequelize } from "sequelize";
-
-// for app
 const appContainer = new Container();
 
 // Repositories
@@ -110,6 +113,7 @@ appContainer.bind<IMutex>(RepoTypes.Mutex).to(AwaitSemaphoreMutex).inSingletonSc
 appContainer.bind<IDataBaseConnector<Sequelize, "mysql">>(RepoTypes.DatabaseConnector).to(MysqlConnector).inSingletonScope();
 appContainer.bind<ITransaction>(RepoTypes.Transaction).to(SequelizeTransaction);
 appContainer.bind<ICandyRepository>(RepoTypes.CandyRepository).to(CandyRepositoryImpl);
+appContainer.bind<ICrownRepository>(RepoTypes.CrownRepository).to(CrownRepositoryImpl);
 appContainer.bind<ICandyItemRepository>(RepoTypes.CandyItemRepository).to(CandyItemRepositoryImpl);
 appContainer.bind<IUserCandyItemRepository>(RepoTypes.UserCandyItemRepository).to(UserCandyItemRepositoryImpl);
 appContainer.bind<IReminderRepository>(RepoTypes.ReminderRepository).to(ReminderRepositoryImpl);
@@ -137,6 +141,7 @@ appContainer.bind<IPersonalityContextLogic>(LogicTypes.PersonalityContextLogic).
 appContainer.bind<IChatAILogic>(LogicTypes.ChatAILogic).to(ChatAILogic);
 appContainer.bind<IMinecraftServerLogic>(LogicTypes.MinecraftServerLogic).to(MinecraftServerLogic);
 appContainer.bind<ICandyLogic>(LogicTypes.CandyLogic).to(CandyLogic);
+appContainer.bind<ICrownLogic>(LogicTypes.CrownLogic).to(CrownLogic);
 appContainer.bind<IReminderLogic>(LogicTypes.ReminderLogic).to(ReminderLogic);
 appContainer.bind<IPullRequestLogic>(LogicTypes.PullRequestLogic).to(PullRequestLogic);
 appContainer.bind<ITranslatorLogic>(LogicTypes.TranslatorLogic).to(TranslatorLogic);
@@ -148,6 +153,7 @@ appContainer.bind<DiscordEventHandler<Message>>(HandlerTypes.MessageHandler).to(
 appContainer.bind<DiscordEventHandler<Message>>(HandlerTypes.MessageHandler).to(StickyEventHandler);
 appContainer.bind<DiscordEventHandler<Message>>(HandlerTypes.MessageHandler).to(TranslateReplyHandler);
 appContainer.bind<DiscordEventHandler<ReactionInteraction>>(HandlerTypes.ReactionHandler).to(CandyReactionHandler);
+appContainer.bind<DiscordEventHandler<ReactionInteraction>>(HandlerTypes.ReactionHandler).to(CrownReactionHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(HelpCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(WaiwaiCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(ParrotCommandHandler);

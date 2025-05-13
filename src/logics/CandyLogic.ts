@@ -353,7 +353,7 @@ export class CandyLogic implements ICandyLogic {
 					guildId,
 					giver,
 					messageId,
-					CandyCategoryType.CATEGORY_TYPE_SUPER,
+					candyCategoryType,
 				);
 				// duplicate reaction
 				if (candies.length > 0) {

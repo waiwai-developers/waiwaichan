@@ -5,6 +5,7 @@ import { CandyRepositoryImpl } from "./CandyRepositoryImpl";
 import { ContextRepositoryImpl } from "./ContextRepositoryImpl";
 import { PersonalityContextRepositoryImpl } from "./PersonalityContextRepositoryImpl";
 import { PersonalityRepositoryImpl } from "./PersonalityRepositoryImpl";
+import { CrownRepositoryImpl } from "./CrownRepositoryImpl";
 import { StickyRepositoryImpl } from "./StickyRepositoryImpl";
 import { ThreadRepositoryImpl } from "./ThreadRepositoryImpl";
 import { UserCandyItemRepositoryImpl } from "./UserCandyItemRepositoryImpl";
@@ -14,6 +15,7 @@ export {
 	ReminderSchedulerRepositoryImpl,
 	CandyItemRepositoryImpl,
 	CandyRepositoryImpl,
+	CrownRepositoryImpl,
 	UserCandyItemRepositoryImpl,
 	ThreadRepositoryImpl,
 	PersonalityRepositoryImpl,

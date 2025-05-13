@@ -7,6 +7,7 @@ import { CandyRepositoryImpl } from "@/src/repositories/sequelize-mysql/CandyRep
 import { ContextRepositoryImpl } from "@/src/repositories/sequelize-mysql/ContextRepositoryImpl";
 import { PersonalityContextRepositoryImpl } from "@/src/repositories/sequelize-mysql/PersonalityContextRepositoryImpl";
 import { PersonalityRepositoryImpl } from "@/src/repositories/sequelize-mysql/PersonalityRepositoryImpl";
+import { CrownRepositoryImpl } from "@/src/repositories/sequelize-mysql/CrownRepositoryImpl";
 import { ReminderRepositoryImpl } from "@/src/repositories/sequelize-mysql/ReminderRepositoryImpl";
 import { SequelizeLogger } from "@/src/repositories/sequelize-mysql/SequelizeLogger";
 import { StickyRepositoryImpl } from "@/src/repositories/sequelize-mysql/StickyRepositoryImpl";
@@ -37,6 +38,7 @@ export class MysqlConnector implements IDataBaseConnector<Sequelize, "mysql"> {
 				models: [
 					CandyRepositoryImpl,
 					CandyItemRepositoryImpl,
+					CrownRepositoryImpl,
 					UserCandyItemRepositoryImpl,
 					ReminderRepositoryImpl,
 					ThreadRepositoryImpl,
