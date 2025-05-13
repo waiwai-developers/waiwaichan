@@ -34,10 +34,10 @@ import { TranslateReplyHandler } from "@/src/handlers/discord.js/events/Translat
 import { CandyLogic } from "@/src/logics/CandyLogic";
 import { ChatAILogic } from "@/src/logics/ChatAILogic";
 import { ContextLogic } from "@/src/logics/ContextLogic";
+import { CrownLogic } from "@/src/logics/CrownLogic";
 import type { ICandyLogic } from "@/src/logics/Interfaces/logics/ICandyLogic";
 import type { IChatAILogic } from "@/src/logics/Interfaces/logics/IChatAILogic";
 import type { IContextLogic } from "@/src/logics/Interfaces/logics/IContextLogic";
-import { CrownLogic } from "@/src/logics/CrownLogic";
 import type { ICrownLogic } from "@/src/logics/Interfaces/logics/ICrownLogic";
 import type { IMinecraftServerLogic } from "@/src/logics/Interfaces/logics/IMinecraftServerLogic";
 import type { IPersonalityContextLogic } from "@/src/logics/Interfaces/logics/IPersonalityContextLogic";
@@ -85,9 +85,9 @@ import {
 	CandyItemRepositoryImpl,
 	CandyRepositoryImpl,
 	ContextRepositoryImpl,
+	CrownRepositoryImpl,
 	PersonalityContextRepositoryImpl,
 	PersonalityRepositoryImpl,
-	CrownRepositoryImpl,
 	ReminderRepositoryImpl,
 	StickyRepositoryImpl,
 	ThreadRepositoryImpl,
