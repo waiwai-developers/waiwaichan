@@ -3,6 +3,7 @@ export const RepoTypes = {
 	DatabaseConnector: Symbol.for("DatabaseConnector"),
 	Transaction: Symbol.for("Transaction"),
 	CandyRepository: Symbol.for("CandyRepository"),
+	CrownRepository: Symbol.for("CrownRepository"),
 	CandyItemRepository: Symbol.for("CandyItemRepository"),
 	UserCandyItemRepository: Symbol.for("UserCandyItemRepository"),
 	ReminderRepository: Symbol.for("ReminderRepository"),
@@ -29,6 +30,7 @@ export const LogicTypes = {
 	UtilityLogic: Symbol.for("UtilityLogic"),
 	CommunityLogic: Symbol.for("CommunityLogic"),
 	UserLogic: Symbol.for("UserLogic"),
+	CrownLogic: Symbol.for("CrownLogic"),
 };
 
 export const RouteTypes = {

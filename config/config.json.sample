@@ -28,6 +28,7 @@
 		"candyEmoji": "",
 		"candySuperEmoji": "",
 		"candyLogChannel": "",
-		"candyBoxAmount": ""
+		"candyBoxAmount": "",
+		"crownLogChannel": ""
 	}
 }
