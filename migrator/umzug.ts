@@ -3,6 +3,7 @@ import { DatafixUserItemModel } from "@/migrator/datafixies/models/DatafixUserIt
 import { DatafixThreadModel } from "@/migrator/datafixies/models/DatafixThreadModel";
 import { DatafixReminderModel } from "@/migrator/datafixies/models/DatafixReminderModel";
 import { DatafixCommunityModel } from "@/migrator/datafixies/models/DatafixCommunityModel";
+import { DatafixUserModel } from "@/migrator/datafixies/models/DatafixUserModel";
 import {
 	type DatabaseConfigType,
 	GetEnvDBConfig,
@@ -70,7 +71,7 @@ export const datafixer = (dbConfig: DatabaseConfigType = GetEnvDBConfig()) => {
 			host: dbConfig.host,
 			port: dbConfig.port,
 			dialect: "mysql",
-			models: [DatafixUserItemModel, DatafixCandyModel, DatafixThreadModel, DatafixReminderModel, DatafixCommunityModel],
+			models: [DatafixUserItemModel, DatafixCandyModel, DatafixThreadModel, DatafixReminderModel, DatafixCommunityModel, DatafixUserModel],
 		},
 	);
 
