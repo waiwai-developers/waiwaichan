@@ -13,8 +13,7 @@ const client = new Client({
 client.login(AppConfig.discord.token);
 
 export const up: Datafix = async () => {
-	const guildId = AppConfig.discord.guildId;
-	const guild = await client.guilds.fetch(guildId);
+	const guild = await client.guilds.fetch(AppConfig.discord.guildId);
 	const members = await guild.members.fetch();
 	await DatafixUserModel.bulkCreate(
 		members.map((m) => ({
