@@ -57,9 +57,9 @@ const runInNamespace = async (taskName: string, task: () => Promise<void>) => {
 };
 
 // リマインダーの実行
-// cron.schedule("* * * * *", () => {
-// 	runInNamespace("reminder notification", () => ReminderNotifyHandler(client));
-// });
+cron.schedule("* * * * *", () => {
+	runInNamespace("reminder notification", () => ReminderNotifyHandler(client));
+});
 
 // コミュニティとユーザーの同期
 cron.schedule("* * * * *", () => {
