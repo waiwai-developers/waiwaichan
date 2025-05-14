@@ -29,9 +29,15 @@ export class UserLogic implements IUserLogic {
 		});
 	}
 
-	async deletebyClientId(clientId: UserClientId): Promise<boolean> {
+	async deletebyClientId(
+		communityId: UserCommunityId,
+		clientId: UserClientId,
+	): Promise<boolean> {
 		return this.transaction.startTransaction(async () => {
-			return await this.UserRepository.deletebyClientId(clientId);
+			return await this.UserRepository.deleteByCommunityIdAndClientIds(
+				communityId,
+				[clientId],
+			);
 		});
 	}
 
