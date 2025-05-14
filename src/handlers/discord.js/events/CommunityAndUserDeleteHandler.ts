@@ -23,7 +23,7 @@ export const CommunityAndUserDeleteHandler = async (c: Client<boolean>) => {
 		const user = schedulerContainer.get<IUserRepository>(
 			SchedulerRepoTypes.ReminderSchedulerRepository,
 		);
-		let dataDeletionCircular = schedulerContainer.get<IDataDeletionCircular>(
+		const dataDeletionCircular = schedulerContainer.get<IDataDeletionCircular>(
 			SchedulerRepoTypes.ReminderSchedulerRepository,
 		);
 		const guilds = c.guilds.cache;
@@ -54,7 +54,7 @@ export const CommunityAndUserDeleteHandler = async (c: Client<boolean>) => {
 			}
 
 			//Userの削除
-			await user.deletebyClientIds(communityId, memberIds);
+			await user.deleteByCommunityIdAndClientIds(communityId, memberIds);
 		});
 
 		//Botが所属してないCommunityとCommunityのUser削除
@@ -81,12 +81,14 @@ export const CommunityAndUserDeleteHandler = async (c: Client<boolean>) => {
 			);
 		});
 
-		//削除されたUserに関連するDataの削除
-		dataDeletionCircular =
-			dataDeletionCircular.deleteRecordInRelatedTableUserId();
+		// TODO: 削除されたUserに関連するDataの削除
+		// 注意: deleteRecordInRelatedTableUserIdメソッドには引数としてUserIdが必要です
+		// 例: const userId = new UserId(1);
+		// await dataDeletionCircular.deleteRecordInRelatedTableUserId(userId);
 
-		//削除されたCommunityに関連するDataの削除
-		dataDeletionCircular =
-			dataDeletionCircular.deleteRecordInRelatedTableCommunityId();
+		// TODO: 削除されたCommunityに関連するDataの削除
+		// 注意: deleteRecordInRelatedTableCommunityIdメソッドには引数としてCommunityIdが必要です
+		// 例: const communityId = new CommunityId(1);
+		// await dataDeletionCircular.deleteRecordInRelatedTableCommunityId(communityId);
 	});
 };
