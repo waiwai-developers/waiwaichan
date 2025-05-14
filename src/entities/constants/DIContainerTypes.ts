@@ -15,6 +15,7 @@ export const RepoTypes = {
 	StickyRepository: Symbol.for("StickyRepository"),
 	CommunityRepository: Symbol.for("CommunityRepository"),
 	UserRepository: Symbol.for("UserRepository"),
+	DataDeletionCircular: Symbol.for("DataDeletionCircular"),
 	SequelizeModels: Symbol.for("SequelizeModels"),
 	Logger: Symbol.for("Logger"),
 };
