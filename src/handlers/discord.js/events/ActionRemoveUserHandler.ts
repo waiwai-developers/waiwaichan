@@ -48,7 +48,7 @@ export class ActionRemoveUserHandler
 				return;
 			}
 
-			const isDeletebyClientId = await this.UserLogic.deletebyClientId(
+			const isDeletebyClientId = await this.UserLogic.deleteByCommunityIdAndClientId(
 				new UserCommunityId(communityId.getValue()),
 				new UserClientId(BigInt(member.id)),
 			);
