@@ -11,5 +11,6 @@ export interface ICommunityRepository {
 		categoryType: CommunityCategoryType,
 		clientIds: CommunityClientId[],
 	): Promise<CommunityClientId[]>;
+	findByBatchStatusAndDeletedAt(): Promise<CommunityId[]>
 	updatebatchStatus(id: CommunityId): Promise<boolean>;
 }
