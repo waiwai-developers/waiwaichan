@@ -1,8 +1,8 @@
-import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
-import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
+import { LogicTypes, RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import { CommunityDto } from "@/src/entities/dto/CommunityDto";
 import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
 import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
+import { UserCommunityId } from "@/src/entities/vo/UserCommunityId";
 import type { DiscordEventHandler } from "@/src/handlers/discord.js/events/DiscordEventHandler";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { IUserLogic } from "@/src/logics/Interfaces/logics/IUserLogic";
@@ -47,7 +47,9 @@ export class ActionRemoveBotHandler implements DiscordEventHandler<Guild> {
 			}
 
 			const isDeletebyCommunityId =
-				await this.UserLogic.deletebyCommunityId(communityId);
+				await this.UserLogic.deletebyCommunityId(
+					new UserCommunityId(communityId.getValue())
+				);
 			if (!isDeletebyCommunityId) {
 				return;
 			}
