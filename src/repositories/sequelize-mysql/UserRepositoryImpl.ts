@@ -6,6 +6,7 @@ import { UserCommunityId } from "@/src/entities/vo/UserCommunityId";
 import { UserId } from "@/src/entities/vo/UserId";
 import type { IUserRepository } from "@/src/logics/Interfaces/repositories/database/IUserRepository";
 import { injectable } from "inversify";
+import { Op } from "sequelize";
 import {
 	AutoIncrement,
 	Column,
@@ -70,6 +71,20 @@ class UserRepositoryImpl extends Model implements IUserRepository {
 				communityId: data.communityId,
 			},
 		}).then((res) => (res ? new UserId(res.id) : undefined));
+	}
+
+	async updatebatchStatus(id: UserId): Promise<boolean> {
+		return UserRepositoryImpl.update(
+			{
+				batchStatus: UserBatchStatus.Done,
+			},
+			{
+				where: {
+					id: id.getValue(),
+					batchStatus: UserBatchStatus.Yet,
+				},
+			},
+		).then((res) => !!res);
 	}
 
 	toDto(): UserDto {

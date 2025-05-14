@@ -22,20 +22,19 @@ class DataDeletionCircularImpl implements IDataDeletionCircular {
 	private readonly transaction!: ITransaction;
 
 	async deleteRecordInRelatedTableCommunityId(
-		communityId: CommunityId,
+		id: CommunityId,
 	): Promise<boolean> {
-		return this.deleteRecordInRelatedTable(
-			"communityId",
-			communityId.getValue(),
-		).then((res) => {
-			res ? this.CommunityRepository.updatebatchStatus : false;
-		});
+		return this.deleteRecordInRelatedTable("communityId", id.getValue()).then(
+			(res) => {
+				return res ? this.CommunityRepository.updatebatchStatus(id) : false;
+			},
+		);
 	}
 
-	async deleteRecordInRelatedTableUserId(userId: UserId): Promise<boolean> {
-		return this.deleteRecordInRelatedTable("userId", userId.getValue()).then(
+	async deleteRecordInRelatedTableUserId(id: UserId): Promise<boolean> {
+		return this.deleteRecordInRelatedTable("userId", id.getValue()).then(
 			(res) => {
-				res ? this.CommunityRepository.updatebatchStatus : false;
+				return res ? this.UserRepository.updatebatchStatus(id) : false;
 			},
 		);
 	}
@@ -53,7 +52,6 @@ class DataDeletionCircularImpl implements IDataDeletionCircular {
 		const relatedModels = models.filter((m) =>
 			Object.keys(m.getAttributes()).includes(columnName),
 		);
-		// コミュニティまたはユーザーのBatchStatusをupdateするロジックを入れる
 		return await Promise.all(
 			relatedModels.map((m) =>
 				m.destroy({

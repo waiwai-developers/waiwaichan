@@ -71,6 +71,32 @@ class CommunityRepositoryImpl extends Model implements ICommunityRepository {
 		}).then((res) => res.map((r) => new CommunityClientId(r.clientId)));
 	}
 
+	async findByBatchStatusAndDeletedAt(): Promise<CommunityId[] | undefined> {
+		return CommunityRepositoryImpl.findAll({
+			where: {
+				batchStatus: CommunityBatchStatus.Yet,
+				deletedAt: { [Op.not]: null },
+			},
+			paranoid: false,
+		}).then((res) =>
+			res.length > 0 ? res.map((r) => new CommunityId(r.id)) : undefined,
+		);
+	}
+
+	async updatebatchStatus(id: CommunityId): Promise<boolean> {
+		return CommunityRepositoryImpl.update(
+			{
+				batchStatus: CommunityBatchStatus.Done,
+			},
+			{
+				where: {
+					id: id.getValue(),
+					batchStatus: CommunityBatchStatus.Yet,
+				},
+			},
+		).then((res) => !!res);
+	}
+
 	toDto(): CommunityDto {
 		return new CommunityDto(
 			new CommunityCategoryType(this.categoryType),
