@@ -92,7 +92,7 @@ class UserRepositoryImpl extends Model implements IUserRepository {
 	async findByBatchStatusAndDeletedAt(): Promise<UserId[]> {
 		return UserRepositoryImpl.findAll({
 			where: {
-				batchStatus: UserBatchStatus.Yet,
+				batchStatus: UserBatchStatus.Yet.getValue(),
 				deletedAt: { [Op.not]: null },
 			},
 			paranoid: false,
@@ -102,12 +102,12 @@ class UserRepositoryImpl extends Model implements IUserRepository {
 	async updatebatchStatus(id: UserId): Promise<boolean> {
 		return UserRepositoryImpl.update(
 			{
-				batchStatus: UserBatchStatus.Done,
+				batchStatus: UserBatchStatus.Done.getValue(),
 			},
 			{
 				where: {
 					id: id.getValue(),
-					batchStatus: UserBatchStatus.Yet,
+					batchStatus: UserBatchStatus.Yet.getValue(),
 				},
 			},
 		).then((res) => !!res);
