@@ -84,9 +84,7 @@ class UserRepositoryImpl extends Model implements IUserRepository {
 				deletedAt: { [Op.not]: null },
 			},
 			paranoid: false,
-		}).then((res) =>
-			res.length > 0 ? res.map((r) => new UserId(r.id)) : [],
-		);
+		}).then((res) => (res.length > 0 ? res.map((r) => new UserId(r.id)) : []));
 	}
 
 	async updatebatchStatus(id: UserId): Promise<boolean> {
