@@ -6,6 +6,9 @@ import type { UserId } from "@/src/entities/vo/UserId";
 export interface IUserLogic {
 	bulkCreate(data: UserDto[]): Promise<boolean>;
 	deletebyCommunityId(communityId: UserCommunityId): Promise<boolean>;
-	deletebyClientId(communityId: UserCommunityId, clientId: UserClientId): Promise<boolean>
+	deletebyClientId(
+		communityId: UserCommunityId,
+		clientId: UserClientId,
+	): Promise<boolean>;
 	getId(data: UserDto): Promise<UserId | undefined>;
 }
