@@ -21,6 +21,8 @@ class DatafixUserModel extends Model {
 	declare clientId: bigint;
 	@Column(DataType.INTEGER)
 	declare communityId: number;
+	@Column(DataType.INTEGER)
+	declare batchStatus: number;
 	@Column(DataType.DATE)
 	declare deletedAt: Date;
 	@Column(DataType.DATE)

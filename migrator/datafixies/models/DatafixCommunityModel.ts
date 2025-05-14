@@ -19,6 +19,8 @@ class DatafixCommunityModel extends Model {
 	declare categoryType: number;
 	@Column(DataType.STRING)
 	declare clientId: string;
+	@Column(DataType.INTEGER)
+	declare batchStatus: number;
 	@Column(DataType.DATE)
 	declare deletedAt: Date;
 	@Column(DataType.DATE)
