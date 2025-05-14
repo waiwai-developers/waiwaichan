@@ -29,24 +29,36 @@ export class UserLogic implements IUserLogic {
 		});
 	}
 
+	async deleteByCommunityIdAndClientId(
+		communityId: UserCommunityId,
+		clientId: UserClientId,
+	): Promise<boolean> {
+		return this.transaction.startTransaction(async () => {
+			return await this.UserRepository.deleteByCommunityIdAndClientId(
+				communityId,
+				clientId,
+			);
+		});
+	}
+
 	async deletebyClientId(
 		communityId: UserCommunityId,
 		clientId: UserClientId,
 	): Promise<boolean> {
 		return this.transaction.startTransaction(async () => {
-			return await this.UserRepository.deleteByCommunityIdAndClientIds(
+			return await this.UserRepository.deleteByCommunityIdAndClientId(
 				communityId,
-				[clientId],
+				clientId,
 			);
 		});
 	}
 
-	async deleteByCommunityIdAndClientIds(
+	async deleteNotBelongByCommunityIdAndClientIds(
 		communityId: UserCommunityId,
 		clientIds: UserClientId[],
 	): Promise<boolean> {
 		return this.transaction.startTransaction(async () => {
-			return await this.UserRepository.deleteByCommunityIdAndClientIds(
+			return await this.UserRepository.deleteNotBelongByCommunityIdAndClientIds(
 				communityId,
 				clientIds,
 			);
