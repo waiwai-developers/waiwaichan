@@ -53,7 +53,10 @@ export const CommunityAndUserDeleteHandler = async (c: Client<boolean>) => {
 			}
 
 			//Userの削除
-			await userLogic.deleteNotBelongByCommunityIdAndClientIds(communityId, memberIds);
+			await userLogic.deleteNotBelongByCommunityIdAndClientIds(
+				communityId,
+				memberIds,
+			);
 		}
 
 		//Botが所属してないCommunityとCommunityのUser削除
