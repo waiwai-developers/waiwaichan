@@ -41,9 +41,27 @@ export class UserLogic implements IUserLogic {
 		});
 	}
 
+	async deleteByCommunityIdAndClientIds(
+		communityId: UserCommunityId,
+		clientIds: UserClientId[],
+	): Promise<boolean> {
+		return this.transaction.startTransaction(async () => {
+			return await this.UserRepository.deleteByCommunityIdAndClientIds(
+				communityId,
+				clientIds,
+			);
+		});
+	}
+
 	async getId(data: UserDto): Promise<UserId | undefined> {
 		return this.transaction.startTransaction(async () => {
 			return await this.UserRepository.getId(data);
+		});
+	}
+
+	async findByBatchStatusAndDeletedAt(): Promise<UserId[]> {
+		return this.transaction.startTransaction(async () => {
+			return await this.UserRepository.findByBatchStatusAndDeletedAt();
 		});
 	}
 }
