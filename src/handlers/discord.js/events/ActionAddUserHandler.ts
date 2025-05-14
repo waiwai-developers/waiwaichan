@@ -32,7 +32,7 @@ export class ActionAddUserHandler implements DiscordEventHandler<GuildMember> {
 				return;
 			}
 			this.logger.info(
-				`ActionAddUserHandler: User was added to guild ${member.guild.id}`,
+				`ActionAddUserHandler: User was added to guild, guildId: ${member.guild.id}`,
 			);
 			const communityId = await this.CommunityLogic.getId(
 				new CommunityDto(

@@ -28,7 +28,7 @@ export class ActionAddBotHandler implements DiscordEventHandler<Guild> {
 	async handle(guild: Guild): Promise<void> {
 		try {
 			this.logger.info(
-				`ActionAddBotHandler: Bot was added to guild ${guild.id}`,
+				`ActionAddBotHandler: Bot was added to guild, guildId: ${guild.id}`,
 			);
 			const communityId = await this.CommunityLogic.create(
 				new CommunityDto(

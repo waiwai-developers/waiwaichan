@@ -24,7 +24,7 @@ export class ActionRemoveBotHandler implements DiscordEventHandler<Guild> {
 	async handle(guild: Guild): Promise<void> {
 		try {
 			this.logger.info(
-				`ActionRemoveBotHandler: Bot was added to guild ${guild.id}`,
+				`ActionRemoveBotHandler: Bot was added to guild, GuildId: ${guild.id}`,
 			);
 			const communityId = await this.CommunityLogic.getId(
 				new CommunityDto(
