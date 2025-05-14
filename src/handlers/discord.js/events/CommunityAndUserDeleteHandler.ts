@@ -22,9 +22,6 @@ import type { DiscordEventHandler } from "./DiscordEventHandler";
 export class CommunityAndUserDeleteHandler
 	implements DiscordEventHandler<Client<boolean>>
 {
-	@inject(RepoTypes.Logger)
-	private readonly logger!: ILogger;
-
 	@inject(LogicTypes.CommunityLogic)
 	private readonly CommunityLogic!: ICommunityLogic;
 
