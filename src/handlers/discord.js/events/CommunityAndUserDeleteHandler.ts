@@ -81,11 +81,13 @@ export const CommunityAndUserDeleteHandler = async (c: Client<boolean>) => {
 			);
 		}
 
+		//削除されたUserに関連するデータの削除
 		const userIds = await user.findByBatchStatusAndDeletedAt();
 		for (const u of userIds) {
 			await dataDeletionCircular.deleteRecordInRelatedTableUserId(u);
 		}
 
+		//削除されたにCommunity関連するデータの削除
 		const communityIds = await community.findByBatchStatusAndDeletedAt();
 		for (const c of communityIds) {
 			await dataDeletionCircular.deleteRecordInRelatedTableCommunityId(c);
