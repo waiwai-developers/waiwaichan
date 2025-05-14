@@ -74,7 +74,7 @@ class CommunityRepositoryImpl extends Model implements ICommunityRepository {
 	async findByBatchStatusAndDeletedAt(): Promise<CommunityId[]> {
 		return CommunityRepositoryImpl.findAll({
 			where: {
-				batchStatus: CommunityBatchStatus.Yet,
+				batchStatus: CommunityBatchStatus.Yet.getValue(),
 				deletedAt: { [Op.not]: null },
 			},
 			paranoid: false,
@@ -86,12 +86,12 @@ class CommunityRepositoryImpl extends Model implements ICommunityRepository {
 	async updatebatchStatus(id: CommunityId): Promise<boolean> {
 		return CommunityRepositoryImpl.update(
 			{
-				batchStatus: CommunityBatchStatus.Done,
+				batchStatus: CommunityBatchStatus.Done.getValue(),
 			},
 			{
 				where: {
 					id: id.getValue(),
-					batchStatus: CommunityBatchStatus.Yet,
+					batchStatus: CommunityBatchStatus.Yet.getValue(),
 				},
 			},
 		).then((res) => !!res);
