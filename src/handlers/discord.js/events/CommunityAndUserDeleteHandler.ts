@@ -18,18 +18,18 @@ export const CommunityAndUserDeleteHandler = async (c: Client<boolean>) => {
 	const t = schedulerContainer.get<ITransaction>(RepoTypes.Transaction);
 	await t.startTransaction(async () => {
 		const community = schedulerContainer.get<ICommunityRepository>(
-			SchedulerRepoTypes.ReminderSchedulerRepository,
+			RepoTypes.CommunityRepository,
 		);
 		const user = schedulerContainer.get<IUserRepository>(
-			SchedulerRepoTypes.ReminderSchedulerRepository,
+			RepoTypes.UserRepository,
 		);
 		const dataDeletionCircular = schedulerContainer.get<IDataDeletionCircular>(
-			SchedulerRepoTypes.ReminderSchedulerRepository,
+			RepoTypes.DataDeletionCircular,
 		);
 		const guilds = c.guilds.cache;
 
 		//Guildに存在しないUserの削除
-		guilds.map(async (g) => {
+		for (const g of guilds.values()) {
 			const guild = await c.guilds.fetch(g.id);
 			const members = await guild.members.fetch();
 
@@ -41,7 +41,7 @@ export const CommunityAndUserDeleteHandler = async (c: Client<boolean>) => {
 				),
 			);
 			if (communityId == null) {
-				return undefined;
+				continue;
 			}
 
 			//MemberのclientIdの配列の取得
@@ -49,25 +49,25 @@ export const CommunityAndUserDeleteHandler = async (c: Client<boolean>) => {
 			members.forEach((member) => {
 				memberIds.push(new UserClientId(BigInt(member.user.id)));
 			});
-			if (memberIds.length > 0) {
-				return undefined;
+			if (memberIds.length === 0) {
+				continue;
 			}
 
 			//Userの削除
 			await user.deleteByCommunityIdAndClientIds(communityId, memberIds);
-		});
+		}
 
 		//Botが所属してないCommunityとCommunityのUser削除
 		const communityClientIds = await community.getNotExistClientId(
 			CommunityCategoryType.Discord,
 			guilds.map((g) => new CommunityClientId(BigInt(g.id))),
 		);
-		communityClientIds.map(async (cc) => {
+		for (const cc of communityClientIds) {
 			const communityId = await community.getId(
 				new CommunityDto(CommunityCategoryType.Discord, cc),
 			);
 			if (communityId == null) {
-				return undefined;
+				continue;
 			}
 
 			//Userの削除
@@ -79,16 +79,16 @@ export const CommunityAndUserDeleteHandler = async (c: Client<boolean>) => {
 			await community.delete(
 				new CommunityDto(CommunityCategoryType.Discord, cc),
 			);
-		});
+		}
 
-		// TODO: 削除されたUserに関連するDataの削除
-		// 注意: deleteRecordInRelatedTableUserIdメソッドには引数としてUserIdが必要です
-		// 例: const userId = new UserId(1);
-		// await dataDeletionCircular.deleteRecordInRelatedTableUserId(userId);
+		const userIds = await user.findByBatchStatusAndDeletedAt();
+		for (const u of userIds) {
+			await dataDeletionCircular.deleteRecordInRelatedTableUserId(u);
+		}
 
-		// TODO: 削除されたCommunityに関連するDataの削除
-		// 注意: deleteRecordInRelatedTableCommunityIdメソッドには引数としてCommunityIdが必要です
-		// 例: const communityId = new CommunityId(1);
-		// await dataDeletionCircular.deleteRecordInRelatedTableCommunityId(communityId);
+		const communityIds = await community.findByBatchStatusAndDeletedAt();
+		for (const c of communityIds) {
+			await dataDeletionCircular.deleteRecordInRelatedTableCommunityId(c);
+		}
 	});
 };
