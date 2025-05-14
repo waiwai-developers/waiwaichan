@@ -61,7 +61,7 @@ class UserRepositoryImpl extends Model implements IUserRepository {
 	): Promise<boolean> {
 		return UserRepositoryImpl.destroy({
 			where: {
-				communityId: communityId,
+				communityId: communityId.getValue(),
 				clientId: { [Op.notIn]: clientIds.map((c) => c.getValue()) },
 			},
 		}).then((res) => !!res);
@@ -75,6 +75,18 @@ class UserRepositoryImpl extends Model implements IUserRepository {
 				communityId: data.communityId,
 			},
 		}).then((res) => (res ? new UserId(res.id) : undefined));
+	}
+
+	async findByBatchStatusAndDeletedAt(): Promise<UserId[]> {
+		return UserRepositoryImpl.findAll({
+			where: {
+				batchStatus: UserBatchStatus.Yet,
+				deletedAt: { [Op.not]: null },
+			},
+			paranoid: false,
+		}).then((res) =>
+			res.length > 0 ? res.map((r) => new UserId(r.id)) : [],
+		);
 	}
 
 	async updatebatchStatus(id: UserId): Promise<boolean> {

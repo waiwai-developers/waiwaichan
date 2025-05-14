@@ -71,7 +71,7 @@ class CommunityRepositoryImpl extends Model implements ICommunityRepository {
 		}).then((res) => res.map((r) => new CommunityClientId(r.clientId)));
 	}
 
-	async findByBatchStatusAndDeletedAt(): Promise<CommunityId[] | undefined> {
+	async findByBatchStatusAndDeletedAt(): Promise<CommunityId[]> {
 		return CommunityRepositoryImpl.findAll({
 			where: {
 				batchStatus: CommunityBatchStatus.Yet,
@@ -79,7 +79,7 @@ class CommunityRepositoryImpl extends Model implements ICommunityRepository {
 			},
 			paranoid: false,
 		}).then((res) =>
-			res.length > 0 ? res.map((r) => new CommunityId(r.id)) : undefined,
+			res.length > 0 ? res.map((r) => new CommunityId(r.id)) : [],
 		);
 	}
 
