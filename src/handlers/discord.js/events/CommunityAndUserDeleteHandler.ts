@@ -7,18 +7,22 @@ import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
 import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
 import { UserClientId } from "@/src/entities/vo/UserClientId";
 import { UserCommunityId } from "@/src/entities/vo/UserCommunityId";
+import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
+import type { IUserLogic } from "@/src/logics/Interfaces/logics/IUserLogic";
 import type { IDataDeletionCircular } from "@/src/logics/Interfaces/repositories/database/IDataDeletionCircular";
 import type { ITransaction } from "@/src/logics/Interfaces/repositories/database/ITransaction";
 import { schedulerContainer } from "@/src/scheduler.di.config";
 import type { Client } from "discord.js";
-import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
-import type { IUserLogic } from "@/src/logics/Interfaces/logics/IUserLogic";
 
 export const CommunityAndUserDeleteHandler = async (c: Client<boolean>) => {
 	const t = schedulerContainer.get<ITransaction>(RepoTypes.Transaction);
-	const communityLogic = schedulerContainer.get<ICommunityLogic>(LogicTypes.CommunityLogic);
+	const communityLogic = schedulerContainer.get<ICommunityLogic>(
+		LogicTypes.CommunityLogic,
+	);
 	const userLogic = schedulerContainer.get<IUserLogic>(LogicTypes.UserLogic);
-	const dataDeletionCircular = schedulerContainer.get<IDataDeletionCircular>(RepoTypes.DataDeletionCircular);
+	const dataDeletionCircular = schedulerContainer.get<IDataDeletionCircular>(
+		RepoTypes.DataDeletionCircular,
+	);
 
 	await t.startTransaction(async () => {
 		const guilds = c.guilds.cache;
@@ -49,10 +53,7 @@ export const CommunityAndUserDeleteHandler = async (c: Client<boolean>) => {
 			}
 
 			//Userの削除
-			await userLogic.deleteByCommunityIdAndClientIds(
-				communityId,
-				memberIds,
-			);
+			await userLogic.deleteByCommunityIdAndClientIds(communityId, memberIds);
 		}
 
 		//Botが所属してないCommunityとCommunityのUser削除
@@ -86,12 +87,9 @@ export const CommunityAndUserDeleteHandler = async (c: Client<boolean>) => {
 		}
 
 		//削除されたにCommunity関連するデータの削除
-		const communityIds =
-			await communityLogic.findByBatchStatusAndDeletedAt();
+		const communityIds = await communityLogic.findByBatchStatusAndDeletedAt();
 		for (const c of communityIds) {
-			await dataDeletionCircular.deleteRecordInRelatedTableCommunityId(
-				c,
-			);
+			await dataDeletionCircular.deleteRecordInRelatedTableCommunityId(c);
 		}
 	});
 };
