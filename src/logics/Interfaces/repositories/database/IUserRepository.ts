@@ -6,7 +6,11 @@ import type { UserId } from "@/src/entities/vo/UserId";
 export interface IUserRepository {
 	bulkCreate(data: UserDto[]): Promise<boolean>;
 	deletebyCommunityId(communityId: UserCommunityId): Promise<boolean>;
-	deleteByCommunityIdAndClientIds(
+	deleteByCommunityIdAndClientId(
+		communityId: UserCommunityId,
+		clientId: UserClientId,
+	): Promise<boolean>;
+	deleteNotBelongByCommunityIdAndClientIds(
 		communityId: UserCommunityId,
 		clientIds: UserClientId[],
 	): Promise<boolean>;
