@@ -11,4 +11,9 @@ export interface IUserLogic {
 		clientId: UserClientId,
 	): Promise<boolean>;
 	getId(data: UserDto): Promise<UserId | undefined>;
+	deleteByCommunityIdAndClientIds(
+		communityId: UserCommunityId,
+		clientIds: UserClientId[],
+	): Promise<boolean>;
+	findByBatchStatusAndDeletedAt(): Promise<UserId[]>;
 }
