@@ -55,7 +55,16 @@ class UserRepositoryImpl extends Model implements IUserRepository {
 		}).then((res) => !!res);
 	}
 
-	async deleteByCommunityIdAndClientIds(
+	async deleteByCommunityIdAndClientId(communityId: UserCommunityId, clientId: UserClientId): Promise<boolean> {
+		return UserRepositoryImpl.destroy({
+			where: {
+				clientId: clientId.getValue(),
+				communityId: communityId.getValue(),
+			},
+		}).then((res) => !!res);
+	}
+
+	async deleteNotBelongByCommunityIdAndClientIds(
 		communityId: UserCommunityId,
 		clientIds: UserClientId[],
 	): Promise<boolean> {
