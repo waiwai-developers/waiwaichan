@@ -7,7 +7,7 @@ import type { UserId } from "@/src/entities/vo/UserId";
 export interface IUserRepository {
 	bulkCreate(data: UserDto[]): Promise<boolean>;
 	deletebyCommunityId(communityId: UserCommunityId): Promise<boolean>;
-	deletebyClientId(clientId: UserClientId): Promise<boolean>;
+	deleteByCommunityIdAndClientIds(communityId: UserCommunityId, clientIds: UserClientId[]): Promise<boolean>
 	getId(data: UserDto): Promise<UserId | undefined>;
 	updatebatchStatus(id: UserId): Promise<boolean>;
 }
