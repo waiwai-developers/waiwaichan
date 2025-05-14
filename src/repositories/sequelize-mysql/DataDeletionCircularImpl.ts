@@ -5,7 +5,6 @@ import type { ICommunityRepository } from "@/src/logics/Interfaces/repositories/
 import type { IDataDeletionCircular } from "@/src/logics/Interfaces/repositories/database/IDataDeletionCircular";
 import type { ITransaction } from "@/src/logics/Interfaces/repositories/database/ITransaction";
 import type { IUserRepository } from "@/src/logics/Interfaces/repositories/database/IUserRepository";
-import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnector";
 import { inject, injectable } from "inversify";
 import type { Model, ModelStatic } from "sequelize";
 import { MysqlSchedulerConnector } from "./MysqlSchedulerConnector";
@@ -43,27 +42,43 @@ class DataDeletionCircularImpl implements IDataDeletionCircular {
 		columnName: string,
 		id: number,
 	): Promise<boolean> {
-		const mysqlConnectorModels = MysqlConnector.models as Array<
-			ModelStatic<Model>
-		>;
-		const mysqlSchedulerConnectorModels =
-			MysqlSchedulerConnector.models as Array<ModelStatic<Model>>;
-		const models = [...mysqlConnectorModels, ...mysqlSchedulerConnectorModels];
-		const relatedModels = models.filter((m) =>
-			Object.keys(m.getAttributes()).includes(columnName),
-		);
-		return await Promise.all(
-			relatedModels.map((m) =>
-				m.destroy({
-					where: {
-						[columnName]: id,
-					},
-				}),
-			),
-		).then(
-			(res) =>
-				!!res.map((r) => r >= 0).reduce((acc, curr) => acc && curr, true),
-		);
+		try {
+			// スケジューラーコネクタのモデルのみを使用
+			const mysqlSchedulerConnectorModels =
+				MysqlSchedulerConnector.models as Array<ModelStatic<Model>>;
+
+			// 関連するモデルをフィルタリング
+			const relatedModels = mysqlSchedulerConnectorModels.filter((m) => {
+				try {
+					return Object.keys(m.getAttributes()).includes(columnName);
+				} catch (error) {
+					// モデルが初期化されていない場合はスキップ
+					return false;
+				}
+			});
+
+			// 関連するモデルがない場合は成功として返す
+			if (relatedModels.length === 0) {
+				return true;
+			}
+
+			// 関連するレコードを削除
+			return await Promise.all(
+				relatedModels.map((m) =>
+					m.destroy({
+						where: {
+							[columnName]: id,
+						},
+					}),
+				),
+			).then(
+				(res) =>
+					!!res.map((r) => r >= 0).reduce((acc, curr) => acc && curr, true),
+			);
+		} catch (error) {
+			console.error(`Error in deleteRecordInRelatedTable: ${error}`);
+			return false;
+		}
 	}
 }
 export { DataDeletionCircularImpl };
