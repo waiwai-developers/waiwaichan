@@ -9,6 +9,7 @@ export interface ICommunityRepository {
 	getId(data: CommunityDto): Promise<CommunityId | undefined>;
 	getNotExistClientId(
 		categoryType: CommunityCategoryType,
-		communityClientIds: CommunityClientId[],
+		clientIds: CommunityClientId[],
 	): Promise<CommunityClientId[]>;
+	updatebatchStatus(id: CommunityId): Promise<boolean>;
 }
