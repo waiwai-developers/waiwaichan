@@ -7,6 +7,8 @@ import { MysqlSchedulerConnector } from "@/src/repositories/sequelize-mysql/Mysq
 import { SequelizeTransaction } from "@/src/repositories/sequelize-mysql/SequelizeTransaction";
 import { Container } from "inversify";
 import type { Sequelize } from "sequelize-typescript";
+import type { ITransaction } from "./logics/Interfaces/repositories/database/ITransaction";
+import type { ILogger } from "./logics/Interfaces/repositories/logger/ILogger";
 
 const schedulerContainer = new Container(); // Logger
 schedulerContainer.bind<ILogger>(RepoTypes.Logger).to(PinoSchedulerLogger);
