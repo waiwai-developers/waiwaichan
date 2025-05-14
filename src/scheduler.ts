@@ -15,5 +15,10 @@ const client = new Client({
 	),
 });
 
+//reminderの実行
 cron.schedule("* * * * *", () => ReminderNotifyHandler(client));
+
+//communityとuserの同期
+cron.schedule("0 0 * * *", () => CommunityAndUserDeleteHandler(client));
+
 await client.login(AppConfig.discord.token);

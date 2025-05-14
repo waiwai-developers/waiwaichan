@@ -22,6 +22,10 @@ export const up: Migration = async ({ context: sequelize }) => {
 			allowNull: false,
 			type: DataTypes.INTEGER,
 		},
+		batchStatus: {
+			allowNull: false,
+			type: DataTypes.INTEGER,
+		},
 		deletedAt: {
 			type: DataTypes.DATE,
 		},

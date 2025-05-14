@@ -1,4 +1,5 @@
 import { UserDto } from "@/src/entities/dto/UserDto";
+import { UserBatchStatus } from "@/src/entities/vo/UserBatchStatus";
 import { UserCategoryType } from "@/src/entities/vo/UserCategoryType";
 import { UserClientId } from "@/src/entities/vo/UserClientId";
 import { UserCommunityId } from "@/src/entities/vo/UserCommunityId";
@@ -31,6 +32,8 @@ class UserRepositoryImpl extends Model implements IUserRepository {
 	declare clientId: bigint;
 	@Column(DataType.INTEGER)
 	declare communityId: number;
+	@Column(DataType.INTEGER)
+	declare batchStatus: number;
 
 	async bulkCreate(data: UserDto[]): Promise<boolean> {
 		return await UserRepositoryImpl.bulkCreate(
@@ -38,6 +41,7 @@ class UserRepositoryImpl extends Model implements IUserRepository {
 				categoryType: d.categoryType.getValue(),
 				clientId: d.clientId.getValue(),
 				communityId: d.communityId.getValue(),
+				batchStatus: UserBatchStatus.Yet.getValue(),
 			})),
 		).then((res) => !!res);
 	}

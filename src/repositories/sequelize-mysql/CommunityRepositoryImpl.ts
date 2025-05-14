@@ -1,9 +1,11 @@
 import { CommunityDto } from "@/src/entities/dto/CommunityDto";
+import { CommunityBatchStatus } from "@/src/entities/vo/CommunityBatchStatus";
 import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
 import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
 import { CommunityId } from "@/src/entities/vo/CommunityId";
 import type { ICommunityRepository } from "@/src/logics/Interfaces/repositories/database/ICommunityRepository";
 import { injectable } from "inversify";
+import { Op } from "sequelize";
 import {
 	AutoIncrement,
 	Column,
@@ -28,11 +30,14 @@ class CommunityRepositoryImpl extends Model implements ICommunityRepository {
 	declare categoryType: number;
 	@Column(DataType.BIGINT)
 	declare clientId: bigint;
+	@Column(DataType.INTEGER)
+	declare batchStatus: number;
 
 	async create(data: CommunityDto): Promise<CommunityId> {
 		return CommunityRepositoryImpl.create({
 			categoryType: data.categoryType.getValue(),
 			clientId: data.clientId.getValue(),
+			batchStatus: CommunityBatchStatus.Yet.getValue(),
 		}).then((res) => new CommunityId(res.id));
 	}
 
@@ -52,6 +57,18 @@ class CommunityRepositoryImpl extends Model implements ICommunityRepository {
 				clientId: data.clientId.getValue(),
 			},
 		}).then((res) => (res ? new CommunityId(res.id) : undefined));
+	}
+
+	async getNotExistClientId(
+		categoryType: CommunityCategoryType,
+		clientIds: CommunityClientId[],
+	): Promise<CommunityClientId[]> {
+		return CommunityRepositoryImpl.findAll({
+			where: {
+				categoryType: categoryType.getValue(),
+				clientId: { [Op.notIn]: clientIds.map((c) => c.getValue()) },
+			},
+		}).then((res) => res.map((r) => new CommunityClientId(r.clientId)));
 	}
 
 	toDto(): CommunityDto {

@@ -20,31 +20,31 @@ import { Sequelize } from "sequelize-typescript";
 export class MysqlConnector implements IDataBaseConnector<Sequelize, "mysql"> {
 	@inject(RepoTypes.Logger)
 	private readonly logger!: ILogger;
+	static readonly models = [
+		CandyRepositoryImpl,
+		CandyItemRepositoryImpl,
+		CrownRepositoryImpl,
+		UserCandyItemRepositoryImpl,
+		ReminderRepositoryImpl,
+		ThreadRepositoryImpl,
+		StickyRepositoryImpl,
+		CommunityRepositoryImpl,
+		UserRepositoryImpl,
+	];
+	readonly instance: Sequelize;
 
-	instance: Sequelize;
 	constructor() {
 		const dbConfig = GetEnvDBConfig();
 		this.instance = new Sequelize(
 			dbConfig.database,
 			dbConfig.username,
 			dbConfig.password,
-
 			{
 				host: dbConfig.host,
 				port: dbConfig.port,
 				dialect: dbConfig.dialect as Dialect,
 				logging: (s, t) => SequelizeLogger(s, t, this.logger),
-				models: [
-					CandyRepositoryImpl,
-					CandyItemRepositoryImpl,
-					CrownRepositoryImpl,
-					UserCandyItemRepositoryImpl,
-					ReminderRepositoryImpl,
-					ThreadRepositoryImpl,
-					StickyRepositoryImpl,
-					CommunityRepositoryImpl,
-					UserRepositoryImpl,
-				],
+				models: MysqlConnector.models,
 			},
 		);
 	}

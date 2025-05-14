@@ -7,5 +7,9 @@ export interface IUserRepository {
 	bulkCreate(data: UserDto[]): Promise<boolean>;
 	deletebyCommunityId(communityId: UserCommunityId): Promise<boolean>;
 	deletebyClientId(clientId: UserClientId): Promise<boolean>;
+	deletebyClientIds(
+		communityId: UserCommunityId,
+		clientIds: UserClientId[],
+	): Promise<boolean>;
 	getId(data: UserDto): Promise<UserId | undefined>;
 }
