@@ -1,5 +1,8 @@
 import { AppConfig } from "@/src/entities/config/AppConfig";
-import { LogicTypes, RepoTypes } from "@/src/entities/constants/DIContainerTypes";
+import {
+	LogicTypes,
+	RepoTypes,
+} from "@/src/entities/constants/DIContainerTypes";
 import { CommunityDto } from "@/src/entities/dto/CommunityDto";
 import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
 import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
