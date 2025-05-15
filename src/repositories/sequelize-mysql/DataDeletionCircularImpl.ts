@@ -46,9 +46,15 @@ class DataDeletionCircularImpl implements IDataDeletionCircular {
 			// スケジューラーコネクタのモデルのみを使用
 			const mysqlSchedulerConnectorModels =
 				MysqlSchedulerConnector.models as Array<ModelStatic<Model>>;
+			const mysqlConnectorModels = MysqlSchedulerConnector.models as Array<
+				ModelStatic<Model>
+			>;
+			const models = [
+				...mysqlSchedulerConnectorModels,
+				...mysqlConnectorModels,
+			];
 
-			// 関連するモデルをフィルタリング
-			const relatedModels = mysqlSchedulerConnectorModels.filter((m) => {
+			const relatedModels = models.filter((m) => {
 				try {
 					return Object.keys(m.getAttributes()).includes(columnName);
 				} catch (error) {
