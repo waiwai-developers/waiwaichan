@@ -11,6 +11,7 @@ import {
 import { Sequelize } from "sequelize-typescript";
 import { SequelizeStorage, Umzug } from "umzug";
 import type { MigrationParams } from "umzug/lib/types";
+import { DatafixStickyModel } from "./datafixies/models/DatafixStickyModel";
 
 export const migrator = (dbConfig: DatabaseConfigType = GetEnvDBConfig() ) => {
 	const sequelize = new Sequelize(
@@ -71,7 +72,7 @@ export const datafixer = (dbConfig: DatabaseConfigType = GetEnvDBConfig()) => {
 			host: dbConfig.host,
 			port: dbConfig.port,
 			dialect: "mysql",
-			models: [DatafixUserItemModel, DatafixCandyModel, DatafixThreadModel, DatafixReminderModel, DatafixCommunityModel, DatafixUserModel],
+			models: [DatafixUserItemModel, DatafixCandyModel, DatafixThreadModel, DatafixReminderModel, DatafixCommunityModel, DatafixUserModel, DatafixStickyModel],
 		},
 	);
 
