@@ -109,6 +109,7 @@ class UserRepositoryImpl extends Model implements IUserRepository {
 					id: id.getValue(),
 					batchStatus: UserBatchStatus.Yet.getValue(),
 				},
+				paranoid: false, // 削除されたレコードも含めて更新する
 			},
 		).then((res) => !!res);
 	}

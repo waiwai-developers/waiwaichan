@@ -93,6 +93,7 @@ class CommunityRepositoryImpl extends Model implements ICommunityRepository {
 					id: id.getValue(),
 					batchStatus: CommunityBatchStatus.Yet.getValue(),
 				},
+				paranoid: false,
 			},
 		).then((res) => !!res);
 	}
