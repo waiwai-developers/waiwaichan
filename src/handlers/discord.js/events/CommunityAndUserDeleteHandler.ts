@@ -7,6 +7,7 @@ import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
 import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
 import { UserClientId } from "@/src/entities/vo/UserClientId";
 import { UserCommunityId } from "@/src/entities/vo/UserCommunityId";
+import type { DataDeletionCircularLogic } from "@/src/logics/DataDeletionCircularLogic";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { IUserLogic } from "@/src/logics/Interfaces/logics/IUserLogic";
 import type { IDataDeletionCircular } from "@/src/logics/Interfaces/repositories/database/IDataDeletionCircular";
@@ -20,9 +21,10 @@ export const CommunityAndUserDeleteHandler = async (c: Client<boolean>) => {
 		LogicTypes.CommunityLogic,
 	);
 	const userLogic = schedulerContainer.get<IUserLogic>(LogicTypes.UserLogic);
-	const dataDeletionCircular = schedulerContainer.get<IDataDeletionCircular>(
-		RepoTypes.DataDeletionCircular,
-	);
+	const dataDeletionCircularLogic =
+		schedulerContainer.get<DataDeletionCircularLogic>(
+			LogicTypes.dataDeletionCircularLogic,
+		);
 
 	await t.startTransaction(async () => {
 		const guilds = c.guilds.cache;
@@ -86,13 +88,13 @@ export const CommunityAndUserDeleteHandler = async (c: Client<boolean>) => {
 		//削除されたUserに関連するデータの削除
 		const userIds = await userLogic.findByBatchStatusAndDeletedAt();
 		for (const u of userIds) {
-			await dataDeletionCircular.deleteRecordInRelatedTableUserId(u);
+			await dataDeletionCircularLogic.deleteRecordInRelatedTableUserId(u);
 		}
 
 		//削除されたにCommunity関連するデータの削除
 		const communityIds = await communityLogic.findByBatchStatusAndDeletedAt();
 		for (const c of communityIds) {
-			await dataDeletionCircular.deleteRecordInRelatedTableCommunityId(c);
+			await dataDeletionCircularLogic.deleteRecordInRelatedTableUserId(c);
 		}
 	});
 };
