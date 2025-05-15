@@ -20,4 +20,5 @@ export interface IUserLogic {
 		clientIds: UserClientId[],
 	): Promise<boolean>;
 	findByBatchStatusAndDeletedAt(): Promise<UserId[]>;
+	updatebatchStatus(id: UserId): Promise<boolean>;
 }
