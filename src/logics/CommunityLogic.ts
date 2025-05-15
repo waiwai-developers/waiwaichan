@@ -51,4 +51,10 @@ export class CommunityLogic implements ICommunityLogic {
 			return await this.CommunityRepository.findByBatchStatusAndDeletedAt();
 		});
 	}
+
+	async updatebatchStatus(id: CommunityId): Promise<boolean> {
+		return this.transaction.startTransaction(async () => {
+			return await this.CommunityRepository.updatebatchStatus(id);
+		});
+	}
 }

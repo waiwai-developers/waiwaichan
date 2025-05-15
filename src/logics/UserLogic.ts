@@ -76,4 +76,10 @@ export class UserLogic implements IUserLogic {
 			return await this.UserRepository.findByBatchStatusAndDeletedAt();
 		});
 	}
+
+	async updatebatchStatus(id: UserId): Promise<boolean> {
+		return this.transaction.startTransaction(async () => {
+			return await this.UserRepository.updatebatchStatus(id);
+		});
+	}
 }
