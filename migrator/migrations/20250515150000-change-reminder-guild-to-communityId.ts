@@ -14,7 +14,7 @@ export const up: Migration = async ({ context: sequelize }) => {
 
 export const down: Migration = async ({ context: sequelize }) => {
 	await sequelize.getQueryInterface().addColumn(TABLE_NAME, COLUMN_NAME_2, {
-		type: DataTypes.INTEGER,
+		type: DataTypes.BIGINT,
 	});
 	await sequelize.getQueryInterface().removeColumn(TABLE_NAME, COLUMN_NAME_1);
 };
