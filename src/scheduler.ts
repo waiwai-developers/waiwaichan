@@ -62,7 +62,7 @@ cron.schedule("* * * * *", () => {
 });
 
 // コミュニティとユーザーの同期
-cron.schedule("* * * * *", () => {
+cron.schedule("0 0 * * *", () => {
 	runInNamespace("community and user sync", () =>
 		CommunityAndUserDeleteHandler(client),
 	);
