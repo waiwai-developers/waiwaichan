@@ -1,6 +1,8 @@
 import { LogicTypes, RepoTypes, SchedulerRepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import { CommunityLogic } from "@/src/logics/CommunityLogic";
+import { DataDeletionCircularLogic } from "@/src/logics/DataDeletionCircularLogic";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
+import type { IDataDeletionCircularLogic } from "@/src/logics/Interfaces/logics/IDataDeletionCircularLogic";
 import type { IUserLogic } from "@/src/logics/Interfaces/logics/IUserLogic";
 import type { ICommunityRepository } from "@/src/logics/Interfaces/repositories/database/ICommunityRepository";
 import type { IDataBaseConnector } from "@/src/logics/Interfaces/repositories/database/IDataBaseConnector";
@@ -34,5 +36,6 @@ schedulerContainer.bind<IUserRepository>(RepoTypes.UserRepository).to(UserReposi
 // Logics
 schedulerContainer.bind<ICommunityLogic>(LogicTypes.CommunityLogic).to(CommunityLogic);
 schedulerContainer.bind<IUserLogic>(LogicTypes.UserLogic).to(UserLogic);
+schedulerContainer.bind<IDataDeletionCircularLogic>(LogicTypes.dataDeletionCircularLogic).to(DataDeletionCircularLogic);
 
 export { schedulerContainer };
