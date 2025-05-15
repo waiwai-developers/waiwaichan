@@ -32,6 +32,7 @@ export const LogicTypes = {
 	CommunityLogic: Symbol.for("CommunityLogic"),
 	UserLogic: Symbol.for("UserLogic"),
 	CrownLogic: Symbol.for("CrownLogic"),
+	dataDeletionCircularLogic: Symbol.for("dataDeletionCircularLogic"),
 };
 
 export const RouteTypes = {
