@@ -82,9 +82,9 @@ class UserRepositoryImpl extends Model implements IUserRepository {
 	async getId(data: UserDto): Promise<UserId | undefined> {
 		return UserRepositoryImpl.findOne({
 			where: {
-				categoryType: data.categoryType,
-				clientId: data.clientId,
-				communityId: data.communityId,
+				categoryType: data.categoryType.getValue(),
+				clientId: data.clientId.getValue(),
+				communityId: data.communityId.getValue(),
 			},
 		}).then((res) => (res ? new UserId(res.id) : undefined));
 	}
