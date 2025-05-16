@@ -207,13 +207,19 @@ describe("Test Candy Commands", () => {
 			let value = "";
 			when(commandMock.reply(anything())).thenCall((args) => {
 				value = args;
+				// 応答を受け取ったことを明示的に記録
+				console.log("Reply received:", args);
 			});
+
+			// guildIdの設定
+			when(commandMock.guildId).thenReturn("1234567890");
 
 			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
-			await waitSlashUntilReply(commandMock);
+			// 応答を待つ（タイムアウトを短くする）
+			await waitSlashUntilReply(commandMock, 5000);
 
 			// 応答の検証
 			verify(commandMock.reply(anything())).once();
@@ -229,19 +235,31 @@ describe("Test Candy Commands", () => {
 		this.timeout(10000);
 
 		return (async () => {
+			// テスト前にデータベースをクリーンアップ
+			await CandyRepositoryImpl.destroy({
+				truncate: true,
+				force: true,
+			});
+
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("candycheck");
 
 			let value = "";
 			when(commandMock.reply(anything())).thenCall((args) => {
 				value = args;
+				// 応答を受け取ったことを明示的に記録
+				console.log("Reply received:", args);
 			});
+
+			// guildIdの設定
+			when(commandMock.guildId).thenReturn("1234567890");
 
 			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
-			await waitSlashUntilReply(commandMock);
+			// 応答を待つ（タイムアウトを短くする）
+			await waitSlashUntilReply(commandMock, 5000);
 
 			// 応答の検証
 			verify(commandMock.reply(anything())).once();
