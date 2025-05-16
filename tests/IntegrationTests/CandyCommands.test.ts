@@ -29,7 +29,7 @@ describe("Test Candy Commands", () => {
 	 * キャンディを所持している場合、個数と期限が正しく表示されることを確認する
 	 */
 	it("should display candy count and expiration when candies exist", function(this: Mocha.Context) {
-		this.timeout(10000);
+		this.timeout(10_000);
 
 		return (async () => {
 			// コマンドのモック作成
@@ -75,7 +75,7 @@ describe("Test Candy Commands", () => {
 	 * キャンディを所持していない場合、適切なメッセージが表示されることを確認する
 	 */
 	it("should display message when no candies exist", function(this: Mocha.Context) {
-		this.timeout(10000);
+		this.timeout(10_000);
 
 		return (async () => {
 			// コマンドのモック作成
@@ -194,7 +194,7 @@ describe("Test Candy Commands", () => {
 				insertData.push({
 					receiveUserId: "1234",
 					giveUserId: "12345",
-					messageId: String(10000 + i),
+					messageId: String(10_000 + i),
 					expiredAt: "2999/12/31 23:59:59",
 					deletedAt: i < 149 ? date.toISOString() : null, // 149個目までは使用済み
 					createdAt: date.toISOString(),
@@ -346,7 +346,7 @@ describe("Test Candy Commands", () => {
 				insertData.push({
 					receiveUserId: "1234",
 					giveUserId: "12345",
-					messageId: String(10000 + i),
+					messageId: String(10_000 + i),
 					expiredAt: "2999/12/31 23:59:59",
 					deletedAt: i < 146 ? date.toISOString() : null, // 146個目までは使用済み
 					createdAt: date.toISOString(),
@@ -916,7 +916,7 @@ describe("Test Candy Commands", () => {
 	 * スーパーキャンディは1回のスタンプで3つのキャンディが増えることを確認する
 	 */
 	it("should add three candies when super candy reaction is added", function(this: Mocha.Context) {
-		this.timeout(10000);
+		this.timeout(10_000);
 
 		return (async () => {
 			const giverId = "1234";
