@@ -11,7 +11,8 @@ export const up: Datafix = async () => {
 				where: {
 					categoryType: UserCategoryType.Discord.getValue(),
 					clientId: r.userId,
-					communityId: 1
+					communityId: 1,
+					deletedAt: null
 				}
 			})
 			if ( user == null) { continue; }
