@@ -43,7 +43,7 @@ describe("Test Candy Commands", () => {
 				expiredAt: "2999/12/31 23:59:59",
 				deletedAt: null,
 				guildId: "1234567890",
-				categoryType: 0, // CATEGORY_TYPE_NORMAL
+				categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
 			};
 			await CandyRepositoryImpl.create(insertData);
 
@@ -131,7 +131,7 @@ describe("Test Candy Commands", () => {
 				expiredAt: "2999/12/31 23:59:59",
 				deletedAt: null,
 				guildId: "1234567890",
-				categoryType: 0, // CATEGORY_TYPE_NORMAL
+				categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
 			}));
 			await CandyRepositoryImpl.bulkCreate(insertData);
 
@@ -200,7 +200,7 @@ describe("Test Candy Commands", () => {
 					createdAt: date.toISOString(),
 					updatedAt: date.toISOString(),
 					guildId: "1234567890",
-					categoryType: 0, // CATEGORY_TYPE_NORMAL
+					categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
 				});
 			}
 			await CandyRepositoryImpl.bulkCreate(insertData);
@@ -247,7 +247,7 @@ describe("Test Candy Commands", () => {
 				expiredAt: "2999/12/31 23:59:59",
 				deletedAt: null,
 				guildId: "1234567890",
-				categoryType: 0, // CATEGORY_TYPE_NORMAL
+				categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
 			}));
 			await CandyRepositoryImpl.bulkCreate(insertData);
 
@@ -295,7 +295,7 @@ describe("Test Candy Commands", () => {
 				expiredAt: "2999/12/31 23:59:59",
 				deletedAt: null,
 				guildId: "1234567890",
-				categoryType: 0, // CATEGORY_TYPE_NORMAL
+				categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
 			}));
 			await CandyRepositoryImpl.bulkCreate(insertData);
 
@@ -352,7 +352,7 @@ describe("Test Candy Commands", () => {
 					createdAt: date.toISOString(),
 					updatedAt: date.toISOString(),
 					guildId: "1234567890",
-					categoryType: 0, // CATEGORY_TYPE_NORMAL
+					categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
 				});
 			}
 			await CandyRepositoryImpl.bulkCreate(insertData);
@@ -409,7 +409,7 @@ describe("Test Candy Commands", () => {
 				expiredAt: "2999/12/31 23:59:59",
 				deletedAt: null,
 				guildId: "1234567890",
-				categoryType: 0, // CATEGORY_TYPE_NORMAL
+				categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
 			}));
 			await CandyRepositoryImpl.bulkCreate(insertData);
 
@@ -776,7 +776,7 @@ describe("Test Candy Commands", () => {
 					createdAt: today,
 					updatedAt: today,
 					guildId: "1234567890",
-					categoryType: 0, // CATEGORY_TYPE_NORMAL
+					categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
 				});
 			}
 
