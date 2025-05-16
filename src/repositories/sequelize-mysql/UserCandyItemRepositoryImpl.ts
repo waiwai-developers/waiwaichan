@@ -5,8 +5,8 @@ import { CandyId } from "@/src/entities/vo/CandyId";
 import { CandyItemDescription } from "@/src/entities/vo/CandyItemDescription";
 import { CandyItemId } from "@/src/entities/vo/CandyItemId";
 import { CandyItemName } from "@/src/entities/vo/CandyItemName";
-import { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
-import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
+import { CommunityId } from "@/src/entities/vo/CommunityId";
+import { UserId } from "@/src/entities/vo/UserId";
 import { UserCandyItemCount } from "@/src/entities/vo/UserCandyItemCount";
 import { UserCandyItemExpire } from "@/src/entities/vo/UserCandyItemExpire";
 import { UserCandyItemId } from "@/src/entities/vo/UserCandyItemId";
@@ -43,9 +43,9 @@ class UserCandyItemRepositoryImpl
 	@Column(DataType.INTEGER)
 	declare id: number;
 	@Column(DataType.STRING)
-	declare userId: string;
+	declare userId: number;
 	@Column(DataType.STRING)
-	declare guildId: string;
+	declare communityId: number;
 	@Column(DataType.STRING)
 	@ForeignKey(() => CandyItemRepositoryImpl)
 	declare itemId: number;
@@ -66,7 +66,7 @@ class UserCandyItemRepositoryImpl
 	async bulkCreate(data: UserCandyItemDto[]): Promise<UserCandyItemId[]> {
 		return UserCandyItemRepositoryImpl.bulkCreate(
 			data.map((u) => ({
-				guildId: u.guildId.getValue(),
+				communityId: u.communityId.getValue(),
 				userId: u.userId.getValue(),
 				itemId: u.itemId.getValue(),
 				candyId: u.candyId.getValue(),
@@ -76,8 +76,8 @@ class UserCandyItemRepositoryImpl
 	}
 
 	async findByNotUsed(
-		guildId: DiscordGuildId,
-		userId: DiscordUserId,
+		communityId: CommunityId,
+		userId: UserId,
 	): Promise<UserCandyItemWithItemGroupByDto[]> {
 		return UserCandyItemRepositoryImpl.findAll({
 			include: [CandyItemRepositoryImpl],
@@ -89,7 +89,7 @@ class UserCandyItemRepositoryImpl
 				[fn("MIN", col("expiredAt")), "aggrMinExpiredAt"],
 			],
 			where: {
-				guildId: guildId.getValue(),
+				communityId: communityId.getValue(),
 				userId: userId.getValue(),
 				expiredAt: { [Op.gt]: dayjs().toDate() },
 			},
@@ -97,7 +97,7 @@ class UserCandyItemRepositoryImpl
 		}).then((r) =>
 			r.map((it) => {
 				return new UserCandyItemWithItemGroupByDto(
-					new CandyItemName(it.userId),
+					new UserId(it.userId),
 					new CandyItemId(it.item.id),
 					new CandyItemName(it.item.name),
 					new CandyItemDescription(it.item.description),
@@ -110,13 +110,13 @@ class UserCandyItemRepositoryImpl
 	}
 
 	async lastJackpodCandyId(
-		guildId: DiscordGuildId,
-		userId: DiscordUserId,
+		communityId: CommunityId,
+		userId: UserId,
 	): Promise<CandyId | undefined> {
 		return UserCandyItemRepositoryImpl.findOne({
 			attributes: ["candyId"],
 			where: {
-				guildId: guildId.getValue(),
+				communityId: communityId.getValue(),
 				itemId: ID_JACKPOT,
 				userId: userId.getValue(),
 			},
@@ -132,15 +132,15 @@ class UserCandyItemRepositoryImpl
 	 * @return dto that updated item
 	 */
 	async exchangeByTypeAndAmount(
-		guildId: DiscordGuildId,
-		userId: DiscordUserId,
+		communityId: CommunityId,
+		userId: UserId,
 		type: CandyItemId,
 		amount: UserCandyItemCount,
 	): Promise<number> {
 		const lockedIds = await UserCandyItemRepositoryImpl.findAll({
 			attributes: ["id"],
 			where: {
-				guildId: guildId.getValue(),
+				communityId: communityId.getValue(),
 				userId: userId.getValue(),
 				itemId: type.getValue(),
 				expiredAt: { [Op.gt]: dayjs().toDate() },
@@ -163,7 +163,7 @@ class UserCandyItemRepositoryImpl
 
 	toDto({
 		id,
-		guildId,
+		communityId,
 		userId,
 		itemId,
 		candyId,
@@ -171,8 +171,8 @@ class UserCandyItemRepositoryImpl
 	}: UserCandyItemRepositoryImpl): UserCandyItemDto {
 		return new UserCandyItemDto(
 			new UserCandyItemId(id),
-			new DiscordGuildId(guildId),
-			new DiscordUserId(userId),
+			new CommunityId(communityId),
+			new UserId(userId),
 			new CandyItemId(itemId),
 			new CandyId(candyId),
 			new UserCandyItemExpire(expiredAt),
