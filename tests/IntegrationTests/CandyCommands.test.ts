@@ -119,7 +119,7 @@ describe("Test Candy Commands", () => {
 		const beforeCount = await CandyRepositoryImpl.count();
 
 		// CandyLogicを使用してキャンディを付与しようとする
-		const { reaction, user, messageMock } = mockReaction(AppConfig.backend.candyEmoji, giverId, receiverId);
+		const { reaction, user } = mockReaction(AppConfig.backend.candyEmoji, giverId, receiverId);
 		const TEST_CLIENT = await TestDiscordServer.getClient();
 		TEST_CLIENT.emit("messageReactionAdd", instance(reaction), instance(user), instance(mock<MessageReactionEventDetails>()));
 
