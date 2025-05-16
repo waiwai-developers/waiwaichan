@@ -44,6 +44,8 @@ describe("Test Candy Commands", () => {
 				messageId: Number(messageMock.id),
 				expiredAt: dayjs().add(1, "month").hour(0).minute(0).second(0).millisecond(0).add(1, "day").toDate(),
 				deletedAt: null,
+				guildId: 1234567890,
+				categoryType: 0, // CATEGORY_TYPE_NORMAL
 			});
 
 			// 応答の検証
@@ -85,7 +87,9 @@ describe("Test Candy Commands", () => {
 					expiredAt: dayjs().add(1, "month").hour(0).minute(0).second(0).millisecond(0).add(1, "day").toDate(),
 					deletedAt: null,
 					createdAt: today,
-					updatedAt: today
+					updatedAt: today,
+					guildId: 1234567890,
+					categoryType: 0, // CATEGORY_TYPE_NORMAL
 				});
 			}
 
@@ -177,6 +181,8 @@ describe("Test Candy Commands", () => {
 				messageId: 5678,
 				expiredAt: "2999/12/31 23:59:59",
 				deletedAt: null,
+				guildId: 1234567890,
+				categoryType: 0, // CATEGORY_TYPE_NORMAL
 			};
 			const inserted = await CandyRepositoryImpl.create(insertData);
 
@@ -243,13 +249,15 @@ describe("Test Candy Commands", () => {
 			const candyLength = 917;
 
 			// テストデータの作成
-			const insertData = new Array(candyLength).fill({
+			const insertData = new Array(candyLength).map(() => ({
 				receiveUserId: 1234,
 				giveUserId: 12345,
 				messageId: 5678,
 				expiredAt: "2999/12/31 23:59:59",
 				deletedAt: null,
-			});
+				guildId: 1234567890,
+				categoryType: 0, // CATEGORY_TYPE_NORMAL
+			}));
 			await CandyRepositoryImpl.bulkCreate(insertData);
 
 			// コマンドのモック作成
@@ -304,7 +312,9 @@ describe("Test Candy Commands", () => {
 					expiredAt: "2999/12/31 23:59:59",
 					deletedAt: i < 149 ? date.toISOString() : null, // 149個目までは使用済み
 					createdAt: date.toISOString(),
-					updatedAt: date.toISOString()
+					updatedAt: date.toISOString(),
+					guildId: 1234567890,
+					categoryType: 0, // CATEGORY_TYPE_NORMAL
 				});
 			}
 
@@ -340,13 +350,15 @@ describe("Test Candy Commands", () => {
 		return (async () => {
 			// テストデータの作成（複数回のドローに必要な十分なキャンディ）
 			const candyLength = 30;
-			const insertData = new Array(candyLength).fill({
+			const insertData = new Array(candyLength).map(() => ({
 				receiveUserId: 1234,
 				giveUserId: 12345,
 				messageId: 5678,
 				expiredAt: "2999/12/31 23:59:59",
 				deletedAt: null,
-			});
+				guildId: 1234567890,
+				categoryType: 0, // CATEGORY_TYPE_NORMAL
+			}));
 			await CandyRepositoryImpl.bulkCreate(insertData);
 
 			// コマンドのモック作成
@@ -366,10 +378,10 @@ describe("Test Candy Commands", () => {
 			// 応答の検証
 			verify(commandMock.reply(anything())).once();
 
-			// 結果の行数を確認（7回のドロー結果が表示されることを確認）
+			// 結果の行数を確認（10回のドロー結果が表示されることを確認）
 			const lines = value.split("\n");
 			const resultLines = lines.filter(line => line.startsWith("- "));
-			expect(resultLines.length).eq(7);
+			expect(resultLines.length).eq(10);
 		})();
 	});
 
@@ -383,13 +395,15 @@ describe("Test Candy Commands", () => {
 		return (async () => {
 			// テストデータの作成
 			const candyLength = 100;
-			const insertData = new Array(candyLength).fill({
+			const insertData = new Array(candyLength).map(() => ({
 				receiveUserId: 1234,
 				giveUserId: 12345,
 				messageId: 5678,
 				expiredAt: "2999/12/31 23:59:59",
 				deletedAt: null,
-			});
+				guildId: 1234567890,
+				categoryType: 0, // CATEGORY_TYPE_NORMAL
+			}));
 			await CandyRepositoryImpl.bulkCreate(insertData);
 
 			// コマンドのモック作成
@@ -440,7 +454,9 @@ describe("Test Candy Commands", () => {
 					expiredAt: "2999/12/31 23:59:59",
 					deletedAt: i < 149 ? date.toISOString() : null, // 149個目までは使用済み
 					createdAt: date.toISOString(),
-					updatedAt: date.toISOString()
+					updatedAt: date.toISOString(),
+					guildId: 1234567890,
+					categoryType: 0, // CATEGORY_TYPE_NORMAL
 				});
 			}
 
@@ -479,15 +495,17 @@ describe("Test Candy Commands", () => {
 		this.timeout(10000);
 
 		return (async () => {
-			// 連続ドローに必要な数より少ないキャンディを用意（7個必要だが6個しか用意しない）
-			const candyLength = 6;
-			const insertData = new Array(candyLength).fill({
+			// 連続ドローに必要な数より少ないキャンディを用意（10個必要だが9個しか用意しない）
+			const candyLength = 9;
+			const insertData = new Array(candyLength).map(() => ({
 				receiveUserId: 1234,
 				giveUserId: 12345,
 				messageId: 5678,
 				expiredAt: "2999/12/31 23:59:59",
 				deletedAt: null,
-			});
+				guildId: 1234567890,
+				categoryType: 0, // CATEGORY_TYPE_NORMAL
+			}));
 			await CandyRepositoryImpl.bulkCreate(insertData);
 
 			// コマンドのモック作成
