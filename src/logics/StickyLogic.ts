@@ -1,7 +1,7 @@
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import type { StickyDto } from "@/src/entities/dto/StickyDto";
+import { CommunityId } from "@/src/entities/vo/CommunityId";
 import type { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
-import type { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
 import type { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
 import type { IStickyLogic } from "@/src/logics/Interfaces/logics/IStickyLogic";
 import type { IStickyRepository } from "@/src/logics/Interfaces/repositories/database/IStickyRepository";
@@ -24,31 +24,31 @@ export class StickyLogic implements IStickyLogic {
 	}
 
 	async find(
-		guildId: DiscordGuildId,
+		communityId: CommunityId,
 		channelId: DiscordChannelId,
 	): Promise<StickyDto | undefined> {
 		return this.transaction.startTransaction(async () => {
-			return await this.StickyRepository.findOne(guildId, channelId);
+			return await this.StickyRepository.findOne(communityId, channelId);
 		});
 	}
 
 	async delete(
-		guildId: DiscordGuildId,
+		communityId: CommunityId,
 		channelId: DiscordChannelId,
 	): Promise<string> {
 		return this.transaction.startTransaction(async () => {
-			await this.StickyRepository.delete(guildId, channelId);
+			await this.StickyRepository.delete(communityId, channelId);
 			return "スティッキーを削除したよ！っ";
 		});
 	}
 	async update(
-		guildId: DiscordGuildId,
+		communityId: CommunityId,
 		channelId: DiscordChannelId,
 		messageId: DiscordMessageId,
 	): Promise<string> {
 		return this.transaction.startTransaction(async () => {
 			await this.StickyRepository.updateForMessageId(
-				guildId,
+				communityId,
 				channelId,
 				messageId,
 			);
