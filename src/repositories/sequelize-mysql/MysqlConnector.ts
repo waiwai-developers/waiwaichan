@@ -3,8 +3,10 @@ import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import type { IDataBaseConnector } from "@/src/logics/Interfaces/repositories/database/IDataBaseConnector";
 import { CandyItemRepositoryImpl } from "@/src/repositories/sequelize-mysql/CandyItemRepositoryImpl";
 import { CandyRepositoryImpl } from "@/src/repositories/sequelize-mysql/CandyRepositoryImpl";
+import { CrownRepositoryImpl } from "@/src/repositories/sequelize-mysql/CrownRepositoryImpl";
 import { ReminderRepositoryImpl } from "@/src/repositories/sequelize-mysql/ReminderRepositoryImpl";
 import { SequelizeLogger } from "@/src/repositories/sequelize-mysql/SequelizeLogger";
+import { StickyRepositoryImpl } from "@/src/repositories/sequelize-mysql/StickyRepositoryImpl";
 import { ThreadRepositoryImpl } from "@/src/repositories/sequelize-mysql/ThreadRepositoryImpl";
 import { UserCandyItemRepositoryImpl } from "@/src/repositories/sequelize-mysql/UserCandyItemRepositoryImpl";
 import { inject, injectable } from "inversify";
@@ -32,9 +34,11 @@ export class MysqlConnector implements IDataBaseConnector<Sequelize, "mysql"> {
 				models: [
 					CandyRepositoryImpl,
 					CandyItemRepositoryImpl,
+					CrownRepositoryImpl,
 					UserCandyItemRepositoryImpl,
 					ReminderRepositoryImpl,
 					ThreadRepositoryImpl,
+					StickyRepositoryImpl,
 				],
 			},
 		);

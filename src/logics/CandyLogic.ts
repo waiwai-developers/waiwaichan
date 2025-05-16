@@ -1,4 +1,10 @@
 import { AppConfig } from "@/src/entities/config/AppConfig";
+import {
+	NORMAL_CANDY_AMOUNT,
+	NORMAL_CANDY_LIMIT,
+	SUPER_CANDY_AMOUNT,
+	SUPER_CANDY_LIMIT,
+} from "@/src/entities/constants/Candies";
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import {
 	ID_HIT,
@@ -10,10 +16,13 @@ import {
 } from "@/src/entities/constants/Items";
 import { CandyDto } from "@/src/entities/dto/CandyDto";
 import { UserCandyItemDto } from "@/src/entities/dto/UserCandyItemDto";
+import { CandyCategoryType } from "@/src/entities/vo/CandyCategoryType";
 import { CandyCount } from "@/src/entities/vo/CandyCount";
+import { CandyCreatedAt } from "@/src/entities/vo/CandyCreatedAt";
 import { CandyExpire } from "@/src/entities/vo/CandyExpire";
 import { CandyId } from "@/src/entities/vo/CandyId";
 import { CandyItemId } from "@/src/entities/vo/CandyItemId";
+import type { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
 import type { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
 import type { DiscordMessageLink } from "@/src/entities/vo/DiscordMessageLink";
 import type { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
@@ -46,9 +55,9 @@ export class CandyLogic implements ICandyLogic {
 	@inject(RepoTypes.Mutex)
 	private readonly mutex!: IMutex;
 
-	async check(userId: DiscordUserId): Promise<string> {
+	async check(guildId: DiscordGuildId, userId: DiscordUserId): Promise<string> {
 		const candyCount = await this.candyRepository
-			.candyCount(userId)
+			.candyCount(guildId, userId)
 			.then((candyCount) => candyCount.getValue());
 
 		if (candyCount <= 0) {
@@ -56,7 +65,7 @@ export class CandyLogic implements ICandyLogic {
 		}
 
 		const candyExpire = await this.candyRepository
-			.candyExpire(userId)
+			.candyExpire(guildId, userId)
 			.then((e) =>
 				e
 					? dayjs(e.getValue()).subtract(1, "d").format("YYYY/MM/DD")
@@ -71,6 +80,7 @@ export class CandyLogic implements ICandyLogic {
 	}
 
 	async exchange(
+		guildId: DiscordGuildId,
 		userId: DiscordUserId,
 		type: CandyItemId,
 		amount: UserCandyItemCount,
@@ -78,7 +88,7 @@ export class CandyLogic implements ICandyLogic {
 		return this.transaction
 			.startTransaction(async () => {
 				return this.userCandyItemRepository
-					.exchangeByTypeAndAmount(userId, type, amount)
+					.exchangeByTypeAndAmount(guildId, userId, type, amount)
 					.then(async (updated) => {
 						if (updated !== amount.getValue()) {
 							throw new Error(
@@ -97,15 +107,20 @@ export class CandyLogic implements ICandyLogic {
 			.catch((_err: Error) => "アイテムは持ってないよ！っ");
 	}
 
-	async drawSeriesItem(userId: DiscordUserId): Promise<string> {
+	async drawItems(
+		guildId: DiscordGuildId,
+		userId: DiscordUserId,
+		candyConsumeAmount: CandyCount = new CandyCount(1),
+	): Promise<string> {
 		return await this.transaction
 			.startTransaction(async () => {
 				// candyの消費
 				const candyIds = await this.candyRepository.consumeCandies(
+					guildId,
 					userId,
-					new CandyCount(AppConfig.backend.candySeriesAmount),
+					candyConsumeAmount,
 				);
-				if (candyIds.length !== AppConfig.backend.candySeriesAmount) {
+				if (candyIds.length !== candyConsumeAmount.getValue()) {
 					throw new Error(
 						"Have less than the number of consecutive items need to consume",
 					);
@@ -113,55 +128,68 @@ export class CandyLogic implements ICandyLogic {
 
 				// itemの抽選
 				let randomNums: number[] = [];
-				do {
-					const selectRandomNums = [];
-					for (let i = 0; i < AppConfig.backend.candySeriesAmount; i++) {
+				if (candyIds.length >= AppConfig.backend.candyBoxAmount) {
+					// candyboxdrawの場合
+					do {
+						const selectRandomNums = [];
+						for (let i = 0; i < candyConsumeAmount.getValue(); i++) {
+							// NOTE:todo より良い乱数生成に変える
+							selectRandomNums.push(
+								Math.floor(Math.random() * PROBABILITY_JACKPOT + 1),
+							);
+						}
+						randomNums = selectRandomNums;
+					} while (
+						!randomNums.some(
+							(r) => r % PROBABILITY_HIT === 0 || r % PROBABILITY_JACKPOT === 0,
+						)
+					);
+				} else {
+					// candydrawの場合
+					for (let i = 0; i < candyConsumeAmount.getValue(); i++) {
 						// NOTE:todo より良い乱数生成に変える
-						selectRandomNums.push(
+						randomNums.push(
 							Math.floor(Math.random() * PROBABILITY_JACKPOT + 1),
 						);
 					}
-					randomNums = selectRandomNums;
-				} while (
-					!randomNums.some(
-						(r) => r % PROBABILITY_HIT === 0 || r % PROBABILITY_JACKPOT === 0,
-					)
-				);
+				}
 
 				//天上の場合に置換
 				const lastJackpodCandyId =
-					await this.userCandyItemRepository.lastJackpodCandyId(userId);
+					await this.userCandyItemRepository.lastJackpodCandyId(
+						guildId,
+						userId,
+					);
 				const candyCountFromJackpod =
 					await this.candyRepository.candyCountFromJackpod(
+						guildId,
 						userId,
 						lastJackpodCandyId
 							? new CandyId(lastJackpodCandyId?.getValue())
 							: undefined,
 					);
-				const pityIndex = PITY_COUNT - candyCountFromJackpod.getValue() - 1;
-				const isOverPity =
-					candyCountFromJackpod.getValue() +
-						AppConfig.backend.candySeriesAmount >=
-					PITY_COUNT;
+				const pityIndex =
+					PITY_COUNT - (candyCountFromJackpod.getValue() - candyIds.length) - 1;
+				const isOverPity = candyCountFromJackpod.getValue() >= PITY_COUNT;
 				const isNotJackpotToPity = !randomNums
-					.slice(pityIndex)
+					.slice(0, pityIndex)
 					.includes(PROBABILITY_JACKPOT);
 				if (isOverPity && isNotJackpotToPity) {
 					randomNums.splice(pityIndex, 1, PROBABILITY_JACKPOT);
 				}
 
 				// itemの作成
-				const mapCandyIdHitIds = [...Array(AppConfig.backend.candySeriesAmount)]
-					.map((v, i) => i)
-					.map((i) => ({
-						candyId: candyIds[i],
-						hitId:
-							randomNums[i] % PROBABILITY_JACKPOT === 0
-								? new CandyItemId(ID_JACKPOT)
-								: randomNums[i] % PROBABILITY_HIT === 0
-									? new CandyItemId(ID_HIT)
-									: new CandyItemId(ID_OUT),
-					}));
+				const mapCandyIdHitIds = [
+					...Array(AppConfig.backend.candyBoxAmount).keys(),
+				].map((i) => ({
+					candyId: candyIds[i],
+					hitId:
+						randomNums[i] % PROBABILITY_JACKPOT === 0
+							? new CandyItemId(ID_JACKPOT)
+							: randomNums[i] % PROBABILITY_HIT === 0
+								? new CandyItemId(ID_HIT)
+								: new CandyItemId(ID_OUT),
+				}));
 				const mapWinCandyIdHitIds = mapCandyIdHitIds.filter(
 					(m) => m.hitId.getValue() !== ID_OUT,
 				);
@@ -169,6 +197,7 @@ export class CandyLogic implements ICandyLogic {
 					(m) =>
 						new UserCandyItemDto(
 							new UserCandyItemId(0),
+							guildId,
 							userId,
 							m.hitId,
 							m.candyId,
@@ -181,7 +210,7 @@ export class CandyLogic implements ICandyLogic {
 
 				//文章を作成し投稿
 				const candyItems = await this.candyItemRepository.findAll();
-				const resultTexts = randomNums.map((n) => {
+				const texts = randomNums.map((n) => {
 					if (n % PROBABILITY_JACKPOT === 0) {
 						return `- ${candyItems?.find((c) => c.id.getValue() === ID_JACKPOT)?.name.getValue()}が当たったよ👕！っ`;
 					}
@@ -190,72 +219,24 @@ export class CandyLogic implements ICandyLogic {
 					}
 					return "- ハズレちゃったよ！っ";
 				});
-				const texts = ["結果は以下だよ！っ", ...resultTexts];
-
 				return texts.join("\n");
 			})
 			.catch((_err: Error) => "キャンディの数が足りないよ！っ");
 	}
 
-	async drawItem(userId: DiscordUserId): Promise<string> {
-		return await this.transaction.startTransaction(async () => {
-			return this.candyRepository.consumeCandy(userId).then(async (candyId) => {
-				if (!candyId) {
-					return "キャンディがないよ！っ";
-				}
-
-				// NOTE:todo より良い乱数生成に変える
-				let randomNum = Math.floor(Math.random() * PROBABILITY_JACKPOT + 1);
-
-				//天上の場合に置換
-				const lastJackpodId =
-					await this.userCandyItemRepository.lastJackpodCandyId(userId);
-
-				const candyCountFromJackpod =
-					await this.candyRepository.candyCountFromJackpod(
-						userId,
-						lastJackpodId ? new CandyId(lastJackpodId?.getValue()) : undefined,
-					);
-				if (candyCountFromJackpod.getValue() >= PITY_COUNT) {
-					randomNum = PROBABILITY_JACKPOT;
-				}
-
-				//文章を作成し投稿
-				if (
-					randomNum % PROBABILITY_HIT !== 0 &&
-					randomNum % PROBABILITY_JACKPOT !== 0
-				) {
-					return "ハズレちゃったよ！っ";
-				}
-				const hitId = new CandyItemId(
-					randomNum % PROBABILITY_JACKPOT === 0 ? ID_JACKPOT : ID_HIT,
-				);
-				//TODO: this creation require just user and hit id
-				await this.userCandyItemRepository.create(
-					new UserCandyItemDto(
-						new UserCandyItemId(0),
-						userId,
-						hitId,
-						candyId,
-						new UserCandyItemExpire(
-							dayjs().add(1, "day").add(1, "year").startOf("day").toDate(),
-						),
-					),
-				);
-				const item = await this.candyItemRepository.findById(hitId);
-				return `${item?.name.getValue()}が当たったよ${randomNum % PROBABILITY_JACKPOT === 0 ? "👕" : "🍭"}！っ`;
-			});
-		});
-	}
-
-	async getItems(userId: DiscordUserId): Promise<string> {
+	async getItems(
+		guildId: DiscordGuildId,
+		userId: DiscordUserId,
+	): Promise<string> {
 		return this.transaction.startTransaction(async () => {
-			const userCandyItems =
-				await this.userCandyItemRepository.findByNotUsed(userId);
+			const userCandyItems = await this.userCandyItemRepository.findByNotUsed(
+				guildId,
+				userId,
+			);
 
 			if (userCandyItems.length === 0) return "アイテムは持ってないよ！っ";
 			const texts = userCandyItems.flatMap((u) => [
-				`- ${u.name.getValue()} id: ${u.minId.getValue()}`,
+				`- ${u.name.getValue()}`,
 				`  - 説明：${u.description.getValue()}`,
 				`  - 期限：${dayjs(u.minExpiredAt.getValue()).subtract(1, "d").format("YYYY/MM/DD")}`,
 				`  - 個数：${u.count.getValue()}`,
@@ -264,43 +245,135 @@ export class CandyLogic implements ICandyLogic {
 			return ["以下のアイテムが交換できるよ！っ", ...texts].join("\n");
 		});
 	}
-	async giveCandy(
+
+	async giveCandys(
+		guildId: DiscordGuildId,
 		receiver: DiscordUserId,
 		giver: DiscordUserId,
 		messageId: DiscordMessageId,
 		messageLink: DiscordMessageLink,
+		candyCategoryType: CandyCategoryType,
 	): Promise<string | undefined> {
 		if (receiver.getValue() === giver.getValue()) {
 			return;
 		}
 		return this.mutex.useMutex("GiveCandy", async () =>
 			this.transaction.startTransaction(async () => {
-				const todayCount = await this.candyRepository.countByToday(giver);
+				const {
+					startDatetime,
+					countBylimit,
+					candyExpire,
+					candyAmount,
+					prefixText,
+					candyEmoji,
+				} = ((ct: CandyCategoryType) => {
+					switch (ct.getValue()) {
+						case CandyCategoryType.CATEGORY_TYPE_SUPER.getValue():
+							return {
+								startDatetime: new CandyCreatedAt(
+									//super candyの場合は過去一ヶ月の付与を調べる
+									dayjs()
+										.add(9, "h")
+										.startOf("month")
+										.subtract(9, "h")
+										.toDate(),
+								),
+								countBylimit: SUPER_CANDY_LIMIT,
+								candyExpire: new CandyExpire(
+									//super candyもcandyも共通で有効期限は一ヶ月
+									dayjs()
+										.add(1, "day")
+										.add(1, "month")
+										.startOf("day")
+										.toDate(),
+								),
+								candyAmount: SUPER_CANDY_AMOUNT,
+								prefixText: "特別な",
+								candyEmoji: AppConfig.backend.candySuperEmoji,
+							};
+						case CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue():
+							return {
+								startDatetime: new CandyCreatedAt(
+									//candyの場合は過去一日の付与を調べる
+									dayjs()
+										.add(9, "h")
+										.startOf("day")
+										.subtract(9, "h")
+										.toDate(),
+								),
+								countBylimit: NORMAL_CANDY_LIMIT,
+								candyExpire: new CandyExpire(
+									//super candyもcandyも共通で有効期限は一ヶ月
+									dayjs()
+										.add(1, "day")
+										.add(1, "month")
+										.startOf("day")
+										.toDate(),
+								),
+								candyAmount: NORMAL_CANDY_AMOUNT,
+								prefixText: "",
+								candyEmoji: AppConfig.backend.candyEmoji,
+							};
+						default:
+							return {
+								startDatetime: undefined,
+								countBylimit: undefined,
+								candyExpire: undefined,
+								candyAmount: undefined,
+								prefixText: undefined,
+								candyEmoji: undefined,
+							};
+					}
+				})(candyCategoryType);
+				if (
+					startDatetime == null ||
+					countBylimit == null ||
+					candyExpire == null ||
+					candyAmount == null ||
+					prefixText == null ||
+					candyEmoji == null
+				) {
+					return;
+				}
+
+				const countByPeriod = await this.candyRepository.countByPeriod(
+					guildId,
+					giver,
+					candyCategoryType,
+					startDatetime,
+				);
+
 				// reaction limit
 				// todo reaction limit to constant
-				if (todayCount.getValue() > 2) {
+				if (countByPeriod.getValue() >= countBylimit) {
 					return "今はスタンプを押してもキャンディをあげられないよ！っ";
 				}
 
-				const Candies = await this.candyRepository.findByGiverAndMessageId(
+				const candies = await this.candyRepository.findByGiverAndMessageId(
+					guildId,
 					giver,
 					messageId,
+					candyCategoryType,
 				);
 				// duplicate reaction
-				if (Candies.length > 0) {
+				if (candies.length > 0) {
 					return;
 				}
-				await this.candyRepository.createCandy(
-					new CandyDto(
-						receiver,
-						giver,
-						messageId,
-						new CandyExpire(
-							dayjs().add(1, "day").add(1, "month").startOf("day").toDate(),
-						),
+
+				await this.candyRepository.bulkCreateCandy(
+					[...Array(candyAmount)].map(
+						() =>
+							new CandyDto(
+								guildId,
+								receiver,
+								giver,
+								messageId,
+								candyCategoryType,
+								candyExpire,
+							),
 					),
 				);
-				return `<@${giver.getValue()}>さんが<@${receiver.getValue()}>さんに${AppConfig.backend.candyEmoji}スタンプを押したよ！！っ\nリンク先はこちら！っ: ${messageLink.getValue()}`;
+				return `<@${giver.getValue()}>さんが<@${receiver.getValue()}>さんに${prefixText + candyEmoji}スタンプを押したよ！！っ\nリンク先はこちら！っ: ${messageLink.getValue()}`;
 			}),
 		);
 	}

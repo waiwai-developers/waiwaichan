@@ -1,8 +1,8 @@
+import { CandyBoxDrawCommandHandler } from "@/src/handlers/discord.js/commands/CandyBoxDrawCommandHandler";
 import { CandyCheckCommandHandler } from "@/src/handlers/discord.js/commands/CandyCheckCommandHandler";
 import { CandyDrawCommandHandler } from "@/src/handlers/discord.js/commands/CandyDrawCommandHandler";
 import { CandyExchangeCommandHandler } from "@/src/handlers/discord.js/commands/CandyExchangeCommandHandler";
 import { CandyItemCommandHandler } from "@/src/handlers/discord.js/commands/CandyItemCommandHandler";
-import { CandySeriesDrawCommandHandler } from "@/src/handlers/discord.js/commands/CandySeriesDrawCommandHandler";
 import { ChoiceCommandHandler } from "@/src/handlers/discord.js/commands/ChoiceCommandHandler";
 import { DiceCommandHandler } from "@/src/handlers/discord.js/commands/DiceCommandHandler";
 import { HelpCommandHandler } from "@/src/handlers/discord.js/commands/HelpCommandHandler";
@@ -14,6 +14,8 @@ import { ReminderListCommandHandler } from "@/src/handlers/discord.js/commands/R
 import { ReminderSetCommandHandler } from "@/src/handlers/discord.js/commands/ReminderSetCommandHandler";
 import { ReviewGachaCommandHandler } from "@/src/handlers/discord.js/commands/ReviewGachaCommandHandler";
 import { ReviewListCommandHandler } from "@/src/handlers/discord.js/commands/ReviewListCommandHandler";
+import { StickyCreateCommandHandler } from "@/src/handlers/discord.js/commands/StickyCreateCommandHandler";
+import { StickyDeleteCommandHandler } from "@/src/handlers/discord.js/commands/StickyDeleteCommandHandler";
 import { TalkCommandHandler } from "@/src/handlers/discord.js/commands/TalkCommandHandler";
 import { TranslateCommandHandler } from "@/src/handlers/discord.js/commands/TranslateCommandHandler";
 import { WaiwaiCommandHandler } from "@/src/handlers/discord.js/commands/WaiwaiCommandHandler";
@@ -32,9 +34,11 @@ export {
 	CandyCheckCommandHandler,
 	CandyExchangeCommandHandler,
 	CandyDrawCommandHandler,
-	CandySeriesDrawCommandHandler,
+	CandyBoxDrawCommandHandler,
 	CandyItemCommandHandler,
 	TalkCommandHandler,
 	TranslateCommandHandler,
 	WaiwaiCommandHandler,
+	StickyCreateCommandHandler,
+	StickyDeleteCommandHandler,
 };

@@ -3,6 +3,7 @@ export const RepoTypes = {
 	DatabaseConnector: Symbol.for("DatabaseConnector"),
 	Transaction: Symbol.for("Transaction"),
 	CandyRepository: Symbol.for("CandyRepository"),
+	CrownRepository: Symbol.for("CrownRepository"),
 	CandyItemRepository: Symbol.for("CandyItemRepository"),
 	UserCandyItemRepository: Symbol.for("UserCandyItemRepository"),
 	ReminderRepository: Symbol.for("ReminderRepository"),
@@ -11,6 +12,7 @@ export const RepoTypes = {
 	TranslateRepository: Symbol.for("TranslateRepository"),
 	VMInstanceRepository: Symbol.for("VMInstanceRepository"),
 	PullRequestRepository: Symbol.for("PullRequestRepository"),
+	StickyRepository: Symbol.for("StickyRepository"),
 	SequelizeModels: Symbol.for("SequelizeModels"),
 	Logger: Symbol.for("Logger"),
 };
@@ -22,7 +24,9 @@ export const LogicTypes = {
 	ReminderLogic: Symbol.for("ReminderLogic"),
 	PullRequestLogic: Symbol.for("PullRequestLogic"),
 	TranslatorLogic: Symbol.for("TranslateLogic"),
+	StickyLogic: Symbol.for("StickyLogic"),
 	UtilityLogic: Symbol.for("UtilityLogic"),
+	CrownLogic: Symbol.for("CrownLogic"),
 };
 
 export const RouteTypes = {

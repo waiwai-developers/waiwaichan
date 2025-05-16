@@ -104,8 +104,8 @@ export class DiscordCommandRegister {
 				.setName("candydraw")
 				.setDescription("candydraw"),
 			new SlashCommandBuilder()
-				.setName("candyseriesdraw")
-				.setDescription("candyseriesdraw"),
+				.setName("candyboxdraw")
+				.setDescription("candyboxdraw"),
 			new SlashCommandBuilder()
 				.setName("candyitem")
 				.setDescription("candyitem"),
@@ -142,18 +142,30 @@ export class DiscordCommandRegister {
 			new SlashCommandBuilder()
 				.setName("minecraftstop")
 				.setDescription("minecraftstop"),
+			new SlashCommandBuilder()
+				.setName("stickycreate")
+				.setDescription("sticky create")
+				.addStringOption((option) =>
+					option
+						.setName("channelid")
+						.setDescription("string")
+						.setRequired(true),
+				),
+			new SlashCommandBuilder()
+				.setName("stickydelete")
+				.setDescription("sticky delete")
+				.addStringOption((option) =>
+					option
+						.setName("channelid")
+						.setDescription("string")
+						.setRequired(true),
+				),
 		];
 	}
 	async register(token: string) {
 		const rest = new REST({ version: "10" }).setToken(token);
-		await rest.put(
-			Routes.applicationGuildCommands(
-				AppConfig.discord.clientId,
-				AppConfig.discord.guildId,
-			),
-			{
-				body: this.commands.map((command) => command.toJSON()),
-			},
-		);
+		await rest.put(Routes.applicationCommands(AppConfig.discord.clientId), {
+			body: this.commands.map((command) => command.toJSON()),
+		});
 	}
 }

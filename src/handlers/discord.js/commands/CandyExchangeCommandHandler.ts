@@ -1,5 +1,6 @@
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
 import { CandyItemId } from "@/src/entities/vo/CandyItemId";
+import { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
 import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
 import { UserCandyItemCount } from "@/src/entities/vo/UserCandyItemCount";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
@@ -19,8 +20,12 @@ export class CandyExchangeCommandHandler implements SlashCommandHandler {
 	async handle(
 		interaction: ChatInputCommandInteraction<CacheType>,
 	): Promise<void> {
+		if (!interaction.guildId) {
+			return;
+		}
 		await interaction.reply(
 			await this.candyLogic.exchange(
+				new DiscordGuildId(interaction.guildId),
 				new DiscordUserId(interaction.user.id),
 				new CandyItemId(interaction.options.getInteger("type", true)),
 				new UserCandyItemCount(interaction.options.getInteger("amount") ?? 1),
