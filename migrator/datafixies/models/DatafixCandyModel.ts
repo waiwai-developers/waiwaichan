@@ -15,11 +15,11 @@ class DatafixCandyModel extends Model {
 	@AutoIncrement
 	@Column(DataType.INTEGER)
 	declare id: number;
+	@Column(DataType.INTEGER)
+	declare communityId: number;
 	@Column(DataType.BIGINT)
-	declare receiveUserId: number;
+	declare userId: number;
 	@Column(DataType.BIGINT)
-	@Column(DataType.BIGINT)
-	declare guildId: number;
 	declare giveUserId: number;
 	@Column(DataType.STRING)
 	declare messageId: string;
