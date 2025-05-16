@@ -804,6 +804,9 @@ describe("Test Candy Commands", () => {
 				value = args;
 			});
 
+			// guildIdの設定
+			when(commandMock.guildId).thenReturn("1234567890");
+
 			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
@@ -837,6 +840,9 @@ describe("Test Candy Commands", () => {
 			when(commandMock.reply(anything())).thenCall((args) => {
 				value = args;
 			});
+
+			// guildIdの設定
+			when(commandMock.guildId).thenReturn("1234567890");
 
 			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
@@ -878,6 +884,9 @@ describe("Test Candy Commands", () => {
 			when(commandMock.reply(anything())).thenCall((args) => {
 				value = args;
 			});
+
+			// guildIdの設定
+			when(commandMock.guildId).thenReturn("1234567890");
 
 			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
