@@ -37,22 +37,20 @@ describe("Test Candy Commands", () => {
 			const giverId = "1234";
 			const receiverId = "5678";
 			const creationDate = dayjs().add(1, "month").hour(0).minute(0).second(0).millisecond(0).add(1, "day").subtract(1, "second");
-			const { messageMock } = mockReaction(AppConfig.backend.candyEmoji, giverId, receiverId);
+			const { reaction, user, messageMock } = mockReaction(AppConfig.backend.candyEmoji, giverId, receiverId);
 
-			// リアクションハンドラーを直接呼び出す
-			await CandyRepositoryImpl.create({
-				receiveUserId: receiverId,
-				giveUserId: giverId,
-				messageId: "7890", // 直接値を指定
-				expiredAt: dayjs().add(1, "month").hour(0).minute(0).second(0).millisecond(0).add(1, "day").toDate(),
-				deletedAt: null,
-				guildId: "1234567890",
-				categoryType: 0, // CATEGORY_TYPE_NORMAL
-			});
+			// guildIdとurlを設定
+			when(messageMock.guildId).thenReturn("1234567890");
+			when(messageMock.url).thenReturn("https://discord.com/channels/1234567890/1234567890/7890");
 
-			// 応答の検証
-			verify(messageMock.reply(anything())).never(); // モックなので実際には呼ばれない
+			// リアクションイベントを発火
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("messageReactionAdd", instance(reaction), instance(user), instance(mock<MessageReactionEventDetails>()));
 
+			// 少し待機してハンドラーの処理が完了するのを待つ
+			await new Promise(resolve => setTimeout(resolve, 500));
+
+			// データベースの検証
 			const res = await CandyRepositoryImpl.findAll();
 			expect(res.length).to.eq(1);
 
@@ -330,7 +328,7 @@ describe("Test Candy Commands", () => {
 
 			// 応答の検証
 			verify(commandMock.reply(anything())).times(candyLength + 1);
-			
+
 			// 応答内容の確認
 			// 実際の応答には "- " が先頭に付いている可能性があるため、含まれているかどうかを確認
 			let value = "";
