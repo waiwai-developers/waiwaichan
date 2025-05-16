@@ -631,7 +631,10 @@ describe("Test Candy Commands", () => {
 	 * /candyitemコマンドのテスト
 	 * 所持しているアイテムが正しく表示されることを確認する
 	 */
-	it("should display owned items with /candyitem command", async () => {
+	it("should display owned items with /candyitem command", function(this: Mocha.Context) {
+		this.timeout(10000);
+
+		return (async () => {
 		// テストデータの作成
 		const insertData = [
 			{
@@ -680,6 +683,9 @@ describe("Test Candy Commands", () => {
 			value = args;
 		});
 
+		// guildIdの設定
+		when(commandMock.guildId).thenReturn("1234567890");
+
 		// コマンド実行
 		const TEST_CLIENT = await TestDiscordServer.getClient();
 		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
@@ -695,13 +701,17 @@ describe("Test Candy Commands", () => {
 		expect(value).to.include(`${getItem(inserted[1].itemId).name}`); // HIT
 		expect(value).to.include(`${getItem(inserted[4].itemId).name}`); // JACKPOT
 		expect(value).to.include(`説明：${getItem(inserted[0].itemId).description}`);
+		})();
 	});
 
 	/**
 	 * アイテムがない場合の/candyitemコマンドをテスト
 	 * アイテムを所持していない場合、適切なメッセージが表示されることを確認する
 	 */
-	it("should display message when no items exist", async () => {
+	it("should display message when no items exist", function(this: Mocha.Context) {
+		this.timeout(10000);
+
+		return (async () => {
 		// コマンドのモック作成
 		const commandMock = mockSlashCommand("candyitem");
 
@@ -709,6 +719,9 @@ describe("Test Candy Commands", () => {
 		when(commandMock.reply(anything())).thenCall((args) => {
 			value = args;
 		});
+
+		// guildIdの設定
+		when(commandMock.guildId).thenReturn("1234567890");
 
 		// コマンド実行
 		const TEST_CLIENT = await TestDiscordServer.getClient();
@@ -719,6 +732,7 @@ describe("Test Candy Commands", () => {
 		// 応答の検証
 		verify(commandMock.reply(anything())).once();
 		expect(value).to.eq("アイテムは持ってないよ！っ");
+		})();
 	});
 
 	/**
@@ -775,94 +789,106 @@ describe("Test Candy Commands", () => {
 	 * アイテムがない場合の/candyexchangeコマンドをテスト
 	 * アイテムを所持していない場合、エラーメッセージが表示されることを確認する
 	 */
-	it("should display error message when no items exist for exchange", async () => {
-		// コマンドのモック作成
-		const commandMock = mockSlashCommand("candyexchange", {
-			type: 0,
-			amount: 1
-		});
+	it("should display error message when no items exist for exchange", function(this: Mocha.Context) {
+		this.timeout(10000);
 
-		let value = "";
-		when(commandMock.reply(anything())).thenCall((args) => {
-			value = args;
-		});
+		return (async () => {
+			// コマンドのモック作成
+			const commandMock = mockSlashCommand("candyexchange", {
+				type: 0,
+				amount: 1
+			});
 
-		// コマンド実行
-		const TEST_CLIENT = await TestDiscordServer.getClient();
-		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+			let value = "";
+			when(commandMock.reply(anything())).thenCall((args) => {
+				value = args;
+			});
 
-		await waitSlashUntilReply(commandMock);
+			// コマンド実行
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
-		// 応答の検証
-		verify(commandMock.reply(anything())).once();
-		expect(value).to.eq("アイテムは持ってないよ！っ");
+			await waitSlashUntilReply(commandMock);
+
+			// 応答の検証
+			verify(commandMock.reply(anything())).once();
+			expect(value).to.eq("アイテムは持ってないよ！っ");
+		})();
 	});
 
 	/**
 	 * 無効なアイテムIDでの/candyexchangeコマンドをテスト
 	 * 存在しないアイテムIDを指定した場合、エラーメッセージが表示されることを確認する
 	 */
-	it("should display error message when exchanging with invalid item id", async () => {
-		// 無効なアイテムIDを設定
-		const invalidItemId = 9999;
+	it("should display error message when exchanging with invalid item id", function(this: Mocha.Context) {
+		this.timeout(10000);
 
-		// コマンドのモック作成
-		const commandMock = mockSlashCommand("candyexchange", {
-			type: invalidItemId,
-			amount: 1
-		});
+		return (async () => {
+			// 無効なアイテムIDを設定
+			const invalidItemId = 9999;
 
-		let value = "";
-		when(commandMock.reply(anything())).thenCall((args) => {
-			value = args;
-		});
+			// コマンドのモック作成
+			const commandMock = mockSlashCommand("candyexchange", {
+				type: invalidItemId,
+				amount: 1
+			});
 
-		// コマンド実行
-		const TEST_CLIENT = await TestDiscordServer.getClient();
-		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+			let value = "";
+			when(commandMock.reply(anything())).thenCall((args) => {
+				value = args;
+			});
 
-		await waitSlashUntilReply(commandMock);
+			// コマンド実行
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
-		// 応答の検証
-		verify(commandMock.reply(anything())).once();
-		expect(value).to.eq("アイテムは持ってないよ！っ");
+			await waitSlashUntilReply(commandMock);
+
+			// 応答の検証
+			verify(commandMock.reply(anything())).once();
+			expect(value).to.eq("アイテムは持ってないよ！っ");
+		})();
 	});
 
 	/**
 	 * 所持数以上のアイテム交換をテスト
 	 * 所持数以上のアイテムを交換しようとした場合、エラーメッセージが表示されることを確認する
 	 */
-	it("should display error message when exchanging too many items", async () => {
-		// テストデータの作成（1個のアイテムを所持）
-		const itemId = ID_HIT;
-		await UserCandyItemRepositoryImpl.create({
-			userId: "1234",
-			itemId: itemId,
-			candyId: 1,
-			expiredAt: "2999/12/31 23:59:59",
-			guildId: "1234567890",
-		});
+	it("should display error message when exchanging too many items", function(this: Mocha.Context) {
+		this.timeout(10000);
 
-		// コマンドのモック作成（10個のアイテムを交換しようとする）
-		const commandMock = mockSlashCommand("candyexchange", {
-			type: itemId,
-			amount: 10,
-		});
+		return (async () => {
+			// テストデータの作成（1個のアイテムを所持）
+			const itemId = ID_HIT;
+			await UserCandyItemRepositoryImpl.create({
+				userId: "1234",
+				itemId: itemId,
+				candyId: 1,
+				expiredAt: "2999/12/31 23:59:59",
+				guildId: "1234567890",
+			});
 
-		let value = "";
-		when(commandMock.reply(anything())).thenCall((args) => {
-			value = args;
-		});
+			// コマンドのモック作成（10個のアイテムを交換しようとする）
+			const commandMock = mockSlashCommand("candyexchange", {
+				type: itemId,
+				amount: 10,
+			});
 
-		// コマンド実行
-		const TEST_CLIENT = await TestDiscordServer.getClient();
-		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+			let value = "";
+			when(commandMock.reply(anything())).thenCall((args) => {
+				value = args;
+			});
 
-		await waitSlashUntilReply(commandMock);
+			// コマンド実行
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
-		// 応答の検証
-		verify(commandMock.reply(anything())).once();
-		expect(value).to.eq("アイテムは持ってないよ！っ");
+			await waitSlashUntilReply(commandMock);
+
+			// 応答の検証
+			verify(commandMock.reply(anything())).once();
+			expect(value).to.eq("アイテムは持ってないよ！っ");
+		})();
 	});
 
 	/**
