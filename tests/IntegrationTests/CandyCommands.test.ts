@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { ITEM_RECORDS } from "@/migrator/seeds/20241111041901-item";
 import { AppConfig } from "@/src/entities/config/AppConfig";
-import { SUPER_CANDY_LIMIT } from "@/src/entities/constants/Candies";
+import { SUPER_CANDY_AMOUNT } from "@/src/entities/constants/Candies";
 import { ID_HIT, ID_JACKPOT } from "@/src/entities/constants/Items";
 import { CandyCategoryType } from "@/src/entities/vo/CandyCategoryType";
 import { CandyRepositoryImpl, UserCandyItemRepositoryImpl } from "@/src/repositories/sequelize-mysql";
@@ -764,6 +764,7 @@ describe("Test Candy Commands", () => {
 	/**
 	 * スーパーキャンディスタンプを押した時のテスト
 	 * ユーザーがスーパーキャンディスタンプを押すと、スーパーキャンディが追加されることを確認する
+	 * スーパーキャンディは通常のキャンディと異なり、1回のスタンプで3つのキャンディが増える
 	 */
 	it("should add super candy when super candy reaction is added", function(this: Mocha.Context) {
 		this.timeout(10000);
@@ -772,33 +773,93 @@ describe("Test Candy Commands", () => {
 			const giverId = "1234";
 			const receiverId = "5678";
 			const creationDate = dayjs().add(1, "month").hour(0).minute(0).second(0).millisecond(0).add(1, "day").subtract(1, "second");
-			const { messageMock } = mockReaction(AppConfig.backend.candySuperEmoji, giverId, receiverId);
+			const { reaction, user, messageMock } = mockReaction(AppConfig.backend.candySuperEmoji, giverId, receiverId);
 
-			// リアクションハンドラーを直接呼び出す
-			await CandyRepositoryImpl.create({
-				receiveUserId: Number(receiverId),
-				giveUserId: Number(giverId),
-				messageId: Number(messageMock.id),
-				expiredAt: dayjs().add(1, "month").hour(0).minute(0).second(0).millisecond(0).add(1, "day").toDate(),
-				deletedAt: null,
-				guildId: 1234567890,
-				categoryType: CandyCategoryType.CATEGORY_TYPE_SUPER.getValue(), // CATEGORY_TYPE_SUPER
+			// テスト前にデータベースをクリーンアップ
+			await CandyRepositoryImpl.destroy({
+				truncate: true,
+				force: true,
 			});
+
+			const beforeCount = await CandyRepositoryImpl.count();
+
+			// メッセージIDとguildIdを設定
+			when(messageMock.id).thenReturn("5678");
+			when(messageMock.guildId).thenReturn("1234567890");
+			when(messageMock.url).thenReturn("https://discord.com/channels/1234567890/1234567890/5678");
+
+			// リアクションイベントを発火させる
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("messageReactionAdd", instance(reaction), instance(user), instance(mock<MessageReactionEventDetails>()));
+
+			// 少し待機してハンドラーの処理が完了するのを待つ
+			await new Promise(resolve => setTimeout(resolve, 100));
 
 			// 応答の検証
 			verify(messageMock.reply(anything())).never(); // モックなので実際には呼ばれない
 
 			const res = await CandyRepositoryImpl.findAll();
-			expect(res.length).to.eq(1);
+			expect(res.length).to.eq(SUPER_CANDY_AMOUNT); // スーパーキャンディは3つ増える
 
-			expect(String(res[0].giveUserId)).to.eq(giverId);
-			expect(String(res[0].receiveUserId)).to.eq(receiverId);
-			expect(res[0].categoryType).to.eq(CandyCategoryType.CATEGORY_TYPE_SUPER.getValue());
+			// スーパーキャンディは1回のスタンプで3つのキャンディが増えることを確認
+			const afterCount = await CandyRepositoryImpl.count();
+			expect(afterCount).to.eq(beforeCount + SUPER_CANDY_AMOUNT); // データベースレコードは3つ増える
 
-			const finishedDate = dayjs().add(1, "month").hour(0).minute(0).second(0).millisecond(0).add(1, "day").add(1, "second");
+			// 各キャンディのプロパティを確認
+			for (const candy of res) {
+				expect(String(candy.giveUserId)).to.eq(giverId);
+				expect(String(candy.receiveUserId)).to.eq(receiverId);
+				expect(candy.categoryType).to.eq(CandyCategoryType.CATEGORY_TYPE_SUPER.getValue());
 
-			expect(creationDate.isBefore(dayjs(res[0].expiredAt))).to.be.true;
-			expect(finishedDate.isAfter(dayjs(res[0].expiredAt))).to.be.true;
+				const finishedDate = dayjs().add(1, "month").hour(0).minute(0).second(0).millisecond(0).add(1, "day").add(1, "second");
+
+				expect(creationDate.isBefore(dayjs(candy.expiredAt))).to.be.true;
+				expect(finishedDate.isAfter(dayjs(candy.expiredAt))).to.be.true;
+			}
+		})();
+	});
+
+	/**
+	 * スーパーキャンディの増加量をテスト
+	 * スーパーキャンディは1回のスタンプで3つのキャンディが増えることを確認する
+	 */
+	it("should add three candies when super candy reaction is added", function(this: Mocha.Context) {
+		this.timeout(10000);
+
+		return (async () => {
+			const giverId = "1234";
+			const receiverId = "5678";
+			const messageId = "5678";
+
+			// テスト前にデータベースをクリーンアップ
+			await CandyRepositoryImpl.destroy({
+				truncate: true,
+				force: true,
+			});
+
+			// リアクションをモック
+			const { reaction, user, messageMock } = mockReaction(AppConfig.backend.candySuperEmoji, giverId, receiverId);
+			when(messageMock.id).thenReturn(messageId);
+			when(messageMock.guildId).thenReturn("1234567890");
+			when(messageMock.url).thenReturn("https://discord.com/channels/1234567890/1234567890/5678");
+
+			// リアクションイベントを発火させる
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("messageReactionAdd", instance(reaction), instance(user), instance(mock<MessageReactionEventDetails>()));
+
+			// 少し待機してハンドラーの処理が完了するのを待つ
+			await new Promise(resolve => setTimeout(resolve, 100));
+
+			// キャンディが3つ増えていることを確認（SUPER_CANDY_AMOUNT = 3）
+			const candies = await CandyRepositoryImpl.findAll();
+			expect(candies.length).to.eq(SUPER_CANDY_AMOUNT);
+
+			// すべてのキャンディがスーパーキャンディタイプであることを確認
+			for (const candy of candies) {
+				expect(candy.categoryType).to.eq(CandyCategoryType.CATEGORY_TYPE_SUPER.getValue());
+				expect(String(candy.giveUserId)).to.eq(giverId);
+				expect(String(candy.receiveUserId)).to.eq(receiverId);
+			}
 		})();
 	});
 
@@ -813,33 +874,58 @@ describe("Test Candy Commands", () => {
 			const giverId = "1234";
 			const receiverId = "5678";
 
-			// SUPER_CANDY_LIMIT回のスーパーキャンディを直接作成（同じ月で）
-			const today = new Date();
-			for (let i = 0; i < SUPER_CANDY_LIMIT; i++) {
-				await CandyRepositoryImpl.create({
-					receiveUserId: Number(receiverId),
-					giveUserId: Number(giverId),
-					messageId: i,
-					expiredAt: dayjs().add(1, "month").hour(0).minute(0).second(0).millisecond(0).add(1, "day").toDate(),
-					deletedAt: null,
-					createdAt: today,
-					updatedAt: today,
-					guildId: 1234567890,
-					categoryType: CandyCategoryType.CATEGORY_TYPE_SUPER.getValue(), // CATEGORY_TYPE_SUPER
-				});
-			}
+			// テスト前にデータベースをクリーンアップ
+			await CandyRepositoryImpl.destroy({
+				truncate: true,
+				force: true,
+			});
 
-			// SUPER_CANDY_LIMIT+1回目のリアクションを試みる（上限に達しているため作成されない）
+			// 1回目のスーパーキャンディリアクションを発火（これにより3つのキャンディが作成される）
 			const { reaction, user, messageMock } = mockReaction(AppConfig.backend.candySuperEmoji, giverId, receiverId);
-			when(messageMock.id).thenReturn("9999"); // 別のメッセージID
+			when(messageMock.id).thenReturn("1234");
+			when(messageMock.guildId).thenReturn("1234567890");
+			when(messageMock.url).thenReturn("https://discord.com/channels/1234567890/1234567890/1234");
+			when(messageMock.author).thenReturn({
+				id: receiverId,
+				bot: false
+			} as any);
 
 			// リアクション追加イベントを発火
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("messageReactionAdd", instance(reaction), instance(user), instance(mock<MessageReactionEventDetails>()));
 
-			// キャンディの数が変わっていないことを確認
+			// 少し待機してハンドラーの処理が完了するのを待つ
+			await new Promise(resolve => setTimeout(resolve, 100));
+
+			// 作成されたキャンディの日付を同じ月に設定
+			const today = new Date();
+			const candies = await CandyRepositoryImpl.findAll();
+			for (const candy of candies) {
+				await candy.update({
+					createdAt: today,
+					updatedAt: today
+				});
+			}
+
+			// 2回目のリアクションを試みる（同じ月に2回目なので作成されない）
+			const { reaction: reaction2, user: user2, messageMock: messageMock2 } = mockReaction(AppConfig.backend.candySuperEmoji, giverId, receiverId);
+			when(messageMock2.id).thenReturn("5678"); // 別のメッセージID
+			when(messageMock2.guildId).thenReturn("1234567890");
+			when(messageMock2.url).thenReturn("https://discord.com/channels/1234567890/1234567890/5678");
+			when(messageMock2.author).thenReturn({
+				id: receiverId,
+				bot: false
+			} as any);
+
+			// リアクション追加イベントを発火
+			TEST_CLIENT.emit("messageReactionAdd", instance(reaction2), instance(user2), instance(mock<MessageReactionEventDetails>()));
+
+			// 少し待機してハンドラーの処理が完了するのを待つ
+			await new Promise(resolve => setTimeout(resolve, 100));
+
+			// キャンディの数が変わっていないことを確認（1ヶ月に1回しか付与できないため追加されない）
 			const res = await CandyRepositoryImpl.findAll();
-			expect(res.length).to.eq(SUPER_CANDY_LIMIT);
+			expect(res.length).to.eq(SUPER_CANDY_AMOUNT); // 1ヶ月に1回しか付与できないため、これ以上増えない
 		})();
 	});
 
@@ -863,32 +949,38 @@ describe("Test Candy Commands", () => {
 
 			const beforeCount = await CandyRepositoryImpl.count();
 
-			// 1回目のリアクションを直接データベースに追加
-			await CandyRepositoryImpl.create({
-				receiveUserId: Number(receiverId),
-				giveUserId: Number(giverId),
-				messageId: Number(messageId),
-				expiredAt: dayjs().add(1, "month").hour(0).minute(0).second(0).millisecond(0).add(1, "day").toDate(),
-				deletedAt: null,
-				guildId: 1234567890,
-				categoryType: CandyCategoryType.CATEGORY_TYPE_SUPER.getValue(), // CATEGORY_TYPE_SUPER
-			});
-
-			// キャンディが1つ増えていることを確認
-			let afterCount = await CandyRepositoryImpl.count();
-			expect(afterCount).to.eq(beforeCount + 1);
-
-			// 2回目の同じメッセージへのリアクションを追加
+			// 1回目のリアクションを追加
 			const { reaction, user, messageMock } = mockReaction(AppConfig.backend.candySuperEmoji, giverId, receiverId);
 			when(messageMock.id).thenReturn(messageId);
+			when(messageMock.guildId).thenReturn("1234567890");
+			when(messageMock.url).thenReturn("https://discord.com/channels/1234567890/1234567890/5678");
 
 			// リアクション追加イベントを発火
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("messageReactionAdd", instance(reaction), instance(user), instance(mock<MessageReactionEventDetails>()));
 
+			// 少し待機してハンドラーの処理が完了するのを待つ
+			await new Promise(resolve => setTimeout(resolve, 100));
+
+			// キャンディが増えていることを確認
+			let afterCount = await CandyRepositoryImpl.count();
+			expect(afterCount).to.eq(beforeCount + SUPER_CANDY_AMOUNT);
+
+			// 2回目の同じメッセージへのリアクションを追加
+			const { reaction: reaction2, user: user2, messageMock: messageMock2 } = mockReaction(AppConfig.backend.candySuperEmoji, giverId, receiverId);
+			when(messageMock2.id).thenReturn(messageId);
+			when(messageMock2.guildId).thenReturn("1234567890");
+			when(messageMock2.url).thenReturn("https://discord.com/channels/1234567890/1234567890/5678");
+
+			// リアクション追加イベントを再度発火
+			TEST_CLIENT.emit("messageReactionAdd", instance(reaction2), instance(user2), instance(mock<MessageReactionEventDetails>()));
+
+			// 少し待機してハンドラーの処理が完了するのを待つ
+			await new Promise(resolve => setTimeout(resolve, 100));
+
 			// キャンディの数が変わっていないことを確認（重複は追加されない）
 			afterCount = await CandyRepositoryImpl.count();
-			expect(afterCount).to.eq(beforeCount + 1);
+			expect(afterCount).to.eq(beforeCount + SUPER_CANDY_AMOUNT);
 		})();
 	});
 
