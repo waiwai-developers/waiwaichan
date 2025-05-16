@@ -1,31 +1,30 @@
-import type { CandyAmount } from "@/src/entities/vo/CandyAmount";
 import type { CandyCategoryType } from "@/src/entities/vo/CandyCategoryType";
 import type { CandyCount } from "@/src/entities/vo/CandyCount";
 import type { CandyItemId } from "@/src/entities/vo/CandyItemId";
-import type { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
+import type { CommunityId } from "@/src/entities/vo/CommunityId";
 import type { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
 import type { DiscordMessageLink } from "@/src/entities/vo/DiscordMessageLink";
-import type { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
+import type { UserId } from "@/src/entities/vo/UserId";
 import type { UserCandyItemCount } from "@/src/entities/vo/UserCandyItemCount";
 
 export interface ICandyLogic {
-	check(guildId: DiscordGuildId, userId: DiscordUserId): Promise<string>;
+	check(communityId: CommunityId, userId: UserId): Promise<string>;
 	exchange(
-		guildId: DiscordGuildId,
-		userId: DiscordUserId,
+		communityId: CommunityId,
+		userId: UserId,
 		type: CandyItemId,
 		amount: UserCandyItemCount,
 	): Promise<string>;
 	drawItems(
-		guildId: DiscordGuildId,
-		userId: DiscordUserId,
+		communityId: CommunityId,
+		userId: UserId,
 		candyCount?: CandyCount,
 	): Promise<string>;
-	getItems(guildId: DiscordGuildId, userId: DiscordUserId): Promise<string>;
+	getItems(guildId: CommunityId, userId: UserId): Promise<string>;
 	giveCandys(
-		guildId: DiscordGuildId,
-		receiver: DiscordUserId,
-		giver: DiscordUserId,
+		communityId: CommunityId,
+		receiverUserId: UserId,
+		giverUserId: UserId,
 		messageId: DiscordMessageId,
 		messageLink: DiscordMessageLink,
 		candyCategoryType: CandyCategoryType,
