@@ -22,17 +22,17 @@ export const mockMessage = (authorId: string, isPartial = false, isBotMessage = 
 export const waitUntilMessageReply = async (message: Message | PartialMessage, timeout = 15000, atLeast = 1): Promise<void> => {
 	const startTime = Date.now();
 	return new Promise((resolve, reject) => {
-		const interval = setInterval(async () => {
-			await new Promise(() => {
+		const interval = setInterval(() => {
+			try {
 				verify(message.reply(anything())).atLeast(atLeast);
 				clearInterval(interval);
 				resolve();
-			}).catch((e) => {
+			} catch (error) {
 				if (Date.now() - startTime > timeout) {
 					clearInterval(interval);
 					reject(new Error("Timeout: Method was not called within the time limit."));
 				}
-			});
+			}
 		}, 100);
 	});
 };
