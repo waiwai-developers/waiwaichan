@@ -15,8 +15,8 @@ class DatafixReminderModel extends Model {
 	@AutoIncrement
 	@Column(DataType.INTEGER)
 	declare id: number;
-	@Column(DataType.STRING)
-	declare guildId: string;
+	@Column(DataType.INTEGER)
+	declare communityId: number;
 	@Column(DataType.STRING)
 	declare channelId: string;
 	@Column(DataType.STRING)
