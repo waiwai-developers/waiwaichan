@@ -19,8 +19,8 @@ class DatafixStickyModel extends Model {
 	declare communityId: number;
 	@Column(DataType.STRING)
 	declare channelId: string;
-	@Column(DataType.STRING)
-	declare userId: string;
+	@Column(DataType.INTEGER)
+	declare userId: number;
 	@Column(DataType.STRING)
 	declare messageId: string;
 	@Column(DataType.STRING)
