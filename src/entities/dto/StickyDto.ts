@@ -1,14 +1,14 @@
 import type { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
-import type { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
 import type { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
-import type { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
+import type { UserId } from "@/src/entities/vo/UserId";
 import type { StickyMessage } from "@/src/entities/vo/StickyMessage";
+import { CommunityId } from "../vo/CommunityId";
 
 export class StickyDto {
 	constructor(
-		public guildId: DiscordGuildId,
+		public communityId: CommunityId,
 		public channelId: DiscordChannelId,
-		public userId: DiscordUserId,
+		public userId: UserId,
 		public messageId: DiscordMessageId,
 		public message: StickyMessage,
 	) {}
