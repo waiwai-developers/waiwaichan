@@ -3,6 +3,7 @@ import {
 	RepoTypes,
 } from "@/src/entities/constants/DIContainerTypes";
 import type { DiscordEventHandler } from "@/src/handlers/discord.js/events/DiscordEventHandler";
+import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 import type { DiscordEventRouter } from "@/src/routes/discordjs/events/DiscordEventRouter";
 import type { Client, Message } from "discord.js";
 import { inject, injectable, multiInject } from "inversify";
