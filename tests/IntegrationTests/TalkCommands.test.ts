@@ -1,5 +1,29 @@
 import "reflect-metadata";
 import { ContainerUp, ContainerDown } from "@/tests/fixtures/database/ContainerTest";
+import { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
+
+// MockLoggerクラスの定義
+class MockLogger implements ILogger {
+  trace(msg: string): void {
+    // テスト用なので何もしない
+  }
+
+  debug(msg: string): void {
+    // テスト用なので何もしない
+  }
+
+  info(msg: string): void {
+    // テスト用なので何もしない
+  }
+
+  error(msg: string): void {
+    // テスト用なので何もしない
+  }
+
+  fatal(msg: string): void {
+    // テスト用なので何もしない
+  }
+}
 import { mockSlashCommand, waitUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { TestDiscordServer } from "@/tests/fixtures/discord.js/TestDiscordServer";
 import { expect } from "chai";
@@ -9,22 +33,11 @@ import { PersonalityRepositoryImpl } from "@/src/repositories/sequelize-mysql/Pe
 import { ContextRepositoryImpl } from "@/src/repositories/sequelize-mysql/ContextRepositoryImpl";
 import { PersonalityContextRepositoryImpl } from "@/src/repositories/sequelize-mysql/PersonalityContextRepositoryImpl";
 import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnector";
-import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import { ThreadCategoryType } from "@/src/entities/vo/ThreadCategoryType";
-import { ThreadGuildId } from "@/src/entities/vo/ThreadGuildId";
-import { ThreadMessageId } from "@/src/entities/vo/ThreadMessageId";
 import { PersonalityId } from "@/src/entities/vo/PersonalityId";
-import { ContextId } from "@/src/entities/vo/ContextId";
-import { PersonalityContextPersonalityId } from "@/src/entities/vo/PersonalityContextPersonalityId";
-import { PersonalityContextContextId } from "@/src/entities/vo/PersonalityContextContextId";
-import { PersonalityName } from "@/src/entities/vo/PersonalityName";
-import { PersonalityPrompt } from "@/src/entities/vo/PersonalityPrompt";
-import { ContextName } from "@/src/entities/vo/ContextName";
-import { ContextPrompt } from "@/src/entities/vo/ContextPrompt";
 import { TextChannel } from "discord.js";
 import { TalkCommandHandler } from "@/src/handlers/discord.js/commands/TalkCommandHandler";
-import { appContainer } from "@/src/app.di.config";
-import { HandlerTypes } from "@/src/entities/constants/DIContainerTypes";
+import { InternalErrorMessage } from "@/src/entities/DiscordErrorMessages";
 
 describe("Test Talk Commands", function(this: Mocha.Suite) {
   // テストのタイムアウト時間を延長（30秒）
@@ -38,27 +51,17 @@ describe("Test Talk Commands", function(this: Mocha.Suite) {
     await ContainerDown();
   });
 
-  // テスト用のMockLoggerを作成
-  class MockLogger {
-    info(message: string) {
-      // テスト用なので何もしない
-    }
-    error(message: string) {
-      // テスト用なので何もしない
-    }
-    warn(message: string) {
-      // テスト用なので何もしない
-    }
-    debug(message: string) {
-      // テスト用なので何もしない
-    }
-  }
 
   beforeEach(async () => {
     // データベース接続を初期化（MockLoggerを使用）
+    const mockLogger = new MockLogger();
     const connector = new MysqlConnector();
     // @ts-ignore - privateフィールドにアクセスするため
-    connector.logger = new MockLogger();
+    connector.logger = mockLogger;
+
+    // Sequelizeのloggingオプションを直接設定
+    // @ts-ignore - privateフィールドにアクセスするため
+    connector.instance.options.logging = false;
 
     // テスト前にデータをクリーンアップ
     await ThreadRepositoryImpl.destroy({
@@ -77,8 +80,6 @@ describe("Test Talk Commands", function(this: Mocha.Suite) {
       truncate: true,
       force: true,
     });
-
-    // テスト用のデータをセットアップ
 
     // Personalityデータの作成
     await PersonalityRepositoryImpl.create({
@@ -254,7 +255,108 @@ describe("Test Talk Commands", function(this: Mocha.Suite) {
     expect(metadataObj).to.have.property('speaking_style_rules');
     expect(metadataObj).to.have.property('response_directives');
     expect(metadataObj).to.have.property('emotion_model');
+    expect(metadataObj).to.have.property('emotion_model');
     expect(metadataObj).to.have.property('notes');
     expect(metadataObj).to.have.property('input_scope');
   });
+
+    /**
+     * ユーザー入力の異常系チェック
+     * - タイトルが null の場合はエラーになるか
+     */
+    it("test talk command with null title should throw error", async function(this: Mocha.Context) {
+      // 個別のテストのタイムアウト時間を延長（10秒）
+      this.timeout(10000);
+
+      // テスト用のパラメータ（タイトルをnullに設定）
+      const testContextType = 1;
+      const commandMock = mockSlashCommand("talk", {
+        title: null,
+        type: testContextType,
+      });
+
+      // モックのチャンネル設定
+      const channelMock = mock<TextChannel>();
+      when(commandMock.channel).thenReturn(instance(channelMock));
+      when(channelMock.threads).thenReturn({
+        create: async () => ({}),
+      } as any);
+
+      // エラーメッセージでの応答を期待
+      when(commandMock.reply(InternalErrorMessage)).thenResolve();
+
+      // コマンド実行
+      const TEST_CLIENT = await TestDiscordServer.getClient();
+      TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+      // 応答を待機
+      await waitUntilReply(commandMock);
+
+      // エラーメッセージでの応答を検証
+      verify(commandMock.reply(InternalErrorMessage)).once();
+
+      // スレッドが作成されていないことを確認
+      // ロギングを無効化してからfindAllを実行
+      const mockLogger = new MockLogger();
+      const connector = new MysqlConnector();
+      // @ts-ignore - privateフィールドにアクセスするため
+      connector.logger = mockLogger;
+      // @ts-ignore - privateフィールドにアクセスするため
+      connector.instance.options.logging = false;
+
+      const threads = await ThreadRepositoryImpl.findAll();
+      expect(threads.length).to.eq(0);
+    });
+
+    /**
+     * ユーザー入力の異常系チェック
+     * - type パラメータが想定外の値だった場合、エラーとして処理されるか
+     */
+    it("test talk command with invalid type should return error", async function(this: Mocha.Context) {
+      // 個別のテストのタイムアウト時間を延長（10秒）
+      this.timeout(10000);
+
+      // テスト用のパラメータ（存在しないコンテキストタイプを指定）
+      const testTitle = "テストタイトル";
+      const invalidContextType = 999; // 存在しないコンテキストタイプ
+
+      // モックの設定
+      const commandMock = mockSlashCommand("talk", {
+        title: testTitle,
+        type: invalidContextType,
+      });
+
+      // モックのチャンネル設定
+      const channelMock = mock<TextChannel>();
+      when(commandMock.channel).thenReturn(instance(channelMock));
+      when(channelMock.threads).thenReturn({
+        create: async () => ({}),
+      } as any);
+
+      // エラーメッセージでの応答を期待
+      when(commandMock.reply(InternalErrorMessage)).thenResolve();
+
+      // コマンド実行
+      const TEST_CLIENT = await TestDiscordServer.getClient();
+      TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+      // 応答を待機
+      await waitUntilReply(commandMock);
+
+      // エラーメッセージでの応答を検証
+      verify(commandMock.reply(InternalErrorMessage)).once();
+
+      // スレッドが作成されていないことを確認
+      // ロギングを無効化してからfindAllを実行
+      const mockLogger = new MockLogger();
+      const connector = new MysqlConnector();
+      // @ts-ignore - privateフィールドにアクセスするため
+      connector.logger = mockLogger;
+      // @ts-ignore - privateフィールドにアクセスするため
+      connector.instance.options.logging = false;
+
+      const threads = await ThreadRepositoryImpl.findAll();
+      expect(threads.length).to.eq(0);
+    });
+
 });
