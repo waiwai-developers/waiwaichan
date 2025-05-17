@@ -359,4 +359,267 @@ describe("Test Talk Commands", function(this: Mocha.Suite) {
       expect(threads.length).to.eq(0);
     });
 
+    /**
+     * 実行環境の異常ハンドリング
+     * - interaction.channel が null のとき、安全に処理がスキップされるか
+     */
+    it("test talk command with null channel should skip processing safely", async function(this: Mocha.Context) {
+      // 個別のテストのタイムアウト時間を延長（10秒）
+      this.timeout(10000);
+
+      // テスト用のパラメータ
+      const testTitle = "テストタイトル";
+      const testContextType = 1;
+
+      // モックの設定
+      const commandMock = mockSlashCommand("talk", {
+        title: testTitle,
+        type: testContextType,
+      });
+
+      // channelをnullに設定
+      when(commandMock.channel).thenReturn(null);
+
+      // コマンド実行
+      const TEST_CLIENT = await TestDiscordServer.getClient();
+      TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+      // 応答がないことを確認するため少し待機
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // スレッドが作成されていないことを確認
+      // ロギングを無効化してからfindAllを実行
+      const mockLogger = new MockLogger();
+      const connector = new MysqlConnector();
+      // @ts-ignore - privateフィールドにアクセスするため
+      connector.logger = mockLogger;
+      // @ts-ignore - privateフィールドにアクセスするため
+      connector.instance.options.logging = false;
+
+      const threads = await ThreadRepositoryImpl.findAll();
+      expect(threads.length).to.eq(0);
+
+      // replyが呼ばれていないことを確認
+      verify(commandMock.reply(anything())).never();
+    });
+
+    /**
+     * 実行環境の異常ハンドリング
+     * - チャンネルがテキストチャンネル以外だった場合の対応
+     */
+    it("test talk command with non-text channel should skip processing safely", async function(this: Mocha.Context) {
+      // 個別のテストのタイムアウト時間を延長（10秒）
+      this.timeout(10000);
+
+      // テスト用のパラメータ
+      const testTitle = "テストタイトル";
+      const testContextType = 1;
+
+      // モックの設定
+      const commandMock = mockSlashCommand("talk", {
+        title: testTitle,
+        type: testContextType,
+      });
+
+      // テキストチャンネル以外のチャンネルを設定（threads.createメソッドがない）
+      const nonTextChannelMock = mock<any>();
+      when(nonTextChannelMock.threads).thenReturn({});
+      when(commandMock.channel).thenReturn(instance(nonTextChannelMock));
+
+      // コマンド実行
+      const TEST_CLIENT = await TestDiscordServer.getClient();
+      TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+      // 応答がないことを確認するため少し待機
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // スレッドが作成されていないことを確認
+      // ロギングを無効化してからfindAllを実行
+      const mockLogger = new MockLogger();
+      const connector = new MysqlConnector();
+      // @ts-ignore - privateフィールドにアクセスするため
+      connector.logger = mockLogger;
+      // @ts-ignore - privateフィールドにアクセスするため
+      connector.instance.options.logging = false;
+
+      const threads = await ThreadRepositoryImpl.findAll();
+      expect(threads.length).to.eq(0);
+
+      // replyが呼ばれていないことを確認
+      verify(commandMock.reply(anything())).never();
+    });
+
+    /**
+     * 実行環境の異常ハンドリング
+     * - PersonalityLogic に対応するパーソナリティが見つからなかったケース
+     */
+    it("test talk command when personality not found should skip processing safely", async function(this: Mocha.Context) {
+      // 個別のテストのタイムアウト時間を延長（10秒）
+      this.timeout(10000);
+
+      // テスト前にPersonalityデータを削除
+      await PersonalityRepositoryImpl.destroy({
+        truncate: true,
+        force: true,
+      });
+
+      // テスト用のパラメータ
+      const testTitle = "テストタイトル";
+      const testContextType = 1;
+
+      // モックの設定
+      const commandMock = mockSlashCommand("talk", {
+        title: testTitle,
+        type: testContextType,
+      });
+
+      // モックのチャンネル設定
+      const channelMock = mock<TextChannel>();
+      when(commandMock.channel).thenReturn(instance(channelMock));
+      when(channelMock.threads).thenReturn({
+        create: async () => ({}),
+      } as any);
+
+      // エラーメッセージでの応答を期待
+      when(commandMock.reply(InternalErrorMessage)).thenResolve();
+
+      // コマンド実行
+      const TEST_CLIENT = await TestDiscordServer.getClient();
+      TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+      // 応答を待機
+      await waitUntilReply(commandMock);
+
+      // エラーメッセージでの応答を検証
+      verify(commandMock.reply(InternalErrorMessage)).once();
+
+      // スレッドが作成されていないことを確認
+      // ロギングを無効化してからfindAllを実行
+      const mockLogger = new MockLogger();
+      const connector = new MysqlConnector();
+      // @ts-ignore - privateフィールドにアクセスするため
+      connector.logger = mockLogger;
+      // @ts-ignore - privateフィールドにアクセスするため
+      connector.instance.options.logging = false;
+
+      const threads = await ThreadRepositoryImpl.findAll();
+      expect(threads.length).to.eq(0);
+
+    });
+
+    /**
+     * 実行環境の異常ハンドリング
+     * - PersonalityContextLogic で対応するパーソナリティコンテキストが存在しなかったケース
+     */
+    it("test talk command when personality context not found should skip processing safely", async function(this: Mocha.Context) {
+      // 個別のテストのタイムアウト時間を延長（10秒）
+      this.timeout(10000);
+
+      // テスト前にPersonalityContextデータを削除
+      await PersonalityContextRepositoryImpl.destroy({
+        truncate: true,
+        force: true,
+      });
+
+      // テスト用のパラメータ
+      const testTitle = "テストタイトル";
+      const testContextType = 1;
+
+      // モックの設定
+      const commandMock = mockSlashCommand("talk", {
+        title: testTitle,
+        type: testContextType,
+      });
+
+      // モックのチャンネル設定
+      const channelMock = mock<TextChannel>();
+      when(commandMock.channel).thenReturn(instance(channelMock));
+      when(channelMock.threads).thenReturn({
+        create: async () => ({}),
+      } as any);
+
+      // エラーメッセージでの応答を期待
+      when(commandMock.reply(InternalErrorMessage)).thenResolve();
+
+      // コマンド実行
+      const TEST_CLIENT = await TestDiscordServer.getClient();
+      TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+      // 応答を待機
+      await waitUntilReply(commandMock);
+
+      // エラーメッセージでの応答を検証
+      verify(commandMock.reply(InternalErrorMessage)).once();
+
+      // スレッドが作成されていないことを確認
+      // ロギングを無効化してからfindAllを実行
+      const mockLogger = new MockLogger();
+      const connector = new MysqlConnector();
+      // @ts-ignore - privateフィールドにアクセスするため
+      connector.logger = mockLogger;
+      // @ts-ignore - privateフィールドにアクセスするため
+      connector.instance.options.logging = false;
+
+      const threads = await ThreadRepositoryImpl.findAll();
+      expect(threads.length).to.eq(0);
+
+    });
+
+    /**
+     * 実行環境の異常ハンドリング
+     * - ContextLogic で有効なコンテキストが取得できなかったときのエラー挙動
+     */
+    it("test talk command when context not found should skip processing safely", async function(this: Mocha.Context) {
+      // 個別のテストのタイムアウト時間を延長（10秒）
+      this.timeout(10000);
+
+      // テスト前にContextデータを削除
+      await ContextRepositoryImpl.destroy({
+        truncate: true,
+        force: true,
+      });
+
+      // テスト用のパラメータ
+      const testTitle = "テストタイトル";
+      const testContextType = 1;
+
+      // モックの設定
+      const commandMock = mockSlashCommand("talk", {
+        title: testTitle,
+        type: testContextType,
+      });
+
+      // モックのチャンネル設定
+      const channelMock = mock<TextChannel>();
+      when(commandMock.channel).thenReturn(instance(channelMock));
+      when(channelMock.threads).thenReturn({
+        create: async () => ({}),
+      } as any);
+
+      // エラーメッセージでの応答を期待
+      when(commandMock.reply(InternalErrorMessage)).thenResolve();
+
+      // コマンド実行
+      const TEST_CLIENT = await TestDiscordServer.getClient();
+      TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+      // 応答を待機
+      await waitUntilReply(commandMock);
+
+      // エラーメッセージでの応答を検証
+      verify(commandMock.reply(InternalErrorMessage)).once();
+
+      // スレッドが作成されていないことを確認
+      // ロギングを無効化してからfindAllを実行
+      const mockLogger = new MockLogger();
+      const connector = new MysqlConnector();
+      // @ts-ignore - privateフィールドにアクセスするため
+      connector.logger = mockLogger;
+      // @ts-ignore - privateフィールドにアクセスするため
+      connector.instance.options.logging = false;
+
+      const threads = await ThreadRepositoryImpl.findAll();
+      expect(threads.length).to.eq(0);
+
+    });
 });
