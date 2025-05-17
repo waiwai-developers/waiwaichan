@@ -696,7 +696,7 @@ describe("Test Talk Commands", function(this: Mocha.Suite) {
 
       // 3. 他ユーザーが所有するスレッドが除外対象になるか
       const otherOwnerMessageMock = mockMessage("12345");
-      
+
       // 他ユーザー所有のスレッド設定
       const otherOwnerThreadMock = mock<any>();
       when(otherOwnerThreadMock.isThread()).thenReturn(true);
@@ -719,7 +719,7 @@ describe("Test Talk Commands", function(this: Mocha.Suite) {
 
       // 4. カスタムカテゴリ（CHATGPT以外）のスレッドで無視されるか
       const nonChatGPTMessageMock = mockMessage("12345");
-      
+
       // スレッド設定
       const nonChatGPTThreadChannelMock = mock<any>();
       when(nonChatGPTThreadChannelMock.isThread()).thenReturn(true);
@@ -727,7 +727,7 @@ describe("Test Talk Commands", function(this: Mocha.Suite) {
       when(nonChatGPTThreadChannelMock.guildId).thenReturn("12345");
       when(nonChatGPTThreadChannelMock.id).thenReturn("67890");
       when(nonChatGPTMessageMock.channel).thenReturn(instance(nonChatGPTThreadChannelMock));
-      
+
       // スレッドをデータベースに登録（CHATGPT以外のカテゴリタイプで）
       const otherCategoryType = 999; // CHATGPTではない任意のカテゴリタイプ
       await ThreadRepositoryImpl.create({
@@ -743,7 +743,7 @@ describe("Test Talk Commands", function(this: Mocha.Suite) {
         if (message.author.bot) return;
         if (!message.channel.isThread()) return;
         if (!(message.channel.ownerId === AppConfig.discord.clientId)) return;
-        
+
         // スレッドを検索
         const thread = await ThreadRepositoryImpl.findOne({
           where: {
@@ -751,7 +751,7 @@ describe("Test Talk Commands", function(this: Mocha.Suite) {
             messageId: message.channel.id,
           }
         });
-        
+
         // CHATGPTカテゴリでなければ無視
         if (!thread || thread.categoryType !== ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue()) return;
       });
