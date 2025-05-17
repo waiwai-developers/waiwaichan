@@ -1,9 +1,8 @@
-import * as fs from "node:fs";
 import { AppConfig } from "@/src/entities/config/AppConfig";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
-import { MAX_REPLY_CHARACTERS } from "@/src/entities/constants/Discord";
 import { ChatAIMessageDto } from "@/src/entities/dto/ChatAIMessageDto";
 import { ChatAIContent } from "@/src/entities/vo/ChatAIContent";
+import { ChatAIPrompt } from "@/src/entities/vo/ChatAIPrompt";
 import { ChatAIRole } from "@/src/entities/vo/ChatAIRole";
 import { ThreadCategoryType } from "@/src/entities/vo/ThreadCategoryType";
 import { ThreadGuildId } from "@/src/entities/vo/ThreadGuildId";
@@ -25,13 +24,13 @@ export class AIReplyHandler implements DiscordEventHandler<Message> {
 		if (message.author.bot) return;
 		if (!message.channel.isThread()) return;
 		if (!(message.channel.ownerId === AppConfig.discord.clientId)) return;
+
+		const thread = await this.threadLogic.find(
+			new ThreadGuildId(message.channel.guildId),
+			new ThreadMessageId(message.channel.id),
+		);
 		if (
-			(
-				await this.threadLogic.find(
-					new ThreadGuildId(message.channel.guildId),
-					new ThreadMessageId(message.channel.id),
-				)
-			)?.categoryType.getValue() !==
+			thread?.categoryType.getValue() !==
 			ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue()
 		)
 			return;
@@ -55,7 +54,7 @@ export class AIReplyHandler implements DiscordEventHandler<Message> {
 			);
 
 		const results = await this.chatAILogic
-			.replyTalk(chatAIContext)
+			.replyTalk(new ChatAIPrompt(thread.metadata.getValue()), chatAIContext)
 			.then(DiscordTextPresenter);
 
 		await Promise.all(

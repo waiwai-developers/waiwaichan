@@ -1,3 +1,5 @@
+import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
+
 export const SequelizeLogger = (
 	sql: string,
 	timing: number | undefined,
