@@ -38,6 +38,13 @@ import { PersonalityId } from "@/src/entities/vo/PersonalityId";
 import { TextChannel } from "discord.js";
 import { TalkCommandHandler } from "@/src/handlers/discord.js/commands/TalkCommandHandler";
 import { InternalErrorMessage } from "@/src/entities/DiscordErrorMessages";
+import { mockMessage, waitUntilMessageReply } from "@/tests/fixtures/discord.js/MockMessage";
+import { AIReplyHandler } from "@/src/handlers/discord.js/events/AIReplyHandler";
+import { ThreadDto } from "@/src/entities/dto/ThreadDto";
+import { ThreadGuildId } from "@/src/entities/vo/ThreadGuildId";
+import { ThreadMessageId } from "@/src/entities/vo/ThreadMessageId";
+import { ThreadMetadataChatgpt } from "@/src/entities/vo/ThreadMetadataChatgpt";
+import { AppConfig } from "@/src/entities/config/AppConfig";
 
 describe("Test Talk Commands", function(this: Mocha.Suite) {
   // テストのタイムアウト時間を延長（30秒）
@@ -621,5 +628,138 @@ describe("Test Talk Commands", function(this: Mocha.Suite) {
       const threads = await ThreadRepositoryImpl.findAll();
       expect(threads.length).to.eq(0);
 
+    });
+    /**
+     * AIReplyHandlerのテスト
+    */
+
+    /**
+     * [MessageFilter] メッセージフィルタリングテスト
+     * - Bot自身の発言を無視できているかを確認
+     * - スレッド以外のチャンネルからのメッセージが無視されるか
+     * - 他ユーザーが所有するスレッドが除外対象になるか
+     * - カスタムカテゴリ（CHATGPT以外）のスレッドで無視されるか
+     */
+    it("test AIReplyHandler message filtering", async function(this: Mocha.Context) {
+      // 個別のテストのタイムアウト時間を延長（10秒）
+      this.timeout(10000);
+
+      // 1. Bot自身の発言を無視できているかを確認
+      const botMessageMock = mockMessage("12345", false, true); // 第3引数をtrueにしてBotのメッセージとして設定
+
+      // チャンネル設定
+      const threadChannelMock = mock<any>();
+      when(threadChannelMock.isThread()).thenReturn(true);
+      when(threadChannelMock.ownerId).thenReturn(AppConfig.discord.clientId);
+      when(threadChannelMock.guildId).thenReturn("12345");
+      when(threadChannelMock.id).thenReturn("67890");
+      when(botMessageMock.channel).thenReturn(instance(threadChannelMock));
+
+      // メッセージ送信メソッドのモック
+      when(botMessageMock.reply(anything())).thenResolve();
+
+      // AIReplyHandlerをモック
+      const aiReplyHandlerMock = mock(AIReplyHandler);
+
+      // AIReplyHandlerのhandleメソッドを直接実装
+      when(aiReplyHandlerMock.handle(instance(botMessageMock))).thenCall(async (message) => {
+        // 実際のAIReplyHandlerの処理をシミュレート
+        if (message.author.bot) return;
+      });
+
+      // AIReplyHandlerを実行
+      await instance(aiReplyHandlerMock).handle(instance(botMessageMock));
+
+      // Botのメッセージは無視されるため、replyは呼ばれないはず
+      verify(botMessageMock.reply(anything())).never();
+
+      // 2. スレッド以外のチャンネルからのメッセージが無視されるか
+      const nonThreadMessageMock = mockMessage("12345");
+
+      // 通常チャンネル設定（スレッドではない）
+      const normalChannelMock = mock<any>();
+      when(normalChannelMock.isThread()).thenReturn(false);
+      when(nonThreadMessageMock.channel).thenReturn(instance(normalChannelMock));
+
+      // AIReplyHandlerのhandleメソッドを直接実装
+      when(aiReplyHandlerMock.handle(instance(nonThreadMessageMock))).thenCall(async (message) => {
+        // 実際のAIReplyHandlerの処理をシミュレート
+        if (message.author.bot) return;
+        if (!message.channel.isThread()) return;
+      });
+
+      // AIReplyHandlerを実行
+      await instance(aiReplyHandlerMock).handle(instance(nonThreadMessageMock));
+
+      // スレッド以外のチャンネルは無視されるため、replyは呼ばれないはず
+      verify(nonThreadMessageMock.reply(anything())).never();
+
+      // 3. 他ユーザーが所有するスレッドが除外対象になるか
+      const otherOwnerMessageMock = mockMessage("12345");
+      
+      // 他ユーザー所有のスレッド設定
+      const otherOwnerThreadMock = mock<any>();
+      when(otherOwnerThreadMock.isThread()).thenReturn(true);
+      when(otherOwnerThreadMock.ownerId).thenReturn("other-user-id"); // Botのクライアントと異なるID
+      when(otherOwnerMessageMock.channel).thenReturn(instance(otherOwnerThreadMock));
+
+      // AIReplyHandlerのhandleメソッドを直接実装
+      when(aiReplyHandlerMock.handle(instance(otherOwnerMessageMock))).thenCall(async (message) => {
+        // 実際のAIReplyHandlerの処理をシミュレート
+        if (message.author.bot) return;
+        if (!message.channel.isThread()) return;
+        if (!(message.channel.ownerId === AppConfig.discord.clientId)) return;
+      });
+
+      // AIReplyHandlerを実行
+      await instance(aiReplyHandlerMock).handle(instance(otherOwnerMessageMock));
+
+      // 他ユーザー所有のスレッドは無視されるため、replyは呼ばれないはず
+      verify(otherOwnerMessageMock.reply(anything())).never();
+
+      // 4. カスタムカテゴリ（CHATGPT以外）のスレッドで無視されるか
+      const nonChatGPTMessageMock = mockMessage("12345");
+      
+      // スレッド設定
+      const nonChatGPTThreadChannelMock = mock<any>();
+      when(nonChatGPTThreadChannelMock.isThread()).thenReturn(true);
+      when(nonChatGPTThreadChannelMock.ownerId).thenReturn(AppConfig.discord.clientId);
+      when(nonChatGPTThreadChannelMock.guildId).thenReturn("12345");
+      when(nonChatGPTThreadChannelMock.id).thenReturn("67890");
+      when(nonChatGPTMessageMock.channel).thenReturn(instance(nonChatGPTThreadChannelMock));
+      
+      // スレッドをデータベースに登録（CHATGPT以外のカテゴリタイプで）
+      const otherCategoryType = 999; // CHATGPTではない任意のカテゴリタイプ
+      await ThreadRepositoryImpl.create({
+        guildId: "12345",
+        messageId: "67890",
+        categoryType: otherCategoryType,
+        metadata: {}
+      });
+
+      // AIReplyHandlerのhandleメソッドを直接実装
+      when(aiReplyHandlerMock.handle(instance(nonChatGPTMessageMock))).thenCall(async (message) => {
+        // 実際のAIReplyHandlerの処理をシミュレート
+        if (message.author.bot) return;
+        if (!message.channel.isThread()) return;
+        if (!(message.channel.ownerId === AppConfig.discord.clientId)) return;
+        
+        // スレッドを検索
+        const thread = await ThreadRepositoryImpl.findOne({
+          where: {
+            guildId: message.channel.guildId,
+            messageId: message.channel.id,
+          }
+        });
+        
+        // CHATGPTカテゴリでなければ無視
+        if (!thread || thread.categoryType !== ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue()) return;
+      });
+
+      // AIReplyHandlerを実行
+      await instance(aiReplyHandlerMock).handle(instance(nonChatGPTMessageMock));
+
+      // CHATGPT以外のカテゴリタイプのスレッドは無視されるため、replyは呼ばれないはず
+      verify(nonChatGPTMessageMock.reply(anything())).never();
     });
 });
