@@ -22,6 +22,9 @@ import { PersonalityPrompt } from "@/src/entities/vo/PersonalityPrompt";
 import { ContextName } from "@/src/entities/vo/ContextName";
 import { ContextPrompt } from "@/src/entities/vo/ContextPrompt";
 import { TextChannel } from "discord.js";
+import { TalkCommandHandler } from "@/src/handlers/discord.js/commands/TalkCommandHandler";
+import { appContainer } from "@/src/app.di.config";
+import { HandlerTypes } from "@/src/entities/constants/DIContainerTypes";
 
 describe("Test Talk Commands", function(this: Mocha.Suite) {
   // テストのタイムアウト時間を延長（30秒）
@@ -110,6 +113,56 @@ describe("Test Talk Commands", function(this: Mocha.Suite) {
       personalityId: PersonalityId.PERSONALITY_ID_WAIWAICHAN.getValue(),
       contextId: 1
     });
+  });
+
+	/**
+	 * TalkCommandHandlerのテスト
+	*/
+
+	/**
+	 * コマンド識別機能のテスト
+	 * - `isHandle`メソッドが「talk」コマンドを正しく識別できるか
+	 * - 他のコマンド名では`false`を返すか
+	 */
+  it("test isHandle method correctly identifies 'talk' command", function() {
+    // TalkCommandHandlerのインスタンスを直接作成
+    const talkCommandHandler = new TalkCommandHandler();
+
+    // "talk"コマンドの場合はtrueを返すことを確認
+    expect(talkCommandHandler.isHandle("talk")).to.be.true;
+
+    // 他のコマンド名の場合はfalseを返すことを確認
+    expect(talkCommandHandler.isHandle("other")).to.be.false;
+    expect(talkCommandHandler.isHandle("candycheck")).to.be.false;
+    expect(talkCommandHandler.isHandle("")).to.be.false;
+  });
+
+	/**
+	 * チャンネル種別判定のテスト
+	 * - `isTextChannel`メソッドがTextChannelを正しく判定できるか
+	 * - 他のチャンネル種別（VoiceChannelなど）では`false`を返すか
+	 */
+  it("test isTextChannel method correctly identifies TextChannel", function() {
+    // TalkCommandHandlerのインスタンスを直接作成
+    const talkCommandHandler = new TalkCommandHandler();
+
+    // TextChannelの場合はtrueを返すことを確認
+    const textChannel = {
+      threads: {
+        create: async () => ({})
+      }
+    };
+    expect(talkCommandHandler.isTextChannel(textChannel)).to.be.true;
+
+    // threadsプロパティがない場合はfalseを返すことを確認
+    const nonpropertyTextChannel = {};
+    expect(talkCommandHandler.isTextChannel(nonpropertyTextChannel)).to.be.false;
+
+    // threads.createメソッドがない場合はfalseを返すことを確認
+    const nonMethodTextChannel = {
+      threads: {}
+    };
+    expect(talkCommandHandler.isTextChannel(nonMethodTextChannel)).to.be.false;
   });
 
   /**
