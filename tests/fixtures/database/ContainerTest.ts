@@ -54,6 +54,6 @@ export const ContainerDown = async () => {
 			console.error("Error stopping MySQL container:", error);
 		}
 	} else {
-		console.log("No container to stop");
+		console.error("No container to stop");
 	}
 };
