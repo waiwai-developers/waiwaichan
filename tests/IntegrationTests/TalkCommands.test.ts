@@ -791,4 +791,145 @@ describe("Test Talk Commands", function(this: Mocha.Suite) {
       // ChatGPT以外のカテゴリのスレッドのメッセージは無視されるため、replyは呼ばれないはず
       verify(nonChatGPTMessageMock.reply(anything())).never();
     });
+
+    /**
+     * [ThreadSearch] スレッド検索機能の検証
+     * - ThreadLogic.find が適切な引数で呼ばれるか
+     * - ThreadGuildId および ThreadMessageId が正しい形式で生成されるか
+     * - 対象スレッドが存在しないケースでのハンドリングが正しいか
+     */
+    it("test ThreadLogic.find functionality", async function(this: Mocha.Context) {
+      // 個別のテストのタイムアウト時間を延長（10秒）
+      this.timeout(10000);
+
+      // テスト用のパラメータ
+      const testGuildId = 12345;
+      const testThreadId = 67890;
+      const testNonExistThreadId = 99999;
+      const testUserId = 98765;
+
+      // テスト用のスレッドデータを作成
+      await ThreadRepositoryImpl.create({
+        guildId: testGuildId,
+        messageId: testThreadId,
+        categoryType: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
+        metadata: {
+          persona_role: "テスト役割",
+          speaking_style_rules: "テストスタイル",
+          response_directives: "テスト指示",
+          emotion_model: "テスト感情",
+          notes: "テスト注釈",
+          input_scope: "テスト範囲"
+        }
+      });
+
+      // ThreadLogicのインスタンスを作成
+      const threadLogic = new ThreadLogic();
+      // @ts-ignore - privateフィールドにアクセスするため
+      const threadRepositoryMock = mock<ThreadRepositoryImpl>();
+      // @ts-ignore - privateフィールドにアクセスするため
+      threadLogic.threadRepository = instance(threadRepositoryMock);
+      // @ts-ignore - privateフィールドにアクセスするため
+      threadLogic.transaction = {
+        startTransaction: async (callback: () => Promise<any>) => {
+          return await callback();
+        }
+      };
+
+      // 正常系: 存在するスレッドを検索
+      when(threadRepositoryMock.findByMessageId(anything(), anything())).thenCall(
+        async (guildId: ThreadGuildId, messageId: ThreadMessageId) => {
+          // 引数の検証
+          expect(Number(guildId.getValue())).to.equal(testGuildId);
+          expect(Number(messageId.getValue())).to.equal(testThreadId);
+
+          // 実際のデータベースからスレッドを取得
+          return await ThreadRepositoryImpl.findOne({
+            where: {
+              guildId: guildId.getValue(),
+              messageId: messageId.getValue(),
+            }
+          }).then(res => res ? res.toDto() : undefined);
+        }
+      );
+
+      // スレッド検索の実行
+      const foundThread = await threadLogic.find(
+        new ThreadGuildId(testGuildId.toString()),
+        new ThreadMessageId(testThreadId.toString())
+      );
+
+      // 検索結果の検証
+      expect(foundThread).to.not.be.undefined;
+      if (foundThread) {
+        expect(Number(foundThread.guildId.getValue())).to.equal(testGuildId);
+        expect(Number(foundThread.messageId.getValue())).to.equal(testThreadId);
+        expect(foundThread.categoryType.getValue()).to.equal(ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue());
+
+        // メタデータの検証
+        const metadata = foundThread.metadata.getValue();
+        expect(metadata).to.have.property('persona_role', 'テスト役割');
+        expect(metadata).to.have.property('speaking_style_rules', 'テストスタイル');
+        expect(metadata).to.have.property('response_directives', 'テスト指示');
+        expect(metadata).to.have.property('emotion_model', 'テスト感情');
+        expect(metadata).to.have.property('notes', 'テスト注釈');
+        expect(metadata).to.have.property('input_scope', 'テスト範囲');
+      }
+
+      // 異常系: 存在しないスレッドを検索
+      when(threadRepositoryMock.findByMessageId(anything(), anything())).thenCall(
+        async (guildId: ThreadGuildId, messageId: ThreadMessageId) => {
+          // 引数の検証
+          expect(Number(guildId.getValue())).to.equal(testGuildId);
+          expect(Number(messageId.getValue())).to.equal(testNonExistThreadId);
+
+          // 存在しないスレッドの場合はundefinedを返す
+          return undefined;
+        }
+      );
+
+      // 存在しないスレッドの検索実行
+      const notFoundThread = await threadLogic.find(
+        new ThreadGuildId(testGuildId.toString()),
+        new ThreadMessageId(testNonExistThreadId.toString())
+      );
+
+      // 検索結果の検証（存在しない場合はundefinedが返されるはず）
+      expect(notFoundThread).to.be.undefined;
+
+      // AIReplyHandlerでのスレッド検索の挙動を検証
+      const aiReplyHandler = new AIReplyHandler();
+      // @ts-ignore - privateフィールドにアクセスするため
+      const threadLogicForHandlerMock = mock<ThreadLogic>();
+      // @ts-ignore - privateフィールドにアクセスするため
+      aiReplyHandler.threadLogic = instance(threadLogicForHandlerMock);
+
+      // 存在しないスレッドの場合
+      when(threadLogicForHandlerMock.find(anything(), anything())).thenResolve(undefined);
+
+      const messageMock = mockMessage(testUserId.toString());
+      when(messageMock.channel).thenReturn({
+        isThread: () => true,
+        guildId: testGuildId,
+        id: testNonExistThreadId,
+        ownerId: AppConfig.discord.clientId,
+        sendTyping: () => Promise.resolve(),
+      } as any);
+
+      // AIReplyHandlerのhandleメソッドを呼び出し
+      await aiReplyHandler.handle(instance(messageMock));
+
+      // スレッドが存在しない場合は処理がスキップされるため、replyは呼ばれないはず
+      verify(messageMock.reply(anything())).never();
+
+      // ThreadGuildIdとThreadMessageIdの生成と検証
+      const guildId = new ThreadGuildId(testGuildId.toString());
+      const messageId = new ThreadMessageId(testThreadId.toString());
+
+      expect(Number(guildId.getValue())).to.equal(testGuildId);
+      expect(Number(messageId.getValue())).to.equal(testThreadId);
+      expect(Number(guildId.getValue())).to.equal(testGuildId);
+      expect(Number(messageId.getValue())).to.equal(testThreadId);
+    });
+
 });
