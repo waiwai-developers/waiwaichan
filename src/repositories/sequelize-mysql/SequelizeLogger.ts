@@ -12,7 +12,7 @@ export const SequelizeLogger = (
 	logger?: ILogger,
 ) => {
 	if (!logger) {
-		console.log(sql);
+		console.error(sql);
 		return;
 	}
 
