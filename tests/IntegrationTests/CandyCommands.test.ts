@@ -5,7 +5,7 @@ import { SUPER_CANDY_AMOUNT } from "@/src/entities/constants/Candies";
 import { ID_HIT, ID_JACKPOT } from "@/src/entities/constants/Items";
 import { CandyCategoryType } from "@/src/entities/vo/CandyCategoryType";
 import { CandyRepositoryImpl, UserCandyItemRepositoryImpl } from "@/src/repositories/sequelize-mysql";
-import { MockMysqlConnector } from "@/tests/fixtures/database/MockMysqlConnector";
+import { MysqlConnector } from "@/tests/fixtures/database/MysqlConnector";
 import { waitUntilMessageReply } from "@/tests/fixtures/discord.js/MockMessage";
 import { mockReaction } from "@/tests/fixtures/discord.js/MockReaction";
 import { mockSlashCommand, waitUntilReply as waitSlashUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
@@ -21,7 +21,7 @@ describe("Test Candy Commands", () => {
 	 * テスト実行前に毎回実行される共通のセットアップ
 	 */
 	beforeEach(() => {
-		new MockMysqlConnector();
+		new MysqlConnector();
 	});
 
 	/**

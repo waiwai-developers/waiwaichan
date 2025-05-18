@@ -10,7 +10,7 @@ import { ThreadRepositoryImpl } from "@/src/repositories/sequelize-mysql/ThreadR
 import type { Dialect } from "sequelize";
 import type { IDataBaseConnector } from "@/src/logics/Interfaces/repositories/database/IDataBaseConnector";
 
-export class MockMysqlConnector implements IDataBaseConnector<Sequelize, "mysql"> {
+export class MysqlConnector implements IDataBaseConnector<Sequelize, "mysql"> {
     instance: Sequelize;
     logger = new MockLogger();
 
