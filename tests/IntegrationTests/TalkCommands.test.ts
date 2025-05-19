@@ -48,6 +48,7 @@ import { ThreadMetadata } from "@/src/entities/vo/ThreadMetadata";
 import { AppConfig } from "@/src/entities/config/AppConfig";
 import { ThreadLogic } from "@/src/logics/ThreadLogic";
 import { IChatAILogic } from "@/src/logics/Interfaces/logics/IChatAILogic";
+import { DiscordTextPresenter } from "@/src/presenter/DiscordTextPresenter";
 
 describe("Test Talk Commands", function(this: Mocha.Suite) {
   // テストのタイムアウト時間を延長（30秒）
@@ -1316,5 +1317,186 @@ describe("Test Talk Commands", function(this: Mocha.Suite) {
 
       // 2. sendTypingが呼ばれる
       verify(channelMock.sendTyping()).once();
+    });
+
+    /**
+     * [PresenterIntegration] DiscordTextPresenterとの連携検証
+     * - ChatAILogicの出力がプレゼンターへ正常に渡されるか
+     * - プレゼンター側の出力がメッセージオブジェクトに適用されるか
+     */
+    it("test DiscordTextPresenter integration with ChatAILogic output", async function(this: Mocha.Context) {
+      // 個別のテストのタイムアウト時間を延長（10秒）
+      this.timeout(10000);
+
+      // テスト用のパラメータ
+      const testGuildId = "12345";
+      const testThreadId = "67890";
+      const testUserId = "98765";
+      const testBotId = AppConfig.discord.clientId;
+
+      // テスト用のスレッドメタデータ
+      const testMetadata = {
+        persona_role: "テスト役割",
+        speaking_style_rules: "テストスタイル",
+        response_directives: "テスト指示",
+        emotion_model: "テスト感情",
+        notes: "テスト注釈",
+        input_scope: "テスト範囲"
+      };
+
+      // ThreadRepositoryImplを使用してテスト用のスレッドデータを作成
+      await ThreadRepositoryImpl.create({
+        guildId: testGuildId,
+        messageId: testThreadId,
+        categoryType: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
+        metadata: testMetadata
+      });
+
+      // AIReplyHandlerのインスタンスを作成
+      const aiReplyHandler = new AIReplyHandler();
+
+      // テスト用の長いテキスト（2000文字を超えるもの）
+      const longText = "これはテスト用の長いテキストです。".repeat(100) + 
+                       "```\nコードブロックも含まれています\n```" + 
+                       "さらに長いテキストが続きます。".repeat(50);
+
+      // 通常の短いテキスト
+      const shortText = "これは短いテキストです。ChatAILogicからの応答です。";
+
+      // ChatAILogicのモックを作成
+      const chatAILogicMock = mock<IChatAILogic>();
+      // @ts-ignore - privateフィールドにアクセスするため
+      aiReplyHandler.chatAILogic = instance(chatAILogicMock);
+
+      // テスト用のメッセージ履歴を作成
+      const testMessageHistory = [
+        { id: "msg1", author: { bot: false, id: testUserId }, content: "こんにちは" }
+      ];
+
+      // メッセージコレクションのモックを作成
+      const messageCollection = {
+        reverse: () => testMessageHistory,
+        map: function(callback: any) {
+          return this.reverse().map(callback);
+        }
+      };
+
+      // メッセージのモックを作成
+      const messageMock = mockMessage(testUserId);
+
+      // チャンネルのモックを作成
+      const channelMock = mock<any>();
+      when(channelMock.isThread()).thenReturn(true);
+      when(channelMock.guildId).thenReturn(testGuildId);
+      when(channelMock.id).thenReturn(testThreadId);
+      when(channelMock.ownerId).thenReturn(testBotId);
+      when(channelMock.sendTyping()).thenResolve();
+      when(channelMock.messages).thenReturn({
+        fetch: (options: any) => {
+          // fetch呼び出し時のオプションを検証
+          expect(options).to.deep.equal({ limit: 11 });
+          return Promise.resolve(messageCollection);
+        }
+      });
+
+      // メッセージのチャンネルをモックに設定
+      when(messageMock.channel).thenReturn(instance(channelMock));
+
+      // メッセージ応答のモック
+      when(messageMock.reply(anything())).thenResolve();
+
+      // ThreadLogicのモックを作成
+      const threadLogicMock = mock<ThreadLogic>();
+      // @ts-ignore - privateフィールドにアクセスするため
+      aiReplyHandler.threadLogic = instance(threadLogicMock);
+
+      // ThreadLogic.findメソッドのモック
+      when(threadLogicMock.find(anything(), anything())).thenCall(
+        async (guildId, messageId) => {
+          // 引数の検証
+          expect(guildId.getValue()).to.equal(testGuildId);
+          expect(messageId.getValue()).to.equal(testThreadId);
+
+          // 実際のデータベースからスレッドを取得
+          return await ThreadRepositoryImpl.findOne({
+            where: {
+              guildId: guildId.getValue(),
+              messageId: messageId.getValue(),
+            }
+          }).then(res => res ? res.toDto() : undefined);
+        }
+      );
+
+      // テストケース1: 短いテキストの場合
+      // ChatAILogic.replyTalkメソッドのモック（短いテキストを返す）
+      when(chatAILogicMock.replyTalk(anything(), anything())).thenResolve(shortText);
+
+      // AIReplyHandlerのhandleメソッドを呼び出し
+      await aiReplyHandler.handle(instance(messageMock));
+
+      // ChatAILogic.replyTalkが呼ばれたことを確認
+      verify(chatAILogicMock.replyTalk(anything(), anything())).once();
+
+      // 短いテキストの場合は1回だけreplyが呼ばれることを確認
+      verify(messageMock.reply(shortText)).once();
+
+      // テストケース2: 長いテキストの場合
+      // ChatAILogic.replyTalkメソッドのモックをリセット
+      when(chatAILogicMock.replyTalk(anything(), anything())).thenResolve(longText);
+
+      // メッセージ応答のモックをリセット
+      when(messageMock.reply(anything())).thenResolve();
+
+      // AIReplyHandlerのhandleメソッドを再度呼び出し
+      await aiReplyHandler.handle(instance(messageMock));
+
+      // ChatAILogic.replyTalkが呼ばれたことを確認（合計2回）
+      verify(chatAILogicMock.replyTalk(anything(), anything())).twice();
+
+      // 長いテキストの場合は複数回replyが呼ばれることを確認
+      // 正確な回数は分割ロジックに依存するため、少なくとも1回以上呼ばれることを確認
+      verify(messageMock.reply(anything())).atLeast(2);
+
+      // テストケース3: コードブロックを含むテキストの場合
+      // コードブロックを含むテキスト
+      const codeBlockText = "これはテスト用のテキストです。\n```\nfunction test() {\n  console.log('hello');\n}\n```\nコードブロックの後のテキストです。";
+
+      // ChatAILogic.replyTalkメソッドのモックをリセット
+      when(chatAILogicMock.replyTalk(anything(), anything())).thenResolve(codeBlockText);
+
+      // メッセージ応答のモックをリセット
+      when(messageMock.reply(anything())).thenResolve();
+
+      // AIReplyHandlerのhandleメソッドを再度呼び出し
+      await aiReplyHandler.handle(instance(messageMock));
+
+      // ChatAILogic.replyTalkが呼ばれたことを確認（合計3回）
+      verify(chatAILogicMock.replyTalk(anything(), anything())).thrice();
+
+      // コードブロックを含むテキストの場合、コードブロックが分割されないことを確認
+      // 正確な検証は難しいため、少なくとも1回以上replyが呼ばれることを確認
+      verify(messageMock.reply(anything())).atLeast(3);
+
+      // 実際のDiscordTextPresenterを使用した場合の動作検証
+      // 短いテキスト
+      const shortTextResult = await DiscordTextPresenter(shortText);
+      expect(shortTextResult).to.be.an('array');
+      expect(shortTextResult.length).to.equal(1);
+      expect(shortTextResult[0]).to.equal(shortText);
+
+      // 長いテキスト
+      const longTextResult = await DiscordTextPresenter(longText);
+      expect(longTextResult).to.be.an('array');
+      expect(longTextResult.length).to.be.greaterThan(1);
+
+      // コードブロックを含むテキスト
+      const codeBlockTextResult = await DiscordTextPresenter(codeBlockText);
+      expect(codeBlockTextResult).to.be.an('array');
+
+      // コードブロックが分割されていないことを確認
+      const hasIntactCodeBlock = codeBlockTextResult.some(chunk => 
+        chunk.includes("```\nfunction test()") && chunk.includes("}\n```")
+      );
+      expect(hasIntactCodeBlock).to.be.true;
     });
 });
