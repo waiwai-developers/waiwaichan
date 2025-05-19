@@ -1,5 +1,6 @@
 import "reflect-metadata";
 import { ContainerUp, ContainerDown } from "@/tests/fixtures/database/ContainerTest";
+import { Container } from "inversify";
 import { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 
 // MockLoggerクラスの定義
@@ -968,9 +969,9 @@ describe("Test Talk Commands", function(this: Mocha.Suite) {
       const aiReplyHandler = new AIReplyHandler();
 
       // ThreadLogicのモックを作成
-      const threadLogicMock = mock<ThreadLogic>();
+      const threadLogicMockForAI = mock<ThreadLogic>();
       // @ts-ignore - privateフィールドにアクセスするため
-      aiReplyHandler.threadLogic = instance(threadLogicMock);
+      aiReplyHandler.threadLogic = instance(threadLogicMockForAI);
 
       // ChatAILogicのモックを作成
       const chatAILogicMock = mock<IChatAILogic>();
@@ -978,7 +979,7 @@ describe("Test Talk Commands", function(this: Mocha.Suite) {
       aiReplyHandler.chatAILogic = instance(chatAILogicMock);
 
       // ThreadLogic.findメソッドのモック
-      when(threadLogicMock.find(anything(), anything())).thenResolve(
+      when(threadLogicMockForAI.find(anything(), anything())).thenResolve(
         new ThreadDto(
           new ThreadGuildId(testGuildId),
           new ThreadMessageId(testThreadId),
@@ -1032,7 +1033,7 @@ describe("Test Talk Commands", function(this: Mocha.Suite) {
 
       // 処理の順序を検証
       // 1. ThreadLogic.findが呼ばれる
-      verify(threadLogicMock.find(anything(), anything())).once();
+      verify(threadLogicMockForAI.find(anything(), anything())).once();
 
       // 2. sendTypingが呼ばれる（スパイで確認済み）
 
@@ -1079,9 +1080,9 @@ describe("Test Talk Commands", function(this: Mocha.Suite) {
       const aiReplyHandler = new AIReplyHandler();
 
       // ThreadLogicのモックを作成
-      const threadLogicMock = mock<ThreadLogic>();
+      const threadLogicMockForTest = mock<ThreadLogic>();
       // @ts-ignore - privateフィールドにアクセスするため
-      aiReplyHandler.threadLogic = instance(threadLogicMock);
+      aiReplyHandler.threadLogic = instance(threadLogicMockForTest);
 
       // ChatAILogicのモックを作成
       const chatAILogicMock = mock<IChatAILogic>();
@@ -1089,7 +1090,7 @@ describe("Test Talk Commands", function(this: Mocha.Suite) {
       aiReplyHandler.chatAILogic = instance(chatAILogicMock);
 
       // ThreadLogic.findメソッドのモック
-      when(threadLogicMock.find(anything(), anything())).thenResolve(
+      when(threadLogicMockForTest.find(anything(), anything())).thenResolve(
         new ThreadDto(
           new ThreadGuildId(testGuildId),
           new ThreadMessageId(testThreadId),
@@ -1203,7 +1204,29 @@ describe("Test Talk Commands", function(this: Mocha.Suite) {
 
       // AIReplyHandlerのインスタンスを作成
       const aiReplyHandler = new AIReplyHandler();
-
+      
+      // ThreadLogicのモックを作成
+      const threadLogicMockForChatAI = mock<ThreadLogic>();
+      // @ts-ignore - privateフィールドにアクセスするため
+      aiReplyHandler.threadLogic = instance(threadLogicMockForChatAI);
+      
+      // ThreadLogic.findメソッドのモック
+      when(threadLogicMockForChatAI.find(anything(), anything())).thenCall(
+        async (guildId, messageId) => {
+          // 引数の検証
+          expect(guildId.getValue()).to.equal(testGuildId);
+          expect(messageId.getValue()).to.equal(testThreadId);
+          
+          // 実際のデータベースからスレッドを取得
+          return await ThreadRepositoryImpl.findOne({
+            where: {
+              guildId: guildId.getValue(),
+              messageId: messageId.getValue(),
+            }
+          }).then(res => res ? res.toDto() : undefined);
+        }
+      );
+      
       // ChatAILogicのモックを作成
       const chatAILogicMock = mock<IChatAILogic>();
       // @ts-ignore - privateフィールドにアクセスするため
@@ -1826,4 +1849,300 @@ describe("Test Talk Commands", function(this: Mocha.Suite) {
         }
       });
 
+    /**
+     * [EndToEndTest] 統合テスト - フロー検証
+     * - ユーザーからの発話→AI応答までが一連動作として成功するか
+     * - 複数発話の履歴付き会話が正しく機能するか
+     */
+    it("test end-to-end flow from user input to AI response with conversation history", async function(this: Mocha.Context) {
+      // 個別のテストのタイムアウト時間を延長（30秒）
+      this.timeout(30000);
+
+      // テスト用のパラメータ
+      const testGuildId = "12345";
+      const testThreadId = "67890";
+      const testUserId = "98765";
+      const testBotId = AppConfig.discord.clientId;
+      const testTitle = "エンドツーエンドテスト";
+
+      // テスト用のスレッドメタデータ
+      const testMetadata = {
+        persona_role: "テスト役割",
+        speaking_style_rules: "テストスタイル",
+        response_directives: "テスト指示",
+        emotion_model: "テスト感情",
+        notes: "テスト注釈",
+        input_scope: "テスト範囲"
+      };
+
+      // ThreadRepositoryImplを使用してテスト用のスレッドデータを作成
+      await ThreadRepositoryImpl.create({
+        guildId: testGuildId,
+        messageId: testThreadId,
+        categoryType: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
+        metadata: testMetadata
+      });
+
+      // AIReplyHandlerのインスタンスを作成
+      const aiReplyHandler = new AIReplyHandler();
+
+      // ThreadLogicのモックを作成
+      const threadLogicMock = mock<ThreadLogic>();
+      // @ts-ignore - privateフィールドにアクセスするため
+      aiReplyHandler.threadLogic = instance(threadLogicMock);
+      
+      // ThreadLogic.findメソッドのモック
+      when(threadLogicMock.find(anything(), anything())).thenCall(
+        async (guildId, messageId) => {
+          // 引数の検証
+          expect(guildId.getValue()).to.equal(testGuildId);
+          expect(messageId.getValue()).to.equal(testThreadId);
+          
+          // 実際のデータベースからスレッドを取得
+          return await ThreadRepositoryImpl.findOne({
+            where: {
+              guildId: guildId.getValue(),
+              messageId: messageId.getValue(),
+            }
+          }).then(res => res ? res.toDto() : undefined);
+        }
+      );
+
+      // ChatAILogicのモックを作成
+      const chatAILogicMock = mock<IChatAILogic>();
+      // @ts-ignore - privateフィールドにアクセスするため
+      aiReplyHandler.chatAILogic = instance(chatAILogicMock);
+
+      // 会話履歴のテスト用メッセージを作成
+      const testMessageHistory = [
+        { id: "msg1", author: { bot: false, id: testUserId }, content: "こんにちは" },
+        { id: "msg2", author: { bot: true, id: testBotId }, content: "こんにちは！何かお手伝いできることはありますか？" },
+        { id: "msg3", author: { bot: false, id: testUserId }, content: "今日の天気を教えて" }
+      ];
+
+      // メッセージコレクションのモックを作成
+      const messageCollection = {
+        reverse: () => testMessageHistory,
+        map: function(callback: any) {
+          return this.reverse().map(callback);
+        }
+      };
+
+      // 1回目のユーザーメッセージのモックを作成
+      const firstMessageMock = mockMessage(testUserId);
+
+      // チャンネルのモックを作成
+      const channelMock = mock<any>();
+      when(channelMock.isThread()).thenReturn(true);
+      when(channelMock.guildId).thenReturn(testGuildId);
+      when(channelMock.id).thenReturn(testThreadId);
+      when(channelMock.ownerId).thenReturn(testBotId);
+      when(channelMock.sendTyping()).thenResolve();
+      when(channelMock.messages).thenReturn({
+        fetch: () => Promise.resolve(messageCollection)
+      });
+
+      // メッセージのチャンネルをモックに設定
+      when(firstMessageMock.channel).thenReturn(instance(channelMock));
+
+      // メッセージ応答のモック
+      when(firstMessageMock.reply(anything())).thenResolve();
+
+      // ChatAILogic.replyTalkメソッドのモック（1回目の応答）
+      const firstResponse = "今日の天気は晴れです！";
+      when(chatAILogicMock.replyTalk(anything(), anything())).thenCall(
+        (prompt, context) => {
+          // 1. ChatAIPromptの検証
+          const promptValue = prompt.getValue();
+          expect(promptValue).to.deep.equal(testMetadata);
+
+          // 2. ChatAIContextの検証
+          expect(context).to.be.an('array').with.lengthOf(3);
+
+          // ユーザーメッセージとボットメッセージが正しく変換されているか検証
+          expect(context[0].role.getValue()).to.equal('user');
+          expect(context[0].content.getValue()).to.equal('こんにちは');
+
+          expect(context[1].role.getValue()).to.equal('assistant');
+          expect(context[1].content.getValue()).to.equal('こんにちは！何かお手伝いできることはありますか？');
+
+          expect(context[2].role.getValue()).to.equal('user');
+          expect(context[2].content.getValue()).to.equal('今日の天気を教えて');
+
+          return Promise.resolve(firstResponse);
+        }
+      );
+
+      // AIReplyHandlerのhandleメソッドを呼び出し（1回目）
+      await aiReplyHandler.handle(instance(firstMessageMock));
+
+      // 1回目の応答の検証
+      verify(firstMessageMock.reply(firstResponse)).once();
+
+      // 2回目のユーザーメッセージと応答の準備
+      // 会話履歴に1回目の応答を追加
+      const updatedMessageHistory = [
+        ...testMessageHistory,
+        { id: "msg4", author: { bot: true, id: testBotId }, content: firstResponse },
+        { id: "msg5", author: { bot: false, id: testUserId }, content: "明日の天気も教えて" }
+      ];
+
+      // 更新されたメッセージコレクションのモックを作成
+      const updatedMessageCollection = {
+        reverse: () => updatedMessageHistory,
+        map: function(callback: any) {
+          return this.reverse().map(callback);
+        }
+      };
+
+      // 2回目のユーザーメッセージのモックを作成
+      const secondMessageMock = mockMessage(testUserId);
+
+      // 更新されたチャンネルのモックを作成
+      const updatedChannelMock = mock<any>();
+      when(updatedChannelMock.isThread()).thenReturn(true);
+      when(updatedChannelMock.guildId).thenReturn(testGuildId);
+      when(updatedChannelMock.id).thenReturn(testThreadId);
+      when(updatedChannelMock.ownerId).thenReturn(testBotId);
+      when(updatedChannelMock.sendTyping()).thenResolve();
+      when(updatedChannelMock.messages).thenReturn({
+        fetch: () => Promise.resolve(updatedMessageCollection)
+      });
+
+      // メッセージのチャンネルをモックに設定
+      when(secondMessageMock.channel).thenReturn(instance(updatedChannelMock));
+
+      // メッセージ応答のモック
+      when(secondMessageMock.reply(anything())).thenResolve();
+
+      // ChatAILogic.replyTalkメソッドのモック（2回目の応答）
+      const secondResponse = "明日の天気は雨の予報です。傘をお持ちください！";
+      when(chatAILogicMock.replyTalk(anything(), anything())).thenCall(
+        (prompt, context) => {
+          // 1. ChatAIPromptの検証
+          const promptValue = prompt.getValue();
+          expect(promptValue).to.deep.equal(testMetadata);
+
+          // 2. ChatAIContextの検証
+          expect(context).to.be.an('array').with.lengthOf(5);
+
+          // 会話履歴が正しく含まれているか検証
+          expect(context[0].role.getValue()).to.equal('user');
+          expect(context[0].content.getValue()).to.equal('こんにちは');
+
+          expect(context[1].role.getValue()).to.equal('assistant');
+          expect(context[1].content.getValue()).to.equal('こんにちは！何かお手伝いできることはありますか？');
+
+          expect(context[2].role.getValue()).to.equal('user');
+          expect(context[2].content.getValue()).to.equal('今日の天気を教えて');
+
+          expect(context[3].role.getValue()).to.equal('assistant');
+          expect(context[3].content.getValue()).to.equal(firstResponse);
+
+          expect(context[4].role.getValue()).to.equal('user');
+          expect(context[4].content.getValue()).to.equal('明日の天気も教えて');
+
+          return Promise.resolve(secondResponse);
+        }
+      );
+
+      // AIReplyHandlerのhandleメソッドを呼び出し（2回目）
+      await aiReplyHandler.handle(instance(secondMessageMock));
+
+      // 2回目の応答の検証
+      verify(secondMessageMock.reply(secondResponse)).once();
+
+      // 3回目のユーザーメッセージと応答の準備（長文応答のテスト）
+      // 会話履歴に2回目の応答を追加
+      const thirdMessageHistory = [
+        ...updatedMessageHistory,
+        { id: "msg6", author: { bot: true, id: testBotId }, content: secondResponse },
+        { id: "msg7", author: { bot: false, id: testUserId }, content: "週末の天気予報を詳しく教えて" }
+      ];
+
+      // 更新されたメッセージコレクションのモックを作成
+      const thirdMessageCollection = {
+        reverse: () => thirdMessageHistory,
+        map: function(callback: any) {
+          return this.reverse().map(callback);
+        }
+      };
+
+      // 3回目のユーザーメッセージのモックを作成
+      const thirdMessageMock = mockMessage(testUserId);
+
+      // 更新されたチャンネルのモックを作成
+      const thirdChannelMock = mock<any>();
+      when(thirdChannelMock.isThread()).thenReturn(true);
+      when(thirdChannelMock.guildId).thenReturn(testGuildId);
+      when(thirdChannelMock.id).thenReturn(testThreadId);
+      when(thirdChannelMock.ownerId).thenReturn(testBotId);
+      when(thirdChannelMock.sendTyping()).thenResolve();
+      when(thirdChannelMock.messages).thenReturn({
+        fetch: () => Promise.resolve(thirdMessageCollection)
+      });
+
+      // メッセージのチャンネルをモックに設定
+      when(thirdMessageMock.channel).thenReturn(instance(thirdChannelMock));
+
+      // メッセージ応答のモック
+      when(thirdMessageMock.reply(anything())).thenResolve();
+
+      // 長文応答のテスト（DiscordTextPresenterで分割される長さ）
+      const longResponse = "週末の天気予報です：\n\n".repeat(10) +
+                          "土曜日：晴れ、最高気温25度、最低気温18度。湿度は60%程度で過ごしやすい一日になりそうです。\n\n" +
+                          "日曜日：曇りのち雨、最高気温22度、最低気温17度。午後から雨が降り始め、夕方には本降りになる予報です。\n\n" +
+                          "週末のお出かけは土曜日がおすすめです！日曜日は雨具をお持ちください。\n\n" +
+                          "詳細な情報が必要でしたら、お気軽にお尋ねください！".repeat(5);
+
+      // ChatAILogic.replyTalkメソッドのモック（3回目の応答 - 長文）
+      when(chatAILogicMock.replyTalk(anything(), anything())).thenResolve(longResponse);
+
+      // DiscordTextPresenterの結果をシミュレート（長文を分割）
+      const splitResponses = [
+        longResponse.substring(0, 1000),
+        longResponse.substring(1000, 2000),
+        longResponse.substring(2000)
+      ];
+
+      // 分割された応答それぞれに対するreplyのモックを設定
+      for (const chunk of splitResponses) {
+        when(thirdMessageMock.reply(chunk)).thenResolve({} as any);
+      }
+
+      // AIReplyHandlerのhandleメソッドを呼び出し（3回目）
+      await aiReplyHandler.handle(instance(thirdMessageMock));
+
+      // 長文応答が複数回に分けて送信されることを検証
+      verify(thirdMessageMock.reply(anything())).atLeast(1);
+
+      // スレッドが正しく保存されていることを確認
+      const savedThread = await ThreadRepositoryImpl.findOne({
+        where: {
+          guildId: testGuildId,
+          messageId: testThreadId
+        }
+      });
+
+      expect(savedThread).to.not.be.null;
+      if (savedThread) {
+        expect(savedThread.guildId.toString()).to.equal(testGuildId);
+        expect(savedThread.messageId.toString()).to.equal(testThreadId);
+        expect(savedThread.categoryType).to.equal(ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue());
+
+        // メタデータが正しく設定されていることを確認
+        const metadata = savedThread.metadata;
+        expect(metadata).to.not.be.null;
+        expect(metadata).to.be.an('object');
+
+        // メタデータに必要なプロパティが含まれていることを確認
+        const metadataObj = JSON.parse(JSON.stringify(metadata));
+        expect(metadataObj).to.have.property('persona_role', 'テスト役割');
+        expect(metadataObj).to.have.property('speaking_style_rules', 'テストスタイル');
+        expect(metadataObj).to.have.property('response_directives', 'テスト指示');
+        expect(metadataObj).to.have.property('emotion_model', 'テスト感情');
+        expect(metadataObj).to.have.property('notes', 'テスト注釈');
+        expect(metadataObj).to.have.property('input_scope', 'テスト範囲');
+      }
+    });
 });
