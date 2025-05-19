@@ -47,6 +47,7 @@ import { ThreadMetadataChatgpt } from "@/src/entities/vo/ThreadMetadataChatgpt";
 import { ThreadMetadata } from "@/src/entities/vo/ThreadMetadata";
 import { AppConfig } from "@/src/entities/config/AppConfig";
 import { ThreadLogic } from "@/src/logics/ThreadLogic";
+import { IChatAILogic } from "@/src/logics/Interfaces/logics/IChatAILogic";
 
 describe("Test Talk Commands", function(this: Mocha.Suite) {
   // テストのタイムアウト時間を延長（30秒）
@@ -930,6 +931,115 @@ describe("Test Talk Commands", function(this: Mocha.Suite) {
       expect(Number(messageId.getValue())).to.equal(testThreadId);
       expect(Number(guildId.getValue())).to.equal(testGuildId);
       expect(Number(messageId.getValue())).to.equal(testThreadId);
+    });
+
+    /**
+     * [TypingIndicator] タイピング表示の検証
+     * - sendTyping が正しく呼ばれているか
+     * - 入力検出直後などタイミング的に妥当な場所で動くか
+     */
+    it("test typing indicator is shown at appropriate timing", async function(this: Mocha.Context) {
+      // 個別のテストのタイムアウト時間を延長（10秒）
+      this.timeout(10000);
+
+      // テスト用のパラメータ
+      const testGuildId = "12345";
+      const testThreadId = "67890";
+      const testUserId = "98765";
+      const testBotId = AppConfig.discord.clientId;
+
+      // テスト用のスレッドデータを作成
+      await ThreadRepositoryImpl.create({
+        guildId: testGuildId,
+        messageId: testThreadId,
+        categoryType: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
+        metadata: {
+          persona_role: "テスト役割",
+          speaking_style_rules: "テストスタイル",
+          response_directives: "テスト指示",
+          emotion_model: "テスト感情",
+          notes: "テスト注釈",
+          input_scope: "テスト範囲"
+        }
+      });
+
+      // AIReplyHandlerのインスタンスを作成
+      const aiReplyHandler = new AIReplyHandler();
+
+      // ThreadLogicのモックを作成
+      const threadLogicMock = mock<ThreadLogic>();
+      // @ts-ignore - privateフィールドにアクセスするため
+      aiReplyHandler.threadLogic = instance(threadLogicMock);
+
+      // ChatAILogicのモックを作成
+      const chatAILogicMock = mock<IChatAILogic>();
+      // @ts-ignore - privateフィールドにアクセスするため
+      aiReplyHandler.chatAILogic = instance(chatAILogicMock);
+
+      // ThreadLogic.findメソッドのモック
+      when(threadLogicMock.find(anything(), anything())).thenResolve(
+        new ThreadDto(
+          new ThreadGuildId(testGuildId),
+          new ThreadMessageId(testThreadId),
+          ThreadCategoryType.CATEGORY_TYPE_CHATGPT,
+          new ThreadMetadata({
+            persona_role: "テスト役割",
+            speaking_style_rules: "テストスタイル",
+            response_directives: "テスト指示",
+            emotion_model: "テスト感情",
+            notes: "テスト注釈",
+            input_scope: "テスト範囲"
+          } as unknown as JSON)
+        )
+      );
+
+      // ChatAILogic.replyTalkメソッドのモック
+      when(chatAILogicMock.replyTalk(anything(), anything())).thenResolve("テスト応答");
+
+      // メッセージのモックを作成
+      const messageMock = mockMessage(testUserId);
+
+      // チャンネルのモックを作成
+      const channelMock = mock<any>();
+      when(channelMock.isThread()).thenReturn(true);
+      when(channelMock.guildId).thenReturn(testGuildId);
+      when(channelMock.id).thenReturn(testThreadId);
+      when(channelMock.ownerId).thenReturn(testBotId);
+      when(channelMock.sendTyping()).thenResolve();
+      when(channelMock.messages).thenReturn({
+        fetch: () => Promise.resolve([
+          {
+            author: { bot: false },
+            content: "こんにちは",
+            reverse: () => [{ author: { bot: false }, content: "こんにちは" }]
+          }
+        ])
+      });
+
+      // メッセージのチャンネルをモックに設定
+      when(messageMock.channel).thenReturn(instance(channelMock));
+
+      // メッセージ応答のモック
+      when(messageMock.reply(anything())).thenResolve();
+
+      // AIReplyHandlerのhandleメソッドを呼び出し
+      await aiReplyHandler.handle(instance(messageMock));
+
+      // sendTypingが呼ばれることを確認（ts-mockitoを使用して検証）
+      // チャンネルのsendTypingメソッドが呼ばれたことを確認
+      verify(channelMock.sendTyping()).once();
+
+      // 処理の順序を検証
+      // 1. ThreadLogic.findが呼ばれる
+      verify(threadLogicMock.find(anything(), anything())).once();
+
+      // 2. sendTypingが呼ばれる（スパイで確認済み）
+
+      // 3. ChatAILogic.replyTalkが呼ばれる
+      verify(chatAILogicMock.replyTalk(anything(), anything())).once();
+
+      // 4. message.replyが呼ばれる
+      verify(messageMock.reply(anything())).once();
     });
 
 });
