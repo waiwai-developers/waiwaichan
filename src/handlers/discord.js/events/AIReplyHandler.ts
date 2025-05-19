@@ -1,4 +1,5 @@
 import { AppConfig } from "@/src/entities/config/AppConfig";
+import { Thread_Fetch_Nom } from "@/src/entities/constants/Thread";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
 import { ChatAIMessageDto } from "@/src/entities/dto/ChatAIMessageDto";
 import { ChatAIContent } from "@/src/entities/vo/ChatAIContent";
@@ -39,7 +40,7 @@ export class AIReplyHandler implements DiscordEventHandler<Message> {
 
 		const chatAIContext = await message.channel.messages
 			.fetch({
-				limit: 11,
+				limit: Thread_Fetch_Nom,
 			})
 			.then((messages) =>
 				messages
