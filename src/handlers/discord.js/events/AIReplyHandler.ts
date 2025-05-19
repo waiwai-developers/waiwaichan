@@ -72,7 +72,9 @@ export class AIReplyHandler implements DiscordEventHandler<Message> {
 			// ChatAI応答生成エラーを捕捉して処理を続行
 			console.error("ChatAI応答生成エラー:", error);
 			try {
-				await message.reply("ごめんね！っ、応答の生成中にエラーが発生したよ！！っ。");
+				await message.reply(
+					"ごめんね！っ、応答の生成中にエラーが発生したよ！！っ。",
+				);
 			} catch (replyError) {
 				// エラーメッセージの送信に失敗した場合も処理を続行
 				console.error("エラーメッセージ送信エラー:", replyError);
