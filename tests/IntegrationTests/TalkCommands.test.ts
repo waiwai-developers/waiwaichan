@@ -185,7 +185,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 	 */
 	it("test talk command with title", async function (this: Mocha.Context) {
 		// 個別のテストのタイムアウト時間を延長（10秒）
-		this.timeout(10000);
+		this.timeout(10_000);
 		// テスト用のパラメータ
 		const testTitle = "テストタイトル";
 		const testContextType = 1;
@@ -279,7 +279,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 	 */
 	it("test talk command with null title should throw error", async function (this: Mocha.Context) {
 		// 個別のテストのタイムアウト時間を延長（10秒）
-		this.timeout(10000);
+		this.timeout(10_000);
 
 		// テスト用のパラメータ（タイトルをnullに設定）
 		const commandMock = mockSlashCommand("talk", {
@@ -326,7 +326,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 	 */
 	it("test talk command with invalid type should return error", async function (this: Mocha.Context) {
 		// 個別のテストのタイムアウト時間を延長（10秒）
-		this.timeout(10000);
+		this.timeout(10_000);
 
 		// テスト用のパラメータ（存在しないコンテキストタイプを指定）
 		const commandMock = mockSlashCommand("talk", {
@@ -373,7 +373,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 	 */
 	it("test talk command with null channel should skip processing safely", async function (this: Mocha.Context) {
 		// 個別のテストのタイムアウト時間を延長（10秒）
-		this.timeout(10000);
+		this.timeout(10_000);
 
 		// テスト用のパラメータ
 		const commandMock = mockSlashCommand("talk", {
@@ -413,7 +413,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 	 */
 	it("test talk command with non-text channel should skip processing safely", async function (this: Mocha.Context) {
 		// 個別のテストのタイムアウト時間を延長（10秒）
-		this.timeout(10000);
+		this.timeout(10_000);
 
 		// テスト用のパラメータ
 		const commandMock = mockSlashCommand("talk", {
@@ -455,7 +455,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 	 */
 	it("test talk command when personality not found should skip processing safely", async function (this: Mocha.Context) {
 		// 個別のテストのタイムアウト時間を延長（10秒）
-		this.timeout(10000);
+		this.timeout(10_000);
 
 		// テスト用のパラメータ
 		const commandMock = mockSlashCommand("talk", {
@@ -502,7 +502,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 	 */
 	it("test talk command when personality context not found should skip processing safely", async function (this: Mocha.Context) {
 		// 個別のテストのタイムアウト時間を延長（10秒）
-		this.timeout(10000);
+		this.timeout(10_000);
 
 		// テスト用のパラメータ
 		const commandMock = mockSlashCommand("talk", {
@@ -549,7 +549,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 	 */
 	it("test talk command when context not found should skip processing safely", async function (this: Mocha.Context) {
 		// 個別のテストのタイムアウト時間を延長（10秒）
-		this.timeout(10000);
+		this.timeout(10_000);
 
 		// モックの設定
 		const commandMock = mockSlashCommand("talk", {
@@ -603,7 +603,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 	 */
 	it("test AIReplyHandler message filtering", async function (this: Mocha.Context) {
 		// 個別のテストのタイムアウト時間を延長（10秒）
-		this.timeout(10000);
+		this.timeout(10_000);
 
 		// テスト用のパラメータ
 		const testGuildId = "12345";
@@ -758,7 +758,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 	 */
 	it("test ThreadLogic.find functionality", async function (this: Mocha.Context) {
 		// 個別のテストのタイムアウト時間を延長（10秒）
-		this.timeout(10000);
+		this.timeout(10_000);
 
 		// テスト用のパラメータ
 		const testGuildId = 12345;
@@ -887,7 +887,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 	 */
 	it("test typing indicator is shown at appropriate timing", async function (this: Mocha.Context) {
 		// 個別のテストのタイムアウト時間を延長（10秒）
-		this.timeout(10000);
+		this.timeout(10_000);
 
 		// テスト用のパラメータ
 		const testGuildId = "12345";
@@ -999,7 +999,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 	 */
 	it("test message history retrieval and conversion", async function (this: Mocha.Context) {
 		// 個別のテストのタイムアウト時間を延長（10秒）
-		this.timeout(10000);
+		this.timeout(10_000);
 
 		// テスト用のパラメータ
 		const testGuildId = "12345";
@@ -1122,7 +1122,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 	 */
 	it("test ChatAILogic integration with thread metadata and message history", async function (this: Mocha.Context) {
 		// 個別のテストのタイムアウト時間を延長（10秒）
-		this.timeout(10000);
+		this.timeout(10_000);
 
 		// テスト用のパラメータ
 		const testGuildId = "12345";
@@ -1289,7 +1289,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 	 */
 	it("test DiscordTextPresenter integration with ChatAILogic output", async function (this: Mocha.Context) {
 		// 個別のテストのタイムアウト時間を延長（10秒）
-		this.timeout(10000);
+		this.timeout(10_000);
 
 		// テスト用のパラメータ
 		const testGuildId = "12345";
@@ -1463,7 +1463,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 	 */
 	it("test reply dispatch functionality with multiple responses", async function (this: Mocha.Context) {
 		// 個別のテストのタイムアウト時間を延長（10秒）
-		this.timeout(10000);
+		this.timeout(10_000);
 
 		// テスト用のパラメータ
 		const testGuildId = "12345";
@@ -1605,7 +1605,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 	 */
 	it("test error handling robustness", async function (this: Mocha.Context) {
 		// 個別のテストのタイムアウト時間を延長（10秒）
-		this.timeout(10000);
+		this.timeout(10_000);
 
 		// テスト用のパラメータ
 		const testGuildId = "12345";
@@ -2323,7 +2323,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 	 */
 	it("test empty message handling", async function (this: Mocha.Context) {
 		// 個別のテストのタイムアウト時間を延長（10秒）
-		this.timeout(10000);
+		this.timeout(10_000);
 
 		// テスト用のパラメータ
 		const testGuildId = "12345";
@@ -2422,7 +2422,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 
 	it("test special characters and markdown handling", async function (this: Mocha.Context) {
 		// 個別のテストのタイムアウト時間を延長（10秒）
-		this.timeout(10000);
+		this.timeout(10_000);
 
 		// テスト用のパラメータ
 		const testGuildId = "12345";
@@ -2523,7 +2523,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 
 	it("test long message handling", async function (this: Mocha.Context) {
 		// 個別のテストのタイムアウト時間を延長（10秒）
-		this.timeout(10000);
+		this.timeout(10_000);
 
 		// テスト用のパラメータ
 		const testGuildId = "12345";
