@@ -1166,4 +1166,155 @@ describe("Test Talk Commands", function(this: Mocha.Suite) {
       verify(messageMock.reply(anything())).once();
     });
 
+    /**
+     * [ChatAIIntegration] ChatAILogicとの連携テスト
+     * - ChatAILogic.replyTalk() の呼び出しパラメータが正しく構成されているか
+     * - ChatAIPrompt がスレッドメタデータから構成されるか
+     * - chatAIContext や履歴情報との連携が成立しているか
+     */
+    it("test ChatAILogic integration with thread metadata and message history", async function(this: Mocha.Context) {
+      // 個別のテストのタイムアウト時間を延長（10秒）
+      this.timeout(10000);
+
+      // テスト用のパラメータ
+      const testGuildId = "12345";
+      const testThreadId = "67890";
+      const testUserId = "98765";
+      const testBotId = AppConfig.discord.clientId;
+
+      // テスト用のスレッドメタデータ
+      const testMetadata = {
+        persona_role: "テスト役割",
+        speaking_style_rules: "テストスタイル",
+        response_directives: "テスト指示",
+        emotion_model: "テスト感情",
+        notes: "テスト注釈",
+        input_scope: "テスト範囲"
+      };
+
+      // ThreadRepositoryImplを使用してテスト用のスレッドデータを作成
+      await ThreadRepositoryImpl.create({
+        guildId: testGuildId,
+        messageId: testThreadId,
+        categoryType: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
+        metadata: testMetadata
+      });
+
+      // AIReplyHandlerのインスタンスを作成
+      const aiReplyHandler = new AIReplyHandler();
+
+      // ChatAILogicのモックを作成
+      const chatAILogicMock = mock<IChatAILogic>();
+      // @ts-ignore - privateフィールドにアクセスするため
+      aiReplyHandler.chatAILogic = instance(chatAILogicMock);
+
+      // テスト用のメッセージ履歴を作成（古いメッセージから新しいメッセージの順）
+      const testMessageHistory = [
+        { id: "msg1", author: { bot: false, id: testUserId }, content: "ユーザーメッセージ1" },
+        { id: "msg2", author: { bot: true, id: testBotId }, content: "ボットメッセージ1" },
+        { id: "msg3", author: { bot: false, id: testUserId }, content: "ユーザーメッセージ2" },
+        { id: "msg4", author: { bot: true, id: testBotId }, content: "ボットメッセージ2" },
+        { id: "msg5", author: { bot: false, id: testUserId }, content: "ユーザーメッセージ3" }
+      ];
+
+      // メッセージコレクションのモックを作成
+      const messageCollection = {
+        reverse: () => testMessageHistory,
+        map: function(callback: any) {
+          return this.reverse().map(callback);
+        }
+      };
+
+      // メッセージのモックを作成
+      const messageMock = mockMessage(testUserId);
+
+      // チャンネルのモックを作成
+      const channelMock = mock<any>();
+      when(channelMock.isThread()).thenReturn(true);
+      when(channelMock.guildId).thenReturn(testGuildId);
+      when(channelMock.id).thenReturn(testThreadId);
+      when(channelMock.ownerId).thenReturn(testBotId);
+      when(channelMock.sendTyping()).thenResolve();
+      when(channelMock.messages).thenReturn({
+        fetch: (options: any) => {
+          // fetch呼び出し時のオプションを検証
+          expect(options).to.deep.equal({ limit: 11 });
+          return Promise.resolve(messageCollection);
+        }
+      });
+
+      // メッセージのチャンネルをモックに設定
+      when(messageMock.channel).thenReturn(instance(channelMock));
+
+      // メッセージ応答のモック
+      when(messageMock.reply(anything())).thenResolve();
+
+      // ChatAILogic.replyTalkメソッドのモック
+      when(chatAILogicMock.replyTalk(anything(), anything())).thenCall(
+        (prompt, context) => {
+          // 1. ChatAIPromptの検証
+          const promptValue = prompt.getValue();
+          expect(promptValue).to.deep.equal(testMetadata);
+
+          // 2. ChatAIContextの検証
+          expect(context).to.be.an('array').with.lengthOf(5);
+
+          // ユーザーメッセージとボットメッセージが正しく変換されているか検証
+          expect(context[0].role.getValue()).to.equal('user');
+          expect(context[0].content.getValue()).to.equal('ユーザーメッセージ1');
+
+          expect(context[1].role.getValue()).to.equal('assistant');
+          expect(context[1].content.getValue()).to.equal('ボットメッセージ1');
+
+          expect(context[2].role.getValue()).to.equal('user');
+          expect(context[2].content.getValue()).to.equal('ユーザーメッセージ2');
+
+          expect(context[3].role.getValue()).to.equal('assistant');
+          expect(context[3].content.getValue()).to.equal('ボットメッセージ2');
+
+          expect(context[4].role.getValue()).to.equal('user');
+          expect(context[4].content.getValue()).to.equal('ユーザーメッセージ3');
+
+          return Promise.resolve("テスト応答");
+        }
+      );
+
+      // ThreadLogicのモックを作成
+      const threadLogicMock = mock<ThreadLogic>();
+      // @ts-ignore - privateフィールドにアクセスするため
+      aiReplyHandler.threadLogic = instance(threadLogicMock);
+
+      // ThreadLogic.findメソッドのモック
+      when(threadLogicMock.find(anything(), anything())).thenCall(
+        async (guildId, messageId) => {
+          // 引数の検証
+          expect(guildId.getValue()).to.equal(testGuildId);
+          expect(messageId.getValue()).to.equal(testThreadId);
+
+          // 実際のデータベースからスレッドを取得
+          return await ThreadRepositoryImpl.findOne({
+            where: {
+              guildId: guildId.getValue(),
+              messageId: messageId.getValue(),
+            }
+          }).then(res => res ? res.toDto() : undefined);
+        }
+      );
+
+      // AIReplyHandlerのhandleメソッドを呼び出し
+      await aiReplyHandler.handle(instance(messageMock));
+
+      // ChatAILogic.replyTalkが呼ばれたことを確認
+      verify(chatAILogicMock.replyTalk(anything(), anything())).once();
+
+      // メッセージ応答が行われたことを確認
+      verify(messageMock.reply("テスト応答")).once();
+
+      // 処理の順序を検証
+      // 1. ThreadLogic.findが呼ばれる
+      verify(threadLogicMock.find(anything(), anything())).once();
+
+      // 2. sendTypingが呼ばれる
+      verify(channelMock.sendTyping()).once();
+    });
 });
