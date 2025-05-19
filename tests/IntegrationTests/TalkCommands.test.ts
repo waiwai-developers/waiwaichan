@@ -188,7 +188,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		this.timeout(10000);
 		// テスト用のパラメータ
 		const testTitle = "テストタイトル";
-		const testContextType = 1; // コンテキストタイプ
+		const testContextType = 1;
 		const testGuildId = "12345";
 		const testMessageId = "67890";
 		const expectedThreadTitle = `テストコンテキスト: ${testTitle}`;
