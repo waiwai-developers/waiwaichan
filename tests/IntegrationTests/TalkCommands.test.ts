@@ -285,10 +285,9 @@ describe("Test Talk Commands", function(this: Mocha.Suite) {
       this.timeout(10000);
 
       // テスト用のパラメータ（タイトルをnullに設定）
-      const testContextType = 1;
       const commandMock = mockSlashCommand("talk", {
         title: null,
-        type: testContextType,
+        type: ThreadCategoryType.CATEGORY_TYPE_CHATGPT,
       });
 
       // モックのチャンネル設定
@@ -333,13 +332,9 @@ describe("Test Talk Commands", function(this: Mocha.Suite) {
       this.timeout(10000);
 
       // テスト用のパラメータ（存在しないコンテキストタイプを指定）
-      const testTitle = "テストタイトル";
-      const invalidContextType = 999; // 存在しないコンテキストタイプ
-
-      // モックの設定
       const commandMock = mockSlashCommand("talk", {
-        title: testTitle,
-        type: invalidContextType,
+        title: "テストタイトル",
+        type: 999,
       });
 
       // モックのチャンネル設定
@@ -384,13 +379,9 @@ describe("Test Talk Commands", function(this: Mocha.Suite) {
       this.timeout(10000);
 
       // テスト用のパラメータ
-      const testTitle = "テストタイトル";
-      const testContextType = 1;
-
-      // モックの設定
       const commandMock = mockSlashCommand("talk", {
-        title: testTitle,
-        type: testContextType,
+        title: "テストタイトル",
+        type: ThreadCategoryType.CATEGORY_TYPE_CHATGPT,
       });
 
       // channelをnullに設定
@@ -428,13 +419,9 @@ describe("Test Talk Commands", function(this: Mocha.Suite) {
       this.timeout(10000);
 
       // テスト用のパラメータ
-      const testTitle = "テストタイトル";
-      const testContextType = 1;
-
-      // モックの設定
       const commandMock = mockSlashCommand("talk", {
-        title: testTitle,
-        type: testContextType,
+        title: "テストタイトル",
+        type: ThreadCategoryType.CATEGORY_TYPE_CHATGPT,
       });
 
       // テキストチャンネル以外のチャンネルを設定（threads.createメソッドがない）
@@ -473,20 +460,10 @@ describe("Test Talk Commands", function(this: Mocha.Suite) {
       // 個別のテストのタイムアウト時間を延長（10秒）
       this.timeout(10000);
 
-      // テスト前にPersonalityデータを削除
-      await PersonalityRepositoryImpl.destroy({
-        truncate: true,
-        force: true,
-      });
-
       // テスト用のパラメータ
-      const testTitle = "テストタイトル";
-      const testContextType = 1;
-
-      // モックの設定
       const commandMock = mockSlashCommand("talk", {
-        title: testTitle,
-        type: testContextType,
+        title: "テストタイトル",
+        type: ThreadCategoryType.CATEGORY_TYPE_CHATGPT,
       });
 
       // モックのチャンネル設定
@@ -531,20 +508,10 @@ describe("Test Talk Commands", function(this: Mocha.Suite) {
       // 個別のテストのタイムアウト時間を延長（10秒）
       this.timeout(10000);
 
-      // テスト前にPersonalityContextデータを削除
-      await PersonalityContextRepositoryImpl.destroy({
-        truncate: true,
-        force: true,
-      });
-
       // テスト用のパラメータ
-      const testTitle = "テストタイトル";
-      const testContextType = 1;
-
-      // モックの設定
       const commandMock = mockSlashCommand("talk", {
-        title: testTitle,
-        type: testContextType,
+        title: "テストタイトル",
+        type: ThreadCategoryType.CATEGORY_TYPE_CHATGPT,
       });
 
       // モックのチャンネル設定
@@ -589,20 +556,10 @@ describe("Test Talk Commands", function(this: Mocha.Suite) {
       // 個別のテストのタイムアウト時間を延長（10秒）
       this.timeout(10000);
 
-      // テスト前にContextデータを削除
-      await ContextRepositoryImpl.destroy({
-        truncate: true,
-        force: true,
-      });
-
-      // テスト用のパラメータ
-      const testTitle = "テストタイトル";
-      const testContextType = 1;
-
       // モックの設定
       const commandMock = mockSlashCommand("talk", {
-        title: testTitle,
-        type: testContextType,
+        title: "テストタイトル",
+        type: ThreadCategoryType.CATEGORY_TYPE_CHATGPT,
       });
 
       // モックのチャンネル設定
