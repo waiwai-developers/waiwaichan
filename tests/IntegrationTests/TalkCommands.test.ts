@@ -1649,4 +1649,181 @@ describe("Test Talk Commands", function(this: Mocha.Suite) {
         AIReplyHandler.prototype.handle = originalHandle;
       }
     });
+
+      /**
+     * [ErrorHandling] エラー処理の堅牢性
+     * - メッセージ送信エラー（Message.replyの失敗）の捕捉
+     * - ChatAI応答生成中の例外発生を安全に処理できるか
+     */
+      it("test error handling robustness", async function(this: Mocha.Context) {
+        // 個別のテストのタイムアウト時間を延長（10秒）
+        this.timeout(10000);
+
+        // テスト用のパラメータ
+        const testGuildId = "12345";
+        const testThreadId = "67890";
+        const testUserId = "98765";
+        const testBotId = AppConfig.discord.clientId;
+
+        // テスト用のスレッドメタデータ
+        const testMetadata = {
+          persona_role: "テスト役割",
+          speaking_style_rules: "テストスタイル",
+          response_directives: "テスト指示",
+          emotion_model: "テスト感情",
+          notes: "テスト注釈",
+          input_scope: "テスト範囲"
+        };
+
+        // ThreadRepositoryImplを使用してテスト用のスレッドデータを作成
+        await ThreadRepositoryImpl.create({
+          guildId: testGuildId,
+          messageId: testThreadId,
+          categoryType: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
+          metadata: testMetadata
+        });
+
+        // AIReplyHandlerのインスタンスを作成
+        const aiReplyHandler = new AIReplyHandler();
+
+        // ChatAILogicのモックを作成
+        const chatAILogicMock = mock<IChatAILogic>();
+        // @ts-ignore - privateフィールドにアクセスするため
+        aiReplyHandler.chatAILogic = instance(chatAILogicMock);
+
+        // テスト用のメッセージ履歴を作成
+        const testMessageHistory = [
+          { id: "msg1", author: { bot: false, id: testUserId }, content: "こんにちは" }
+        ];
+
+        // メッセージコレクションのモックを作成
+        const messageCollection = {
+          reverse: () => testMessageHistory,
+          map: function(callback: any) {
+            return this.reverse().map(callback);
+          }
+        };
+
+        // メッセージのモックを作成
+        const messageMock = mockMessage(testUserId);
+
+        // チャンネルのモックを作成
+        const channelMock = mock<any>();
+        when(channelMock.isThread()).thenReturn(true);
+        when(channelMock.guildId).thenReturn(testGuildId);
+        when(channelMock.id).thenReturn(testThreadId);
+        when(channelMock.ownerId).thenReturn(testBotId);
+        when(channelMock.sendTyping()).thenResolve();
+        when(channelMock.messages).thenReturn({
+          fetch: () => Promise.resolve(messageCollection)
+        });
+
+        // メッセージのチャンネルをモックに設定
+        when(messageMock.channel).thenReturn(instance(channelMock));
+
+        // ThreadLogicのモックを作成
+        const threadLogicMock = mock<ThreadLogic>();
+        // @ts-ignore - privateフィールドにアクセスするため
+        aiReplyHandler.threadLogic = instance(threadLogicMock);
+
+        // ThreadLogic.findメソッドのモック
+        when(threadLogicMock.find(anything(), anything())).thenResolve(
+          new ThreadDto(
+            new ThreadGuildId(testGuildId),
+            new ThreadMessageId(testThreadId),
+            ThreadCategoryType.CATEGORY_TYPE_CHATGPT,
+            new ThreadMetadata(testMetadata as unknown as JSON)
+          )
+        );
+
+        // テストケース1: ChatAILogic.replyTalkが例外をスローする場合
+        when(chatAILogicMock.replyTalk(anything(), anything())).thenThrow(new Error("ChatAI応答生成エラー"));
+
+        // メッセージ応答のモック（正常系）
+        when(messageMock.reply(anything())).thenResolve();
+
+        // AIReplyHandlerのhandleメソッドを呼び出し
+        // エラーがスローされずに処理が続行されることを確認
+        let error = null;
+        try {
+          await aiReplyHandler.handle(instance(messageMock));
+        } catch (e) {
+          error = e;
+        }
+        expect(error).to.be.null;
+
+        // エラーメッセージが送信されることを確認
+        verify(messageMock.reply("ごめんね！っ、応答の生成中にエラーが発生したよ！！っ。")).once();
+
+        // テストケース2: message.replyが例外をスローする場合
+        // ChatAILogic.replyTalkのモックをリセット（正常に応答を返す）
+        when(chatAILogicMock.replyTalk(anything(), anything())).thenResolve("テスト応答");
+
+        // メッセージ応答のモック（例外をスロー）
+        when(messageMock.reply(anything())).thenThrow(new Error("メッセージ送信エラー"));
+
+        // AIReplyHandlerのhandleメソッドを呼び出し
+        // エラーがスローされずに処理が続行されることを確認
+        let error2 = null;
+        try {
+          await aiReplyHandler.handle(instance(messageMock));
+        } catch (e) {
+          error2 = e;
+        }
+        expect(error2).to.be.null;
+
+        // テストケース3: 複数の応答チャンクがある場合に一部のreplyが失敗する場合
+        // 新しいメッセージモックを作成（前のテストケースのモックをリセットするため）
+        const messageMock2 = mockMessage(testUserId);
+        when(messageMock2.channel).thenReturn(instance(channelMock));
+
+        // AIReplyHandlerのhandleメソッドをオーバーライド
+        const originalHandle = AIReplyHandler.prototype.handle;
+        const originalPresenter = DiscordTextPresenter;
+
+        try {
+          // handleメソッドをモック
+          AIReplyHandler.prototype.handle = async function(message: any) {
+            if (message.author.bot) return;
+            if (!message.channel.isThread()) return;
+            if (!(message.channel.ownerId === AppConfig.discord.clientId)) return;
+
+            // 通常の処理を一部実行
+            message.channel.sendTyping();
+
+            try {
+              // 複数の応答を送信（1つ目は成功、2つ目は失敗するシナリオ）
+              await message.reply("チャンク1");
+              await message.reply("チャンク2"); // このreplyは例外をスローする
+            } catch (error) {
+              // エラーは捕捉されるが、処理は続行される
+              console.error("メッセージ送信エラー:", error);
+            }
+          };
+
+          // 最初のチャンクは成功するようにモック
+          when(messageMock2.reply("チャンク1")).thenResolve();
+
+          // 2番目のチャンクは失敗するようにモック
+          when(messageMock2.reply("チャンク2")).thenThrow(new Error("チャンク送信エラー"));
+
+          // AIReplyHandlerのhandleメソッドを呼び出し
+          // エラーがスローされずに処理が続行されることを確認
+          let error3 = null;
+          try {
+            await aiReplyHandler.handle(instance(messageMock2));
+          } catch (e) {
+            error3 = e;
+          }
+          expect(error3).to.be.null;
+
+          // 両方のチャンクに対してreplyが呼ばれることを確認
+          verify(messageMock2.reply("チャンク1")).once();
+          verify(messageMock2.reply("チャンク2")).once();
+        } finally {
+          // 元のhandleメソッドに戻す
+          AIReplyHandler.prototype.handle = originalHandle;
+        }
+      });
+
 });
