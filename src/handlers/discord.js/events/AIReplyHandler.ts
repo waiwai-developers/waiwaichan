@@ -53,14 +53,30 @@ export class AIReplyHandler implements DiscordEventHandler<Message> {
 					),
 			);
 
-		const results = await this.chatAILogic
-			.replyTalk(new ChatAIPrompt(thread.metadata.getValue()), chatAIContext)
-			.then(DiscordTextPresenter);
+		try {
+			const results = await this.chatAILogic
+				.replyTalk(new ChatAIPrompt(thread.metadata.getValue()), chatAIContext)
+				.then(DiscordTextPresenter);
 
-		await Promise.all(
-			results.map(async (t) => {
-				await message.reply(t);
-			}),
-		);
+			await Promise.all(
+				results.map(async (t) => {
+					try {
+						await message.reply(t);
+					} catch (error) {
+						// メッセージ送信エラーを捕捉して処理を続行
+						console.error("メッセージ送信エラー:", error);
+					}
+				}),
+			);
+		} catch (error) {
+			// ChatAI応答生成エラーを捕捉して処理を続行
+			console.error("ChatAI応答生成エラー:", error);
+			try {
+				await message.reply("ごめんね！っ、応答の生成中にエラーが発生したよ！！っ。");
+			} catch (replyError) {
+				// エラーメッセージの送信に失敗した場合も処理を続行
+				console.error("エラーメッセージ送信エラー:", replyError);
+			}
+		}
 	}
 }
