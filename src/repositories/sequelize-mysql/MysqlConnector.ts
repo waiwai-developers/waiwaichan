@@ -1,6 +1,7 @@
 import { GetEnvDBConfig } from "@/src/entities/config/DatabaseConfig";
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import type { IDataBaseConnector } from "@/src/logics/Interfaces/repositories/database/IDataBaseConnector";
+import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 import { CandyItemRepositoryImpl } from "@/src/repositories/sequelize-mysql/CandyItemRepositoryImpl";
 import { CandyRepositoryImpl } from "@/src/repositories/sequelize-mysql/CandyRepositoryImpl";
 import { CrownRepositoryImpl } from "@/src/repositories/sequelize-mysql/CrownRepositoryImpl";
@@ -25,7 +26,6 @@ export class MysqlConnector implements IDataBaseConnector<Sequelize, "mysql"> {
 			dbConfig.database,
 			dbConfig.username,
 			dbConfig.password,
-
 			{
 				host: dbConfig.host,
 				port: dbConfig.port,
