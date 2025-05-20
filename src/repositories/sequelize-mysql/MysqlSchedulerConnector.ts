@@ -9,7 +9,6 @@ import { UserRepositoryImpl } from "@/src/repositories/sequelize-mysql/UserRepos
 import { inject, injectable } from "inversify";
 import type { Dialect } from "sequelize";
 import { Sequelize } from "sequelize-typescript";
-
 @injectable()
 export class MysqlSchedulerConnector
 	implements IDataBaseConnector<Sequelize, "mysql">
