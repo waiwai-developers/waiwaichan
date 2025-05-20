@@ -1,4 +1,4 @@
-import { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
+import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 
 export const SequelizeLogger = (
 	sql: string,
