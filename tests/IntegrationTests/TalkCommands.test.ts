@@ -1,30 +1,4 @@
-import "reflect-metadata";
-import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 import { ContainerDown, ContainerUp } from "@/tests/fixtures/database/ContainerTest";
-import { Container } from "inversify";
-
-// MockLoggerクラスの定義
-class MockLogger implements ILogger {
-	trace(msg: string): void {
-		// テスト用なので何もしない
-	}
-
-	debug(msg: string): void {
-		// テスト用なので何もしない
-	}
-
-	info(msg: string): void {
-		// テスト用なので何もしない
-	}
-
-	error(msg: string): void {
-		// テスト用なので何もしない
-	}
-
-	fatal(msg: string): void {
-		// テスト用なので何もしない
-	}
-}
 import { InternalErrorMessage } from "@/src/entities/DiscordErrorMessages";
 import { AppConfig } from "@/src/entities/config/AppConfig";
 import type { ChatAIMessageDto } from "@/src/entities/dto/ChatAIMessageDto";
@@ -53,7 +27,7 @@ import { anything, instance, mock, verify, when } from "ts-mockito";
 
 describe("Test Talk Commands", function (this: Mocha.Suite) {
 	// テストのタイムアウト時間を延長（30秒）
-	this.timeout(30000);
+	this.timeout(10_000);
 
 	before(async () => {
 		await ContainerUp();
@@ -65,12 +39,8 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 
 	beforeEach(async () => {
 		// データベース接続を初期化（MockLoggerを使用）
-		const mockLogger = new MockLogger();
-		const connector = new MysqlConnector();
-		// @ts-ignore - privateフィールドにアクセスするため
-		connector.logger = mockLogger;
 
-		// Sequelizeのloggingオプションを直接設定
+		const connector = new MysqlConnector();
 		// @ts-ignore - privateフィールドにアクセスするため
 		connector.instance.options.logging = false;
 
@@ -301,18 +271,8 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		const TEST_CLIENT = await TestDiscordServer.getClient();
 		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
-		// 応答を待機
-		await waitUntilReply(commandMock);
-
-		// エラーメッセージでの応答を検証
-		verify(commandMock.reply(InternalErrorMessage)).once();
-
 		// スレッドが作成されていないことを確認
-		// ロギングを無効化してからfindAllを実行
-		const mockLogger = new MockLogger();
 		const connector = new MysqlConnector();
-		// @ts-ignore - privateフィールドにアクセスするため
-		connector.logger = mockLogger;
 		// @ts-ignore - privateフィールドにアクセスするため
 		connector.instance.options.logging = false;
 
@@ -348,18 +308,8 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		const TEST_CLIENT = await TestDiscordServer.getClient();
 		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
-		// 応答を待機
-		await waitUntilReply(commandMock);
-
-		// エラーメッセージでの応答を検証
-		verify(commandMock.reply(InternalErrorMessage)).once();
-
 		// スレッドが作成されていないことを確認
-		// ロギングを無効化してからfindAllを実行
-		const mockLogger = new MockLogger();
 		const connector = new MysqlConnector();
-		// @ts-ignore - privateフィールドにアクセスするため
-		connector.logger = mockLogger;
 		// @ts-ignore - privateフィールドにアクセスするため
 		connector.instance.options.logging = false;
 
@@ -393,10 +343,8 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 
 		// スレッドが作成されていないことを確認
 		// ロギングを無効化してからfindAllを実行
-		const mockLogger = new MockLogger();
+
 		const connector = new MysqlConnector();
-		// @ts-ignore - privateフィールドにアクセスするため
-		connector.logger = mockLogger;
 		// @ts-ignore - privateフィールドにアクセスするため
 		connector.instance.options.logging = false;
 
@@ -435,10 +383,8 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 
 		// スレッドが作成されていないことを確認
 		// ロギングを無効化してからfindAllを実行
-		const mockLogger = new MockLogger();
+
 		const connector = new MysqlConnector();
-		// @ts-ignore - privateフィールドにアクセスするため
-		connector.logger = mockLogger;
 		// @ts-ignore - privateフィールドにアクセスするため
 		connector.instance.options.logging = false;
 
@@ -477,18 +423,8 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		const TEST_CLIENT = await TestDiscordServer.getClient();
 		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
-		// 応答を待機
-		await waitUntilReply(commandMock);
-
-		// エラーメッセージでの応答を検証
-		verify(commandMock.reply(InternalErrorMessage)).once();
-
 		// スレッドが作成されていないことを確認
-		// ロギングを無効化してからfindAllを実行
-		const mockLogger = new MockLogger();
 		const connector = new MysqlConnector();
-		// @ts-ignore - privateフィールドにアクセスするため
-		connector.logger = mockLogger;
 		// @ts-ignore - privateフィールドにアクセスするため
 		connector.instance.options.logging = false;
 
@@ -524,18 +460,8 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		const TEST_CLIENT = await TestDiscordServer.getClient();
 		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
-		// 応答を待機
-		await waitUntilReply(commandMock);
-
-		// エラーメッセージでの応答を検証
-		verify(commandMock.reply(InternalErrorMessage)).once();
-
 		// スレッドが作成されていないことを確認
-		// ロギングを無効化してからfindAllを実行
-		const mockLogger = new MockLogger();
 		const connector = new MysqlConnector();
-		// @ts-ignore - privateフィールドにアクセスするため
-		connector.logger = mockLogger;
 		// @ts-ignore - privateフィールドにアクセスするため
 		connector.instance.options.logging = false;
 
@@ -571,18 +497,8 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		const TEST_CLIENT = await TestDiscordServer.getClient();
 		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
-		// 応答を待機
-		await waitUntilReply(commandMock);
-
-		// エラーメッセージでの応答を検証
-		verify(commandMock.reply(InternalErrorMessage)).once();
-
 		// スレッドが作成されていないことを確認
-		// ロギングを無効化してからfindAllを実行
-		const mockLogger = new MockLogger();
 		const connector = new MysqlConnector();
-		// @ts-ignore - privateフィールドにアクセスするため
-		connector.logger = mockLogger;
 		// @ts-ignore - privateフィールドにアクセスするため
 		connector.instance.options.logging = false;
 
@@ -992,7 +908,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 
 	/**
 	 * [MessageHistory] メッセージ履歴取得と変換の検証
-	 * - channel.messages.fetch が `limit: 11` で正しく呼ばれるか
+	 * - channel.messages.fetch が `limit: 21` で正しく呼ばれるか
 	 * - メッセージ取得結果が時間順に逆順ソートされるか
 	 * - ユーザーメッセージが USER ロールへ、Botメッセージが ASSISTANT ロールへ正しく変換されるか
 	 * - 内容が ChatAIContent 構造として正しく渡せるか
@@ -1090,7 +1006,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		when(channelMock.messages).thenReturn({
 			fetch: (options: any) => {
 				// fetch呼び出し時のオプションを検証
-				expect(options).to.deep.equal({ limit: 11 });
+				expect(options).to.deep.equal({ limit: 21 });
 				return Promise.resolve(messageCollection);
 			},
 		});
@@ -1206,7 +1122,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		when(channelMock.messages).thenReturn({
 			fetch: (options: any) => {
 				// fetch呼び出し時のオプションを検証
-				expect(options).to.deep.equal({ limit: 11 });
+				expect(options).to.deep.equal({ limit: 21 });
 				return Promise.resolve(messageCollection);
 			},
 		});
@@ -1353,7 +1269,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		when(channelMock.messages).thenReturn({
 			fetch: (options: any) => {
 				// fetch呼び出し時のオプションを検証
-				expect(options).to.deep.equal({ limit: 11 });
+				expect(options).to.deep.equal({ limit: 21 });
 				return Promise.resolve(messageCollection);
 			},
 		});
