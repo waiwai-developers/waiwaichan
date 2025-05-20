@@ -29,7 +29,6 @@ export class MysqlConnector implements IDataBaseConnector<Sequelize, "mysql"> {
 			dbConfig.database,
 			dbConfig.username,
 			dbConfig.password,
-
 			{
 				host: dbConfig.host,
 				port: dbConfig.port,

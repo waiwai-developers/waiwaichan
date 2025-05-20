@@ -7,7 +7,6 @@ import { SequelizeLogger } from "@/src/repositories/sequelize-mysql/SequelizeLog
 import { inject, injectable } from "inversify";
 import type { Dialect } from "sequelize";
 import { Sequelize } from "sequelize-typescript";
-
 @injectable()
 export class MysqlSchedulerConnector
 	implements IDataBaseConnector<Sequelize, "mysql">
@@ -22,7 +21,6 @@ export class MysqlSchedulerConnector
 			dbConfig.database,
 			dbConfig.username,
 			dbConfig.password,
-
 			{
 				host: dbConfig.host,
 				port: dbConfig.port,
