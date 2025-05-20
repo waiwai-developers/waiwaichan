@@ -38,6 +38,8 @@
 		"discord-api-types": "^0.37.107",
 		"discord.js": "^14.16.3",
 		"dotenv": "^16.4.5",
+		"google-auth-library": "^9.15.1",
+		"googleapis": "^148.0.0",
 		"inversify": "^6.1.4",
 		"mocha": "^11.0.1",
 		"moment": "^2.30.1",
