@@ -1,5 +1,4 @@
 import { GetEnvDBConfig } from "@/src/entities/config/DatabaseConfig";
-import { MockLogger } from "../repositories/MockLogger";
 import { Sequelize } from "sequelize-typescript";
 import { CandyRepositoryImpl } from "@/src/repositories/sequelize-mysql/CandyRepositoryImpl";
 import { CandyItemRepositoryImpl } from "@/src/repositories/sequelize-mysql/CandyItemRepositoryImpl";
@@ -11,7 +10,6 @@ import type { IDataBaseConnector } from "@/src/logics/Interfaces/repositories/da
 
 export class MysqlConnector implements IDataBaseConnector<Sequelize, "mysql"> {
     instance: Sequelize;
-    logger = new MockLogger();
 
     constructor() {
         const dbConfig = GetEnvDBConfig();
