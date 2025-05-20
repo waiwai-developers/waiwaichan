@@ -121,10 +121,10 @@ describe("Test Candy Commands", () => {
 			// → 0.9999(99.99%) = 1-(1-0.01(1%))^n
 			// → n = log(1-0.9999)/log(1-0.01) = 916.421 ≒ 917
 			// テスト時間短縮のため、サンプル数を減らす
-			const candyAmount = 917;
+			const candyLength = 917;
 
 			// テストデータの作成
-			const insertData = Array.from({length: candyAmount}, () => ({
+			const insertData = Array.from({length: candyLength}, () => ({
 				receiveUserId: "1234",
 				giveUserId: "12345",
 				messageId: "5678",
@@ -140,7 +140,7 @@ describe("Test Candy Commands", () => {
 
 			// コマンド実行（全てのキャンディを使い切る + 1回）
 			const TEST_CLIENT = await TestDiscordServer.getClient();
-			for (let i = 0; i < candyAmount + 1; i++) {
+			for (let i = 0; i < candyLength + 1; i++) {
 				TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 				// 各コマンド実行後に少し待機して処理が完了するのを待つ
 				if (i % 10 === 0) {
@@ -149,13 +149,13 @@ describe("Test Candy Commands", () => {
 			}
 
 			// 応答を待つ
-			await waitSlashUntilReply(commandMock, 100, candyAmount);
+			await waitSlashUntilReply(commandMock, 100, candyLength);
 
 			// 応答の検証
-			verify(commandMock.reply(anything())).times(candyAmount + 1);
+			verify(commandMock.reply(anything())).times(candyLength + 1);
 
 			// 応答の検証
-			verify(commandMock.reply(anything())).times(candyAmount + 1);
+			verify(commandMock.reply(anything())).times(candyLength + 1);
 
 			// 応答内容の確認
 			// 実際の応答には "- " が先頭に付いている可能性があるため、含まれているかどうかを確認
@@ -184,13 +184,13 @@ describe("Test Candy Commands", () => {
 			const commandMock = mockSlashCommand("candydraw");
 
 			// 150個のキャンディを用意（149個は使用済み、1個は未使用）
-			const candyAmount = 150;
+			const candyLength = 150;
 			const insertData = [];
 
 			// 日付を設定して、149個は使用済み、最後の1個は未使用に
-			for (let i = 0; i < candyAmount; i++) {
+			for (let i = 0; i < candyLength; i++) {
 				const date = new Date();
-				date.setDate(date.getDate() - (candyAmount - i));
+				date.setDate(date.getDate() - (candyLength - i));
 				insertData.push({
 					receiveUserId: "1234",
 					giveUserId: "12345",
@@ -239,8 +239,8 @@ describe("Test Candy Commands", () => {
 			const commandMock = mockSlashCommand("candyboxdraw", {});
 
 			// テストデータの作成（複数回のドローに必要な十分なキャンディ）
-			const candyAmount = 30;
-			const insertData = Array.from({length: candyAmount}, () => ({
+			const candyLength = 30;
+			const insertData = Array.from({length: candyLength}, () => ({
 				receiveUserId: "1234",
 				giveUserId: "12345",
 				messageId: "5678",
@@ -287,8 +287,8 @@ describe("Test Candy Commands", () => {
 			const commandMock = mockSlashCommand("candyboxdraw", {});
 
 			// テストデータの作成
-			const candyAmount = 10;
-			const insertData = Array.from({length: candyAmount}, () => ({
+			const candyLength = 10;
+			const insertData = Array.from({length: candyLength}, () => ({
 				receiveUserId: "1234",
 				giveUserId: "12345",
 				messageId: "5678",
@@ -336,13 +336,13 @@ describe("Test Candy Commands", () => {
 			const commandMock = mockSlashCommand("candyboxdraw", {});
 
 			// 156個のキャンディを用意（146個は使用済み、残りは未使用）
-			const candyAmount = 156;
+			const candyLength = 156;
 			const insertData = [];
 
 			// 日付を設定して、146個は使用済み、残りは未使用に
-			for (let i = 0; i < candyAmount; i++) {
+			for (let i = 0; i < candyLength; i++) {
 				const date = new Date();
-				date.setDate(date.getDate() - (candyAmount - i));
+				date.setDate(date.getDate() - (candyLength - i));
 				insertData.push({
 					receiveUserId: "1234",
 					giveUserId: "12345",
@@ -401,8 +401,8 @@ describe("Test Candy Commands", () => {
 			const commandMock = mockSlashCommand("candyboxdraw");
 
 			// 連続ドローに必要な数より少ないキャンディを用意（10個必要だが9個しか用意しない）
-			const candyAmount = 9;
-			const insertData = Array.from({length: candyAmount}, () => ({
+			const candyLength = 9;
+			const insertData = Array.from({length: candyLength}, () => ({
 				receiveUserId: "1234",
 				giveUserId: "12345",
 				messageId: "5678",
