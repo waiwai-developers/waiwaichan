@@ -74,23 +74,23 @@ export const mockSlashCommand = (commandName: string, options: any = {}, userId 
 export const waitUntilReply = async (commandInteractionMock: ChatInputCommandInteraction<CacheType>, timeout = 15000, atLeast = 1): Promise<void> => {
 	const startTime = Date.now();
 	return new Promise((resolve, reject) => {
-		const interval = setInterval(() => {
-			try {
+		const interval = setInterval(async () => {
+			await new Promise(() => {
 				verify(commandInteractionMock.reply(anything())).atLeast(atLeast);
 				clearInterval(interval);
 				resolve();
-			} catch (replyError) {
-				try {
+			})
+				.catch((e) => {
 					verify(commandInteractionMock.editReply(anything())).atLeast(atLeast);
 					clearInterval(interval);
-					resolve();
-				} catch (editError) {
+					resolve(e);
+				})
+				.catch((e) => {
 					if (Date.now() - startTime > timeout) {
 						clearInterval(interval);
 						reject(new Error("Timeout: Method was not called within the time limit."));
 					}
-				}
-			}
+				});
 		}, 100);
 	});
 };
