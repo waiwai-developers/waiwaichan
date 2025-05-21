@@ -43,10 +43,7 @@ export class StickyListCommandHandler implements SlashCommandHandler {
 		await interaction.reply(
 			[
 				"以下のチャンネルにスティッキーが登録されているよ！",
-				...stickys.map(
-					(s: StickyDto) =>
-						`- <#${s.channelId.getValue()}>`,
-				),
+				...stickys.map((s: StickyDto) => `- <#${s.channelId.getValue()}>`),
 			].join("\n"),
 		);
 	}
