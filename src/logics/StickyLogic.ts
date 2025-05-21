@@ -33,9 +33,7 @@ export class StickyLogic implements IStickyLogic {
 		});
 	}
 
-	findByCommunityId(
-		guildId: DiscordGuildId,
-	): Promise<StickyDto[]> {
+	findByCommunityId(guildId: DiscordGuildId): Promise<StickyDto[]> {
 		return this.transaction.startTransaction(async () => {
 			return await this.StickyRepository.findByCommunityId(guildId);
 		});

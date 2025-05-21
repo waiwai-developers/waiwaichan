@@ -10,9 +10,7 @@ export interface IStickyRepository {
 		guildId: DiscordGuildId,
 		channelId: DiscordChannelId,
 	): Promise<StickyDto | undefined>;
-	findByCommunityId(
-		guildId: DiscordGuildId,
-	): Promise<StickyDto[]>;
+	findByCommunityId(guildId: DiscordGuildId): Promise<StickyDto[]>;
 	delete(
 		guildId: DiscordGuildId,
 		channelId: DiscordChannelId,

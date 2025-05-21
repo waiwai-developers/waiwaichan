@@ -171,7 +171,7 @@ export class DiscordCommandRegister {
 				),
 			new SlashCommandBuilder()
 				.setName("stickylist")
-				.setDescription("sticky list")
+				.setDescription("sticky list"),
 		];
 	}
 	async register(token: string) {

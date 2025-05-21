@@ -1,6 +1,6 @@
 import { RoleConfig } from "@/src/entities/config/RoleConfig";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
-import { StickyDto } from "@/src/entities/dto/StickyDto";
+import type { StickyDto } from "@/src/entities/dto/StickyDto";
 import { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
 import type { IStickyLogic } from "@/src/logics/Interfaces/logics/IStickyLogic";
@@ -33,7 +33,7 @@ export class StickyListCommandHandler implements SlashCommandHandler {
 		}
 
 		const stickys = await this.stickyLogic.findByCommunityId(
-			new DiscordGuildId(interaction.guildId)
+			new DiscordGuildId(interaction.guildId),
 		);
 		if (stickys.length === 0) {
 			await interaction.reply("スティッキーが登録されていなかったよ！っ");
@@ -41,7 +41,13 @@ export class StickyListCommandHandler implements SlashCommandHandler {
 		}
 
 		await interaction.reply(
-			 ["以下のチャンネルにスティッキーが登録されているよ！", stickys.map((s: StickyDto) => `- <#${s.channelId.getValue()}> id: ${s.channelId.getValue()}`)].join("\n")
+			[
+				"以下のチャンネルにスティッキーが登録されているよ！",
+				stickys.map(
+					(s: StickyDto) =>
+						`- <#${s.channelId.getValue()}> id: ${s.channelId.getValue()}`,
+				),
+			].join("\n"),
 		);
 	}
 }

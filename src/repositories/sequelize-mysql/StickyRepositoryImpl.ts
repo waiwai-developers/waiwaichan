@@ -101,14 +101,12 @@ class StickyRepositoryImpl extends Model implements IStickyRepository {
 		}).then((res) => (res ? res.toDto() : undefined));
 	}
 
-	async findByCommunityId(
-		guildId: DiscordGuildId,
-	): Promise<StickyDto[]> {
+	async findByCommunityId(guildId: DiscordGuildId): Promise<StickyDto[]> {
 		return StickyRepositoryImpl.findAll({
 			where: {
 				guildId: guildId.getValue(),
 			},
-		}).then((res) => (res.map((r) => r.toDto())));
+		}).then((res) => res.map((r) => r.toDto()));
 	}
 
 	toDto(): StickyDto {
