@@ -1,10 +1,8 @@
 import { RoleConfig } from "@/src/entities/config/RoleConfig";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
-import { StickyDto } from "@/src/entities/dto/StickyDto";
 import { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
 import { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
 import { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
-import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
 import { StickyMessage } from "@/src/entities/vo/StickyMessage";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
 import type { IStickyLogic } from "@/src/logics/Interfaces/logics/IStickyLogic";
@@ -39,7 +37,7 @@ export class StickyUpdateCommandHandler implements SlashCommandHandler {
 			RoleConfig.users.find((u) => u.discordId === interaction.user.id)
 				?.role !== "admin"
 		) {
-			interaction.reply("スティッキーを登録する権限を持っていないよ！っ");
+			interaction.reply("スティッキーを更新する権限を持っていないよ！っ");
 			return;
 		}
 
