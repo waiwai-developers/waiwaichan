@@ -177,4 +177,97 @@ describe("Test Sticky Commands", () => {
     // テスト後にRoleConfigを元に戻す
     (RoleConfig as any).users = originalUsers;
   });
+
+  /**
+   * [チャンネル検証] TextChannel以外にはスティッキーを登録できない
+   * - verifyチャンネルの型チェックが行われることを検証
+   * - verifyTextChannel以外の場合にエラーメッセージが返されることを検証
+   * - verifyStickyLogic.createが呼ばれないことを検証
+   */
+  it("should not create sticky when channel is not a TextChannel", async function(this: Mocha.Context) {
+    this.timeout(10_000);
+
+    // 管理者ユーザーIDを設定
+    const adminUserId = "1234";
+
+    // RoleConfigのモック
+    // 実際のRoleConfigを使用するが、テスト用のユーザーが管理者であることを確認
+    const originalUsers = RoleConfig.users;
+    (RoleConfig as any).users = [
+      ...originalUsers,
+      { discordId: adminUserId, role: "admin" } // 管理者ユーザーを追加
+    ];
+
+    // テスト用のチャンネルID
+    const channelId = "5678";
+    const guildId = "1234567890";
+
+    // StickyLogicのモックを作成
+    const stickyLogicMock = mock(StickyLogic);
+    const stickyLogicInstance = instance(stickyLogicMock);
+
+    // findメソッドが未定義を返すようにモック（チャンネルにスティッキーがない状態）
+    when(stickyLogicMock.find(anything(), anything())).thenResolve(undefined);
+
+    // DIコンテナを設定
+    const container = new Container();
+    container.bind<StickyCreateCommandHandler>(StickyCreateCommandHandler).toSelf();
+    container.bind<StickyLogic>(LogicTypes.StickyLogic).toConstantValue(stickyLogicInstance);
+
+    // ハンドラーのインスタンスを作成
+    const handler = container.get<StickyCreateCommandHandler>(StickyCreateCommandHandler);
+
+    // インタラクションのモックを作成
+    const interactionMock = mock<ChatInputCommandInteraction<CacheType>>();
+
+    // 必要なプロパティとメソッドをモック
+    when(interactionMock.guildId).thenReturn(guildId);
+    when(interactionMock.user).thenReturn({ id: adminUserId } as any);
+    when(interactionMock.channel).thenReturn({} as any);
+
+    // TextChannel以外のチャンネルを返すようにモック
+    // VoiceChannelやCategoryChannelなど、TextChannel以外のチャンネルタイプを模倣
+    const nonTextChannel = { type: "GUILD_VOICE" }; // TextChannel以外のチャンネルタイプ
+    when(interactionMock.guild).thenReturn({
+      channels: {
+        cache: {
+          get: (id: string) => id === channelId ? nonTextChannel : null
+        }
+      }
+    } as any);
+
+    // optionsのモック
+    when(interactionMock.options).thenReturn({
+      getString: (name: string, required: boolean) => {
+        if (name === "channelid") {
+          return channelId;
+        }
+        return null;
+      }
+    } as any);
+
+    // replyメソッドをモック
+    let replyValue = "";
+    when(interactionMock.reply(anything())).thenCall((message: string) => {
+      replyValue = message;
+      console.log("Reply received:", message);
+      return Promise.resolve({} as any);
+    });
+
+    // ハンドラーを直接呼び出す - 非同期なので await する
+    await handler.handle(instance(interactionMock));
+
+    // findメソッドが呼ばれたことを検証
+    verify(stickyLogicMock.find(anything(), anything())).once();
+
+    // 応答の検証
+    verify(interactionMock.reply(anything())).once();
+    expect(replyValue).to.eq("このチャンネルにはスティッキーを登録できないよ！っ");
+
+    // StickyLogicのcreateメソッドが呼ばれていないことを確認
+    verify(stickyLogicMock.create(anything())).never();
+
+    // テスト後にRoleConfigを元に戻す
+    (RoleConfig as any).users = originalUsers;
+  });
 });
