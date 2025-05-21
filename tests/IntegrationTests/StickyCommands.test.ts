@@ -382,9 +382,105 @@ describe("Test Sticky Commands", () => {
     (RoleConfig as any).users = originalUsers;
   });
 
-/**
+  /**
+   * [モーダル送信] 空のメッセージでモーダルを送信するとエラーになる
+   * - verify空のメッセージでモーダル送信時にエラーメッセージが返されることを検証
+   * - verifyStickyLogic.createが呼ばれないことを検証
+   */
+  it("should show error when submitting modal with empty message", async function(this: Mocha.Context) {
+    this.timeout(10_000);
 
-- [モーダル送信] 空のメッセージでモーダルを送信するとエラーになる
-- - verify空のメッセージでモーダル送信時にエラーメッセージが返されることを検証
-- - verifyStickyLogic.createが呼ばれないことを検証 */
+    // 管理者ユーザーIDを設定
+    const adminUserId = "1234";
+
+    // RoleConfigのモック
+    const originalUsers = RoleConfig.users;
+    (RoleConfig as any).users = [
+      ...originalUsers,
+      { discordId: adminUserId, role: "admin" } // 管理者ユーザーを追加
+    ];
+
+    // テスト用のチャンネルID
+    const channelId = "5678";
+    const guildId = "1234567890";
+
+    // StickyLogicのモックを作成
+    const stickyLogicMock = mock(StickyLogic);
+    const stickyLogicInstance = instance(stickyLogicMock);
+
+    // findメソッドが未定義を返すようにモック（チャンネルにスティッキーがない状態）
+    when(stickyLogicMock.find(anything(), anything())).thenResolve(undefined);
+
+    // DIコンテナを設定
+    const container = new Container();
+    container.bind<StickyCreateCommandHandler>(StickyCreateCommandHandler).toSelf();
+    container.bind<StickyLogic>(LogicTypes.StickyLogic).toConstantValue(stickyLogicInstance);
+
+    // ハンドラーのインスタンスを作成
+    const handler = container.get<StickyCreateCommandHandler>(StickyCreateCommandHandler);
+
+    // インタラクションのモックを作成
+    const interactionMock = mock<ChatInputCommandInteraction<CacheType>>();
+
+    // 必要なプロパティとメソッドをモック
+    when(interactionMock.guildId).thenReturn(guildId);
+    when(interactionMock.user).thenReturn({ id: adminUserId } as any);
+    when(interactionMock.channel).thenReturn({} as any);
+
+    // TextChannelインスタンスを作成
+    const textChannelInstance = Object.create(TextChannel.prototype);
+    textChannelInstance.send = (message: string) => {
+      return Promise.resolve({ id: "12345", content: message } as any);
+    };
+
+    // guildのモックを設定
+    when(interactionMock.guild).thenReturn({
+      channels: {
+        cache: {
+          get: (id: string) => id === channelId ? textChannelInstance : null
+        }
+      }
+    } as any);
+
+    // optionsのモック
+    when(interactionMock.options).thenReturn({
+      getString: (name: string, required: boolean) => {
+        if (name === "channelid") {
+          return channelId;
+        }
+        return null;
+      }
+    } as any);
+
+    // showModalメソッドをモック
+    when(interactionMock.showModal(anything())).thenResolve();
+
+    // モーダル送信のモック - 空のメッセージを送信
+    let modalReplyValue = "";
+    const modalSubmitMock = {
+      fields: {
+        getTextInputValue: (id: string) => id === "stickyInput" ? "" : null
+      },
+      reply: (message: string) => {
+        modalReplyValue = message;
+        return Promise.resolve({} as any);
+      }
+    };
+    when(interactionMock.awaitModalSubmit(anything())).thenResolve(modalSubmitMock as any);
+
+    // ハンドラーを直接呼び出す
+    await handler.handle(instance(interactionMock));
+
+    // モーダルが表示されたことを検証
+    verify(interactionMock.showModal(anything())).once();
+
+    // モーダル送信後のエラーメッセージを検証
+    expect(modalReplyValue).to.eq("スティッキーに登録するメッセージがないよ！っ");
+
+    // StickyLogicのcreateメソッドが呼ばれていないことを確認
+    verify(stickyLogicMock.create(anything())).never();
+
+    // テスト後にRoleConfigを元に戻す
+    (RoleConfig as any).users = originalUsers;
+  });
 });
