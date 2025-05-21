@@ -18,6 +18,7 @@ import {
 	ReviewGachaCommandHandler,
 	ReviewListCommandHandler,
 	StickyCreateCommandHandler,
+	StickyUpdateCommandHandler,
 	StickyDeleteCommandHandler,
 	TalkCommandHandler,
 	TranslateCommandHandler,
@@ -156,6 +157,7 @@ appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(Mine
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(MinecraftStopCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(StickyCreateCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(StickyDeleteCommandHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(StickyUpdateCommandHandler);
 
 // Routes
 appContainer.bind<DiscordEventRouter>(RouteTypes.SlashCommandRoute).to(SlashCommandRouter);
