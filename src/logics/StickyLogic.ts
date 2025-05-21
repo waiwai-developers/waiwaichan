@@ -7,6 +7,7 @@ import type { IStickyLogic } from "@/src/logics/Interfaces/logics/IStickyLogic";
 import type { IStickyRepository } from "@/src/logics/Interfaces/repositories/database/IStickyRepository";
 import type { ITransaction } from "@/src/logics/Interfaces/repositories/database/ITransaction";
 import { inject, injectable } from "inversify";
+import type { StickyMessage } from "../entities/vo/StickyMessage";
 
 @injectable()
 export class StickyLogic implements IStickyLogic {
@@ -41,7 +42,7 @@ export class StickyLogic implements IStickyLogic {
 			return "スティッキーを削除したよ！っ";
 		});
 	}
-	async update(
+	async updateMessageId(
 		guildId: DiscordGuildId,
 		channelId: DiscordChannelId,
 		messageId: DiscordMessageId,
@@ -52,6 +53,16 @@ export class StickyLogic implements IStickyLogic {
 				channelId,
 				messageId,
 			);
+			return "スティッキーを更新したよ！っ";
+		});
+	}
+	async updateMessage(
+		guildId: DiscordGuildId,
+		channelId: DiscordChannelId,
+		message: StickyMessage,
+	): Promise<string> {
+		return this.transaction.startTransaction(async () => {
+			await this.StickyRepository.updateForMessage(guildId, channelId, message);
 			return "スティッキーを更新したよ！っ";
 		});
 	}
