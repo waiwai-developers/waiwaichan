@@ -10,6 +10,9 @@ export interface IStickyLogic {
 		guildId: DiscordGuildId,
 		channelId: DiscordChannelId,
 	): Promise<StickyDto | undefined>;
+	findByCommunityId(
+		guildId: DiscordGuildId,
+	): Promise<StickyDto[]>;
 	delete(guildId: DiscordGuildId, channelId: DiscordChannelId): Promise<string>;
 	updateMessageId(
 		guildId: DiscordGuildId,
