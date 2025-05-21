@@ -169,6 +169,9 @@ export class DiscordCommandRegister {
 						.setDescription("string")
 						.setRequired(true),
 				),
+			new SlashCommandBuilder()
+				.setName("stickylist")
+				.setDescription("sticky list")
 		];
 	}
 	async register(token: string) {
