@@ -15,6 +15,9 @@ export class StickyEventHandler implements DiscordEventHandler<Message> {
 	private readonly stickyLogic!: IStickyLogic;
 
 	async handle(message: Message) {
+		if (!message.guildId) {
+			return;
+		}
 		if (message.author.bot && message.author.id !== AppConfig.discord.clientId)
 			return;
 		if (message.channel.isThread()) return;
@@ -40,7 +43,7 @@ export class StickyEventHandler implements DiscordEventHandler<Message> {
 		const stickyNewMessage = await channel.send(sticky.message.getValue());
 		if (!stickyNewMessage) return;
 
-		await this.stickyLogic.update(
+		await this.stickyLogic.updateMessageId(
 			new DiscordGuildId(stickyNewMessage.guildId),
 			new DiscordChannelId(stickyNewMessage.channelId),
 			new DiscordMessageId(stickyNewMessage.id),
