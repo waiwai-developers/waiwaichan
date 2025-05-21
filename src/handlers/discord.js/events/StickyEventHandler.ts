@@ -18,8 +18,7 @@ export class StickyEventHandler implements DiscordEventHandler<Message> {
 		if (!message.guildId) {
 			return;
 		}
-		if (message.author.bot)
-			return;
+		if (message.author.bot) return;
 		if (message.channel.isThread()) return;
 
 		const sticky = await this.stickyLogic.find(
