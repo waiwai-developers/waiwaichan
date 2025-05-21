@@ -15,6 +15,7 @@ import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
 import { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
 import { StickyMessage } from "@/src/entities/vo/StickyMessage";
 import { StickyDto } from "@/src/entities/dto/StickyDto";
+import { ActionRowBuilder, ModalBuilder, TextChannel, TextInputBuilder, TextInputStyle } from "discord.js";
 
 describe("Test Sticky Commands", () => {
   /**
@@ -270,4 +271,120 @@ describe("Test Sticky Commands", () => {
     // テスト後にRoleConfigを元に戻す
     (RoleConfig as any).users = originalUsers;
   });
+
+  /**
+   * [モーダル表示] スティッキー作成時にモーダルが表示される
+   * - verifyモーダルが表示されることを検証
+   * - verifyモーダルに適切なタイトルとフィールドが設定されていることを検証
+   */
+  it("should display modal with appropriate title and fields when creating sticky", async function(this: Mocha.Context) {
+    this.timeout(10_000);
+
+    // 管理者ユーザーIDを設定
+    const adminUserId = "1234";
+
+    // RoleConfigのモック
+    const originalUsers = RoleConfig.users;
+    (RoleConfig as any).users = [
+      ...originalUsers,
+      { discordId: adminUserId, role: "admin" } // 管理者ユーザーを追加
+    ];
+
+    // テスト用のチャンネルID
+    const channelId = "5678";
+    const guildId = "1234567890";
+
+    // StickyLogicのモックを作成
+    const stickyLogicMock = mock(StickyLogic);
+    const stickyLogicInstance = instance(stickyLogicMock);
+
+    // findメソッドが未定義を返すようにモック（チャンネルにスティッキーがない状態）
+    when(stickyLogicMock.find(anything(), anything())).thenResolve(undefined);
+
+    // DIコンテナを設定
+    const container = new Container();
+    container.bind<StickyCreateCommandHandler>(StickyCreateCommandHandler).toSelf();
+    container.bind<StickyLogic>(LogicTypes.StickyLogic).toConstantValue(stickyLogicInstance);
+
+    // ハンドラーのインスタンスを作成
+    const handler = container.get<StickyCreateCommandHandler>(StickyCreateCommandHandler);
+
+    // インタラクションのモックを作成
+    const interactionMock = mock<ChatInputCommandInteraction<CacheType>>();
+
+    // 必要なプロパティとメソッドをモック
+    when(interactionMock.guildId).thenReturn(guildId);
+    when(interactionMock.user).thenReturn({ id: adminUserId } as any);
+    when(interactionMock.channel).thenReturn({} as any);
+
+    // TextChannelインスタンスを作成
+    // instanceofチェックを通過するためにプロトタイプを設定
+    const textChannelInstance = Object.create(TextChannel.prototype);
+    // 必要なメソッドを追加
+    textChannelInstance.send = (message: string) => {
+      return Promise.resolve({ id: "12345", content: message } as any);
+    };
+
+    // guildのモックを設定
+    when(interactionMock.guild).thenReturn({
+      channels: {
+        cache: {
+          get: (id: string) => id === channelId ? textChannelInstance : null
+        }
+      }
+    } as any);
+
+    // optionsのモック
+    when(interactionMock.options).thenReturn({
+      getString: (name: string, required: boolean) => {
+        if (name === "channelid") {
+          return channelId;
+        }
+        return null;
+      }
+    } as any);
+
+    // showModalメソッドをモック
+    let modalShown: ModalBuilder | null = null;
+    when(interactionMock.showModal(anything())).thenCall((modal: ModalBuilder) => {
+      modalShown = modal;
+      return Promise.resolve();
+    });
+
+    // awaitModalSubmitメソッドをモック
+    when(interactionMock.awaitModalSubmit(anything())).thenResolve({
+      fields: {
+        getTextInputValue: () => "テストメッセージ"
+      }
+    } as any);
+
+    // ハンドラーを直接呼び出す
+    await handler.handle(instance(interactionMock));
+
+    // モーダルが表示されたことを検証
+    verify(interactionMock.showModal(anything())).once();
+
+    // モーダルが正しく設定されていることを検証
+    expect(modalShown).to.not.be.null;
+    expect(modalShown!.data.custom_id).to.eq("stickyModal");
+    expect(modalShown!.data.title).to.eq("スティッキーの登録");
+
+    // モーダルのコンポーネント（テキスト入力フィールド）を検証
+    expect(modalShown!.components.length).to.eq(1);
+    const actionRow = modalShown!.components[0] as ActionRowBuilder<TextInputBuilder>;
+    const textInput = actionRow.components[0] as TextInputBuilder;
+
+    expect(textInput.data.custom_id).to.eq("stickyInput");
+    expect(textInput.data.label).to.eq("スティッキーの文章");
+    expect(textInput.data.style).to.eq(TextInputStyle.Paragraph);
+
+    // テスト後にRoleConfigを元に戻す
+    (RoleConfig as any).users = originalUsers;
+  });
+
+/**
+
+- [モーダル送信] 空のメッセージでモーダルを送信するとエラーになる
+- - verify空のメッセージでモーダル送信時にエラーメッセージが返されることを検証
+- - verifyStickyLogic.createが呼ばれないことを検証 */
 });
