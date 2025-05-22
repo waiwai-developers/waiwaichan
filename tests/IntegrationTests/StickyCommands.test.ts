@@ -946,4 +946,97 @@ describe("Test Sticky Commands", () => {
 			expect(stickies.length).to.eq(1);
 		})();
 	});
+
+	/**
+	 * [スティッキー削除] 正常にスティッキーが削除される
+	 * - verifyStickyLogic.deleteが正しいパラメータで呼ばれることを検証
+	 * - verify削除成功時に成功メッセージが返されることを検証
+	 */
+	it("should call StickyLogic.delete with correct parameters and return success message", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			// 管理者ユーザーIDを設定
+			const userId = "1234";
+			const guildId = "1234567890";
+			const channelId = "12345";
+			const messageId = "67890";
+			const message = "スティッキーのメッセージ";
+
+			// RoleConfigのモック - 管理者として設定
+			RoleConfig.users = [
+				{ discordId: userId, role: "admin" }, // 管理者として設定
+			];
+
+			// スティッキーをデータベースに作成
+			await StickyRepositoryImpl.create({
+				guildId: guildId,
+				channelId: channelId,
+				userId: userId,
+				messageId: messageId,
+				message: message,
+			});
+
+			// コマンドのモック作成
+			const commandMock = mockSlashCommand("stickydelete", { channelid: channelId }, userId);
+
+			// guildIdとchannelを設定
+			when(commandMock.guildId).thenReturn(guildId);
+			when(commandMock.channel).thenReturn({} as any);
+
+			// メッセージのモック
+			const messageMock = {
+				id: messageId,
+				content: message,
+				delete: () => {
+					return Promise.resolve(true);
+				},
+			};
+
+			// TextChannelのモック
+			const textChannelMock = Object.create(TextChannel.prototype);
+			textChannelMock.id = channelId;
+			textChannelMock.type = 0; // TextChannelのtype
+			textChannelMock.messages = {
+				fetch: (id: string) => {
+					return Promise.resolve(messageMock);
+				},
+			};
+
+			// guildのモックを設定
+			when(commandMock.guild).thenReturn({
+				channels: {
+					cache: {
+						get: (id: string) => {
+							if (id === channelId) {
+								return textChannelMock;
+							}
+							return null;
+						},
+					},
+				},
+			} as any);
+
+			// deferReplyとeditReplyメソッドをモック
+			when(commandMock.deferReply()).thenResolve({} as any);
+			let editReplyValue = "";
+			when(commandMock.editReply(anything())).thenCall((message: string) => {
+				editReplyValue = message;
+				console.log("Edit reply received:", message);
+				return Promise.resolve({} as any);
+			});
+
+			// コマンド実行
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+			// 処理が完了するまで待つ
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+
+			// 応答の検証 - 削除成功メッセージ
+			expect(editReplyValue).to.eq("スティッキーを削除したよ！っ");
+			const stickies = await StickyRepositoryImpl.findAll();
+			expect(stickies.length).to.eq(0);
+		})();
+	});
 });
