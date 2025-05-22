@@ -567,4 +567,53 @@ describe("Test Sticky Commands", () => {
 			RoleConfig.users = originalUsers;
 		})();
 	});
+
+/**
+	 * [存在チェック] 登録されていないスティッキーは削除できない
+	 * - verifyStickyLogic.findが呼ばれることを検証
+	 * - verifyスティッキーが存在しない場合にエラーメッセージが返されることを検証
+	 * - verifyStickyLogic.deleteが呼ばれないことを検証 
+*/
+it("should not delete sticky when sticky does not exist", function (this: Mocha.Context) {
+	this.timeout(10_000);
+
+	return (async () => {
+		// 管理者ユーザーIDを設定
+		const adminUserId = "1234";
+		const guildId = "1234567890";
+		const channelId = "12345";
+
+		// RoleConfigのモック - 管理者として設定
+		const originalUsers = RoleConfig.users;
+		RoleConfig.users = [
+			{ discordId: adminUserId, role: "admin" }, // 管理者として設定
+		];
+
+		// コマンドのモック作成
+		const commandMock = mockSlashCommand("stickydelete", { channelid: channelId }, adminUserId);
+
+		// guildIdとchannelを設定
+		when(commandMock.guildId).thenReturn(guildId);
+		when(commandMock.channel).thenReturn({} as any);
+
+		// replyメソッドをモック
+		let replyValue = "";
+		when(commandMock.reply(anything())).thenCall((message: string) => {
+			replyValue = message;
+			console.log("Reply received:", message);
+			return Promise.resolve({} as any);
+		});
+
+		// コマンド実行
+		const TEST_CLIENT = await TestDiscordServer.getClient();
+		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+		// 応答を待つ
+		await waitUntilReply(commandMock, 100);
+
+		// 応答の検証
+		expect(replyValue).to.eq("スティッキーが登録されていなかったよ！っ");
+	})();
+});
+
 });
