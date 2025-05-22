@@ -163,9 +163,7 @@ describe("Test Sticky Commands", () => {
  		this.timeout(10_000);
 
  		return (async () => {
- 			// テスト用のチャンネルID
- 			const guildId = "1";
- 			const channelId = "2";
+ 			// 管理者ユーザーIDを設定
  			const userId = "1234";
 
  			// RoleConfigのモック
@@ -175,6 +173,10 @@ describe("Test Sticky Commands", () => {
  				...originalUsers,
  				{ discordId: userId, role: "admin" }, // 管理者ユーザーを追加
  			];
+
+ 			// テスト用のチャンネルID
+ 			const guildId = "1";
+ 			const channelId = "2";
 
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("stickycreate", { channelid: channelId }, userId);
