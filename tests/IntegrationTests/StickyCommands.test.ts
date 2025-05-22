@@ -2,7 +2,7 @@ import "reflect-metadata";
 import { RoleConfig } from "@/src/entities/config/RoleConfig";
 import { MysqlConnector } from "@/tests/fixtures/database/MysqlConnector";
 import { expect } from "chai";
-import { ModalBuilder, TextChannel, TextInputBuilder } from "discord.js";
+import { ModalBuilder, TextChannel, TextInputBuilder, TextInputStyle } from "discord.js";
 import type Mocha from "mocha";
 import { anything, instance, verify, when } from "ts-mockito";
 import { mockSlashCommand, waitUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
@@ -282,6 +282,11 @@ describe("Test Sticky Commands", () => {
  			// ModalBuilderのインスタンスであることを確認
  			expect(capturedModal instanceof ModalBuilder).to.be.true;
 
+ 			// モーダルのタイトルとカスタムIDを検証
+ 			const modalData = capturedModal.toJSON();
+ 			expect(modalData).to.have.property('custom_id', 'stickyModal');
+ 			expect(modalData).to.have.property('title', 'スティッキーの登録');
+
  			// モーダルのコンポーネント（テキスト入力フィールド）を検証
  			expect(capturedModal.components.length).to.eq(1);
 
@@ -292,6 +297,12 @@ describe("Test Sticky Commands", () => {
  			// TextInputBuilderのインスタンスであることを確認
  			const textInput = actionRow.components[0];
  			expect(textInput instanceof TextInputBuilder).to.be.true;
+
+ 			// テキスト入力フィールドの設定を検証
+ 			const textInputData = textInput.toJSON();
+ 			expect(textInputData).to.have.property('custom_id', 'stickyInput');
+ 			expect(textInputData).to.have.property('label', 'スティッキーの文章');
+ 			expect(textInputData).to.have.property('style', TextInputStyle.Paragraph);
  		})();
  	});
 });
