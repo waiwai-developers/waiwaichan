@@ -6,11 +6,13 @@ import type { IStickyLogic } from "@/src/logics/Interfaces/logics/IStickyLogic";
 import { StickyRepositoryImpl } from "@/src/repositories/sequelize-mysql";
 import { MysqlConnector } from "@/tests/fixtures/database/MysqlConnector";
 import { mockSlashCommand, waitUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
+import { mockMessage } from "@/tests/fixtures/discord.js/MockMessage";
 import { expect } from "chai";
 import { ModalBuilder, TextChannel, TextInputBuilder, TextInputStyle } from "discord.js";
 import type Mocha from "mocha";
 import { anything, instance, mock, verify, when } from "ts-mockito";
 import { TestDiscordServer } from "../fixtures/discord.js/TestDiscordServer";
+import { StickyEventHandler } from "@/src/handlers/discord.js/events/StickyEventHandler";
 
 describe("Test Sticky Commands", () => {
 	/**
@@ -1813,6 +1815,76 @@ describe("Test Sticky Commands", () => {
 			});
 			expect(sticky).to.not.be.null;
 			expect(sticky?.message).to.eq(updatedMessage); // メッセージが更新されていることを確認
+		})();
+	});
+	/**
+	* StickyEventHandler テスト仕様
+	*/
+
+	/**
+	* [ボットメッセージ] ボットのメッセージではスティッキーが再投稿されない
+	* - verifyボットからのメッセージの場合、処理が中断されることを検証
+	* - verifyStickyLogic.findが呼ばれないことを検証
+	*/
+	it("should not repost sticky when message is from a bot", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			// テスト用のパラメータ設定
+			const userId = "1234";
+			const guildId = "1234567890";
+			const channelId = "12345";
+			const messageId = "67890";
+			const message = "スティッキーのメッセージ";
+
+			// スティッキーをデータベースに作成
+			await StickyRepositoryImpl.create({
+				guildId: guildId,
+				channelId: channelId,
+				userId: userId,
+				messageId: messageId,
+				message: message,
+			});
+
+			// テスト前のスティッキー情報を取得
+			const stickyBefore = await StickyRepositoryImpl.findOne({
+				where: {
+					guildId: guildId,
+					channelId: channelId,
+				},
+			});
+
+			// ボットからのメッセージをモック作成
+			const messageMock = mockMessage(userId, false, true); // isBotMessage = true
+
+			// guildIdとchannelIdを設定
+			when(messageMock.guildId).thenReturn(guildId);
+			when(messageMock.channelId).thenReturn(channelId);
+
+			// チャンネルをモック
+			const channelMock = mock<TextChannel>();
+			when(channelMock.isThread()).thenReturn(false);
+			when(messageMock.channel).thenReturn(instance(channelMock));
+
+			// TestDiscordServerを使用してmessageCreateイベントを発火
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("messageCreate", instance(messageMock));
+
+			// 処理が完了するまで少し待つ
+			await new Promise((resolve) => setTimeout(resolve, 100));
+
+			// テスト後のスティッキー情報を取得
+			const stickyAfter = await StickyRepositoryImpl.findOne({
+				where: {
+					guildId: guildId,
+					channelId: channelId,
+				},
+			});
+
+			// StickyのmessageIdが更新されないことを検証
+			expect(stickyAfter).to.not.be.null;
+			expect(String(stickyAfter?.messageId)).to.eq(String(messageId));
+			expect(String(stickyAfter?.messageId)).to.eq(String(stickyBefore?.messageId));
 		})();
 	});
 });
