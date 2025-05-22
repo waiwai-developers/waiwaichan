@@ -29,6 +29,13 @@ describe("Test Sticky Commands", () => {
 		new MysqlConnector();
 	});
 
+	afterEach(async () => {
+		await StickyRepositoryImpl.destroy({
+			truncate: true,
+			force: true,
+		});
+	});
+
 	/**
 	 * StickyCreateCommandHandlerのテスト
 	 */
@@ -94,10 +101,10 @@ describe("Test Sticky Commands", () => {
 
 		return (async () => {
 			// 管理者ユーザーIDを設定
-			const guildId = "12345";
-			const channelId = "12345";
-			const userId = "12345";
-			const messageId = "12345"
+			const guildId = "1";
+			const channelId = "2";
+			const userId = "3";
+			const messageId = "4"
 			const message = "スティッキーのメッセージ"
 
 			// RoleConfigのモック
@@ -146,4 +153,74 @@ describe("Test Sticky Commands", () => {
 			expect(res.length).to.eq(1);
 		})();
 	});
+	/**
+	 * [チャンネル検証] TextChannel以外にはスティッキーを登録できない
+	 * - verifyチャンネルの型チェックが行われることを検証
+	 * - verifyTextChannel以外の場合にエラーメッセージが返されることを検証
+	 * - verifyStickyLogic.createが呼ばれないことを検証
+	 */
+ 	it("should not create sticky when channel is not a TextChannel", function (this: Mocha.Context) {
+ 		this.timeout(10_000);
+
+ 		return (async () => {
+ 			// 管理者ユーザーIDを設定
+ 			const userId = "1234";
+
+ 			// RoleConfigのモック
+ 			// 実際のRoleConfigを使用するが、テスト用のユーザーが管理者であることを確認
+ 			const originalUsers = RoleConfig.users;
+ 			(RoleConfig as any).users = [
+ 				...originalUsers,
+ 				{ discordId: userId, role: "admin" }, // 管理者ユーザーを追加
+ 			];
+
+ 			// テスト用のチャンネルID
+ 			const guildId = "1";
+ 			const channelId = "2";
+
+			// コマンドのモック作成
+			const commandMock = mockSlashCommand("stickycreate", { channelid: channelId }, userId);
+
+			// guildIdを設定
+			when(commandMock.guildId).thenReturn(guildId);
+			when(commandMock.channel).thenReturn({} as any);
+
+			// TextChannel以外のチャンネルを返すようにモック
+			when(commandMock.guild).thenReturn({
+				channels: {
+					cache: {
+						get: (id: string) => {
+							if (id === channelId) {
+								// TextChannelではないオブジェクトを返す
+								return {}; // instanceof TextChannel は false を返す
+							}
+							return null;
+						}
+					}
+				}
+			} as any);
+
+ 			// replyメソッドをモック
+ 			let replyValue = "";
+ 			when(commandMock.reply(anything())).thenCall((message: string) => {
+ 				replyValue = message;
+ 				console.log("Reply received:", message);
+ 				return Promise.resolve({} as any);
+ 			});
+
+			// コマンド実行
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+			// 応答を待つ
+			await waitUntilReply(commandMock, 100);
+
+			// 応答の検証 - TextChannel以外の場合のエラーメッセージ
+			expect(replyValue).to.eq("このチャンネルにはスティッキーを登録できないよ！っ");
+
+			// Stickyにデータが作られていないことを確認
+			const res = await StickyRepositoryImpl.findAll();
+			expect(res.length).to.eq(0);
+		})();
+ 	});
 });
