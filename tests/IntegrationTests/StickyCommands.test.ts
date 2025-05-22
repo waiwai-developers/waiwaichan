@@ -679,4 +679,82 @@ describe("Test Sticky Commands", () => {
 			expect(replyValue).to.eq("スティッキーの投稿がなかったよ！っ");
 		})();
 	});
+
+	/**
+	 * [チャンネル型検証] TextChannel以外のスティッキーは削除できない
+	 * - verifyチャンネルの型チェックが行われることを検証
+	 * - verifyTextChannel以外の場合にエラーメッセージが返されることを検証
+	 * - verifyStickyLogic.deleteが呼ばれないことを検証
+	 * */
+	it("should not delete sticky when channel is not a TextChannel", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			// 管理者ユーザーIDを設定
+			const adminUserId = "1234";
+			const guildId = "1234567890";
+			const channelId = "12345";
+			const messageId = "67890";
+			const message = "スティッキーのメッセージ";
+
+			// RoleConfigのモック - 管理者として設定
+			const originalUsers = RoleConfig.users;
+			RoleConfig.users = [
+				{ discordId: adminUserId, role: "admin" }, // 管理者として設定
+			];
+
+			// スティッキーをデータベースに作成
+			await StickyRepositoryImpl.create({
+				guildId: guildId,
+				channelId: channelId,
+				userId: adminUserId,
+				messageId: messageId,
+				message: message,
+			});
+
+			// StickyLogicのdeleteメソッドをスパイするためのモック
+			const stickyLogicMock = mock<IStickyLogic>();
+			const originalStickyLogic = appContainer.get<IStickyLogic>(LogicTypes.StickyLogic);
+
+			// コマンドのモック作成
+			const commandMock = mockSlashCommand("stickydelete", { channelid: channelId }, adminUserId);
+
+			// guildIdとchannelを設定
+			when(commandMock.guildId).thenReturn(guildId);
+			when(commandMock.channel).thenReturn({} as any);
+
+			// TextChannel以外のチャンネルを返すようにguildのモックを設定
+			when(commandMock.guild).thenReturn({
+				channels: {
+					cache: {
+						get: (id: string) => {
+							if (id === channelId) {
+								// TextChannelではないオブジェクトを返す
+								return {}; // instanceof TextChannel は false を返す
+							}
+							return null;
+						},
+					},
+				},
+			} as any);
+
+			// replyメソッドをモック
+			let replyValue = "";
+			when(commandMock.reply(anything())).thenCall((message: string) => {
+				replyValue = message;
+				console.log("Reply received:", message);
+				return Promise.resolve({} as any);
+			});
+
+			// コマンド実行
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+			// 応答を待つ
+			await waitUntilReply(commandMock, 100);
+
+			// 応答の検証 - TextChannel以外の場合のエラーメッセージ
+			expect(replyValue).to.eq("このチャンネルのスティッキーを削除できないよ！っ");
+		})();
+	});
 });
