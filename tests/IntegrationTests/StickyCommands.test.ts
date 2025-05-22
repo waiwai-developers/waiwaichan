@@ -8,6 +8,15 @@ import { anything, instance, mock, verify, when } from "ts-mockito";
 import { mockSlashCommand, waitUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { TestDiscordServer } from "../fixtures/discord.js/TestDiscordServer";
 import { StickyRepositoryImpl } from "@/src/repositories/sequelize-mysql";
+import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
+import { appContainer } from "@/src/app.di.config";
+import { IStickyLogic } from "@/src/logics/Interfaces/logics/IStickyLogic";
+import { StickyDto } from "@/src/entities/dto/StickyDto";
+import { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
+import { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
+import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
+import { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
+import { StickyMessage } from "@/src/entities/vo/StickyMessage";
 
 describe("Test Sticky Commands", () => {
 	/**
@@ -502,6 +511,60 @@ describe("Test Sticky Commands", () => {
 			expect(String(stickies[0].userId)).to.eq(String(userId));
 			expect(String(stickies[0].messageId)).to.eq(String(messageId));
 			expect(stickies[0].message).to.eq(stickyMessageText);
+		})();
+	});
+	/**
+	 * StickyDeleteCommandHandlerテスト仕様
+	*/
+
+	/**
+	- [権限チェック] 管理者権限がない場合はスティッキーを削除できない
+	- - verifyで権限チェックが行われることを検証
+	- - verify権限がない場合にエラーメッセージが返されることを検証
+	- - verifyStickyLogic.deleteメソッドが呼ばれないことを検証
+	 */
+	it("should not delete sticky when user does not have admin permission", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			// 非管理者ユーザーIDを設定
+			const nonAdminUserId = "9999";
+			const guildId = "1234567890";
+			const channelId = "12345";
+
+			// RoleConfigのモック - 明示的に非管理者として設定
+			const originalUsers = RoleConfig.users;
+			RoleConfig.users = [
+				{ discordId: nonAdminUserId, role: "user" }, // 非管理者として設定
+			];
+
+			// コマンドのモック作成
+			const commandMock = mockSlashCommand("stickydelete", { channelid: channelId }, nonAdminUserId);
+
+			// guildIdとchannelを設定
+			when(commandMock.guildId).thenReturn(guildId);
+			when(commandMock.channel).thenReturn({} as any);
+
+			// replyメソッドをモック
+			let replyValue = "";
+			when(commandMock.reply(anything())).thenCall((message: string) => {
+				replyValue = message;
+				console.log("Reply received:", message);
+				return Promise.resolve({} as any);
+			});
+
+			// コマンド実行
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+			// 応答を待つ
+			await waitUntilReply(commandMock, 100);
+
+			// 応答の検証
+			expect(replyValue).to.eq("スティッキーを登録する権限を持っていないよ！っ");
+
+			// RoleConfigを元に戻す
+			RoleConfig.users = originalUsers;
 		})();
 	});
 });
