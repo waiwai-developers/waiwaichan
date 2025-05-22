@@ -64,7 +64,7 @@ export class StickyUpdateCommandHandler implements SlashCommandHandler {
 
 		const modal = new ModalBuilder()
 			.setCustomId("stickyModal")
-			.setTitle("スティッキーの登録");
+			.setTitle("スティッキーの更新");
 		const textInput = new TextInputBuilder()
 			.setCustomId("stickyInput")
 			.setLabel("スティッキーの文章")
