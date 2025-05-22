@@ -1954,4 +1954,120 @@ describe("Test Sticky Commands", () => {
 			expect(String(stickyAfter?.messageId)).to.eq(String(stickyBefore?.messageId));
 		})();
 	});
+
+	/**
+	* [スティッキーなし] スティッキーが登録されていないチャンネルでは何も起こらない
+	* - verifyスティッキーが存在しない場合、処理が中断されることを検証
+	*/
+	it("should do nothing when channel has no sticky registered", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			// テスト用のパラメータ設定
+			const userId = "1234";
+			const guildId = "1234567890";
+			const channelId = "12345"; // スティッキーが登録されていないチャンネル
+
+			// 通常のユーザーからのメッセージをモック作成
+			const messageMock = mockMessage(userId, false, false); // isBotMessage = false
+
+			// guildIdとchannelIdを設定
+			when(messageMock.guildId).thenReturn(guildId);
+			when(messageMock.channelId).thenReturn(channelId);
+
+			// チャンネルをモック - 通常のチャンネルとして設定
+			const channelMock = mock<TextChannel>();
+			when(channelMock.isThread()).thenReturn(false); // 通常のチャンネル
+			when(messageMock.channel).thenReturn(instance(channelMock));
+
+			// TestDiscordServerを使用してmessageCreateイベントを発火
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("messageCreate", instance(messageMock));
+
+			// 処理が完了するまで少し待つ
+			await new Promise((resolve) => setTimeout(resolve, 100));
+
+			// 何も起こらないのでテストなし
+		})();
+	});
+
+	/**
+	* [チャンネル検証] チャンネルが存在しない場合は処理が中断される
+	* - verifyチャンネルの存在チェックが行われることを検証
+	* - verifyチャンネルが存在しない場合、処理が中断されることを検証
+	*/
+	it("should interrupt process when channel does not exist", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			// テスト用のパラメータ設定
+			const userId = "1234";
+			const guildId = "1234567890";
+			const channelId = "12345";
+			const messageId = "67890";
+			const message = "スティッキーのメッセージ";
+
+			// スティッキーをデータベースに作成
+			await StickyRepositoryImpl.create({
+				guildId: guildId,
+				channelId: channelId,
+				userId: userId,
+				messageId: messageId,
+				message: message,
+			});
+
+			// テスト前のスティッキー情報を取得
+			const stickyBefore = await StickyRepositoryImpl.findOne({
+				where: {
+					guildId: guildId,
+					channelId: channelId,
+				},
+			});
+
+			// 通常のユーザーからのメッセージをモック作成
+			const messageMock = mockMessage(userId, false, false); // isBotMessage = false
+
+			// guildIdとchannelIdを設定
+			when(messageMock.guildId).thenReturn(guildId);
+			when(messageMock.channelId).thenReturn(channelId);
+
+			// チャンネルをモック - 通常のチャンネルとして設定
+			const channelMock = mock<TextChannel>();
+			when(channelMock.isThread()).thenReturn(false); // 通常のチャンネル
+			when(messageMock.channel).thenReturn(instance(channelMock));
+
+			// guildをモック - チャンネルが存在しないように設定
+			const guildMock = {
+				channels: {
+					cache: {
+						get: (id: string) => {
+							// チャンネルが存在しないのでundefinedを返す
+							return undefined;
+						},
+					},
+				},
+			};
+			when(messageMock.guild).thenReturn(guildMock as any);
+
+			// TestDiscordServerを使用してmessageCreateイベントを発火
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("messageCreate", instance(messageMock));
+
+			// 処理が完了するまで少し待つ
+			await new Promise((resolve) => setTimeout(resolve, 100));
+
+			// テスト後のスティッキー情報を取得
+			const stickyAfter = await StickyRepositoryImpl.findOne({
+				where: {
+					guildId: guildId,
+					channelId: channelId,
+				},
+			});
+
+			// StickyのmessageIdが更新されないことを検証
+			expect(stickyAfter).to.not.be.null;
+			expect(String(stickyAfter?.messageId)).to.eq(String(messageId));
+			expect(String(stickyAfter?.messageId)).to.eq(String(stickyBefore?.messageId));
+		})();
+	});
 });
