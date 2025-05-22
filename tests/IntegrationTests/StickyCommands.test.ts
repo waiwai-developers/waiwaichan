@@ -1691,4 +1691,128 @@ describe("Test Sticky Commands", () => {
 			expect(sticky?.message).to.eq(message); // メッセージが更新されていないことを確認
 		})();
 	});
+
+	/**
+	* [スティッキー更新] 正常にスティッキーが更新される
+	* - verifyStickyLogic.updateMessageが正しいパラメータで呼ばれることを検証
+	* - verify更新成功時に成功メッセージが返されることを検証
+	*/
+	it("should update sticky message successfully and return success message", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			// 管理者ユーザーIDを設定
+			const userId = "1234";
+			const guildId = "1234567890";
+			const channelId = "12345";
+			const messageId = "67890";
+			const originalMessage = "元のスティッキーメッセージ";
+			const updatedMessage = "更新されたスティッキーメッセージ";
+
+			// スティッキーをデータベースに作成
+			await StickyRepositoryImpl.create({
+				guildId: guildId,
+				channelId: channelId,
+				userId: userId,
+				messageId: messageId,
+				message: originalMessage,
+			});
+
+			// RoleConfigのモック - 管理者として設定
+			RoleConfig.users = [
+				{ discordId: userId, role: "admin" }, // 管理者として設定
+			];
+
+			// コマンドのモック作成
+			const commandMock = mockSlashCommand("stickyupdate", { channelid: channelId }, userId);
+
+			// モーダル送信のモック
+			const modalSubmitInteraction = {
+				fields: {
+					getTextInputValue: (customId: string) => {
+						if (customId === "stickyInput") {
+							return updatedMessage; // 更新されたメッセージを返す
+						}
+						return null;
+					},
+				},
+				guildId: guildId,
+				reply: async (message: string) => {
+					console.log("Modal reply received:", message);
+					modalSubmitInteraction.replyMessage = message;
+					return {} as any;
+				},
+				replyMessage: "", // 返信メッセージを保存するためのプロパティ
+			};
+
+			// awaitModalSubmitメソッドをモック
+			when(commandMock.awaitModalSubmit(anything())).thenResolve(modalSubmitInteraction as any);
+
+			// showModalメソッドをモック
+			when(commandMock.showModal(anything())).thenResolve();
+
+			// guildIdとchannelを設定
+			when(commandMock.guildId).thenReturn(guildId);
+			when(commandMock.channel).thenReturn({} as any);
+
+			// メッセージのモック
+			let editedContent = "";
+			const messageMock = {
+				id: messageId,
+				content: originalMessage,
+				edit: (newContent: string) => {
+					editedContent = newContent;
+					messageMock.content = newContent; // Update the content property
+					return Promise.resolve({ id: messageId, content: newContent } as any);
+				},
+			};
+
+			// TextChannelのモック
+			const textChannelMock = Object.create(TextChannel.prototype);
+			textChannelMock.id = channelId;
+			textChannelMock.type = 0; // TextChannelのtype
+			textChannelMock.messages = {
+				fetch: (id: string) => {
+					return Promise.resolve(messageMock);
+				},
+			};
+
+			// guildのモックを設定
+			when(commandMock.guild).thenReturn({
+				channels: {
+					cache: {
+						get: (id: string) => {
+							if (id === channelId) {
+								return textChannelMock;
+							}
+							return null;
+						},
+					},
+				},
+			} as any);
+
+			// コマンド実行
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+			// モーダル送信の処理が完了するまで待つ
+			await new Promise((resolve) => setTimeout(resolve, 2000));
+
+			// メッセージが編集されたことを検証
+			expect(editedContent).to.eq(updatedMessage);
+
+			// 成功メッセージが返されたことを検証
+			expect(modalSubmitInteraction.replyMessage).to.eq("スティッキーを更新したよ！っ");
+
+			// データベースのスティッキーが更新されていることを確認
+			const sticky = await StickyRepositoryImpl.findOne({
+				where: {
+					guildId: guildId,
+					channelId: channelId,
+				},
+			});
+			expect(sticky).to.not.be.null;
+			expect(sticky?.message).to.eq(updatedMessage); // メッセージが更新されていることを確認
+		})();
+	});
 });
