@@ -572,48 +572,117 @@ describe("Test Sticky Commands", () => {
 	 * [存在チェック] 登録されていないスティッキーは削除できない
 	 * - verifyStickyLogic.findが呼ばれることを検証
 	 * - verifyスティッキーが存在しない場合にエラーメッセージが返されることを検証
-	 * - verifyStickyLogic.deleteが呼ばれないことを検証 
+	 * - verifyStickyLogic.deleteが呼ばれないことを検証
 */
-it("should not delete sticky when sticky does not exist", function (this: Mocha.Context) {
-	this.timeout(10_000);
+	it("should not delete sticky when sticky does not exist", function (this: Mocha.Context) {
+		this.timeout(10_000);
 
-	return (async () => {
-		// 管理者ユーザーIDを設定
-		const adminUserId = "1234";
-		const guildId = "1234567890";
-		const channelId = "12345";
+		return (async () => {
+			// 管理者ユーザーIDを設定
+			const adminUserId = "1234";
+			const guildId = "1234567890";
+			const channelId = "12345";
 
-		// RoleConfigのモック - 管理者として設定
-		const originalUsers = RoleConfig.users;
-		RoleConfig.users = [
-			{ discordId: adminUserId, role: "admin" }, // 管理者として設定
-		];
+			// RoleConfigのモック - 管理者として設定
+			const originalUsers = RoleConfig.users;
+			RoleConfig.users = [
+				{ discordId: adminUserId, role: "admin" }, // 管理者として設定
+			];
 
-		// コマンドのモック作成
-		const commandMock = mockSlashCommand("stickydelete", { channelid: channelId }, adminUserId);
+			// コマンドのモック作成
+			const commandMock = mockSlashCommand("stickydelete", { channelid: channelId }, adminUserId);
 
-		// guildIdとchannelを設定
-		when(commandMock.guildId).thenReturn(guildId);
-		when(commandMock.channel).thenReturn({} as any);
+			// guildIdとchannelを設定
+			when(commandMock.guildId).thenReturn(guildId);
+			when(commandMock.channel).thenReturn({} as any);
 
-		// replyメソッドをモック
-		let replyValue = "";
-		when(commandMock.reply(anything())).thenCall((message: string) => {
-			replyValue = message;
-			console.log("Reply received:", message);
-			return Promise.resolve({} as any);
-		});
+			// replyメソッドをモック
+			let replyValue = "";
+			when(commandMock.reply(anything())).thenCall((message: string) => {
+				replyValue = message;
+				console.log("Reply received:", message);
+				return Promise.resolve({} as any);
+			});
 
-		// コマンド実行
-		const TEST_CLIENT = await TestDiscordServer.getClient();
-		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+			// コマンド実行
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
-		// 応答を待つ
-		await waitUntilReply(commandMock, 100);
+			// 応答を待つ
+			await waitUntilReply(commandMock, 100);
 
-		// 応答の検証
-		expect(replyValue).to.eq("スティッキーが登録されていなかったよ！っ");
-	})();
-});
+			// 応答の検証
+			expect(replyValue).to.eq("スティッキーが登録されていなかったよ！っ");
+		})();
+	});
+/**
+- [チャンネル検証] チャンネルが存在しない場合はエラーになる
+- - verifyチャンネルの存在チェックが行われることを検証
+- - verifyチャンネルが存在しない場合にエラーメッセージが返されることを検証
+- - verifyStickyLogic.deleteが呼ばれないことを検証 */
+	it("should not delete sticky when channel does not exist", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			// 管理者ユーザーIDを設定
+			const adminUserId = "1234";
+			const guildId = "1234567890";
+			const channelId = "12345";
+			const messageId = "67890";
+			const message = "スティッキーのメッセージ";
+
+			// RoleConfigのモック - 管理者として設定
+			const originalUsers = RoleConfig.users;
+			RoleConfig.users = [
+				{ discordId: adminUserId, role: "admin" }, // 管理者として設定
+			];
+
+			// スティッキーをデータベースに作成
+			await StickyRepositoryImpl.create({
+				guildId: guildId,
+				channelId: channelId,
+				userId: adminUserId,
+				messageId: messageId,
+				message: message,
+			});
+
+			// コマンドのモック作成
+			const commandMock = mockSlashCommand("stickydelete", { channelid: channelId }, adminUserId);
+
+			// guildIdとchannelを設定
+			when(commandMock.guildId).thenReturn(guildId);
+			when(commandMock.channel).thenReturn({} as any);
+
+			// チャンネルが存在しないようにguildのモックを設定
+			when(commandMock.guild).thenReturn({
+				channels: {
+					cache: {
+						get: (id: string) => {
+							// チャンネルが存在しないのでundefinedを返す
+							return undefined;
+						}
+					}
+				}
+			} as any);
+
+			// replyメソッドをモック
+			let replyValue = "";
+			when(commandMock.reply(anything())).thenCall((message: string) => {
+				replyValue = message;
+				console.log("Reply received:", message);
+				return Promise.resolve({} as any);
+			});
+
+			// コマンド実行
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+			// 応答を待つ
+			await waitUntilReply(commandMock, 100);
+
+			// 応答の検証 - チャンネルが存在しない場合のエラーメッセージ
+			expect(replyValue).to.eq("スティッキーの投稿がなかったよ！っ");
+		})();
+	});
 
 });

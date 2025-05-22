@@ -20,7 +20,14 @@ export class MysqlConnector implements IDataBaseConnector<Sequelize, "mysql"> {
 			port: dbConfig.port,
 			dialect: dbConfig.dialect as Dialect,
 			logging: (s, t) => SequelizeLogger(s, t), // Pass undefined logger for tests
-			models: [CandyRepositoryImpl, CandyItemRepositoryImpl, UserCandyItemRepositoryImpl, ReminderRepositoryImpl, ThreadRepositoryImpl, StickyRepositoryImpl],
+			models: [
+				CandyRepositoryImpl,
+				CandyItemRepositoryImpl,
+				UserCandyItemRepositoryImpl,
+				ReminderRepositoryImpl,
+				ThreadRepositoryImpl,
+				StickyRepositoryImpl,
+			],
 		});
 	}
 
