@@ -1252,4 +1252,56 @@ describe("Test Sticky Commands", () => {
 			expect(lines[2]).to.match(/^- <#\d+>$/);
 		})();
 	});
+
+	/**
+	 * StickyUpdateCommandHandler テスト仕様
+	 */
+
+	/**
+	* [権限チェック] 管理者権限がない場合はスティッキーを更新できない
+	* - verifyで権限チェックが行われることを検証
+	* - verify権限がない場合にエラーメッセージが返されることを検証
+	* - verifyStickyLogic.updateMessageメソッドが呼ばれないことを検証
+	*/
+	it("should not update sticky when user does not have admin permission", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			// 非管理者ユーザーIDを設定
+			const userId = "1";
+			const guildId = "2";
+			const channelId = "3";
+
+			// RoleConfigのモック - 明示的に非管理者として設定
+			RoleConfig.users = [
+				{ discordId: userId, role: "user" }, // 非管理者として設定
+			];
+
+			// コマンドのモック作成
+			const commandMock = mockSlashCommand("stickyupdate", { channelid: channelId }, userId);
+
+			// guildIdとchannelを設定
+			when(commandMock.guildId).thenReturn(guildId);
+			when(commandMock.channel).thenReturn({} as any);
+
+			// replyメソッドをモック
+			let replyValue = "";
+			when(commandMock.reply(anything())).thenCall((message: string) => {
+				replyValue = message;
+				console.log("Reply received:", message);
+				return Promise.resolve({} as any);
+			});
+
+			// コマンド実行
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+			// 応答を待つ
+			await waitUntilReply(commandMock, 100);
+
+			// 応答の検証
+			expect(replyValue).to.eq("スティッキーを更新する権限を持っていないよ！っ");
+		})();
+	});
+
 });
