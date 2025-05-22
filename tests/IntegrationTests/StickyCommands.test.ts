@@ -1351,4 +1351,87 @@ describe("Test Sticky Commands", () => {
 		})();
 	});
 
+	/**
+	* [チャンネル検証] TextChannel以外のスティッキーは更新できない
+	* - verifyチャンネルの型チェックが行われることを検証
+	* - verifyTextChannel以外の場合にエラーメッセージが返されることを検証
+	* - verifyStickyLogic.updateMessageが呼ばれないことを検証
+	*/
+	it("should not update sticky when channel is not a TextChannel", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			// 管理者ユーザーIDを設定
+			const userId = "1";
+			const guildId = "2";
+			const channelId = "3";
+			const messageId = "4";
+			const message = "スティッキーのメッセージ";
+
+			// RoleConfigのモック - 管理者として設定
+			RoleConfig.users = [
+				{ discordId: userId, role: "admin" }, // 管理者として設定
+			];
+
+			// スティッキーをデータベースに作成
+			await StickyRepositoryImpl.create({
+				guildId: guildId,
+				channelId: channelId,
+				userId: userId,
+				messageId: messageId,
+				message: message,
+			});
+
+			// コマンドのモック作成
+			const commandMock = mockSlashCommand("stickyupdate", { channelid: channelId }, userId);
+
+			// guildIdとchannelを設定
+			when(commandMock.guildId).thenReturn(guildId);
+			when(commandMock.channel).thenReturn({} as any);
+
+			// TextChannel以外のチャンネルを返すようにguildのモックを設定
+			when(commandMock.guild).thenReturn({
+				channels: {
+					cache: {
+						get: (id: string) => {
+							if (id === channelId) {
+								// TextChannelではないオブジェクトを返す
+								return {}; // instanceof TextChannel は false を返す
+							}
+							return null;
+						},
+					},
+				},
+			} as any);
+
+			// replyメソッドをモック
+			let replyValue = "";
+			when(commandMock.reply(anything())).thenCall((message: string) => {
+				replyValue = message;
+				console.log("Reply received:", message);
+				return Promise.resolve({} as any);
+			});
+
+			// コマンド実行
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+			// 応答を待つ
+			await waitUntilReply(commandMock, 100);
+
+			// 応答の検証 - TextChannel以外の場合のエラーメッセージ
+			expect(replyValue).to.eq("このチャンネルにはスティッキーを登録できないよ！っ");
+
+			// データベースのスティッキーが更新されていないことを確認
+			const sticky = await StickyRepositoryImpl.findOne({
+				where: {
+					guildId: guildId,
+					channelId: channelId,
+				},
+			});
+			expect(sticky).to.not.be.null;
+			expect(sticky?.message).to.eq(message); // メッセージが更新されていないことを確認
+		})();
+	});
+
 });
