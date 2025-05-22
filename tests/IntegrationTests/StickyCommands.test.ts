@@ -1434,4 +1434,145 @@ describe("Test Sticky Commands", () => {
 		})();
 	});
 
+	/**
+	* [モーダル表示] スティッキー更新時にモーダルが表示される
+	* - verifyモーダルが表示されることを検証
+	* - verifyモーダルに現在のスティッキーメッセージが初期値として設定されていることを検証
+	*/
+	it("should display modal with current sticky message as initial value when updating sticky", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			// 管理者ユーザーIDを設定
+			const userId = "1234";
+			const guildId = "1234567890";
+			const channelId = "12345";
+			const messageId = "67890";
+			const message = "スティッキーのメッセージ";
+
+			// スティッキーをデータベースに作成
+			await StickyRepositoryImpl.create({
+				guildId: guildId,
+				channelId: channelId,
+				userId: userId,
+				messageId: messageId,
+				message: message,
+			});
+
+			// RoleConfigのモック
+			const originalUsers = RoleConfig.users;
+			(RoleConfig as any).users = [
+				...originalUsers,
+				{ discordId: userId, role: "admin" }, // 管理者ユーザーを追加
+			];
+
+			// コマンドのモック作成
+			const commandMock = mockSlashCommand("stickyupdate", { channelid: channelId }, userId);
+
+			// showModalメソッドをモック
+			let capturedModal: any = null;
+			when(commandMock.showModal(anything())).thenCall((modal: any) => {
+				capturedModal = modal;
+				return Promise.resolve();
+			});
+
+			// guildIdとchannelを設定
+			when(commandMock.guildId).thenReturn(guildId);
+			when(commandMock.channel).thenReturn({} as any);
+
+			// guildのモックを設定
+			when(commandMock.guild).thenReturn({
+				channels: {
+					cache: {
+						get: (id: string) => {
+							if (id === channelId) {
+								// TextChannelのインスタンスとして認識されるようにする
+								// Object.createを使用してTextChannelのプロトタイプを継承したオブジェクトを作成
+								const textChannel = Object.create(TextChannel.prototype);
+								// 必要なメソッドをモック
+								textChannel.send = () => Promise.resolve({ id: "12345", content: "test message" } as any);
+								// 必要なプロパティを追加
+								textChannel.id = channelId;
+								textChannel.type = 0; // TextChannelのtype
+								return textChannel;
+							}
+							return null;
+						},
+					},
+				},
+			} as any);
+
+			// メッセージのモック
+			const messageMock = {
+				id: messageId,
+				content: message,
+				delete: () => {
+					return Promise.resolve(true);
+				},
+			};
+
+			// TextChannelのモック
+			const textChannelMock = Object.create(TextChannel.prototype);
+			textChannelMock.id = channelId;
+			textChannelMock.type = 0; // TextChannelのtype
+			textChannelMock.messages = {
+				fetch: (id: string) => {
+					return Promise.resolve(messageMock);
+				},
+			};
+
+			// guildのモックを設定
+			when(commandMock.guild).thenReturn({
+				channels: {
+					cache: {
+						get: (id: string) => {
+							if (id === channelId) {
+								return textChannelMock;
+							}
+							return null;
+						},
+					},
+				},
+			} as any);
+
+			// コマンド実行
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+			// モーダルが表示されるまで少し待つ
+			await new Promise((resolve) => setTimeout(resolve, 100));
+
+			// モーダルが表示されたことを検証
+			verify(commandMock.showModal(anything())).once();
+
+			// モーダルが正しく設定されていることを検証
+			expect(capturedModal).to.not.be.null;
+
+			// ModalBuilderのインスタンスであることを確認
+			expect(capturedModal instanceof ModalBuilder).to.be.true;
+
+			// モーダルのタイトルとカスタムIDを検証
+			const modalData = capturedModal.toJSON();
+			expect(modalData).to.have.property("custom_id", "stickyModal");
+			expect(modalData).to.have.property("title", "スティッキーの更新");
+
+			// モーダルのコンポーネント（テキスト入力フィールド）を検証
+			expect(capturedModal.components.length).to.eq(1);
+
+			// ActionRowBuilderのインスタンスであることを確認
+			const actionRow = capturedModal.components[0];
+			expect(actionRow.components.length).to.eq(1);
+
+			// TextInputBuilderのインスタンスであることを確認
+			const textInput = actionRow.components[0];
+			expect(textInput instanceof TextInputBuilder).to.be.true;
+
+			// テキスト入力フィールドの設定を検証
+			const textInputData = textInput.toJSON();
+			expect(textInputData).to.have.property("custom_id", "stickyInput");
+			expect(textInputData).to.have.property("label", "スティッキーの文章");
+			expect(textInputData).to.have.property("style", TextInputStyle.Paragraph);
+		})();
+	});
+
 });
