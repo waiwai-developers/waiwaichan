@@ -863,7 +863,6 @@ describe("Test Sticky Commands", () => {
 			const message = "スティッキーのメッセージ";
 
 			// RoleConfigのモック - 管理者として設定
-			const originalUsers = RoleConfig.users;
 			RoleConfig.users = [
 				{ discordId: userId, role: "admin" }, // 管理者として設定
 			];
@@ -1031,6 +1030,171 @@ describe("Test Sticky Commands", () => {
 			expect(editReplyValue).to.eq("スティッキーを削除したよ！っ");
 			const stickies = await StickyRepositoryImpl.findAll();
 			expect(stickies.length).to.eq(0);
+		})();
+	});
+
+	/**
+	 * StickyListCommandHandlerテスト仕様
+	 */
+
+	/**
+	- [権限チェック] 管理者権限がない場合はスティッキーリストを表示できない
+	* - verifyで権限チェックが行われることを検証
+	* - verify権限がない場合にエラーメッセージが返されることを検証
+	* - verifyStickyLogic.findByCommunityIdメソッドが呼ばれないことを検証
+	*/
+	it("should not display sticky list when user does not have admin permission", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			// 非管理者ユーザーIDを設定
+			const nonAdminUserId = "9999";
+			const guildId = "1234567890";
+
+			// RoleConfigのモック - 明示的に非管理者として設定
+			RoleConfig.users = [
+				{ discordId: nonAdminUserId, role: "user" }, // 非管理者として設定
+			];
+
+			// コマンドのモック作成
+			const commandMock = mockSlashCommand("stickylist", {}, nonAdminUserId);
+
+			// guildIdとchannelを設定
+			when(commandMock.guildId).thenReturn(guildId);
+			when(commandMock.channel).thenReturn({} as any);
+
+			// replyメソッドをモック
+			let replyValue = "";
+			when(commandMock.reply(anything())).thenCall((message: string) => {
+				replyValue = message;
+				console.log("Reply received:", message);
+				return Promise.resolve({} as any);
+			});
+
+			// コマンド実行
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+			// 応答を待つ
+			await waitUntilReply(commandMock, 100);
+
+			// 応答の検証
+			expect(replyValue).to.eq("スティッキーを表示する権限を持っていないよ！っ");
+		})();
+	});
+
+	/**
+	 * [スティッキーリスト表示] 管理者権限がある場合はスティッキーリストを表示できる
+	 * - verifyStickyLogic.findByCommunityIdメソッドが呼ばれることを検証
+	 * - verifyスティッキーリストが正しく表示されることを検証
+	 */
+	it("should display sticky list when user has admin permission", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			// 管理者ユーザーIDを設定
+			const adminUserId = "1234";
+			const guildId = "1234567890";
+			const channelId1 = "12345";
+			const channelId2 = "67890";
+			const messageId = "54321";
+			const message = "スティッキーのメッセージ";
+
+			// RoleConfigのモック - 管理者として設定
+			const originalUsers = RoleConfig.users;
+			RoleConfig.users = [
+				{ discordId: adminUserId, role: "admin" }, // 管理者として設定
+			];
+
+			// スティッキーをデータベースに作成
+			await StickyRepositoryImpl.create({
+				guildId: guildId,
+				channelId: channelId1,
+				userId: adminUserId,
+				messageId: messageId,
+				message: message,
+			});
+
+			await StickyRepositoryImpl.create({
+				guildId: guildId,
+				channelId: channelId2,
+				userId: adminUserId,
+				messageId: messageId,
+				message: message,
+			});
+
+			// コマンドのモック作成
+			const commandMock = mockSlashCommand("stickylist", {}, adminUserId);
+
+			// guildIdとchannelを設定
+			when(commandMock.guildId).thenReturn(guildId);
+			when(commandMock.channel).thenReturn({} as any);
+
+			// replyメソッドをモック
+			let replyValue = "";
+			when(commandMock.reply(anything())).thenCall((message: string) => {
+				replyValue = message;
+				console.log("Reply received:", message);
+				return Promise.resolve({} as any);
+			});
+
+			// コマンド実行
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+			// 応答を待つ
+			await waitUntilReply(commandMock, 100);
+
+			// 応答の検証
+			expect(replyValue).to.include("以下のチャンネルにスティッキーが登録されているよ！");
+			expect(replyValue).to.include(`<#${channelId1}>`);
+			expect(replyValue).to.include(`<#${channelId2}>`);
+		})();
+	});
+
+	/**
+	 * [スティッキーリスト表示] スティッキーが登録されていない場合はその旨を表示する
+	 * - verifyStickyLogic.findByCommunityIdメソッドが呼ばれることを検証
+	 * - verifyスティッキーが登録されていない場合にその旨のメッセージが表示されることを検証
+	 */
+	it("should display message when no stickies are registered", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			// 管理者ユーザーIDを設定
+			const userId = "1234";
+			const guildId = "1234567890";
+
+			// RoleConfigのモック - 管理者として設定
+			const originalUsers = RoleConfig.users;
+			RoleConfig.users = [
+				{ discordId: userId, role: "admin" }, // 管理者として設定
+			];
+
+			// コマンドのモック作成
+			const commandMock = mockSlashCommand("stickylist", {}, userId);
+
+			// guildIdとchannelを設定
+			when(commandMock.guildId).thenReturn(guildId);
+			when(commandMock.channel).thenReturn({} as any);
+
+			// replyメソッドをモック
+			let replyValue = "";
+			when(commandMock.reply(anything())).thenCall((message: string) => {
+				replyValue = message;
+				console.log("Reply received:", message);
+				return Promise.resolve({} as any);
+			});
+
+			// コマンド実行
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+			// 応答を待つ
+			await waitUntilReply(commandMock, 100);
+
+			// 応答の検証
+			expect(replyValue).to.eq("スティッキーが登録されていなかったよ！っ");
 		})();
 	});
 });
