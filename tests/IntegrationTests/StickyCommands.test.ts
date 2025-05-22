@@ -757,4 +757,193 @@ describe("Test Sticky Commands", () => {
 			expect(replyValue).to.eq("このチャンネルのスティッキーを削除できないよ！っ");
 		})();
 	});
+
+	/**
+	 * [メッセージ削除] スティッキーメッセージが削除される
+	 * - verifyメッセージのdeleteメソッドが呼ばれることを検証
+	 * - verify削除に成功した場合にStickyLogic.deleteが呼ばれることを検証
+	 */
+	it("should delete sticky message when command is executed successfully", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			// 管理者ユーザーIDを設定
+			const userId = "1234";
+			const guildId = "1234567890";
+			const channelId = "12345";
+			const messageId = "67890";
+			const message = "スティッキーのメッセージ";
+
+			RoleConfig.users = [
+				{ discordId: userId, role: "admin" }, // 管理者として設定
+			];
+
+			// スティッキーをデータベースに作成
+			await StickyRepositoryImpl.create({
+				guildId: guildId,
+				channelId: channelId,
+				userId: userId,
+				messageId: messageId,
+				message: message,
+			});
+
+			// コマンドのモック作成
+			const commandMock = mockSlashCommand("stickydelete", { channelid: channelId }, userId);
+
+			// guildIdとchannelを設定
+			when(commandMock.guildId).thenReturn(guildId);
+			when(commandMock.channel).thenReturn({} as any);
+
+			// メッセージのモック
+			const messageMock = {
+				id: messageId,
+				content: message,
+				delete: () => {
+					return Promise.resolve(true);
+				},
+			};
+
+			// TextChannelのモック
+			const textChannelMock = Object.create(TextChannel.prototype);
+			textChannelMock.id = channelId;
+			textChannelMock.type = 0; // TextChannelのtype
+			textChannelMock.messages = {
+				fetch: (id: string) => {
+					return Promise.resolve(messageMock);
+				},
+			};
+
+			// guildのモックを設定
+			when(commandMock.guild).thenReturn({
+				channels: {
+					cache: {
+						get: (id: string) => {
+							if (id === channelId) {
+								return textChannelMock;
+							}
+							return null;
+						},
+					},
+				},
+			} as any);
+
+			// deferReplyとeditReplyメソッドをモック
+			when(commandMock.deferReply()).thenResolve({} as any);
+			let editReplyValue = "";
+			when(commandMock.editReply(anything())).thenCall((message: string) => {
+				editReplyValue = message;
+				console.log("Edit reply received:", message);
+				return Promise.resolve({} as any);
+			});
+
+			// コマンド実行
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+			// 処理が完了するまで待つ
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+
+			// 応答の検証 - 削除成功メッセージ
+			expect(editReplyValue).to.eq("スティッキーを削除したよ！っ");
+
+			// データベースからスティッキーが削除されていることを確認
+			const stickies = await StickyRepositoryImpl.findAll();
+			expect(stickies.length).to.eq(0);
+		})();
+	});
+
+	/**
+	 * [削除失敗] メッセージの削除に失敗した場合はエラーメッセージが返される
+	 * - verifyメッセージの削除に失敗した場合にエラーメッセージが返されることを検証
+	 * - verifyStickyLogic.deleteが呼ばれないことを検証
+	 */
+	it("should return error message when message deletion fails", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			// 管理者ユーザーIDを設定
+			const userId = "1234";
+			const guildId = "1234567890";
+			const channelId = "12345";
+			const messageId = "67890";
+			const message = "スティッキーのメッセージ";
+
+			// RoleConfigのモック - 管理者として設定
+			const originalUsers = RoleConfig.users;
+			RoleConfig.users = [
+				{ discordId: userId, role: "admin" }, // 管理者として設定
+			];
+
+			// スティッキーをデータベースに作成
+			await StickyRepositoryImpl.create({
+				guildId: guildId,
+				channelId: channelId,
+				userId: userId,
+				messageId: messageId,
+				message: message,
+			});
+
+			// コマンドのモック作成
+			const commandMock = mockSlashCommand("stickydelete", { channelid: channelId }, userId);
+
+			// guildIdとchannelを設定
+			when(commandMock.guildId).thenReturn(guildId);
+			when(commandMock.channel).thenReturn({} as any);
+
+			// メッセージのモック - 削除に失敗するように設定
+			const messageMock = {
+				id: messageId,
+				content: message,
+				delete: () => {
+					return Promise.resolve(false); // 削除に失敗
+				},
+			};
+
+			// TextChannelのモック
+			const textChannelMock = Object.create(TextChannel.prototype);
+			textChannelMock.id = channelId;
+			textChannelMock.type = 0; // TextChannelのtype
+			textChannelMock.messages = {
+				fetch: (id: string) => {
+					return Promise.resolve(messageMock);
+				},
+			};
+
+			// guildのモックを設定
+			when(commandMock.guild).thenReturn({
+				channels: {
+					cache: {
+						get: (id: string) => {
+							if (id === channelId) {
+								return textChannelMock;
+							}
+							return null;
+						},
+					},
+				},
+			} as any);
+
+			// replyメソッドをモック
+			let replyValue = "";
+			when(commandMock.reply(anything())).thenCall((message: string) => {
+				replyValue = message;
+				console.log("Reply received:", message);
+				return Promise.resolve({} as any);
+			});
+
+			// コマンド実行
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+			// 処理が完了するまで待つ
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+
+			// 応答の検証 - 削除失敗メッセージ
+			expect(replyValue).to.eq("スティッキーの削除に失敗したよ！っ");
+
+			// データベースからスティッキーが削除されていないことを確認
+			const stickies = await StickyRepositoryImpl.findAll();
+			expect(stickies.length).to.eq(1);
+		})();
+	});
 });
