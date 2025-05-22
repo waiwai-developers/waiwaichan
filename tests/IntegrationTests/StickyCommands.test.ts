@@ -1,22 +1,22 @@
 import "reflect-metadata";
+import { appContainer } from "@/src/app.di.config";
 import { RoleConfig } from "@/src/entities/config/RoleConfig";
+import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
+import { StickyDto } from "@/src/entities/dto/StickyDto";
+import { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
+import { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
+import { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
+import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
+import { StickyMessage } from "@/src/entities/vo/StickyMessage";
+import { IStickyLogic } from "@/src/logics/Interfaces/logics/IStickyLogic";
+import { StickyRepositoryImpl } from "@/src/repositories/sequelize-mysql";
 import { MysqlConnector } from "@/tests/fixtures/database/MysqlConnector";
+import { mockSlashCommand, waitUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { expect } from "chai";
 import { ModalBuilder, TextChannel, TextInputBuilder, TextInputStyle } from "discord.js";
 import type Mocha from "mocha";
 import { anything, instance, mock, verify, when } from "ts-mockito";
-import { mockSlashCommand, waitUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { TestDiscordServer } from "../fixtures/discord.js/TestDiscordServer";
-import { StickyRepositoryImpl } from "@/src/repositories/sequelize-mysql";
-import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
-import { appContainer } from "@/src/app.di.config";
-import { IStickyLogic } from "@/src/logics/Interfaces/logics/IStickyLogic";
-import { StickyDto } from "@/src/entities/dto/StickyDto";
-import { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
-import { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
-import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
-import { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
-import { StickyMessage } from "@/src/entities/vo/StickyMessage";
 
 describe("Test Sticky Commands", () => {
 	/**
@@ -54,10 +54,7 @@ describe("Test Sticky Commands", () => {
 			const commandMock = mockSlashCommand("stickycreate", { channelid: "12345" }, nonAdminUserId);
 
 			// RoleConfigのモック
-			RoleConfig.users = [
-				... RoleConfig.users,
-				{ discordId: nonAdminUserId, role: "user" },
-			];
+			RoleConfig.users = [...RoleConfig.users, { discordId: nonAdminUserId, role: "user" }];
 
 			// guildIdとchannelを設定
 			when(commandMock.guildId).thenReturn("1234567890");
@@ -101,14 +98,11 @@ describe("Test Sticky Commands", () => {
 			const guildId = "1";
 			const channelId = "2";
 			const userId = "3";
-			const messageId = "4"
-			const message = "スティッキーのメッセージ"
+			const messageId = "4";
+			const message = "スティッキーのメッセージ";
 
 			// RoleConfigのモック
-			RoleConfig.users = [
-				... RoleConfig.users,
-				{ discordId: userId, role: "admin" },
-			];
+			RoleConfig.users = [...RoleConfig.users, { discordId: userId, role: "admin" }];
 
 			// 既存のスティッキーを返すようにfindメソッドをモック
 
@@ -118,7 +112,7 @@ describe("Test Sticky Commands", () => {
 				userId: userId,
 				messageId: messageId,
 				message: message,
-			})
+			});
 
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("stickycreate", { channelid: channelId }, userId);
@@ -156,22 +150,22 @@ describe("Test Sticky Commands", () => {
 	 * - verifyTextChannel以外の場合にエラーメッセージが返されることを検証
 	 * - verifyStickyLogic.createが呼ばれないことを検証
 	 */
- 	it("should not create sticky when channel is not a TextChannel", function (this: Mocha.Context) {
- 		this.timeout(10_000);
+	it("should not create sticky when channel is not a TextChannel", function (this: Mocha.Context) {
+		this.timeout(10_000);
 
- 		return (async () => {
- 			// テスト用のチャンネルID
- 			const guildId = "1";
- 			const channelId = "2";
- 			const userId = "3";
+		return (async () => {
+			// テスト用のチャンネルID
+			const guildId = "1";
+			const channelId = "2";
+			const userId = "3";
 
- 			// RoleConfigのモック
- 			// 実際のRoleConfigを使用するが、テスト用のユーザーが管理者であることを確認
- 			const originalUsers = RoleConfig.users;
- 			(RoleConfig as any).users = [
- 				...originalUsers,
- 				{ discordId: userId, role: "admin" }, // 管理者ユーザーを追加
- 			];
+			// RoleConfigのモック
+			// 実際のRoleConfigを使用するが、テスト用のユーザーが管理者であることを確認
+			const originalUsers = RoleConfig.users;
+			(RoleConfig as any).users = [
+				...originalUsers,
+				{ discordId: userId, role: "admin" }, // 管理者ユーザーを追加
+			];
 
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("stickycreate", { channelid: channelId }, userId);
@@ -190,18 +184,18 @@ describe("Test Sticky Commands", () => {
 								return {}; // instanceof TextChannel は false を返す
 							}
 							return null;
-						}
-					}
-				}
+						},
+					},
+				},
 			} as any);
 
- 			// replyメソッドをモック
- 			let replyValue = "";
- 			when(commandMock.reply(anything())).thenCall((message: string) => {
- 				replyValue = message;
- 				console.log("Reply received:", message);
- 				return Promise.resolve({} as any);
- 			});
+			// replyメソッドをモック
+			let replyValue = "";
+			when(commandMock.reply(anything())).thenCall((message: string) => {
+				replyValue = message;
+				console.log("Reply received:", message);
+				return Promise.resolve({} as any);
+			});
 
 			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
@@ -217,108 +211,108 @@ describe("Test Sticky Commands", () => {
 			const res = await StickyRepositoryImpl.findAll();
 			expect(res.length).to.eq(0);
 		})();
- 	});
- 	/**
- 	 * [モーダル表示] スティッキー作成時にモーダルが表示される
- 	 * - verifyモーダルが表示されることを検証
- 	 * - verifyモーダルに適切なタイトルとフィールドが設定されていることを検証
- 	 */
- 	it("should display modal with appropriate title and fields when creating sticky", function (this: Mocha.Context) {
- 		this.timeout(10_000);
+	});
+	/**
+	 * [モーダル表示] スティッキー作成時にモーダルが表示される
+	 * - verifyモーダルが表示されることを検証
+	 * - verifyモーダルに適切なタイトルとフィールドが設定されていることを検証
+	 */
+	it("should display modal with appropriate title and fields when creating sticky", function (this: Mocha.Context) {
+		this.timeout(10_000);
 
- 		return (async () => {
- 			// 管理者ユーザーIDを設定
- 			const guildId = "1";
- 			const channelId = "2";
- 			const userId = "3";
+		return (async () => {
+			// 管理者ユーザーIDを設定
+			const guildId = "1";
+			const channelId = "2";
+			const userId = "3";
 
- 			// RoleConfigのモック
- 			const originalUsers = RoleConfig.users;
- 			(RoleConfig as any).users = [
- 				...originalUsers,
- 				{ discordId: userId, role: "admin" }, // 管理者ユーザーを追加
- 			];
+			// RoleConfigのモック
+			const originalUsers = RoleConfig.users;
+			(RoleConfig as any).users = [
+				...originalUsers,
+				{ discordId: userId, role: "admin" }, // 管理者ユーザーを追加
+			];
 
- 			// コマンドのモック作成
- 			const commandMock = mockSlashCommand("stickycreate", { channelid: channelId }, userId);
+			// コマンドのモック作成
+			const commandMock = mockSlashCommand("stickycreate", { channelid: channelId }, userId);
 
- 			// showModalメソッドをモック
- 			let capturedModal: any = null;
- 			when(commandMock.showModal(anything())).thenCall((modal: any) => {
- 				capturedModal = modal;
- 				return Promise.resolve();
- 			});
+			// showModalメソッドをモック
+			let capturedModal: any = null;
+			when(commandMock.showModal(anything())).thenCall((modal: any) => {
+				capturedModal = modal;
+				return Promise.resolve();
+			});
 
- 			// guildIdとchannelを設定
- 			when(commandMock.guildId).thenReturn(guildId);
- 			when(commandMock.channel).thenReturn({} as any);
+			// guildIdとchannelを設定
+			when(commandMock.guildId).thenReturn(guildId);
+			when(commandMock.channel).thenReturn({} as any);
 
- 			// guildのモックを設定
- 			when(commandMock.guild).thenReturn({
- 				channels: {
- 					cache: {
- 						get: (id: string) => {
- 							if (id === channelId) {
- 								// TextChannelのインスタンスとして認識されるようにする
- 								// Object.createを使用してTextChannelのプロトタイプを継承したオブジェクトを作成
- 								const textChannel = Object.create(TextChannel.prototype);
- 								// 必要なメソッドをモック
- 								textChannel.send = () => Promise.resolve({ id: "12345", content: "test message" } as any);
- 								// 必要なプロパティを追加
- 								textChannel.id = channelId;
- 								textChannel.type = 0; // TextChannelのtype
- 								return textChannel;
- 							}
- 							return null;
- 						},
- 					},
- 				},
- 			} as any);
+			// guildのモックを設定
+			when(commandMock.guild).thenReturn({
+				channels: {
+					cache: {
+						get: (id: string) => {
+							if (id === channelId) {
+								// TextChannelのインスタンスとして認識されるようにする
+								// Object.createを使用してTextChannelのプロトタイプを継承したオブジェクトを作成
+								const textChannel = Object.create(TextChannel.prototype);
+								// 必要なメソッドをモック
+								textChannel.send = () => Promise.resolve({ id: "12345", content: "test message" } as any);
+								// 必要なプロパティを追加
+								textChannel.id = channelId;
+								textChannel.type = 0; // TextChannelのtype
+								return textChannel;
+							}
+							return null;
+						},
+					},
+				},
+			} as any);
 
- 			// コマンド実行
- 			const TEST_CLIENT = await TestDiscordServer.getClient();
- 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+			// コマンド実行
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
- 			// モーダルが表示されるまで少し待つ
- 			await new Promise(resolve => setTimeout(resolve, 100));
+			// モーダルが表示されるまで少し待つ
+			await new Promise((resolve) => setTimeout(resolve, 100));
 
- 			// モーダルが表示されたことを検証
- 			verify(commandMock.showModal(anything())).once();
+			// モーダルが表示されたことを検証
+			verify(commandMock.showModal(anything())).once();
 
- 			// モーダルが正しく設定されていることを検証
- 			expect(capturedModal).to.not.be.null;
+			// モーダルが正しく設定されていることを検証
+			expect(capturedModal).to.not.be.null;
 
- 			// ModalBuilderのインスタンスであることを確認
- 			expect(capturedModal instanceof ModalBuilder).to.be.true;
+			// ModalBuilderのインスタンスであることを確認
+			expect(capturedModal instanceof ModalBuilder).to.be.true;
 
- 			// モーダルのタイトルとカスタムIDを検証
- 			const modalData = capturedModal.toJSON();
- 			expect(modalData).to.have.property('custom_id', 'stickyModal');
- 			expect(modalData).to.have.property('title', 'スティッキーの登録');
+			// モーダルのタイトルとカスタムIDを検証
+			const modalData = capturedModal.toJSON();
+			expect(modalData).to.have.property("custom_id", "stickyModal");
+			expect(modalData).to.have.property("title", "スティッキーの登録");
 
- 			// モーダルのコンポーネント（テキスト入力フィールド）を検証
- 			expect(capturedModal.components.length).to.eq(1);
+			// モーダルのコンポーネント（テキスト入力フィールド）を検証
+			expect(capturedModal.components.length).to.eq(1);
 
- 			// ActionRowBuilderのインスタンスであることを確認
- 			const actionRow = capturedModal.components[0];
- 			expect(actionRow.components.length).to.eq(1);
+			// ActionRowBuilderのインスタンスであることを確認
+			const actionRow = capturedModal.components[0];
+			expect(actionRow.components.length).to.eq(1);
 
- 			// TextInputBuilderのインスタンスであることを確認
- 			const textInput = actionRow.components[0];
- 			expect(textInput instanceof TextInputBuilder).to.be.true;
+			// TextInputBuilderのインスタンスであることを確認
+			const textInput = actionRow.components[0];
+			expect(textInput instanceof TextInputBuilder).to.be.true;
 
- 			// テキスト入力フィールドの設定を検証
- 			const textInputData = textInput.toJSON();
- 			expect(textInputData).to.have.property('custom_id', 'stickyInput');
- 			expect(textInputData).to.have.property('label', 'スティッキーの文章');
- 			expect(textInputData).to.have.property('style', TextInputStyle.Paragraph);
- 		})();
- 	});
+			// テキスト入力フィールドの設定を検証
+			const textInputData = textInput.toJSON();
+			expect(textInputData).to.have.property("custom_id", "stickyInput");
+			expect(textInputData).to.have.property("label", "スティッキーの文章");
+			expect(textInputData).to.have.property("style", TextInputStyle.Paragraph);
+		})();
+	});
 
 	/**
 	 * [モーダル送信] 空のメッセージでモーダルを送信するとエラーになる
 	 * - verify空のメッセージでモーダル送信時にエラーメッセージが返されることを検証
-	 * - verifyStickyLogic.createが呼ばれないことを検証 
+	 * - verifyStickyLogic.createが呼ばれないことを検証
 	 */
 	it("should return error when modal is submitted with empty message", function (this: Mocha.Context) {
 		this.timeout(10_000);
@@ -347,7 +341,7 @@ describe("Test Sticky Commands", () => {
 							return ""; // 空のメッセージを返す
 						}
 						return null;
-					}
+					},
 				},
 				guildId: guildId,
 				reply: async (message: string) => {
@@ -355,7 +349,7 @@ describe("Test Sticky Commands", () => {
 					modalSubmitInteraction.replyMessage = message;
 					return {} as any;
 				},
-				replyMessage: "" // 返信メッセージを保存するためのプロパティ
+				replyMessage: "", // 返信メッセージを保存するためのプロパティ
 			};
 
 			// awaitModalSubmitメソッドをモック
@@ -394,7 +388,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// モーダル送信の処理が完了するまで待つ
-			await new Promise(resolve => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 1000));
 
 			// エラーメッセージが返されたことを検証
 			expect(modalSubmitInteraction.replyMessage).to.eq("スティッキーに登録するメッセージがないよ！っ");
@@ -438,7 +432,7 @@ describe("Test Sticky Commands", () => {
 				send: (message: string) => {
 					sentMessage = message;
 					return Promise.resolve({ id: messageId, content: message } as any);
-				}
+				},
 			};
 
 			// モーダル送信のモック
@@ -449,7 +443,7 @@ describe("Test Sticky Commands", () => {
 							return stickyMessageText; // 有効なメッセージを返す
 						}
 						return null;
-					}
+					},
 				},
 				guildId: guildId,
 				reply: async (message: string) => {
@@ -457,7 +451,7 @@ describe("Test Sticky Commands", () => {
 					modalSubmitInteraction.replyMessage = message;
 					return {} as any;
 				},
-				replyMessage: "" // 返信メッセージを保存するためのプロパティ
+				replyMessage: "", // 返信メッセージを保存するためのプロパティ
 			};
 
 			// awaitModalSubmitメソッドをモック
@@ -495,7 +489,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// モーダル送信の処理が完了するまで待つ
-			await new Promise(resolve => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 1000));
 
 			// 送信されたメッセージの内容が正しいことを検証
 			expect(sentMessage).to.eq(stickyMessageText);
@@ -515,7 +509,7 @@ describe("Test Sticky Commands", () => {
 	});
 	/**
 	 * StickyDeleteCommandHandlerテスト仕様
-	*/
+	 */
 
 	/**
 	- [権限チェック] 管理者権限がない場合はスティッキーを削除できない
@@ -568,12 +562,12 @@ describe("Test Sticky Commands", () => {
 		})();
 	});
 
-/**
+	/**
 	 * [存在チェック] 登録されていないスティッキーは削除できない
 	 * - verifyStickyLogic.findが呼ばれることを検証
 	 * - verifyスティッキーが存在しない場合にエラーメッセージが返されることを検証
 	 * - verifyStickyLogic.deleteが呼ばれないことを検証
-*/
+	 */
 	it("should not delete sticky when sticky does not exist", function (this: Mocha.Context) {
 		this.timeout(10_000);
 
@@ -615,11 +609,12 @@ describe("Test Sticky Commands", () => {
 			expect(replyValue).to.eq("スティッキーが登録されていなかったよ！っ");
 		})();
 	});
-/**
-- [チャンネル検証] チャンネルが存在しない場合はエラーになる
-- - verifyチャンネルの存在チェックが行われることを検証
-- - verifyチャンネルが存在しない場合にエラーメッセージが返されることを検証
-- - verifyStickyLogic.deleteが呼ばれないことを検証 */
+	/**
+	 * [チャンネル検証] チャンネルが存在しない場合はエラーになる
+	 * - verifyチャンネルの存在チェックが行われることを検証
+	 * - verifyチャンネルが存在しない場合にエラーメッセージが返されることを検証
+	 * - verifyStickyLogic.deleteが呼ばれないことを検証
+	 */
 	it("should not delete sticky when channel does not exist", function (this: Mocha.Context) {
 		this.timeout(10_000);
 
@@ -660,9 +655,9 @@ describe("Test Sticky Commands", () => {
 						get: (id: string) => {
 							// チャンネルが存在しないのでundefinedを返す
 							return undefined;
-						}
-					}
-				}
+						},
+					},
+				},
 			} as any);
 
 			// replyメソッドをモック
@@ -684,5 +679,4 @@ describe("Test Sticky Commands", () => {
 			expect(replyValue).to.eq("スティッキーの投稿がなかったよ！っ");
 		})();
 	});
-
 });
