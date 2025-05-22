@@ -408,8 +408,8 @@ describe("Test Sticky Commands", () => {
 			const guildId = "1";
 			const channelId = "2";
 			const userId = "3";
-			const stickyMessageText = "これはスティッキーメッセージです";
 			const messageId = "12345";
+			const stickyMessageText = "これはスティッキーメッセージです";
 
 			// RoleConfigのモック
 			const originalUsers = RoleConfig.users;
