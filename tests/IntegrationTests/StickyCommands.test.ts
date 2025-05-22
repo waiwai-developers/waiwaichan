@@ -2,7 +2,7 @@ import "reflect-metadata";
 import { appContainer } from "@/src/app.di.config";
 import { RoleConfig } from "@/src/entities/config/RoleConfig";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
-import { IStickyLogic } from "@/src/logics/Interfaces/logics/IStickyLogic";
+import type { IStickyLogic } from "@/src/logics/Interfaces/logics/IStickyLogic";
 import { StickyRepositoryImpl } from "@/src/repositories/sequelize-mysql";
 import { MysqlConnector } from "@/tests/fixtures/database/MysqlConnector";
 import { mockSlashCommand, waitUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
@@ -1084,11 +1084,102 @@ describe("Test Sticky Commands", () => {
 	});
 
 	/**
-	 * [スティッキーリスト表示] 管理者権限がある場合はスティッキーリストを表示できる
+	 * [スティッキーリスト表示] スティッキーが登録されていない場合はその旨を表示する
 	 * - verifyStickyLogic.findByCommunityIdメソッドが呼ばれることを検証
-	 * - verifyスティッキーリストが正しく表示されることを検証
+	 * - verifyスティッキーが登録されていない場合にその旨のメッセージが表示されることを検証
 	 */
-	it("should display sticky list when user has admin permission", function (this: Mocha.Context) {
+	it("should display message when no stickies are registered", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			// 管理者ユーザーIDを設定
+			const userId = "1234";
+			const guildId = "1234567890";
+
+			// RoleConfigのモック - 管理者として設定
+			const originalUsers = RoleConfig.users;
+			RoleConfig.users = [
+				{ discordId: userId, role: "admin" }, // 管理者として設定
+			];
+
+			// コマンドのモック作成
+			const commandMock = mockSlashCommand("stickylist", {}, userId);
+
+			// guildIdとchannelを設定
+			when(commandMock.guildId).thenReturn(guildId);
+			when(commandMock.channel).thenReturn({} as any);
+
+			// replyメソッドをモック
+			let replyValue = "";
+			when(commandMock.reply(anything())).thenCall((message: string) => {
+				replyValue = message;
+				console.log("Reply received:", message);
+				return Promise.resolve({} as any);
+			});
+
+			// コマンド実行
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+			// 応答を待つ
+			await waitUntilReply(commandMock, 100);
+
+			// 応答の検証
+			expect(replyValue).to.eq("スティッキーが登録されていなかったよ！っ");
+		})();
+	});
+	/**
+	 * [空リスト] スティッキーが登録されていない場合は適切なメッセージを表示
+	 * - verifyStickyLogic.findByCommunityIdが呼ばれることを検証
+	 * - verify空の配列が返された場合に適切なメッセージが表示されることを検証
+	 */
+	it("should verify findByCommunityId is called and display appropriate message when no stickies are registered", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			// 管理者ユーザーIDを設定
+			const adminUserId = "1234";
+			const guildId = "1234567890";
+
+			// RoleConfigのモック - 管理者として設定
+			RoleConfig.users = [
+				{ discordId: adminUserId, role: "admin" }, // 管理者として設定
+			];
+
+			// コマンドのモック作成
+			const commandMock = mockSlashCommand("stickylist", {}, adminUserId);
+
+			// guildIdとchannelを設定
+			when(commandMock.guildId).thenReturn(guildId);
+			when(commandMock.channel).thenReturn({} as any);
+
+			// replyメソッドをモック
+			let replyValue = "";
+			when(commandMock.reply(anything())).thenCall((message: string) => {
+				replyValue = message;
+				console.log("Reply received:", message);
+				return Promise.resolve({} as any);
+			});
+
+			// コマンド実行
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+			// 応答を待つ
+			await waitUntilReply(commandMock, 100);
+
+			// 応答の検証 - スティッキーが登録されていない場合のメッセージ
+			expect(replyValue).to.eq("スティッキーが登録されていなかったよ！っ");
+		})();
+	});
+
+	/**
+	 * [リスト表示] 登録されているスティッキーの一覧が表示される
+	 * - verifyStickyLogic.findByCommunityIdが正しいパラメータで呼ばれることを検証
+	 * - verify返されたスティッキーリストが適切にフォーマットされて表示されることを検証
+	 * - verifyチャンネルIDが正しくDiscordのメンション形式（<#ID>）で表示されることを検証
+	 * */
+	it("should display formatted sticky list with correct channel mentions", function (this: Mocha.Context) {
 		this.timeout(10_000);
 
 		return (async () => {
@@ -1101,7 +1192,6 @@ describe("Test Sticky Commands", () => {
 			const message = "スティッキーのメッセージ";
 
 			// RoleConfigのモック - 管理者として設定
-			const originalUsers = RoleConfig.users;
 			RoleConfig.users = [
 				{ discordId: adminUserId, role: "admin" }, // 管理者として設定
 			];
@@ -1146,55 +1236,20 @@ describe("Test Sticky Commands", () => {
 			await waitUntilReply(commandMock, 100);
 
 			// 応答の検証
+			// 1. 適切なフォーマットで表示されていることを検証
 			expect(replyValue).to.include("以下のチャンネルにスティッキーが登録されているよ！");
+
+			// 2. チャンネルIDが正しくDiscordのメンション形式（<#ID>）で表示されていることを検証
 			expect(replyValue).to.include(`<#${channelId1}>`);
 			expect(replyValue).to.include(`<#${channelId2}>`);
-		})();
-	});
 
-	/**
-	 * [スティッキーリスト表示] スティッキーが登録されていない場合はその旨を表示する
-	 * - verifyStickyLogic.findByCommunityIdメソッドが呼ばれることを検証
-	 * - verifyスティッキーが登録されていない場合にその旨のメッセージが表示されることを検証
-	 */
-	it("should display message when no stickies are registered", function (this: Mocha.Context) {
-		this.timeout(10_000);
-
-		return (async () => {
-			// 管理者ユーザーIDを設定
-			const userId = "1234";
-			const guildId = "1234567890";
-
-			// RoleConfigのモック - 管理者として設定
-			const originalUsers = RoleConfig.users;
-			RoleConfig.users = [
-				{ discordId: userId, role: "admin" }, // 管理者として設定
-			];
-
-			// コマンドのモック作成
-			const commandMock = mockSlashCommand("stickylist", {}, userId);
-
-			// guildIdとchannelを設定
-			when(commandMock.guildId).thenReturn(guildId);
-			when(commandMock.channel).thenReturn({} as any);
-
-			// replyメソッドをモック
-			let replyValue = "";
-			when(commandMock.reply(anything())).thenCall((message: string) => {
-				replyValue = message;
-				console.log("Reply received:", message);
-				return Promise.resolve({} as any);
-			});
-
-			// コマンド実行
-			const TEST_CLIENT = await TestDiscordServer.getClient();
-			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-
-			// 応答を待つ
-			await waitUntilReply(commandMock, 100);
-
-			// 応答の検証
-			expect(replyValue).to.eq("スティッキーが登録されていなかったよ！っ");
+			// 3. 返されたスティッキーリストが適切にフォーマットされていることを検証
+			// 各チャンネルが箇条書き（- で始まる行）で表示されていることを確認
+			const lines = replyValue.split("\n");
+			expect(lines.length).to.be.at.least(3); // ヘッダー + 2つのチャンネル
+			expect(lines[0]).to.eq("以下のチャンネルにスティッキーが登録されているよ！");
+			expect(lines[1]).to.match(/^- <#\d+>$/);
+			expect(lines[2]).to.match(/^- <#\d+>$/);
 		})();
 	});
 });
