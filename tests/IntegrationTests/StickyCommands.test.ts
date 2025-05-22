@@ -1817,6 +1817,7 @@ describe("Test Sticky Commands", () => {
 			expect(sticky?.message).to.eq(updatedMessage); // メッセージが更新されていることを確認
 		})();
 	});
+
 	/**
 	* StickyEventHandler テスト仕様
 	*/
@@ -1864,6 +1865,72 @@ describe("Test Sticky Commands", () => {
 			// チャンネルをモック
 			const channelMock = mock<TextChannel>();
 			when(channelMock.isThread()).thenReturn(false);
+			when(messageMock.channel).thenReturn(instance(channelMock));
+
+			// TestDiscordServerを使用してmessageCreateイベントを発火
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("messageCreate", instance(messageMock));
+
+			// 処理が完了するまで少し待つ
+			await new Promise((resolve) => setTimeout(resolve, 100));
+
+			// テスト後のスティッキー情報を取得
+			const stickyAfter = await StickyRepositoryImpl.findOne({
+				where: {
+					guildId: guildId,
+					channelId: channelId,
+				},
+			});
+
+			// StickyのmessageIdが更新されないことを検証
+			expect(stickyAfter).to.not.be.null;
+			expect(String(stickyAfter?.messageId)).to.eq(String(messageId));
+			expect(String(stickyAfter?.messageId)).to.eq(String(stickyBefore?.messageId));
+		})();
+	});
+
+	/**
+	* [スレッドメッセージ] スレッド内のメッセージではスティッキーが再投稿されない
+	* - verifyスレッド内のメッセージの場合、処理が中断されることを検証
+	*/
+	it("should not repost sticky when message is in a thread", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			// テスト用のパラメータ設定
+			const userId = "1234";
+			const guildId = "1234567890";
+			const channelId = "12345";
+			const messageId = "67890";
+			const message = "スティッキーのメッセージ";
+
+			// スティッキーをデータベースに作成
+			await StickyRepositoryImpl.create({
+				guildId: guildId,
+				channelId: channelId,
+				userId: userId,
+				messageId: messageId,
+				message: message,
+			});
+
+			// テスト前のスティッキー情報を取得
+			const stickyBefore = await StickyRepositoryImpl.findOne({
+				where: {
+					guildId: guildId,
+					channelId: channelId,
+				},
+			});
+
+			// 通常のユーザーからのメッセージをモック作成
+			const messageMock = mockMessage(userId, false, false); // isBotMessage = false
+
+			// guildIdとchannelIdを設定
+			when(messageMock.guildId).thenReturn(guildId);
+			when(messageMock.channelId).thenReturn(channelId);
+
+			// チャンネルをモック - スレッドとして設定
+			const channelMock = mock<TextChannel>();
+			when(channelMock.isThread()).thenReturn(true); // スレッドとして設定
 			when(messageMock.channel).thenReturn(instance(channelMock));
 
 			// TestDiscordServerを使用してmessageCreateイベントを発火
