@@ -19,6 +19,9 @@ export class StickyDeleteCommandHandler implements SlashCommandHandler {
 	async handle(
 		interaction: ChatInputCommandInteraction<CacheType>,
 	): Promise<void> {
+		if (!interaction.guildId) {
+			return;
+		}
 		if (interaction.channel == null) {
 			return;
 		}
