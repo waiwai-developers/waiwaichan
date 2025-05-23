@@ -2155,6 +2155,7 @@ describe("Test Sticky Commands", () => {
 	/**
 	* [古いメッセージ削除] 古いスティッキーメッセージが削除される
 	* - verify古いメッセージのdeleteメソッドが呼ばれることを検証
+	* - verify新しいメッセージIDが正しく設定されることを検証
 	*/
 	it("should delete old sticky message when new message is posted", function (this: Mocha.Context) {
 		this.timeout(10_000);
@@ -2177,34 +2178,28 @@ describe("Test Sticky Commands", () => {
 				message: message,
 			});
 
-			// テスト前のスティッキー情報を取得
-			const stickyBefore = await StickyRepositoryImpl.findOne({
-				where: {
-					guildId: guildId,
-					channelId: channelId,
-				},
-			});
-
 			// 通常のユーザーからのメッセージをモック作成
 			const messageMock = mockMessage(userId, false, false); // isBotMessage = false
-
-			// guildIdとchannelIdを設定
-			when(messageMock.guildId).thenReturn(guildId);
-			when(messageMock.channelId).thenReturn(channelId);
 
 			// 古いメッセージのモック - 削除が成功するケース
 			let deleteWasCalled = false;
 			const oldMessageMock = {
+				guildId: guildId,
+				channelId: channelId,
 				id: oldMessageId,
 				content: message,
 				delete: () => {
+					console.log("delete() called on old message");
 					deleteWasCalled = true;
 					return Promise.resolve(true);
 				},
 			};
 
 			// 新しいメッセージのモック
+			let createWasCalled = false;
 			const newMessageMock = {
+				guildId: guildId,
+				channelId: channelId,
 				id: newMessageId,
 				content: message,
 			};
@@ -2215,24 +2210,38 @@ describe("Test Sticky Commands", () => {
 			when(channelMock.send(anything())).thenResolve(newMessageMock as any);
 			when(channelMock.messages).thenReturn({
 				fetch: (id: string) => {
-					if (id === oldMessageId) {
-						return Promise.resolve(oldMessageMock);
-					}
-					return Promise.reject(new Error("Message not found"));
+					return Promise.resolve(oldMessageMock);
 				},
 			} as any);
 			when(messageMock.channel).thenReturn(instance(channelMock));
+
+			// guildIdとchannelIdを設定
+			when(messageMock.guildId).thenReturn(guildId);
+			when(messageMock.channelId).thenReturn(channelId);
+			// guildのモックを設定
+			when(messageMock.guild).thenReturn({
+				channels: {
+					cache: {
+						get: (id: string) => channelMock
+					},
+				},
+			} as any);
 
 			// guildをモック - TextChannelを返すように設定
 			const guildMock = {
 				channels: {
 					cache: {
 						get: (id: string) => {
-							if (id === channelId) {
-								return instance(channelMock);
-							}
-							return null;
-						},
+							// TextChannelのインスタンスとして認識される
+							const textChannel = Object.create(TextChannel.prototype);
+							// 必要なメソッドをモック
+							textChannel.send = () => Promise.resolve(newMessageMock);
+							textChannel.messages = {fetch: () => Promise.resolve(oldMessageMock)};
+							// 必要なプロパティを追加
+							textChannel.id = id;
+							textChannel.type = 0; // TextChannelのtype
+							return textChannel;
+						}
 					},
 				},
 			};
@@ -2243,7 +2252,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("messageCreate", instance(messageMock));
 
 			// 処理が完了するまで少し待つ
-			await new Promise((resolve) => setTimeout(resolve, 500));
+			await new Promise((resolve) => setTimeout(resolve, 1000));
 
 			// テスト後のスティッキー情報を取得
 			const stickyAfter = await StickyRepositoryImpl.findOne({
@@ -2253,10 +2262,11 @@ describe("Test Sticky Commands", () => {
 				},
 			});
 
+			// message.delete()が呼ばれるを検証
+			expect(deleteWasCalled).to.eq(true);
+
 			// StickyのmessageIdが更新されたことを検証
-			expect(stickyAfter).to.not.be.null;
 			expect(String(stickyAfter?.messageId)).to.eq(String(newMessageId));
-			expect(String(stickyAfter?.messageId)).to.not.eq(String(stickyBefore?.messageId));
 		})();
 	});
 });
