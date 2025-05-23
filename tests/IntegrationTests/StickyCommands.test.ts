@@ -1,8 +1,4 @@
-import "reflect-metadata";
-import { appContainer } from "@/src/app.di.config";
 import { RoleConfig } from "@/src/entities/config/RoleConfig";
-import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
-import type { IStickyLogic } from "@/src/logics/Interfaces/logics/IStickyLogic";
 import { StickyRepositoryImpl } from "@/src/repositories/sequelize-mysql";
 import { MysqlConnector } from "@/tests/fixtures/database/MysqlConnector";
 import { mockMessage } from "@/tests/fixtures/discord.js/MockMessage";
@@ -43,16 +39,18 @@ describe("Test Sticky Commands", () => {
 
 		return (async () => {
 			// 非管理者ユーザーIDを設定
-			const nonAdminUserId = "9999";
+			const guildId = "1"
+			const channelid = "2"
+			const userId = "3";
 
 			// コマンドのモック作成
-			const commandMock = mockSlashCommand("stickycreate", { channelid: "12345" }, nonAdminUserId);
+			const commandMock = mockSlashCommand("stickycreate", { channelid: channelid }, userId);
 
 			// RoleConfigのモック
-			RoleConfig.users = [...RoleConfig.users, { discordId: nonAdminUserId, role: "user" }];
+			RoleConfig.users = [{ discordId: userId, role: "user" }];
 
 			// guildIdとchannelを設定
-			when(commandMock.guildId).thenReturn("1234567890");
+			when(commandMock.guildId).thenReturn(guildId);
 			when(commandMock.channel).thenReturn({} as any);
 
 			// replyメソッドをモック
@@ -96,7 +94,7 @@ describe("Test Sticky Commands", () => {
 			const message = "スティッキーのメッセージ";
 
 			// RoleConfigのモック
-			RoleConfig.users = [...RoleConfig.users, { discordId: userId, role: "admin" }];
+			RoleConfig.users = [{ discordId: userId, role: "admin" }];
 
 			// 既存のスティッキーを返すようにfindメソッドをモック
 
@@ -156,7 +154,6 @@ describe("Test Sticky Commands", () => {
 			// 実際のRoleConfigを使用するが、テスト用のユーザーが管理者であることを確認
 			const originalUsers = RoleConfig.users;
 			(RoleConfig as any).users = [
-				...originalUsers,
 				{ discordId: userId, role: "admin" }, // 管理者ユーザーを追加
 			];
 
@@ -217,11 +214,11 @@ describe("Test Sticky Commands", () => {
 			const guildId = "1";
 			const channelId = "2";
 			const userId = "3";
+			const messageId = "4"
 
 			// RoleConfigのモック
 			const originalUsers = RoleConfig.users;
 			(RoleConfig as any).users = [
-				...originalUsers,
 				{ discordId: userId, role: "admin" }, // 管理者ユーザーを追加
 			];
 
@@ -249,7 +246,7 @@ describe("Test Sticky Commands", () => {
 								// Object.createを使用してTextChannelのプロトタイプを継承したオブジェクトを作成
 								const textChannel = Object.create(TextChannel.prototype);
 								// 必要なメソッドをモック
-								textChannel.send = () => Promise.resolve({ id: "12345", content: "test message" } as any);
+								textChannel.send = () => Promise.resolve({ id: messageId, content: "test message" } as any);
 								// 必要なプロパティを追加
 								textChannel.id = channelId;
 								textChannel.type = 0; // TextChannelのtype
@@ -314,11 +311,11 @@ describe("Test Sticky Commands", () => {
 			const guildId = "1";
 			const channelId = "2";
 			const userId = "3";
+			const messageId = "4"
 
 			// RoleConfigのモック
 			const originalUsers = RoleConfig.users;
 			(RoleConfig as any).users = [
-				...originalUsers,
 				{ discordId: userId, role: "admin" }, // 管理者ユーザーを追加
 			];
 
@@ -362,7 +359,7 @@ describe("Test Sticky Commands", () => {
 								// TextChannelのインスタンスとして認識されるようにする
 								const textChannel = Object.create(TextChannel.prototype);
 								// 必要なメソッドをモック
-								textChannel.send = () => Promise.resolve({ id: "12345", content: "test message" } as any);
+								textChannel.send = () => Promise.resolve({ id: messageId, content: "test message" } as any);
 								// 必要なプロパティを追加
 								textChannel.id = channelId;
 								textChannel.type = 0; // TextChannelのtype
@@ -402,13 +399,12 @@ describe("Test Sticky Commands", () => {
 			const guildId = "1";
 			const channelId = "2";
 			const userId = "3";
-			const messageId = "12345";
+			const messageId = "4";
 			const stickyMessageText = "これはスティッキーメッセージです";
 
 			// RoleConfigのモック
 			const originalUsers = RoleConfig.users;
 			(RoleConfig as any).users = [
-				...originalUsers,
 				{ discordId: userId, role: "admin" }, // 管理者ユーザーを追加
 			];
 
@@ -512,18 +508,18 @@ describe("Test Sticky Commands", () => {
 
 		return (async () => {
 			// 非管理者ユーザーIDを設定
-			const nonAdminUserId = "9999";
-			const guildId = "1234567890";
-			const channelId = "12345";
+			const guildId = "1";
+			const channelId = "2";
+			const userId = "3";
 
 			// RoleConfigのモック - 明示的に非管理者として設定
 			const originalUsers = RoleConfig.users;
 			RoleConfig.users = [
-				{ discordId: nonAdminUserId, role: "user" }, // 非管理者として設定
+				{ discordId: userId, role: "user" }, // 非管理者として設定
 			];
 
 			// コマンドのモック作成
-			const commandMock = mockSlashCommand("stickydelete", { channelid: channelId }, nonAdminUserId);
+			const commandMock = mockSlashCommand("stickydelete", { channelid: channelId }, userId);
 
 			// guildIdとchannelを設定
 			when(commandMock.guildId).thenReturn(guildId);
@@ -562,18 +558,18 @@ describe("Test Sticky Commands", () => {
 
 		return (async () => {
 			// 管理者ユーザーIDを設定
-			const adminUserId = "1234";
-			const guildId = "1234567890";
-			const channelId = "12345";
+			const guildId = "1";
+			const channelId = "2";
+			const userId = "3";
 
 			// RoleConfigのモック - 管理者として設定
 			const originalUsers = RoleConfig.users;
 			RoleConfig.users = [
-				{ discordId: adminUserId, role: "admin" }, // 管理者として設定
+				{ discordId: userId, role: "admin" }, // 管理者として設定
 			];
 
 			// コマンドのモック作成
-			const commandMock = mockSlashCommand("stickydelete", { channelid: channelId }, adminUserId);
+			const commandMock = mockSlashCommand("stickydelete", { channelid: channelId }, userId);
 
 			// guildIdとchannelを設定
 			when(commandMock.guildId).thenReturn(guildId);
@@ -608,10 +604,10 @@ describe("Test Sticky Commands", () => {
 
 		return (async () => {
 			// 管理者ユーザーIDを設定
-			const adminUserId = "1234";
-			const guildId = "1234567890";
-			const channelId = "12345";
-			const messageId = "67890";
+			const adminUserId = "1";
+			const guildId = "2";
+			const channelId = "3";
+			const messageId = "4";
 			const message = "スティッキーのメッセージ";
 
 			// RoleConfigのモック - 管理者として設定
@@ -678,10 +674,10 @@ describe("Test Sticky Commands", () => {
 
 		return (async () => {
 			// 管理者ユーザーIDを設定
-			const adminUserId = "1234";
-			const guildId = "1234567890";
-			const channelId = "12345";
-			const messageId = "67890";
+			const guildId = "1";
+			const channelId = "2";
+			const adminUserId = "3";
+			const messageId = "4";
 			const message = "スティッキーのメッセージ";
 
 			// RoleConfigのモック - 管理者として設定
@@ -698,10 +694,6 @@ describe("Test Sticky Commands", () => {
 				messageId: messageId,
 				message: message,
 			});
-
-			// StickyLogicのdeleteメソッドをスパイするためのモック
-			const stickyLogicMock = mock<IStickyLogic>();
-			const originalStickyLogic = appContainer.get<IStickyLogic>(LogicTypes.StickyLogic);
 
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("stickydelete", { channelid: channelId }, adminUserId);
@@ -754,10 +746,10 @@ describe("Test Sticky Commands", () => {
 
 		return (async () => {
 			// 管理者ユーザーIDを設定
-			const userId = "1234";
-			const guildId = "1234567890";
-			const channelId = "12345";
-			const messageId = "67890";
+			const guildId = "1";
+			const channelId = "2";
+			const userId = "3";
+			const messageId = "4";
 			const message = "スティッキーのメッセージ";
 
 			RoleConfig.users = [
@@ -847,10 +839,10 @@ describe("Test Sticky Commands", () => {
 
 		return (async () => {
 			// 管理者ユーザーIDを設定
-			const userId = "1234";
-			const guildId = "1234567890";
-			const channelId = "12345";
-			const messageId = "67890";
+			const guildId = "1";
+			const channelId = "2";
+			const userId = "3";
+			const messageId = "4";
 			const message = "スティッキーのメッセージ";
 
 			// RoleConfigのモック - 管理者として設定
@@ -940,10 +932,10 @@ describe("Test Sticky Commands", () => {
 
 		return (async () => {
 			// 管理者ユーザーIDを設定
-			const userId = "1234";
-			const guildId = "1234567890";
-			const channelId = "12345";
-			const messageId = "67890";
+			const guildId = "1";
+			const channelId = "2";
+			const userId = "3";
+			const messageId = "4";
 			const message = "スティッキーのメッセージ";
 
 			// RoleConfigのモック - 管理者として設定
@@ -1037,16 +1029,16 @@ describe("Test Sticky Commands", () => {
 
 		return (async () => {
 			// 非管理者ユーザーIDを設定
-			const nonAdminUserId = "9999";
-			const guildId = "1234567890";
+			const guildId = "1";
+			const userId = "2";
 
 			// RoleConfigのモック - 明示的に非管理者として設定
 			RoleConfig.users = [
-				{ discordId: nonAdminUserId, role: "user" }, // 非管理者として設定
+				{ discordId: userId, role: "user" }, // 非管理者として設定
 			];
 
 			// コマンドのモック作成
-			const commandMock = mockSlashCommand("stickylist", {}, nonAdminUserId);
+			const commandMock = mockSlashCommand("stickylist", {}, userId);
 
 			// guildIdとchannelを設定
 			when(commandMock.guildId).thenReturn(guildId);
@@ -1081,11 +1073,10 @@ describe("Test Sticky Commands", () => {
 
 		return (async () => {
 			// 管理者ユーザーIDを設定
-			const userId = "1234";
-			const guildId = "1234567890";
+			const guildId = "1";
+			const userId = "2";
 
 			// RoleConfigのモック - 管理者として設定
-			const originalUsers = RoleConfig.users;
 			RoleConfig.users = [
 				{ discordId: userId, role: "admin" }, // 管理者として設定
 			];
@@ -1125,16 +1116,17 @@ describe("Test Sticky Commands", () => {
 
 		return (async () => {
 			// 管理者ユーザーIDを設定
-			const adminUserId = "1234";
-			const guildId = "1234567890";
+
+			const guildId = "1";
+			const userId = "2";
 
 			// RoleConfigのモック - 管理者として設定
 			RoleConfig.users = [
-				{ discordId: adminUserId, role: "admin" }, // 管理者として設定
+				{ discordId: userId, role: "admin" }, // 管理者として設定
 			];
 
 			// コマンドのモック作成
-			const commandMock = mockSlashCommand("stickylist", {}, adminUserId);
+			const commandMock = mockSlashCommand("stickylist", {}, userId);
 
 			// guildIdとchannelを設定
 			when(commandMock.guildId).thenReturn(guildId);
@@ -1170,23 +1162,23 @@ describe("Test Sticky Commands", () => {
 
 		return (async () => {
 			// 管理者ユーザーIDを設定
-			const adminUserId = "1234";
-			const guildId = "1234567890";
-			const channelId1 = "12345";
-			const channelId2 = "67890";
-			const messageId = "54321";
+			const guildId = "1";
+			const channelId1 = "2";
+			const channelId2 = "3";
+			const userId = "4";
+			const messageId = "5";
 			const message = "スティッキーのメッセージ";
 
 			// RoleConfigのモック - 管理者として設定
 			RoleConfig.users = [
-				{ discordId: adminUserId, role: "admin" }, // 管理者として設定
+				{ discordId: userId, role: "admin" }, // 管理者として設定
 			];
 
 			// スティッキーをデータベースに作成
 			await StickyRepositoryImpl.create({
 				guildId: guildId,
 				channelId: channelId1,
-				userId: adminUserId,
+				userId: userId,
 				messageId: messageId,
 				message: message,
 			});
@@ -1194,13 +1186,13 @@ describe("Test Sticky Commands", () => {
 			await StickyRepositoryImpl.create({
 				guildId: guildId,
 				channelId: channelId2,
-				userId: adminUserId,
+				userId: userId,
 				messageId: messageId,
 				message: message,
 			});
 
 			// コマンドのモック作成
-			const commandMock = mockSlashCommand("stickylist", {}, adminUserId);
+			const commandMock = mockSlashCommand("stickylist", {}, userId);
 
 			// guildIdとchannelを設定
 			when(commandMock.guildId).thenReturn(guildId);
@@ -1253,9 +1245,9 @@ describe("Test Sticky Commands", () => {
 
 		return (async () => {
 			// 非管理者ユーザーIDを設定
-			const userId = "1";
-			const guildId = "2";
-			const channelId = "3";
+			const guildId = "1";
+			const channelId = "2";
+			const userId = "3";
 
 			// RoleConfigのモック - 明示的に非管理者として設定
 			RoleConfig.users = [
@@ -1299,9 +1291,9 @@ describe("Test Sticky Commands", () => {
 
 		return (async () => {
 			// 管理者ユーザーIDを設定
-			const userId = "1";
-			const guildId = "2";
-			const channelId = "3";
+			const guildId = "1";
+			const channelId = "2";
+			const userId = "3";
 
 			// RoleConfigのモック - 管理者として設定
 			RoleConfig.users = [
@@ -1345,9 +1337,9 @@ describe("Test Sticky Commands", () => {
 
 		return (async () => {
 			// 管理者ユーザーIDを設定
-			const userId = "1";
-			const guildId = "2";
-			const channelId = "3";
+			const guildId = "1";
+			const channelId = "2";
+			const userId = "3";
 			const messageId = "4";
 			const message = "スティッキーのメッセージ";
 
@@ -1426,10 +1418,10 @@ describe("Test Sticky Commands", () => {
 
 		return (async () => {
 			// 管理者ユーザーIDを設定
-			const userId = "1234";
-			const guildId = "1234567890";
-			const channelId = "12345";
-			const messageId = "67890";
+			const guildId = "1";
+			const channelId = "2";
+			const userId = "3";
+			const messageId = "4";
 			const message = "スティッキーのメッセージ";
 
 			// スティッキーをデータベースに作成
@@ -1444,7 +1436,6 @@ describe("Test Sticky Commands", () => {
 			// RoleConfigのモック
 			const originalUsers = RoleConfig.users;
 			(RoleConfig as any).users = [
-				...originalUsers,
 				{ discordId: userId, role: "admin" }, // 管理者ユーザーを追加
 			];
 
@@ -1472,7 +1463,7 @@ describe("Test Sticky Commands", () => {
 								// Object.createを使用してTextChannelのプロトタイプを継承したオブジェクトを作成
 								const textChannel = Object.create(TextChannel.prototype);
 								// 必要なメソッドをモック
-								textChannel.send = () => Promise.resolve({ id: "12345", content: "test message" } as any);
+								textChannel.send = () => Promise.resolve({ id: messageId, content: "test message" } as any);
 								// 必要なプロパティを追加
 								textChannel.id = channelId;
 								textChannel.type = 0; // TextChannelのtype
@@ -1567,10 +1558,10 @@ describe("Test Sticky Commands", () => {
 
 		return (async () => {
 			// 管理者ユーザーIDを設定
-			const userId = "1234";
-			const guildId = "1234567890";
-			const channelId = "12345";
-			const messageId = "67890";
+			const guildId = "1";
+			const channelId = "2";
+			const userId = "3";
+			const messageId = "4";
 			const message = "スティッキーのメッセージ";
 
 			// スティッキーをデータベースに作成
@@ -1683,10 +1674,10 @@ describe("Test Sticky Commands", () => {
 
 		return (async () => {
 			// 管理者ユーザーIDを設定
-			const userId = "1234";
-			const guildId = "1234567890";
-			const channelId = "12345";
-			const messageId = "67890";
+			const guildId = "1";
+			const channelId = "2";
+			const userId = "3";
+			const messageId = "4";
 			const originalMessage = "元のスティッキーメッセージ";
 			const updatedMessage = "更新されたスティッキーメッセージ";
 
@@ -1810,10 +1801,10 @@ describe("Test Sticky Commands", () => {
 
 		return (async () => {
 			// テスト用のパラメータ設定
-			const userId = "1234";
-			const guildId = "1234567890";
-			const channelId = "12345";
-			const messageId = "67890";
+			const guildId = "1";
+			const channelId = "2";
+			const userId = "3";
+			const messageId = "4";
 			const message = "スティッキーのメッセージ";
 
 			// スティッキーをデータベースに作成
@@ -1876,10 +1867,10 @@ describe("Test Sticky Commands", () => {
 
 		return (async () => {
 			// テスト用のパラメータ設定
-			const userId = "1234";
-			const guildId = "1234567890";
-			const channelId = "12345";
-			const messageId = "67890";
+			const guildId = "1";
+			const channelId = "2";
+			const userId = "3";
+			const messageId = "4";
 			const message = "スティッキーのメッセージ";
 
 			// スティッキーをデータベースに作成
@@ -1942,9 +1933,9 @@ describe("Test Sticky Commands", () => {
 
 		return (async () => {
 			// テスト用のパラメータ設定
-			const userId = "1234";
-			const guildId = "1234567890";
-			const channelId = "12345"; // スティッキーが登録されていないチャンネル
+			const guildId = "1";
+			const channelId = "2";
+			const userId = "3";
 
 			// 通常のユーザーからのメッセージをモック作成
 			const messageMock = mockMessage(userId, false, false); // isBotMessage = false
@@ -1979,10 +1970,10 @@ describe("Test Sticky Commands", () => {
 
 		return (async () => {
 			// テスト用のパラメータ設定
-			const userId = "1234";
-			const guildId = "1234567890";
-			const channelId = "12345";
-			const messageId = "67890";
+			const guildId = "1";
+			const channelId = "2";
+			const userId = "3";
+			const messageId = "4";
 			const message = "スティッキーのメッセージ";
 
 			// スティッキーをデータベースに作成
@@ -2059,10 +2050,10 @@ describe("Test Sticky Commands", () => {
 
 		return (async () => {
 			// テスト用のパラメータ設定
-			const userId = "1234";
-			const guildId = "1234567890";
-			const channelId = "12345";
-			const messageId = "67890";
+			const guildId = "1";
+			const channelId = "2";
+			const userId = "3";
+			const messageId = "4";
 			const message = "スティッキーのメッセージ";
 
 			// スティッキーをデータベースに作成
@@ -2140,11 +2131,11 @@ describe("Test Sticky Commands", () => {
 
 		return (async () => {
 			// テスト用のパラメータ設定
-			const userId = "1234";
-			const guildId = "1234567890";
-			const channelId = "12345";
-			const oldMessageId = "67890";
-			const newMessageId = "67891";
+			const guildId = "1";
+			const channelId = "2";
+			const userId = "3";
+			const oldMessageId = "4";
+			const newMessageId = "5";
 			const message = "スティッキーのメッセージ";
 
 			// スティッキーをデータベースに作成
