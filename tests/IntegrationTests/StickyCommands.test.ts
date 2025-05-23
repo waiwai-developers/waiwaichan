@@ -12,7 +12,6 @@ import { ModalBuilder, TextChannel, TextInputBuilder, TextInputStyle } from "dis
 import type Mocha from "mocha";
 import { anything, instance, mock, verify, when } from "ts-mockito";
 import { TestDiscordServer } from "../fixtures/discord.js/TestDiscordServer";
-import { StickyEventHandler } from "@/src/handlers/discord.js/events/StickyEventHandler";
 
 describe("Test Sticky Commands", () => {
 	/**
@@ -60,7 +59,6 @@ describe("Test Sticky Commands", () => {
 			let replyValue = "";
 			when(commandMock.reply(anything())).thenCall((message: string) => {
 				replyValue = message;
-				console.log("Reply received:", message);
 				return Promise.resolve({} as any);
 			});
 
@@ -121,7 +119,6 @@ describe("Test Sticky Commands", () => {
 			let replyValue = "";
 			when(commandMock.reply(anything())).thenCall((message: string) => {
 				replyValue = message;
-				console.log("Reply received:", message);
 				return Promise.resolve({} as any);
 			});
 
@@ -189,7 +186,6 @@ describe("Test Sticky Commands", () => {
 			let replyValue = "";
 			when(commandMock.reply(anything())).thenCall((message: string) => {
 				replyValue = message;
-				console.log("Reply received:", message);
 				return Promise.resolve({} as any);
 			});
 
@@ -341,7 +337,6 @@ describe("Test Sticky Commands", () => {
 				},
 				guildId: guildId,
 				reply: async (message: string) => {
-					console.log("Modal reply received:", message);
 					modalSubmitInteraction.replyMessage = message;
 					return {} as any;
 				},
@@ -443,7 +438,6 @@ describe("Test Sticky Commands", () => {
 				},
 				guildId: guildId,
 				reply: async (message: string) => {
-					console.log("Modal reply received:", message);
 					modalSubmitInteraction.replyMessage = message;
 					return {} as any;
 				},
@@ -539,7 +533,6 @@ describe("Test Sticky Commands", () => {
 			let replyValue = "";
 			when(commandMock.reply(anything())).thenCall((message: string) => {
 				replyValue = message;
-				console.log("Reply received:", message);
 				return Promise.resolve({} as any);
 			});
 
@@ -590,7 +583,6 @@ describe("Test Sticky Commands", () => {
 			let replyValue = "";
 			when(commandMock.reply(anything())).thenCall((message: string) => {
 				replyValue = message;
-				console.log("Reply received:", message);
 				return Promise.resolve({} as any);
 			});
 
@@ -660,7 +652,6 @@ describe("Test Sticky Commands", () => {
 			let replyValue = "";
 			when(commandMock.reply(anything())).thenCall((message: string) => {
 				replyValue = message;
-				console.log("Reply received:", message);
 				return Promise.resolve({} as any);
 			});
 
@@ -738,7 +729,6 @@ describe("Test Sticky Commands", () => {
 			let replyValue = "";
 			when(commandMock.reply(anything())).thenCall((message: string) => {
 				replyValue = message;
-				console.log("Reply received:", message);
 				return Promise.resolve({} as any);
 			});
 
@@ -828,7 +818,6 @@ describe("Test Sticky Commands", () => {
 			let editReplyValue = "";
 			when(commandMock.editReply(anything())).thenCall((message: string) => {
 				editReplyValue = message;
-				console.log("Edit reply received:", message);
 				return Promise.resolve({} as any);
 			});
 
@@ -922,7 +911,6 @@ describe("Test Sticky Commands", () => {
 			let replyValue = "";
 			when(commandMock.reply(anything())).thenCall((message: string) => {
 				replyValue = message;
-				console.log("Reply received:", message);
 				return Promise.resolve({} as any);
 			});
 
@@ -1017,7 +1005,6 @@ describe("Test Sticky Commands", () => {
 			let editReplyValue = "";
 			when(commandMock.editReply(anything())).thenCall((message: string) => {
 				editReplyValue = message;
-				console.log("Edit reply received:", message);
 				return Promise.resolve({} as any);
 			});
 
@@ -1069,7 +1056,6 @@ describe("Test Sticky Commands", () => {
 			let replyValue = "";
 			when(commandMock.reply(anything())).thenCall((message: string) => {
 				replyValue = message;
-				console.log("Reply received:", message);
 				return Promise.resolve({} as any);
 			});
 
@@ -1115,7 +1101,6 @@ describe("Test Sticky Commands", () => {
 			let replyValue = "";
 			when(commandMock.reply(anything())).thenCall((message: string) => {
 				replyValue = message;
-				console.log("Reply received:", message);
 				return Promise.resolve({} as any);
 			});
 
@@ -1159,7 +1144,6 @@ describe("Test Sticky Commands", () => {
 			let replyValue = "";
 			when(commandMock.reply(anything())).thenCall((message: string) => {
 				replyValue = message;
-				console.log("Reply received:", message);
 				return Promise.resolve({} as any);
 			});
 
@@ -1226,7 +1210,6 @@ describe("Test Sticky Commands", () => {
 			let replyValue = "";
 			when(commandMock.reply(anything())).thenCall((message: string) => {
 				replyValue = message;
-				console.log("Reply received:", message);
 				return Promise.resolve({} as any);
 			});
 
@@ -1290,7 +1273,6 @@ describe("Test Sticky Commands", () => {
 			let replyValue = "";
 			when(commandMock.reply(anything())).thenCall((message: string) => {
 				replyValue = message;
-				console.log("Reply received:", message);
 				return Promise.resolve({} as any);
 			});
 
@@ -1337,7 +1319,6 @@ describe("Test Sticky Commands", () => {
 			let replyValue = "";
 			when(commandMock.reply(anything())).thenCall((message: string) => {
 				replyValue = message;
-				console.log("Reply received:", message);
 				return Promise.resolve({} as any);
 			});
 
@@ -1410,7 +1391,6 @@ describe("Test Sticky Commands", () => {
 			let replyValue = "";
 			when(commandMock.reply(anything())).thenCall((message: string) => {
 				replyValue = message;
-				console.log("Reply received:", message);
 				return Promise.resolve({} as any);
 			});
 
@@ -1622,7 +1602,6 @@ describe("Test Sticky Commands", () => {
 				},
 				guildId: guildId,
 				reply: async (message: string) => {
-					console.log("Modal reply received:", message);
 					modalSubmitInteraction.replyMessage = message;
 					return {} as any;
 				},
@@ -1740,7 +1719,6 @@ describe("Test Sticky Commands", () => {
 				},
 				guildId: guildId,
 				reply: async (message: string) => {
-					console.log("Modal reply received:", message);
 					modalSubmitInteraction.replyMessage = message;
 					return {} as any;
 				},
@@ -2189,14 +2167,12 @@ describe("Test Sticky Commands", () => {
 				id: oldMessageId,
 				content: message,
 				delete: () => {
-					console.log("delete() called on old message");
 					deleteWasCalled = true;
 					return Promise.resolve(true);
 				},
 			};
 
 			// 新しいメッセージのモック
-			let createWasCalled = false;
 			const newMessageMock = {
 				guildId: guildId,
 				channelId: channelId,
