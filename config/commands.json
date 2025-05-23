@@ -104,7 +104,7 @@
 				},
 				{
 					"name": "/candychange",
-					"example": "/candychange id: 1 piece: 1",
+					"example": "/candychange item: 1 piece: 1",
 					"parameter": "item: string piece: integer",
 					"description": "キャンディで取得したアイテムを交換する"
 				}
