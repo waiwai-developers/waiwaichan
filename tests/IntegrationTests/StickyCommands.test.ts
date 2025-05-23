@@ -5,8 +5,8 @@ import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
 import type { IStickyLogic } from "@/src/logics/Interfaces/logics/IStickyLogic";
 import { StickyRepositoryImpl } from "@/src/repositories/sequelize-mysql";
 import { MysqlConnector } from "@/tests/fixtures/database/MysqlConnector";
-import { mockSlashCommand, waitUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { mockMessage } from "@/tests/fixtures/discord.js/MockMessage";
+import { mockSlashCommand, waitUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { expect } from "chai";
 import { ModalBuilder, TextChannel, TextInputBuilder, TextInputStyle } from "discord.js";
 import type Mocha from "mocha";
@@ -1243,11 +1243,11 @@ describe("Test Sticky Commands", () => {
 	 */
 
 	/**
-	* [権限チェック] 管理者権限がない場合はスティッキーを更新できない
-	* - verifyで権限チェックが行われることを検証
-	* - verify権限がない場合にエラーメッセージが返されることを検証
-	* - verifyStickyLogic.updateMessageメソッドが呼ばれないことを検証
-	*/
+	 * [権限チェック] 管理者権限がない場合はスティッキーを更新できない
+	 * - verifyで権限チェックが行われることを検証
+	 * - verify権限がない場合にエラーメッセージが返されることを検証
+	 * - verifyStickyLogic.updateMessageメソッドが呼ばれないことを検証
+	 */
 	it("should not update sticky when user does not have admin permission", function (this: Mocha.Context) {
 		this.timeout(10_000);
 
@@ -1289,11 +1289,11 @@ describe("Test Sticky Commands", () => {
 	});
 
 	/**
-	* [存在チェック] 登録されていないスティッキーは更新できない
-	* - verifyStickyLogic.findが呼ばれることを検証
-	* - verifyスティッキーが存在しない場合にエラーメッセージが返されることを検証
-	* - verifyStickyLogic.updateMessageが呼ばれないことを検証
-	*/
+	 * [存在チェック] 登録されていないスティッキーは更新できない
+	 * - verifyStickyLogic.findが呼ばれることを検証
+	 * - verifyスティッキーが存在しない場合にエラーメッセージが返されることを検証
+	 * - verifyStickyLogic.updateMessageが呼ばれないことを検証
+	 */
 	it("should not update sticky when sticky does not exist", function (this: Mocha.Context) {
 		this.timeout(10_000);
 
@@ -1335,11 +1335,11 @@ describe("Test Sticky Commands", () => {
 	});
 
 	/**
-	* [チャンネル検証] TextChannel以外のスティッキーは更新できない
-	* - verifyチャンネルの型チェックが行われることを検証
-	* - verifyTextChannel以外の場合にエラーメッセージが返されることを検証
-	* - verifyStickyLogic.updateMessageが呼ばれないことを検証
-	*/
+	 * [チャンネル検証] TextChannel以外のスティッキーは更新できない
+	 * - verifyチャンネルの型チェックが行われることを検証
+	 * - verifyTextChannel以外の場合にエラーメッセージが返されることを検証
+	 * - verifyStickyLogic.updateMessageが呼ばれないことを検証
+	 */
 	it("should not update sticky when channel is not a TextChannel", function (this: Mocha.Context) {
 		this.timeout(10_000);
 
@@ -1417,10 +1417,10 @@ describe("Test Sticky Commands", () => {
 	});
 
 	/**
-	* [モーダル表示] スティッキー更新時にモーダルが表示される
-	* - verifyモーダルが表示されることを検証
-	* - verifyモーダルに現在のスティッキーメッセージが初期値として設定されていることを検証
-	*/
+	 * [モーダル表示] スティッキー更新時にモーダルが表示される
+	 * - verifyモーダルが表示されることを検証
+	 * - verifyモーダルに現在のスティッキーメッセージが初期値として設定されていることを検証
+	 */
 	it("should display modal with current sticky message as initial value when updating sticky", function (this: Mocha.Context) {
 		this.timeout(10_000);
 
@@ -1558,10 +1558,10 @@ describe("Test Sticky Commands", () => {
 	});
 
 	/**
-	* [モーダル送信] 空のメッセージでモーダルを送信するとエラーになる
-	* - verify空のメッセージでモーダル送信時にエラーメッセージが返されることを検証
-	* - verifyStickyLogic.updateMessageが呼ばれないことを検証
-	*/
+	 * [モーダル送信] 空のメッセージでモーダルを送信するとエラーになる
+	 * - verify空のメッセージでモーダル送信時にエラーメッセージが返されることを検証
+	 * - verifyStickyLogic.updateMessageが呼ばれないことを検証
+	 */
 	it("should return error when modal is submitted with empty message for update", function (this: Mocha.Context) {
 		this.timeout(10_000);
 
@@ -1674,10 +1674,10 @@ describe("Test Sticky Commands", () => {
 	});
 
 	/**
-	* [スティッキー更新] 正常にスティッキーが更新される
-	* - verifyStickyLogic.updateMessageが正しいパラメータで呼ばれることを検証
-	* - verify更新成功時に成功メッセージが返されることを検証
-	*/
+	 * [スティッキー更新] 正常にスティッキーが更新される
+	 * - verifyStickyLogic.updateMessageが正しいパラメータで呼ばれることを検証
+	 * - verify更新成功時に成功メッセージが返されることを検証
+	 */
 	it("should update sticky message successfully and return success message", function (this: Mocha.Context) {
 		this.timeout(10_000);
 
@@ -1797,14 +1797,14 @@ describe("Test Sticky Commands", () => {
 	});
 
 	/**
-	* StickyEventHandler テスト仕様
-	*/
+	 * StickyEventHandler テスト仕様
+	 */
 
 	/**
-	* [ボットメッセージ] ボットのメッセージではスティッキーが再投稿されない
-	* - verifyボットからのメッセージの場合、処理が中断されることを検証
-	* - verifyStickyLogic.findが呼ばれないことを検証
-	*/
+	 * [ボットメッセージ] ボットのメッセージではスティッキーが再投稿されない
+	 * - verifyボットからのメッセージの場合、処理が中断されることを検証
+	 * - verifyStickyLogic.findが呼ばれないことを検証
+	 */
 	it("should not repost sticky when message is from a bot", function (this: Mocha.Context) {
 		this.timeout(10_000);
 
@@ -1868,9 +1868,9 @@ describe("Test Sticky Commands", () => {
 	});
 
 	/**
-	* [スレッドメッセージ] スレッド内のメッセージではスティッキーが再投稿されない
-	* - verifyスレッド内のメッセージの場合、処理が中断されることを検証
-	*/
+	 * [スレッドメッセージ] スレッド内のメッセージではスティッキーが再投稿されない
+	 * - verifyスレッド内のメッセージの場合、処理が中断されることを検証
+	 */
 	it("should not repost sticky when message is in a thread", function (this: Mocha.Context) {
 		this.timeout(10_000);
 
@@ -1934,9 +1934,9 @@ describe("Test Sticky Commands", () => {
 	});
 
 	/**
-	* [スティッキーなし] スティッキーが登録されていないチャンネルでは何も起こらない
-	* - verifyスティッキーが存在しない場合、処理が中断されることを検証
-	*/
+	 * [スティッキーなし] スティッキーが登録されていないチャンネルでは何も起こらない
+	 * - verifyスティッキーが存在しない場合、処理が中断されることを検証
+	 */
 	it("should do nothing when channel has no sticky registered", function (this: Mocha.Context) {
 		this.timeout(10_000);
 
@@ -1970,10 +1970,10 @@ describe("Test Sticky Commands", () => {
 	});
 
 	/**
-	* [チャンネル検証] チャンネルが存在しない場合は処理が中断される
-	* - verifyチャンネルの存在チェックが行われることを検証
-	* - verifyチャンネルが存在しない場合、処理が中断されることを検証
-	*/
+	 * [チャンネル検証] チャンネルが存在しない場合は処理が中断される
+	 * - verifyチャンネルの存在チェックが行われることを検証
+	 * - verifyチャンネルが存在しない場合、処理が中断されることを検証
+	 */
 	it("should interrupt process when channel does not exist", function (this: Mocha.Context) {
 		this.timeout(10_000);
 
@@ -2050,10 +2050,10 @@ describe("Test Sticky Commands", () => {
 	});
 
 	/**
-	* [チャンネル型検証] TextChannel以外では処理が中断される
-	* - verifyチャンネルの型チェックが行われることを検証
-	* - verifyTextChannel以外の場合、処理が中断されることを検証
-	*/
+	 * [チャンネル型検証] TextChannel以外では処理が中断される
+	 * - verifyチャンネルの型チェックが行われることを検証
+	 * - verifyTextChannel以外の場合、処理が中断されることを検証
+	 */
 	it("should interrupt process when channel is not a TextChannel", function (this: Mocha.Context) {
 		this.timeout(10_000);
 
@@ -2131,10 +2131,10 @@ describe("Test Sticky Commands", () => {
 	});
 
 	/**
-	* [古いメッセージ削除] 古いスティッキーメッセージが削除される
-	* - verify古いメッセージのdeleteメソッドが呼ばれることを検証
-	* - verify新しいメッセージIDが正しく設定されることを検証
-	*/
+	 * [古いメッセージ削除] 古いスティッキーメッセージが削除される
+	 * - verify古いメッセージのdeleteメソッドが呼ばれることを検証
+	 * - verify新しいメッセージIDが正しく設定されることを検証
+	 */
 	it("should delete old sticky message when new message is posted", function (this: Mocha.Context) {
 		this.timeout(10_000);
 
@@ -2198,7 +2198,7 @@ describe("Test Sticky Commands", () => {
 			when(messageMock.guild).thenReturn({
 				channels: {
 					cache: {
-						get: (id: string) => channelMock
+						get: (id: string) => channelMock,
 					},
 				},
 			} as any);
@@ -2212,12 +2212,12 @@ describe("Test Sticky Commands", () => {
 							const textChannel = Object.create(TextChannel.prototype);
 							// 必要なメソッドをモック
 							textChannel.send = () => Promise.resolve(newMessageMock);
-							textChannel.messages = {fetch: () => Promise.resolve(oldMessageMock)};
+							textChannel.messages = { fetch: () => Promise.resolve(oldMessageMock) };
 							// 必要なプロパティを追加
 							textChannel.id = id;
 							textChannel.type = 0; // TextChannelのtype
 							return textChannel;
-						}
+						},
 					},
 				},
 			};
