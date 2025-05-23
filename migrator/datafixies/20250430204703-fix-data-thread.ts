@@ -10,7 +10,6 @@ import { ContextsConst } from "@/src/entities/constants/Contexts";
 import { PersonalitiesConst } from "@/src/entities/constants/Personalities";
 
 export const up: Datafix = async ({ context: sequelize }) => {
-	// トランザクションを開始
 	return sequelize.transaction(async (transaction: Transaction) => {
 		try {
 			const personality = await DatafixPersonalityModel.findOne(
