@@ -39,8 +39,8 @@ describe("Test Sticky Commands", () => {
 
 		return (async () => {
 			// 非管理者ユーザーIDを設定
-			const guildId = "1"
-			const channelid = "2"
+			const guildId = "1";
+			const channelid = "2";
 			const userId = "3";
 
 			// コマンドのモック作成
@@ -214,7 +214,7 @@ describe("Test Sticky Commands", () => {
 			const guildId = "1";
 			const channelId = "2";
 			const userId = "3";
-			const messageId = "4"
+			const messageId = "4";
 
 			// RoleConfigのモック
 			const originalUsers = RoleConfig.users;
@@ -311,7 +311,7 @@ describe("Test Sticky Commands", () => {
 			const guildId = "1";
 			const channelId = "2";
 			const userId = "3";
-			const messageId = "4"
+			const messageId = "4";
 
 			// RoleConfigのモック
 			const originalUsers = RoleConfig.users;
