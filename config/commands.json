@@ -32,7 +32,12 @@
 					"example": "/choice message: apple orange grape",
 					"parameter": "message: [string]",
 					"description": "指定した単語から選んでもらう"
-				},
+				}
+			]
+		},
+		{
+			"name": "chatコマンド",
+			"commands": [
 				{
 					"name": "/translate",
 					"example": "/translate title: hello world source: English target: Japanese message: hello world",
@@ -86,7 +91,7 @@
 					"description": "キャンディを消費しガチャを回す"
 				},
 				{
-					"name": "/candyboxdraw ",
+					"name": "/candyboxdraw",
 					"example": "/candyboxdraw",
 					"parameter": "none",
 					"description": "キャンディを複数消費しガチャを回す"
@@ -99,8 +104,8 @@
 				},
 				{
 					"name": "/candychange",
-					"example": "/candychange id: 1",
-					"parameter": "id: integer",
+					"example": "/candychange id: 1 piece: 1",
+					"parameter": "item: string piece: integer",
 					"description": "キャンディで取得したアイテムを交換する"
 				}
 			]
