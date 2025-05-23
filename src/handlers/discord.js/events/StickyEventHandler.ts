@@ -30,7 +30,7 @@ export class StickyEventHandler implements DiscordEventHandler<Message> {
 		const channel = message.guild?.channels.cache.get(
 			sticky.channelId.getValue(),
 		);
-		if (channel === undefined) return;
+		if (channel == null) return;
 		if (!(channel instanceof TextChannel)) return;
 
 		const stickyOldMessage = await channel.messages.fetch(
