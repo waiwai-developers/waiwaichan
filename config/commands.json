@@ -149,10 +149,22 @@
 					"description": "stickyをチャンネルに登録する"
 				},
 				{
+					"name": "/stickyupdate",
+					"example": "/stickyupdate channelId: 1",
+					"parameter": "id: integer",
+					"description": "stickyのメッセージを更新する"
+				},
+				{
 					"name": "/stickydelete",
 					"example": "/stickydelete channelId: 1",
 					"parameter": "id: integer",
 					"description": "stickyをチャンネルから削除する"
+				},
+				{
+					"name": "/stickylist",
+					"example": "/stickylist",
+					"parameter": "none",
+					"description": "stickyの一覧を表示する"
 				}
 			]
 		}
