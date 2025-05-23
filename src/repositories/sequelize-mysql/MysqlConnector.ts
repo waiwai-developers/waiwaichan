@@ -4,7 +4,10 @@ import type { IDataBaseConnector } from "@/src/logics/Interfaces/repositories/da
 import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 import { CandyItemRepositoryImpl } from "@/src/repositories/sequelize-mysql/CandyItemRepositoryImpl";
 import { CandyRepositoryImpl } from "@/src/repositories/sequelize-mysql/CandyRepositoryImpl";
+import { ContextRepositoryImpl } from "@/src/repositories/sequelize-mysql/ContextRepositoryImpl";
 import { CrownRepositoryImpl } from "@/src/repositories/sequelize-mysql/CrownRepositoryImpl";
+import { PersonalityContextRepositoryImpl } from "@/src/repositories/sequelize-mysql/PersonalityContextRepositoryImpl";
+import { PersonalityRepositoryImpl } from "@/src/repositories/sequelize-mysql/PersonalityRepositoryImpl";
 import { ReminderRepositoryImpl } from "@/src/repositories/sequelize-mysql/ReminderRepositoryImpl";
 import { SequelizeLogger } from "@/src/repositories/sequelize-mysql/SequelizeLogger";
 import { StickyRepositoryImpl } from "@/src/repositories/sequelize-mysql/StickyRepositoryImpl";
@@ -38,6 +41,9 @@ export class MysqlConnector implements IDataBaseConnector<Sequelize, "mysql"> {
 					UserCandyItemRepositoryImpl,
 					ReminderRepositoryImpl,
 					ThreadRepositoryImpl,
+					PersonalityRepositoryImpl,
+					PersonalityContextRepositoryImpl,
+					ContextRepositoryImpl,
 					StickyRepositoryImpl,
 				],
 			},
