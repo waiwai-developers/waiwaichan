@@ -10,9 +10,6 @@ import { anything, instance, mock, verify, when } from "ts-mockito";
 import { TestDiscordServer } from "../fixtures/discord.js/TestDiscordServer";
 
 describe("Test Sticky Commands", () => {
-	/**
-	 * テスト実行前に毎回実行される共通のセットアップ
-	 */
 	beforeEach(() => {
 		new MysqlConnector();
 	});
