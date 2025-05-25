@@ -130,6 +130,12 @@ describe("Test Sticky Commands", () => {
 			// Stickyにデータが作られていないことを確認
 			const res = await StickyRepositoryImpl.findAll();
 			expect(res.length).to.eq(1);
+
+			expect(String(res[0].guildId)).to.eq(String(guildId));
+			expect(String(res[0].channelId)).to.eq(String(channelId));
+			expect(String(res[0].userId)).to.eq(String(userId));
+			expect(String(res[0].messageId)).to.eq(String(messageId));
+			expect(res[0].message).to.eq(message);
 		})();
 	});
 	/**
