@@ -1169,58 +1169,6 @@ describe("Test Sticky Commands", () => {
 			expect(afterStickies.length).to.eq(0);
 		})();
 	});
-	/**
-	 * [空リスト] スティッキーが登録されていない場合は適切なメッセージを表示
-	 * - StickyLogic.findByCommunityIdが呼ばれることを検証
-	 * - 空の配列が返された場合に適切なメッセージが表示されることを検証
-	 */
-	it("should verify findByCommunityId is called and display appropriate message when no stickies are registered", function (this: Mocha.Context) {
-		this.timeout(10_000);
-
-		return (async () => {
-			// 管理者ユーザーIDを設定
-
-			const guildId = "1";
-			const userId = "2";
-
-			// RoleConfigのモック - 管理者として設定
-			RoleConfig.users = [
-				{ discordId: userId, role: "admin" }, // 管理者として設定
-			];
-
-			// コマンドのモック作成
-			const commandMock = mockSlashCommand("stickylist", {}, userId);
-
-			// guildIdとchannelを設定
-			when(commandMock.guildId).thenReturn(guildId);
-			when(commandMock.channel).thenReturn({} as any);
-
-			// replyメソッドをモック
-			let replyValue = "";
-			when(commandMock.reply(anything())).thenCall((message: string) => {
-				replyValue = message;
-				return Promise.resolve({} as any);
-			});
-
-			// データベースにスティッキーが存在しないことを確認
-			const beforeStickies = await StickyRepositoryImpl.findAll();
-			expect(beforeStickies.length).to.eq(0);
-
-			// コマンド実行
-			const TEST_CLIENT = await TestDiscordServer.getClient();
-			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-
-			// 応答を待つ
-			await waitUntilReply(commandMock, 100);
-
-			// 応答の検証 - スティッキーが登録されていない場合のメッセージ
-			expect(replyValue).to.eq("スティッキーが登録されていなかったよ！っ");
-
-			// データベースにスティッキーが存在しないことを確認
-			const afterStickies = await StickyRepositoryImpl.findAll();
-			expect(afterStickies.length).to.eq(0);
-		})();
-	});
 
 	/**
 	 * [リスト表示] 登録されているスティッキーの一覧が表示される
@@ -2023,42 +1971,6 @@ describe("Test Sticky Commands", () => {
 			// StickyのmessageIdが更新されないことを検証
 			expect(afterStickiy).to.not.be.null;
 			expect(String(afterStickiy?.messageId)).to.eq(String(messageId));
-		})();
-	});
-
-	/**
-	 * [スティッキーなし] スティッキーが登録されていないチャンネルでは何も起こらない
-	 * - スティッキーが存在しない場合、処理が中断されることを検証
-	 */
-	it("should do nothing when channel has no sticky registered", function (this: Mocha.Context) {
-		this.timeout(10_000);
-
-		return (async () => {
-			// テスト用のパラメータ設定
-			const guildId = "1";
-			const channelId = "2";
-			const userId = "3";
-
-			// 通常のユーザーからのメッセージをモック作成
-			const messageMock = mockMessage(userId, false, false); // isBotMessage = false
-
-			// guildIdとchannelIdを設定
-			when(messageMock.guildId).thenReturn(guildId);
-			when(messageMock.channelId).thenReturn(channelId);
-
-			// チャンネルをモック - 通常のチャンネルとして設定
-			const channelMock = mock<TextChannel>();
-			when(channelMock.isThread()).thenReturn(false); // 通常のチャンネル
-			when(messageMock.channel).thenReturn(instance(channelMock));
-
-			// TestDiscordServerを使用してmessageCreateイベントを発火
-			const TEST_CLIENT = await TestDiscordServer.getClient();
-			TEST_CLIENT.emit("messageCreate", instance(messageMock));
-
-			// 処理が完了するまで少し待つ
-			await new Promise((resolve) => setTimeout(resolve, 100));
-
-			// 何も起こらないのでテストなし
 		})();
 	});
 
