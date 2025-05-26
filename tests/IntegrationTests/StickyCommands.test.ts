@@ -68,8 +68,8 @@ describe("Test Sticky Commands", () => {
 			expect(replyValue).to.eq("スティッキーを登録する権限を持っていないよ！っ");
 
 			// Stickyにデータが作られていないことを確認
-			const res = await StickyRepositoryImpl.findAll();
-			expect(res.length).to.eq(0);
+			const afterStickies = await StickyRepositoryImpl.findAll();
+			expect(afterStickies.length).to.eq(0);
 		})();
 	});
 
@@ -117,6 +117,10 @@ describe("Test Sticky Commands", () => {
 				return Promise.resolve({} as any);
 			});
 
+			// データベースにスティッキーが存在することを確認
+			const beforeStickies = await StickyRepositoryImpl.findAll();
+			expect(beforeStickies.length).to.eq(1);
+
 			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
@@ -128,13 +132,13 @@ describe("Test Sticky Commands", () => {
 			expect(replyValue).to.eq("スティッキーが既にチャンネルに登録されているよ！っ");
 
 			// Stickyにデータが作られていないことを確認
-			const res = await StickyRepositoryImpl.findAll();
-			expect(res.length).to.eq(1);
-			expect(String(res[0].guildId)).to.eq(String(guildId));
-			expect(String(res[0].channelId)).to.eq(String(channelId));
-			expect(String(res[0].userId)).to.eq(String(userId));
-			expect(String(res[0].messageId)).to.eq(String(messageId));
-			expect(res[0].message).to.eq(message);
+			const afterStickies = await StickyRepositoryImpl.findAll();
+			expect(afterStickies.length).to.eq(1);
+			expect(String(afterStickies[0].guildId)).to.eq(String(guildId));
+			expect(String(afterStickies[0].channelId)).to.eq(String(channelId));
+			expect(String(afterStickies[0].userId)).to.eq(String(userId));
+			expect(String(afterStickies[0].messageId)).to.eq(String(messageId));
+			expect(afterStickies[0].message).to.eq(message);
 		})();
 	});
 	/**
@@ -186,6 +190,10 @@ describe("Test Sticky Commands", () => {
 				return Promise.resolve({} as any);
 			});
 
+			// データベースにスティッキーが存在しないことを確認
+			const beforeStickies = await StickyRepositoryImpl.findAll();
+			expect(beforeStickies.length).to.eq(0);
+
 			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
@@ -197,8 +205,8 @@ describe("Test Sticky Commands", () => {
 			expect(replyValue).to.eq("このチャンネルにはスティッキーを登録できないよ！っ");
 
 			// Stickyにデータが作られていないことを確認
-			const res = await StickyRepositoryImpl.findAll();
-			expect(res.length).to.eq(0);
+			const afterStickies = await StickyRepositoryImpl.findAll();
+			expect(afterStickies.length).to.eq(0);
 		})();
 	});
 	/**
@@ -369,6 +377,10 @@ describe("Test Sticky Commands", () => {
 				},
 			} as any);
 
+			// データベースにスティッキーが存在しないことを確認
+			const beforeStickies = await StickyRepositoryImpl.findAll();
+			expect(beforeStickies.length).to.eq(0);
+
 			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
@@ -380,8 +392,8 @@ describe("Test Sticky Commands", () => {
 			expect(modalSubmitInteraction.replyMessage).to.eq("スティッキーに登録するメッセージがないよ！っ");
 
 			// Stickyにデータが作られていないことを確認
-			const res = await StickyRepositoryImpl.findAll();
-			expect(res.length).to.eq(0);
+			const afterStickies = await StickyRepositoryImpl.findAll();
+			expect(afterStickies.length).to.eq(0);
 		})();
 	});
 	/**
@@ -467,6 +479,10 @@ describe("Test Sticky Commands", () => {
 				},
 			} as any);
 
+			// データベースにスティッキーが存在しないことを確認
+			const beforeStickies = await StickyRepositoryImpl.findAll();
+			expect(beforeStickies.length).to.eq(0);
+
 			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
@@ -481,13 +497,13 @@ describe("Test Sticky Commands", () => {
 			expect(modalSubmitInteraction.replyMessage).to.eq("スティッキーを登録したよ！っ");
 
 			// データベースにスティッキーが保存されていることを確認
-			const stickies = await StickyRepositoryImpl.findAll();
-			expect(stickies.length).to.eq(1);
-			expect(String(stickies[0].guildId)).to.eq(String(guildId));
-			expect(String(stickies[0].channelId)).to.eq(String(channelId));
-			expect(String(stickies[0].userId)).to.eq(String(userId));
-			expect(String(stickies[0].messageId)).to.eq(String(messageId));
-			expect(stickies[0].message).to.eq(stickyMessageText);
+			const afterStickies = await StickyRepositoryImpl.findAll();
+			expect(afterStickies.length).to.eq(1);
+			expect(String(afterStickies[0].guildId)).to.eq(String(guildId));
+			expect(String(afterStickies[0].channelId)).to.eq(String(channelId));
+			expect(String(afterStickies[0].userId)).to.eq(String(userId));
+			expect(String(afterStickies[0].messageId)).to.eq(String(messageId));
+			expect(afterStickies[0].message).to.eq(stickyMessageText);
 		})();
 	});
 	/**
@@ -528,6 +544,10 @@ describe("Test Sticky Commands", () => {
 				return Promise.resolve({} as any);
 			});
 
+			// データベースにスティッキーが存在しないことを確認
+			const beforeStickies = await StickyRepositoryImpl.findAll();
+			expect(beforeStickies.length).to.eq(0);
+
 			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
@@ -537,6 +557,10 @@ describe("Test Sticky Commands", () => {
 
 			// 応答の検証
 			expect(replyValue).to.eq("スティッキーを登録する権限を持っていないよ！っ");
+
+			// データベースにスティッキーが存在しないことを確認
+			const afterStickies = await StickyRepositoryImpl.findAll();
+			expect(afterStickies.length).to.eq(0);
 		})();
 	});
 
@@ -574,6 +598,10 @@ describe("Test Sticky Commands", () => {
 				return Promise.resolve({} as any);
 			});
 
+			// データベースにスティッキーが存在しないことを確認
+			const beforeStickies = await StickyRepositoryImpl.findAll();
+			expect(beforeStickies.length).to.eq(0);
+
 			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
@@ -583,6 +611,10 @@ describe("Test Sticky Commands", () => {
 
 			// 応答の検証
 			expect(replyValue).to.eq("スティッキーが登録されていなかったよ！っ");
+
+			// データベースにスティッキーが存在しないことを確認
+			const afterStickies = await StickyRepositoryImpl.findAll();
+			expect(afterStickies.length).to.eq(0);
 		})();
 	});
 	/**
@@ -642,6 +674,9 @@ describe("Test Sticky Commands", () => {
 				return Promise.resolve({} as any);
 			});
 
+			const beforeStickies = await StickyRepositoryImpl.findAll();
+			expect(beforeStickies.length).to.eq(1);
+
 			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
@@ -651,6 +686,10 @@ describe("Test Sticky Commands", () => {
 
 			// 応答の検証 - チャンネルが存在しない場合のエラーメッセージ
 			expect(replyValue).to.eq("スティッキーの投稿がなかったよ！っ");
+
+			// データベースにスティッキーが存在しないするを確認
+			const afterStickies = await StickyRepositoryImpl.findAll();
+			expect(afterStickies.length).to.eq(1);
 		})();
 	});
 
@@ -714,6 +753,10 @@ describe("Test Sticky Commands", () => {
 				return Promise.resolve({} as any);
 			});
 
+			// データベースにスティッキーが存在しないことを確認
+			const beforeStickies = await StickyRepositoryImpl.findAll();
+			expect(beforeStickies.length).to.eq(1);
+
 			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
@@ -723,6 +766,10 @@ describe("Test Sticky Commands", () => {
 
 			// 応答の検証 - TextChannel以外の場合のエラーメッセージ
 			expect(replyValue).to.eq("このチャンネルのスティッキーを削除できないよ！っ");
+
+			// データベースにスティッキーが存在することを確認
+			const afterStickies = await StickyRepositoryImpl.findAll();
+			expect(afterStickies.length).to.eq(1);
 		})();
 	});
 
@@ -803,6 +850,10 @@ describe("Test Sticky Commands", () => {
 				return Promise.resolve({} as any);
 			});
 
+			// データベースにスティッキーが存在しないことを確認
+			const beforeStickies = await StickyRepositoryImpl.findAll();
+			expect(beforeStickies.length).to.eq(1);
+
 			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
@@ -814,8 +865,8 @@ describe("Test Sticky Commands", () => {
 			expect(editReplyValue).to.eq("スティッキーを削除したよ！っ");
 
 			// データベースからスティッキーが削除されていることを確認
-			const stickies = await StickyRepositoryImpl.findAll();
-			expect(stickies.length).to.eq(0);
+			const afterStickies = await StickyRepositoryImpl.findAll();
+			expect(afterStickies.length).to.eq(0);
 		})();
 	});
 
@@ -896,6 +947,10 @@ describe("Test Sticky Commands", () => {
 				return Promise.resolve({} as any);
 			});
 
+			// データベースにスティッキーが存在しないことを確認
+			const beforeStickies = await StickyRepositoryImpl.findAll();
+			expect(beforeStickies.length).to.eq(1);
+
 			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
@@ -906,9 +961,9 @@ describe("Test Sticky Commands", () => {
 			// 応答の検証 - 削除失敗メッセージ
 			expect(replyValue).to.eq("スティッキーの削除に失敗したよ！っ");
 
-			// データベースからスティッキーが削除されていないことを確認
-			const stickies = await StickyRepositoryImpl.findAll();
-			expect(stickies.length).to.eq(1);
+			// データベースにスティッキーが存在することを確認
+			const afterStickies = await StickyRepositoryImpl.findAll();
+			expect(afterStickies.length).to.eq(1);
 		})();
 	});
 
@@ -990,6 +1045,10 @@ describe("Test Sticky Commands", () => {
 				return Promise.resolve({} as any);
 			});
 
+			// データベースにスティッキーが存在することを確認
+			const beforeStickies = await StickyRepositoryImpl.findAll();
+			expect(beforeStickies.length).to.eq(1);
+
 			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
@@ -999,8 +1058,10 @@ describe("Test Sticky Commands", () => {
 
 			// 応答の検証 - 削除成功メッセージ
 			expect(editReplyValue).to.eq("スティッキーを削除したよ！っ");
-			const stickies = await StickyRepositoryImpl.findAll();
-			expect(stickies.length).to.eq(0);
+
+			// データベースにスティッキーが存在しないことを確認
+			const afterStickies = await StickyRepositoryImpl.findAll();
+			expect(afterStickies.length).to.eq(0);
 		})();
 	});
 
@@ -1050,6 +1111,10 @@ describe("Test Sticky Commands", () => {
 
 			// 応答の検証
 			expect(replyValue).to.eq("スティッキーを表示する権限を持っていないよ！っ");
+
+			// データベースにスティッキーが存在しないことを確認
+			const afterStickies = await StickyRepositoryImpl.findAll();
+			expect(afterStickies.length).to.eq(0);
 		})();
 	});
 
@@ -1085,6 +1150,10 @@ describe("Test Sticky Commands", () => {
 				return Promise.resolve({} as any);
 			});
 
+			// データベースにスティッキーが存在しないことを確認
+			const beforeStickies = await StickyRepositoryImpl.findAll();
+			expect(beforeStickies.length).to.eq(0);
+
 			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
@@ -1094,6 +1163,10 @@ describe("Test Sticky Commands", () => {
 
 			// 応答の検証
 			expect(replyValue).to.eq("スティッキーが登録されていなかったよ！っ");
+
+			// データベースにスティッキーが存在しないことを確認
+			const afterStickies = await StickyRepositoryImpl.findAll();
+			expect(afterStickies.length).to.eq(0);
 		})();
 	});
 	/**
@@ -1129,6 +1202,10 @@ describe("Test Sticky Commands", () => {
 				return Promise.resolve({} as any);
 			});
 
+			// データベースにスティッキーが存在しないことを確認
+			const beforeStickies = await StickyRepositoryImpl.findAll();
+			expect(beforeStickies.length).to.eq(0);
+
 			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
@@ -1138,6 +1215,10 @@ describe("Test Sticky Commands", () => {
 
 			// 応答の検証 - スティッキーが登録されていない場合のメッセージ
 			expect(replyValue).to.eq("スティッキーが登録されていなかったよ！っ");
+
+			// データベースにスティッキーが存在しないことを確認
+			const afterStickies = await StickyRepositoryImpl.findAll();
+			expect(afterStickies.length).to.eq(0);
 		})();
 	});
 
@@ -1194,6 +1275,10 @@ describe("Test Sticky Commands", () => {
 				replyValue = message;
 				return Promise.resolve({} as any);
 			});
+
+			// データベースにスティッキーが存在することを確認
+			const beforeStickies = await StickyRepositoryImpl.findAll();
+			expect(beforeStickies.length).to.eq(2);
 
 			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
@@ -1304,6 +1389,10 @@ describe("Test Sticky Commands", () => {
 				return Promise.resolve({} as any);
 			});
 
+			// データベースにスティッキーが存在しないことを確認
+			const beforeStickies = await StickyRepositoryImpl.findAll();
+			expect(beforeStickies.length).to.eq(0);
+
 			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
@@ -1313,6 +1402,10 @@ describe("Test Sticky Commands", () => {
 
 			// 応答の検証 - スティッキーが存在しない場合のエラーメッセージ
 			expect(replyValue).to.eq("スティッキーが登録されていなかったよ！っ");
+
+			// データベースからスティッキーが削除されていないことを確認
+			const afterStickies = await StickyRepositoryImpl.findAll();
+			expect(afterStickies.length).to.eq(0);
 		})();
 	});
 
@@ -1376,6 +1469,10 @@ describe("Test Sticky Commands", () => {
 				return Promise.resolve({} as any);
 			});
 
+			// データベースにスティッキーが存在することを確認
+			const beforeStickies = await StickyRepositoryImpl.findAll();
+			expect(beforeStickies.length).to.eq(1);
+
 			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
@@ -1387,14 +1484,14 @@ describe("Test Sticky Commands", () => {
 			expect(replyValue).to.eq("このチャンネルにはスティッキーを登録できないよ！っ");
 
 			// データベースのスティッキーが更新されていないことを確認
-			const sticky = await StickyRepositoryImpl.findOne({
+			const afterStickiy = await StickyRepositoryImpl.findOne({
 				where: {
 					guildId: guildId,
 					channelId: channelId,
 				},
 			});
-			expect(sticky).to.not.be.null;
-			expect(sticky?.message).to.eq(message); // メッセージが更新されていないことを確認
+			expect(afterStickiy).to.not.be.null;
+			expect(afterStickiy?.message).to.eq(message);
 		})();
 	});
 
@@ -1496,6 +1593,10 @@ describe("Test Sticky Commands", () => {
 					},
 				},
 			} as any);
+
+			// データベースにスティッキーが存在することを確認
+			const beforeStickies = await StickyRepositoryImpl.findAll();
+			expect(beforeStickies.length).to.eq(1);
 
 			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
@@ -1631,6 +1732,10 @@ describe("Test Sticky Commands", () => {
 				},
 			} as any);
 
+			// データベースにスティッキーが存在することを確認
+			const beforeStickies = await StickyRepositoryImpl.findAll();
+			expect(beforeStickies.length).to.eq(1);
+
 			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
@@ -1642,14 +1747,14 @@ describe("Test Sticky Commands", () => {
 			expect(modalSubmitInteraction.replyMessage).to.eq("スティッキーに登録するメッセージがないよ！っ");
 
 			// データベースのスティッキーが更新されていないことを確認
-			const sticky = await StickyRepositoryImpl.findOne({
+			const afterStickiy = await StickyRepositoryImpl.findOne({
 				where: {
 					guildId: guildId,
 					channelId: channelId,
 				},
 			});
-			expect(sticky).to.not.be.null;
-			expect(sticky?.message).to.eq(message); // メッセージが更新されていないことを確認
+			expect(afterStickiy).to.not.be.null;
+			expect(afterStickiy?.message).to.eq(message); // メッセージが更新されていないことを確認
 		})();
 	});
 
@@ -1751,6 +1856,12 @@ describe("Test Sticky Commands", () => {
 				},
 			} as any);
 
+			// データベースにスティッキーが存在することを確認
+			const beforeStickies = await StickyRepositoryImpl.findAll();
+			expect(beforeStickies.length).to.eq(1);
+			expect(beforeStickies[0].message).to.eq(originalMessage);
+
+
 			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
@@ -1765,14 +1876,14 @@ describe("Test Sticky Commands", () => {
 			expect(modalSubmitInteraction.replyMessage).to.eq("スティッキーを更新したよ！っ");
 
 			// データベースのスティッキーが更新されていることを確認
-			const sticky = await StickyRepositoryImpl.findOne({
+			const afterStickiy = await StickyRepositoryImpl.findOne({
 				where: {
 					guildId: guildId,
 					channelId: channelId,
 				},
 			});
-			expect(sticky).to.not.be.null;
-			expect(sticky?.message).to.eq(updatedMessage); // メッセージが更新されていることを確認
+			expect(afterStickiy).to.not.be.null;
+			expect(afterStickiy?.message).to.eq(updatedMessage);
 		})();
 	});
 
@@ -1825,6 +1936,12 @@ describe("Test Sticky Commands", () => {
 			when(channelMock.isThread()).thenReturn(false);
 			when(messageMock.channel).thenReturn(instance(channelMock));
 
+			// データベースにスティッキーが存在することを確認
+			const beforeStickies = await StickyRepositoryImpl.findAll();
+			expect(beforeStickies.length).to.eq(1);
+			expect(String(beforeStickies[0]?.messageId)).to.eq(String(messageId));
+			expect(String(beforeStickies[0]?.messageId)).to.eq(String(stickyBefore?.messageId));
+
 			// TestDiscordServerを使用してmessageCreateイベントを発火
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("messageCreate", instance(messageMock));
@@ -1833,7 +1950,7 @@ describe("Test Sticky Commands", () => {
 			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// テスト後のスティッキー情報を取得
-			const stickyAfter = await StickyRepositoryImpl.findOne({
+			const afterStickiy = await StickyRepositoryImpl.findOne({
 				where: {
 					guildId: guildId,
 					channelId: channelId,
@@ -1841,9 +1958,9 @@ describe("Test Sticky Commands", () => {
 			});
 
 			// StickyのmessageIdが更新されないことを検証
-			expect(stickyAfter).to.not.be.null;
-			expect(String(stickyAfter?.messageId)).to.eq(String(messageId));
-			expect(String(stickyAfter?.messageId)).to.eq(String(stickyBefore?.messageId));
+			expect(afterStickiy).to.not.be.null;
+			expect(String(afterStickiy?.messageId)).to.eq(String(messageId));
+			expect(String(afterStickiy?.messageId)).to.eq(String(stickyBefore?.messageId));
 		})();
 	});
 
@@ -1871,14 +1988,6 @@ describe("Test Sticky Commands", () => {
 				message: message,
 			});
 
-			// テスト前のスティッキー情報を取得
-			const stickyBefore = await StickyRepositoryImpl.findOne({
-				where: {
-					guildId: guildId,
-					channelId: channelId,
-				},
-			});
-
 			// 通常のユーザーからのメッセージをモック作成
 			const messageMock = mockMessage(userId, false, false); // isBotMessage = false
 
@@ -1891,6 +2000,11 @@ describe("Test Sticky Commands", () => {
 			when(channelMock.isThread()).thenReturn(true); // スレッドとして設定
 			when(messageMock.channel).thenReturn(instance(channelMock));
 
+			// データベースにスティッキーが存在することを確認
+			const beforeStickies = await StickyRepositoryImpl.findAll();
+			expect(beforeStickies.length).to.eq(1);
+			expect(String(beforeStickies[0].messageId)).to.eq(String(messageId));
+
 			// TestDiscordServerを使用してmessageCreateイベントを発火
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("messageCreate", instance(messageMock));
@@ -1899,7 +2013,7 @@ describe("Test Sticky Commands", () => {
 			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// テスト後のスティッキー情報を取得
-			const stickyAfter = await StickyRepositoryImpl.findOne({
+			const afterStickiy = await StickyRepositoryImpl.findOne({
 				where: {
 					guildId: guildId,
 					channelId: channelId,
@@ -1907,9 +2021,8 @@ describe("Test Sticky Commands", () => {
 			});
 
 			// StickyのmessageIdが更新されないことを検証
-			expect(stickyAfter).to.not.be.null;
-			expect(String(stickyAfter?.messageId)).to.eq(String(messageId));
-			expect(String(stickyAfter?.messageId)).to.eq(String(stickyBefore?.messageId));
+			expect(afterStickiy).to.not.be.null;
+			expect(String(afterStickiy?.messageId)).to.eq(String(messageId));
 		})();
 	});
 
@@ -1974,14 +2087,6 @@ describe("Test Sticky Commands", () => {
 				message: message,
 			});
 
-			// テスト前のスティッキー情報を取得
-			const stickyBefore = await StickyRepositoryImpl.findOne({
-				where: {
-					guildId: guildId,
-					channelId: channelId,
-				},
-			});
-
 			// 通常のユーザーからのメッセージをモック作成
 			const messageMock = mockMessage(userId, false, false); // isBotMessage = false
 
@@ -2007,6 +2112,11 @@ describe("Test Sticky Commands", () => {
 			};
 			when(messageMock.guild).thenReturn(guildMock as any);
 
+			// データベースにスティッキーが存在することを確認
+			const beforeStickies = await StickyRepositoryImpl.findAll();
+			expect(beforeStickies.length).to.eq(1);
+			expect(String(beforeStickies[0].messageId)).to.eq(String(messageId));
+
 			// TestDiscordServerを使用してmessageCreateイベントを発火
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("messageCreate", instance(messageMock));
@@ -2015,7 +2125,7 @@ describe("Test Sticky Commands", () => {
 			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// テスト後のスティッキー情報を取得
-			const stickyAfter = await StickyRepositoryImpl.findOne({
+			const afterStickiy = await StickyRepositoryImpl.findOne({
 				where: {
 					guildId: guildId,
 					channelId: channelId,
@@ -2023,9 +2133,8 @@ describe("Test Sticky Commands", () => {
 			});
 
 			// StickyのmessageIdが更新されないことを検証
-			expect(stickyAfter).to.not.be.null;
-			expect(String(stickyAfter?.messageId)).to.eq(String(messageId));
-			expect(String(stickyAfter?.messageId)).to.eq(String(stickyBefore?.messageId));
+			expect(afterStickiy).to.not.be.null;
+			expect(String(afterStickiy?.messageId)).to.eq(String(messageId));
 		})();
 	});
 
@@ -2054,14 +2163,6 @@ describe("Test Sticky Commands", () => {
 				message: message,
 			});
 
-			// テスト前のスティッキー情報を取得
-			const stickyBefore = await StickyRepositoryImpl.findOne({
-				where: {
-					guildId: guildId,
-					channelId: channelId,
-				},
-			});
-
 			// 通常のユーザーからのメッセージをモック作成
 			const messageMock = mockMessage(userId, false, false); // isBotMessage = false
 
@@ -2088,6 +2189,11 @@ describe("Test Sticky Commands", () => {
 			};
 			when(messageMock.guild).thenReturn(guildMock as any);
 
+			// データベースにスティッキーが存在することを確認
+			const beforeStickies = await StickyRepositoryImpl.findAll();
+			expect(beforeStickies.length).to.eq(1);
+			expect(String(beforeStickies[0].messageId)).to.eq(String(messageId));
+
 			// TestDiscordServerを使用してmessageCreateイベントを発火
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("messageCreate", instance(messageMock));
@@ -2096,7 +2202,7 @@ describe("Test Sticky Commands", () => {
 			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// テスト後のスティッキー情報を取得
-			const stickyAfter = await StickyRepositoryImpl.findOne({
+			const afterStickiy = await StickyRepositoryImpl.findOne({
 				where: {
 					guildId: guildId,
 					channelId: channelId,
@@ -2104,9 +2210,8 @@ describe("Test Sticky Commands", () => {
 			});
 
 			// StickyのmessageIdが更新されないことを検証
-			expect(stickyAfter).to.not.be.null;
-			expect(String(stickyAfter?.messageId)).to.eq(String(messageId));
-			expect(String(stickyAfter?.messageId)).to.eq(String(stickyBefore?.messageId));
+			expect(afterStickiy).to.not.be.null;
+			expect(String(afterStickiy?.messageId)).to.eq(String(messageId));
 		})();
 	});
 
@@ -2203,6 +2308,10 @@ describe("Test Sticky Commands", () => {
 			};
 			when(messageMock.guild).thenReturn(guildMock as any);
 
+			// データベースにスティッキーが存在することを確認
+			const beforeStickies = await StickyRepositoryImpl.findAll();
+			expect(beforeStickies.length).to.eq(1);
+
 			// TestDiscordServerを使用してmessageCreateイベントを発火
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("messageCreate", instance(messageMock));
@@ -2211,7 +2320,7 @@ describe("Test Sticky Commands", () => {
 			await new Promise((resolve) => setTimeout(resolve, 1000));
 
 			// テスト後のスティッキー情報を取得
-			const stickyAfter = await StickyRepositoryImpl.findOne({
+			const afterStickiy = await StickyRepositoryImpl.findOne({
 				where: {
 					guildId: guildId,
 					channelId: channelId,
@@ -2222,7 +2331,7 @@ describe("Test Sticky Commands", () => {
 			expect(deleteWasCalled).to.eq(true);
 
 			// StickyのmessageIdが更新されたことを検証
-			expect(String(stickyAfter?.messageId)).to.eq(String(newMessageId));
+			expect(String(afterStickiy?.messageId)).to.eq(String(newMessageId));
 		})();
 	});
 });
