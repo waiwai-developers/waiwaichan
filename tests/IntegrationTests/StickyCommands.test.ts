@@ -129,7 +129,7 @@ describe("Test Sticky Commands", () => {
 
 			// Stickyにデータが作られていないことを確認
 			const res = await StickyRepositoryImpl.findAll();
-			expect(res.length).to.eq(1);ßßß
+			expect(res.length).to.eq(1);
 			expect(String(res[0].guildId)).to.eq(String(guildId));
 			expect(String(res[0].channelId)).to.eq(String(channelId));
 			expect(String(res[0].userId)).to.eq(String(userId));
@@ -153,8 +153,6 @@ describe("Test Sticky Commands", () => {
 			const userId = "3";
 
 			// RoleConfigのモック
-			// 実際のRoleConfigを使用するが、テスト用のユーザーが管理者であることを確認
-			const originalUsers = RoleConfig.users;
 			(RoleConfig as any).users = [
 				{ discordId: userId, role: "admin" }, // 管理者ユーザーを追加
 			];
@@ -219,7 +217,6 @@ describe("Test Sticky Commands", () => {
 			const messageId = "4";
 
 			// RoleConfigのモック
-			const originalUsers = RoleConfig.users;
 			(RoleConfig as any).users = [
 				{ discordId: userId, role: "admin" }, // 管理者ユーザーを追加
 			];
@@ -316,7 +313,6 @@ describe("Test Sticky Commands", () => {
 			const messageId = "4";
 
 			// RoleConfigのモック
-			const originalUsers = RoleConfig.users;
 			(RoleConfig as any).users = [
 				{ discordId: userId, role: "admin" }, // 管理者ユーザーを追加
 			];
@@ -405,7 +401,6 @@ describe("Test Sticky Commands", () => {
 			const stickyMessageText = "これはスティッキーメッセージです";
 
 			// RoleConfigのモック
-			const originalUsers = RoleConfig.users;
 			(RoleConfig as any).users = [
 				{ discordId: userId, role: "admin" }, // 管理者ユーザーを追加
 			];
@@ -515,7 +510,6 @@ describe("Test Sticky Commands", () => {
 			const userId = "3";
 
 			// RoleConfigのモック - 明示的に非管理者として設定
-			const originalUsers = RoleConfig.users;
 			RoleConfig.users = [
 				{ discordId: userId, role: "user" }, // 非管理者として設定
 			];
@@ -543,9 +537,6 @@ describe("Test Sticky Commands", () => {
 
 			// 応答の検証
 			expect(replyValue).to.eq("スティッキーを登録する権限を持っていないよ！っ");
-
-			// RoleConfigを元に戻す
-			RoleConfig.users = originalUsers;
 		})();
 	});
 
@@ -565,7 +556,6 @@ describe("Test Sticky Commands", () => {
 			const userId = "3";
 
 			// RoleConfigのモック - 管理者として設定
-			const originalUsers = RoleConfig.users;
 			RoleConfig.users = [
 				{ discordId: userId, role: "admin" }, // 管理者として設定
 			];
@@ -613,7 +603,6 @@ describe("Test Sticky Commands", () => {
 			const message = "スティッキーのメッセージ";
 
 			// RoleConfigのモック - 管理者として設定
-			const originalUsers = RoleConfig.users;
 			RoleConfig.users = [
 				{ discordId: adminUserId, role: "admin" }, // 管理者として設定
 			];
@@ -683,7 +672,6 @@ describe("Test Sticky Commands", () => {
 			const message = "スティッキーのメッセージ";
 
 			// RoleConfigのモック - 管理者として設定
-			const originalUsers = RoleConfig.users;
 			RoleConfig.users = [
 				{ discordId: adminUserId, role: "admin" }, // 管理者として設定
 			];
@@ -1436,7 +1424,6 @@ describe("Test Sticky Commands", () => {
 			});
 
 			// RoleConfigのモック
-			const originalUsers = RoleConfig.users;
 			(RoleConfig as any).users = [
 				{ discordId: userId, role: "admin" }, // 管理者ユーザーを追加
 			];
