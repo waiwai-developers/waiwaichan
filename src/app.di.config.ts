@@ -19,6 +19,8 @@ import {
 	ReviewListCommandHandler,
 	StickyCreateCommandHandler,
 	StickyDeleteCommandHandler,
+	StickyListCommandHandler,
+	StickyUpdateCommandHandler,
 	TalkCommandHandler,
 	TranslateCommandHandler,
 	WaiwaiCommandHandler,
@@ -103,6 +105,7 @@ import { SlashCommandRouter } from "@/src/routes/discordjs/events/SlashCommandRo
 import type { Message } from "discord.js";
 import { Container } from "inversify";
 import type { Sequelize } from "sequelize";
+import type { ILogger } from "./logics/Interfaces/repositories/logger/ILogger";
 const appContainer = new Container();
 
 // Repositories
@@ -175,6 +178,8 @@ appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(Mine
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(MinecraftStopCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(StickyCreateCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(StickyDeleteCommandHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(StickyUpdateCommandHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(StickyListCommandHandler);
 
 // Routes
 appContainer.bind<DiscordEventRouter>(RouteTypes.SlashCommandRoute).to(SlashCommandRouter);

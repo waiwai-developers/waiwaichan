@@ -165,6 +165,15 @@ export class DiscordCommandRegister {
 						.setRequired(true),
 				),
 			new SlashCommandBuilder()
+				.setName("stickyupdate")
+				.setDescription("sticky update")
+				.addStringOption((option) =>
+					option
+						.setName("channelid")
+						.setDescription("string")
+						.setRequired(true),
+				),
+			new SlashCommandBuilder()
 				.setName("stickydelete")
 				.setDescription("sticky delete")
 				.addStringOption((option) =>
@@ -173,6 +182,9 @@ export class DiscordCommandRegister {
 						.setDescription("string")
 						.setRequired(true),
 				),
+			new SlashCommandBuilder()
+				.setName("stickylist")
+				.setDescription("sticky list"),
 		];
 	}
 	async register(token: string) {
