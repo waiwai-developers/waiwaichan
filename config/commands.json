@@ -7,31 +7,36 @@
 					"name": "/help",
 					"example": "/help",
 					"parameter": "none",
-					"description": "コマンドの一覧と詳細を確認する"
+					"description": "コマンドの一覧と詳細を確認する",
+					"detail": "/hepコマンドはページの一覧を表示しそのスコープに合わせて表示する情報量を調節することが出来ます。例えば全てのコマンドを選択した時はコマンド名のみ表示されますが、カテゴリの全てのコマンドを表示させた時は値、例、説明が表示され、特定のコマンドを選択したときは値、例、説明、詳細が表示されます。"
 				},
 				{
 					"name": "/waiwai",
 					"example": "/waiwai",
 					"parameter": "none",
-					"description": "waiwaiで場を盛り上げる"
+					"description": "waiwaiで場を盛り上げる",
+					"detail": "/hepコマンドはコマンドを送信するとwaiwaiと応答するだけのコマンドです。特にその他の機能はなくserverの死活監理などヘスルチェックを手動で行う時に主に利用されます。"
 				},
 				{
 					"name": "/parrot",
 					"example": "/parrot message: It's not a parrot, it's a parakeet",
 					"parameter": "message: string",
-					"description": "メッセージの内容をオウムがえしする"
+					"description": "メッセージの内容をオウムがえしする",
+					"detail": "/parrotコマンドは送信したパラメーターと同じ内容で応答するだけのコマンドです。特にその他の機能はなくserverの死活監理などヘスルチェックを手動で行う時に主に利用されます。"
 				},
 				{
 					"name": "/dice",
 					"example": "/dice message: 10",
 					"parameter": "message: integer",
-					"description": "指定した数の目のサイコロを転がす"
+					"description": "指定した数の目のサイコロを転がす",
+					"detail": ""
 				},
 				{
 					"name": "/choice",
 					"example": "/choice message: apple orange grape",
 					"parameter": "message: [string]",
-					"description": "指定した単語から選んでもらう"
+					"description": "指定した単語から選んでもらう",
+					"detail": ""
 				}
 			]
 		},
@@ -42,13 +47,15 @@
 					"name": "/translate",
 					"example": "/translate title: hello world source: English target: Japanese message: hello world",
 					"parameter": "title: string, source: string, target: string",
-					"description": "指定した言語から言語へ翻訳を行う"
+					"description": "指定した言語から言語へ翻訳を行う",
+					"detail": ""
 				},
 				{
 					"name": "/talk",
 					"example": "/talk title: please tell me your favorite food",
 					"parameter": "title: string",
-					"description": "スレッドを立ててwaiwaiちゃんと会話をする"
+					"description": "スレッドを立ててwaiwaiちゃんと会話をする",
+					"detail": ""
 				}
 			]
 		},
@@ -59,19 +66,22 @@
 					"name": "/reminderset",
 					"example": "/reminderset datetime: 2024-01-01 00:00:00 username: waiwaichan message: hello",
 					"parameter": "datetime: datetime, username: string, message: string",
-					"description": "新しくリマインダーを登録する"
+					"description": "新しくリマインダーを登録する",
+					"detail": ""
 				},
 				{
 					"name": "/reminderdelete",
 					"example": "/reminderdelete id: 1",
 					"parameter": "id: integer",
-					"description": "登録されているリマインダーを削除する"
+					"description": "登録されているリマインダーを削除する",
+					"detail": ""
 				},
 				{
 					"name": "/reminderlist",
 					"example": "/reminderlist",
 					"parameter": "none",
-					"description": "登録されているリマインダーを確認する"
+					"description": "登録されているリマインダーを確認する",
+					"detail": ""
 				}
 			]
 		},
@@ -82,31 +92,36 @@
 					"name": "/candycheck",
 					"example": "/candycheck",
 					"parameter": "none",
-					"description": "付与されているキャンディの数を確認する"
+					"description": "付与されているキャンディの数を確認する",
+					"detail": ""
 				},
 				{
 					"name": "/candydraw",
 					"example": "/candydraw",
 					"parameter": "none",
-					"description": "キャンディを消費しガチャを回す"
+					"description": "キャンディを消費しガチャを回す",
+					"detail": ""
 				},
 				{
-					"name": "/candyboxdraw",
+					"name": "/candyboxdraw ",
 					"example": "/candyboxdraw",
 					"parameter": "none",
-					"description": "キャンディを複数消費しガチャを回す"
+					"description": "キャンディを複数消費しガチャを回す",
+					"detail": ""
 				},
 				{
 					"name": "/candyitem",
 					"example": "/candyitem",
 					"parameter": "none",
-					"description": "キャンディで取得したアイテムを確認する"
+					"description": "キャンディで取得したアイテムを確認する",
+					"detail": ""
 				},
 				{
 					"name": "/candychange",
-					"example": "/candychange item: 1 piece: 1",
-					"parameter": "item: string piece: integer",
-					"description": "キャンディで取得したアイテムを交換する"
+					"example": "/candychange id: 1",
+					"parameter": "id: integer",
+					"description": "キャンディで取得したアイテムを交換する",
+					"detail": ""
 				}
 			]
 		},
@@ -117,13 +132,15 @@
 					"name": "/reviewgacha",
 					"example": "/reviewgacha id: 1",
 					"parameter": "id: integer",
-					"description": "レビューガチャを回してレビュワーをアサインする"
+					"description": "レビューガチャを回してレビュワーをアサインする",
+					"detail": ""
 				},
 				{
 					"name": "/reviewlist",
 					"example": "/reviewlist",
 					"parameter": "none",
-					"description": "レビューにアサインされているpull reqを表示する"
+					"description": "レビューにアサインされているpull reqを表示する",
+					"detail": ""
 				}
 			]
 		},
@@ -134,13 +151,15 @@
 					"name": "/minecraftstart",
 					"example": "/minecraftstart",
 					"parameter": "none",
-					"description": "minecraftサーバーを起動する"
+					"description": "minecraftサーバーを起動する",
+					"detail": ""
 				},
 				{
 					"name": "/minecraftstop",
 					"example": "/minecraftstop",
 					"parameter": "none",
-					"description": "minecraftサーバーを停止する"
+					"description": "minecraftサーバーを停止する",
+					"detail": ""
 				}
 			]
 		},
@@ -151,13 +170,15 @@
 					"name": "/stickycreate",
 					"example": "/stickycreate channelId: 1",
 					"parameter": "id: integer",
-					"description": "stickyをチャンネルに登録する"
+					"description": "stickyをチャンネルに登録する",
+					"detail": ""
 				},
 				{
 					"name": "/stickydelete",
 					"example": "/stickydelete channelId: 1",
 					"parameter": "id: integer",
-					"description": "stickyをチャンネルから削除する"
+					"description": "stickyをチャンネルから削除する",
+					"detail": ""
 				}
 			]
 		}
