@@ -133,14 +133,14 @@
 					"example": "/reviewgacha id: 1",
 					"parameter": "id: integer",
 					"summary": "レビューガチャを回してレビュワーをアサインする",
-					"detail": ""
+					"detail": "/reviewgachaコマンドはガチャを回しランダムにgithub上でpull reqのレビュワーとしてアサインしスレッドを立ててレビューを行うコマンドです。親レビュワーと子レビュワーというユーザーグループがあり現在の設定では2人選出されそのうち必ず一人は親レビュワーとなります。"
 				},
 				{
 					"name": "/reviewlist",
 					"example": "/reviewlist",
 					"parameter": "none",
 					"summary": "レビューにアサインされているpull reqを表示する",
-					"detail": ""
+					"detail": "/reviewlistコマンドは現在アサインされているのpull reqの一覧を表示するためのコマンドです。仕様でステータスが未レビューとなっているpull reqのみ表示されるので全てではないという点に注意が必要です。"
 				}
 			]
 		},
