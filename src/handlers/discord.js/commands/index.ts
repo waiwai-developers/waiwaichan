@@ -16,6 +16,8 @@ import { ReviewGachaCommandHandler } from "@/src/handlers/discord.js/commands/Re
 import { ReviewListCommandHandler } from "@/src/handlers/discord.js/commands/ReviewListCommandHandler";
 import { StickyCreateCommandHandler } from "@/src/handlers/discord.js/commands/StickyCreateCommandHandler";
 import { StickyDeleteCommandHandler } from "@/src/handlers/discord.js/commands/StickyDeleteCommandHandler";
+import { StickyListCommandHandler } from "@/src/handlers/discord.js/commands/StickyListCommandHandler";
+import { StickyUpdateCommandHandler } from "@/src/handlers/discord.js/commands/StickyUpdateCommandHandler";
 import { TalkCommandHandler } from "@/src/handlers/discord.js/commands/TalkCommandHandler";
 import { TranslateCommandHandler } from "@/src/handlers/discord.js/commands/TranslateCommandHandler";
 import { WaiwaiCommandHandler } from "@/src/handlers/discord.js/commands/WaiwaiCommandHandler";
@@ -40,5 +42,7 @@ export {
 	TranslateCommandHandler,
 	WaiwaiCommandHandler,
 	StickyCreateCommandHandler,
+	StickyUpdateCommandHandler,
 	StickyDeleteCommandHandler,
+	StickyListCommandHandler,
 };

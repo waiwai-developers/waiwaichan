@@ -4,10 +4,10 @@ import {
 	RepoTypes,
 } from "@/src/entities/constants/DIContainerTypes";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
+import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 import type { DiscordEventRouter } from "@/src/routes/discordjs/events/DiscordEventRouter";
 import type { Client } from "discord.js";
 import { inject, injectable, multiInject } from "inversify";
-import { logger } from "sequelize/types/utils/logger";
 
 @injectable()
 export class SlashCommandRouter implements DiscordEventRouter {
