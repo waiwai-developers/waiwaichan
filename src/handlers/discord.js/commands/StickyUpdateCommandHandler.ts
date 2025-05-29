@@ -33,7 +33,7 @@ export class StickyUpdateCommandHandler implements SlashCommandHandler {
 		if (interaction.channel == null) {
 			return;
 		}
-        // NOTE: todo CommunityとUserの追加を行ったあとにrbacを実現する
+		// NOTE: todo CommunityとUserの追加を行ったあとにrbacを実現する
 		if (
 			RoleConfig.users.find((u) => u.discordId === interaction.user.id)
 				?.role !== "admin"
