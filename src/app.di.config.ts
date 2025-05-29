@@ -27,6 +27,10 @@ import {
 } from "@/src/handlers/discord.js/commands/";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
 import { AIReplyHandler } from "@/src/handlers/discord.js/events/AIReplyHandler";
+import { ActionAddBotHandler } from "@/src/handlers/discord.js/events/ActionAddBotHandler";
+import { ActionAddUserHandler } from "@/src/handlers/discord.js/events/ActionAddUserHandler";
+import { ActionRemoveBotHandler } from "@/src/handlers/discord.js/events/ActionRemoveBotHandler";
+import { ActionRemoveUserHandler } from "@/src/handlers/discord.js/events/ActionRemoveUserHandler";
 import { CandyReactionHandler } from "@/src/handlers/discord.js/events/CandyReactionHandler";
 import { CrownReactionHandler } from "@/src/handlers/discord.js/events/CrownReactionHandler";
 import type { DiscordEventHandler } from "@/src/handlers/discord.js/events/DiscordEventHandler";
@@ -35,9 +39,11 @@ import { StickyEventHandler } from "@/src/handlers/discord.js/events/StickyEvent
 import { TranslateReplyHandler } from "@/src/handlers/discord.js/events/TranslateReplyHandler";
 import { CandyLogic } from "@/src/logics/CandyLogic";
 import { ChatAILogic } from "@/src/logics/ChatAILogic";
+import { CommunityLogic } from "@/src/logics/CommunityLogic";
 import { CrownLogic } from "@/src/logics/CrownLogic";
 import type { ICandyLogic } from "@/src/logics/Interfaces/logics/ICandyLogic";
 import type { IChatAILogic } from "@/src/logics/Interfaces/logics/IChatAILogic";
+import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { ICrownLogic } from "@/src/logics/Interfaces/logics/ICrownLogic";
 import type { IMinecraftServerLogic } from "@/src/logics/Interfaces/logics/IMinecraftServerLogic";
 import type { IPullRequestLogic } from "@/src/logics/Interfaces/logics/IPullRequestLogic";
@@ -45,11 +51,13 @@ import type { IReminderLogic } from "@/src/logics/Interfaces/logics/IReminderLog
 import type { IStickyLogic } from "@/src/logics/Interfaces/logics/IStickyLogic";
 import type { IThreadLogic } from "@/src/logics/Interfaces/logics/IThreadLogic";
 import type { ITranslatorLogic } from "@/src/logics/Interfaces/logics/ITranslatorLogic";
+import type { IUserLogic } from "@/src/logics/Interfaces/logics/IUserLogic";
 import type { IUtilityLogic } from "@/src/logics/Interfaces/logics/IUtilityLogic";
 import type { IChatAIRepository } from "@/src/logics/Interfaces/repositories/chataiapi/IChatAIRepository";
 import type { IVirtualMachineAPI } from "@/src/logics/Interfaces/repositories/cloudprovider/IVirtualMachineAPI";
 import type { ICandyItemRepository } from "@/src/logics/Interfaces/repositories/database/ICandyItemRepository";
 import type { ICandyRepository } from "@/src/logics/Interfaces/repositories/database/ICandyRepository";
+import type { ICommunityRepository } from "@/src/logics/Interfaces/repositories/database/ICommunityRepository";
 import type { ICrownRepository } from "@/src/logics/Interfaces/repositories/database/ICrownRepository";
 import type { IDataBaseConnector } from "@/src/logics/Interfaces/repositories/database/IDataBaseConnector";
 import type { IReminderRepository } from "@/src/logics/Interfaces/repositories/database/IReminderRepository";
@@ -57,7 +65,9 @@ import type { IStickyRepository } from "@/src/logics/Interfaces/repositories/dat
 import type { IThreadRepository } from "@/src/logics/Interfaces/repositories/database/IThreadRepository";
 import type { ITransaction } from "@/src/logics/Interfaces/repositories/database/ITransaction";
 import type { IUserCandyItemRepository } from "@/src/logics/Interfaces/repositories/database/IUserCandyItemRepository";
+import type { IUserRepository } from "@/src/logics/Interfaces/repositories/database/IUserRepository";
 import type { IPullRequestRepository } from "@/src/logics/Interfaces/repositories/githubapi/IPullRequestRepository";
+import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 import type { IMutex } from "@/src/logics/Interfaces/repositories/mutex/IMutex";
 import type { ITranslatorRepository } from "@/src/logics/Interfaces/repositories/translator/ITranslatorRepository";
 import { MinecraftServerLogic } from "@/src/logics/MinecraftServerLogic";
@@ -66,6 +76,7 @@ import { ReminderLogic } from "@/src/logics/ReminderLogic";
 import { StickyLogic } from "@/src/logics/StickyLogic";
 import { ThreadLogic } from "@/src/logics/ThreadLogic";
 import { TranslatorLogic } from "@/src/logics/TranslatorLogic";
+import { UserLogic } from "@/src/logics/UserLogic";
 import { UtilityLogic } from "@/src/logics/UtilityLogic";
 import { ChatGPTRepositoryImpl } from "@/src/repositories/chatgptapi/ChatGPTRepositoryImpl";
 import { DeepLTranslateRepositoryImpl } from "@/src/repositories/deeplapi/DeepLTranslateRepositoryImpl";
@@ -76,20 +87,26 @@ import { AwaitSemaphoreMutex } from "@/src/repositories/mutex/AwaitSemaphoreMute
 import {
 	CandyItemRepositoryImpl,
 	CandyRepositoryImpl,
+	CommunityRepositoryImpl,
 	CrownRepositoryImpl,
 	ReminderRepositoryImpl,
 	StickyRepositoryImpl,
 	ThreadRepositoryImpl,
 	UserCandyItemRepositoryImpl,
+	UserRepositoryImpl,
 } from "@/src/repositories/sequelize-mysql";
 import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnector";
 import { SequelizeTransaction } from "@/src/repositories/sequelize-mysql/SequelizeTransaction";
+import { ActionAddBotRouter } from "@/src/routes/discordjs/events/ActionAddBotRouter";
+import { ActionAddUserRouter } from "@/src/routes/discordjs/events/ActionAddUserRouter";
+import { ActionRemoveBotRouter } from "@/src/routes/discordjs/events/ActionRemoveBotRouter";
+import { ActionRemoveUserRouter } from "@/src/routes/discordjs/events/ActionRemoveUserRouter";
 import type { DiscordEventRouter } from "@/src/routes/discordjs/events/DiscordEventRouter";
 import { MessageReplyRouter } from "@/src/routes/discordjs/events/MessageReplyRouter";
 import { ReactionRouter } from "@/src/routes/discordjs/events/ReactionRouter";
 import { ReadyStateRouter } from "@/src/routes/discordjs/events/ReadyStateRouter";
 import { SlashCommandRouter } from "@/src/routes/discordjs/events/SlashCommandRouter";
-import type { Message } from "discord.js";
+import type { Guild, GuildMember, Message } from "discord.js";
 import { Container } from "inversify";
 import type { Sequelize } from "sequelize";
 import type { ILogger } from "./logics/Interfaces/repositories/logger/ILogger";
@@ -109,6 +126,8 @@ appContainer.bind<IUserCandyItemRepository>(RepoTypes.UserCandyItemRepository).t
 appContainer.bind<IReminderRepository>(RepoTypes.ReminderRepository).to(ReminderRepositoryImpl);
 appContainer.bind<IThreadRepository>(RepoTypes.ThreadRepository).to(ThreadRepositoryImpl);
 appContainer.bind<IStickyRepository>(RepoTypes.StickyRepository).to(StickyRepositoryImpl);
+appContainer.bind<ICommunityRepository>(RepoTypes.CommunityRepository).to(CommunityRepositoryImpl);
+appContainer.bind<IUserRepository>(RepoTypes.UserRepository).to(UserRepositoryImpl);
 // ChatGPT
 appContainer.bind<IChatAIRepository>(RepoTypes.ChatAIRepository).to(ChatGPTRepositoryImpl);
 // DeepL
@@ -131,12 +150,18 @@ appContainer.bind<IPullRequestLogic>(LogicTypes.PullRequestLogic).to(PullRequest
 appContainer.bind<ITranslatorLogic>(LogicTypes.TranslatorLogic).to(TranslatorLogic);
 appContainer.bind<IStickyLogic>(LogicTypes.StickyLogic).to(StickyLogic);
 appContainer.bind<IUtilityLogic>(LogicTypes.UtilityLogic).to(UtilityLogic);
+appContainer.bind<ICommunityLogic>(LogicTypes.CommunityLogic).to(CommunityLogic);
+appContainer.bind<IUserLogic>(LogicTypes.UserLogic).to(UserLogic);
 
 // Handlers
 appContainer.bind<DiscordEventHandler<Message>>(HandlerTypes.MessageHandler).to(AIReplyHandler);
 appContainer.bind<DiscordEventHandler<Message>>(HandlerTypes.MessageHandler).to(StickyEventHandler);
 appContainer.bind<DiscordEventHandler<Message>>(HandlerTypes.MessageHandler).to(TranslateReplyHandler);
 appContainer.bind<DiscordEventHandler<ReactionInteraction>>(HandlerTypes.ReactionHandler).to(CandyReactionHandler);
+appContainer.bind<DiscordEventHandler<Guild>>(HandlerTypes.ActionAddBotHandler).to(ActionAddBotHandler);
+appContainer.bind<DiscordEventHandler<Guild>>(HandlerTypes.ActionRemoveBotHandler).to(ActionRemoveBotHandler);
+appContainer.bind<DiscordEventHandler<GuildMember>>(HandlerTypes.ActionAddUserHandler).to(ActionAddUserHandler);
+appContainer.bind<DiscordEventHandler<GuildMember>>(HandlerTypes.ActionRemoveUserHandler).to(ActionRemoveUserHandler);
 appContainer.bind<DiscordEventHandler<ReactionInteraction>>(HandlerTypes.ReactionHandler).to(CrownReactionHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(HelpCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(WaiwaiCommandHandler);
@@ -167,5 +192,8 @@ appContainer.bind<DiscordEventRouter>(RouteTypes.SlashCommandRoute).to(SlashComm
 appContainer.bind<DiscordEventRouter>(RouteTypes.MessageReplyRoute).to(MessageReplyRouter);
 appContainer.bind<DiscordEventRouter>(RouteTypes.ReadyStateRoute).to(ReadyStateRouter);
 appContainer.bind<DiscordEventRouter>(RouteTypes.ReactionRoute).to(ReactionRouter);
-
+appContainer.bind<DiscordEventRouter>(RouteTypes.ActionAddBotRoute).to(ActionAddBotRouter);
+appContainer.bind<DiscordEventRouter>(RouteTypes.ActionRemoveBotRoute).to(ActionRemoveBotRouter);
+appContainer.bind<DiscordEventRouter>(RouteTypes.ActionAddUserRoute).to(ActionAddUserRouter);
+appContainer.bind<DiscordEventRouter>(RouteTypes.ActionRemoveUserRoute).to(ActionRemoveUserRouter);
 export { appContainer };
