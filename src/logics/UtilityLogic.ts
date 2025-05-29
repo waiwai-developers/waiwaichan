@@ -22,7 +22,7 @@ export class UtilityLogic implements IUtilityLogic {
 						? [
 								`  - 値　　： ${command.parameter}`,
 								`  - 例　　： ${command.example}`,
-								`  - 説明　： ${command.description}`,
+								`  - 要約　： ${command.summary}`,
 							]
 						: []),
 				]),
