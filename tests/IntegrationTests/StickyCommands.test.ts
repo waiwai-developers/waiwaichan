@@ -1809,7 +1809,6 @@ describe("Test Sticky Commands", () => {
 			expect(beforeStickies.length).to.eq(1);
 			expect(beforeStickies[0].message).to.eq(originalMessage);
 
-
 			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
