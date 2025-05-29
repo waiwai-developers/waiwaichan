@@ -67,21 +67,21 @@
 					"example": "/reminderset datetime: 2024-01-01 00:00:00 username: waiwaichan message: hello",
 					"parameter": "datetime: datetime, username: string, message: string",
 					"summary": "新しくリマインダーを登録する",
-					"detail": "/talkコマンドはスレッドを立ててbotと会話を行うコマンドです。"
+					"detail": "/remindersetコマンドは送信したパラメーターの時間になると通知を飛ばすリマインダーを設定出来るコマンドです。メンション先を設定することでeveryoneやhereやuserなど設定できます。"
 				},
 				{
 					"name": "/reminderdelete",
 					"example": "/reminderdelete id: 1",
 					"parameter": "id: integer",
 					"summary": "登録されているリマインダーを削除する",
-					"detail": ""
+					"detail": "/reminderdeleteコマンドは既に設定されている送信したパラメーターのidのリマインダーを削除出来るコマンドです。idがなかった場合には特に何も起こらずエラーメッセージが返ってきます。"
 				},
 				{
 					"name": "/reminderlist",
 					"example": "/reminderlist",
 					"parameter": "none",
 					"summary": "登録されているリマインダーを確認する",
-					"detail": ""
+					"detail": "/reminderlistコマンドは既に設定されているリマインダーの一覧を表示することが出来るコマンドです。/reminderdeleteで削除する時にパラメーターに指定するidを取得する為に使用します。"
 				}
 			]
 		},
