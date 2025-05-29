@@ -171,28 +171,28 @@
 					"example": "/stickycreate channelId: 1",
 					"parameter": "id: integer",
 					"summary": "stickyをチャンネルに登録する",
-					"detail": ""
+					"detail": "/stickycreateコマンドはチャンネルに新しくスティッキーを登録するコマンドです。登録されたスティッキーは常に最新の投稿として表示され新しい投稿が行われると過去のスティッキーの投稿を削除し新しくスティッキーを投稿し直します。"
 				},
 				{
 					"name": "/stickyupdate",
 					"example": "/stickyupdate channelId: 1",
 					"parameter": "id: integer",
 					"summary": "stickyのメッセージを更新する",
-					"detail": ""
+					"detail": "stickyupdateコマンドはチャンネルに登録されたスティッキーのメッセージを更新するコマンドです。登録されたスティッキーのデータを更新したあと投稿されている文章を更新します。"
 				},
 				{
 					"name": "/stickydelete",
 					"example": "/stickydelete channelId: 1",
 					"parameter": "id: integer",
 					"summary": "stickyをチャンネルから削除する",
-					"detail": ""
+					"detail": "stickydeleteコマンドはチャンネルに登録されたスティッキーを削除するコマンドです。登録されたスティッキーのデータを削除したあと投稿されている文章も削除します。"
 				},
 				{
 					"name": "/stickylist",
 					"example": "/stickylist",
 					"parameter": "none",
 					"summary": "stickyの一覧を表示する",
-					"detail": ""
+					"detail": "stickylistコマンドはスティッキーが登録されているチャンネルのリンクの一覧を表示するコマンドです。チャンネルのidを取得しstickydeleteを実行する為に使います。"
 
 				}
 			]
