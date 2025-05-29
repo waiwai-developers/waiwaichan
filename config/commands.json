@@ -55,7 +55,7 @@
 					"example": "/talk title: please tell me your favorite food",
 					"parameter": "title: string",
 					"summary": "スレッドを立ててwaiwaiちゃんと会話をする",
-					"detail": "/talkコマンドはスレッドを立ててbotと会話を行うコマンドです。立てたスレッドの中で投稿を行うと設定されたbotの人格と会話をすることが出来き多種多様な質問を行うことが出来ます。"
+					"detail": "/talkコマンドはスレッドを立ててwaiwaichanと会話を行うコマンドです。立てたスレッドの中で投稿を行うと設定されたbotの人格と会話をすることが出来き多種多様な質問を行うことが出来ます。"
 				}
 			]
 		},
@@ -93,35 +93,35 @@
 					"example": "/candycheck",
 					"parameter": "none",
 					"summary": "付与されているキャンディの数を確認する",
-					"detail": ""
+					"detail": "/candycheckコマンドは現在持っているキャンディーの個数を表示し確認することが出来るコマンドです。/candydrawや/candyboxdrawで消費するキャンディーがあるかを確認する為に使用します。"
 				},
 				{
 					"name": "/candydraw",
 					"example": "/candydraw",
 					"parameter": "none",
 					"summary": "キャンディを消費しガチャを回す",
-					"detail": ""
+					"detail": "/candydrawコマンドは現在持っているキャンディーを1個消費して単発ガチャを回す事が出来るコマンドです。ハズレが1種類とお菓子とTシャツの2種類の当たりがあり現在はTシャツが出ないまま150回まわすと確定でTシャツが当たります。"
 				},
 				{
 					"name": "/candyboxdraw ",
 					"example": "/candyboxdraw",
 					"parameter": "none",
 					"summary": "キャンディを複数消費しガチャを回す",
-					"detail": ""
+					"detail": "/candyboxdrawコマンドは現在持っているキャンディーを10個消費して連続ガチャを回す事が出来るコマンドです。ハズレが1種類とお菓子とTシャツの2種類の当たりがあり10回中1回は必ず何かが必ず当たりTシャツが出ないまま150回まわすと確定でTシャツが当たります。"
 				},
 				{
 					"name": "/candyitem",
 					"example": "/candyitem",
 					"parameter": "none",
 					"summary": "キャンディで取得したアイテムを確認する",
-					"detail": ""
+					"detail": "/candyitemコマンドは現在持っているアイテムの種類と個数を表示し確認することが出来るコマンドです。/candyexchangeで交換出来るアイテムあるかを確認する為に使用します。"
 				},
 				{
 					"name": "/candychange",
-					"example": "/candychange id: 1",
-					"parameter": "id: integer",
+					"example": "/candychange type: お菓子 amount: 10",
+					"parameter": "type: string amount: integer" ,
 					"summary": "キャンディで取得したアイテムを交換する",
-					"detail": ""
+					"detail": "/candychangeコマンドは現在持っているアイテムの種類と個数のパラメーターを指定しそれを交換する事が出来るコマンドです。実行すると/candyitemで表示されるアイテムが消費されなくなります"
 				}
 			]
 		},
