@@ -29,9 +29,13 @@ export class StickyCreateCommandHandler implements SlashCommandHandler {
 	async handle(
 		interaction: ChatInputCommandInteraction<CacheType>,
 	): Promise<void> {
+		if (!interaction.guildId) {
+			return;
+		}
 		if (interaction.channel == null) {
 			return;
 		}
+		// NOTE: todo CommunityとUserの追加を行ったあとにrbacを実現する
 		if (
 			RoleConfig.users.find((u) => u.discordId === interaction.user.id)
 				?.role !== "admin"
@@ -42,7 +46,7 @@ export class StickyCreateCommandHandler implements SlashCommandHandler {
 
 		const sticky = await this.stickyLogic.find(
 			new DiscordGuildId(interaction.guildId),
-			new DiscordMessageId(interaction.options.getString("channelid", true)),
+			new DiscordChannelId(interaction.options.getString("channelid", true)),
 		);
 		if (sticky !== undefined) {
 			await interaction.reply(
@@ -76,9 +80,12 @@ export class StickyCreateCommandHandler implements SlashCommandHandler {
 		await interaction
 			.awaitModalSubmit({ time: 60000 })
 			.then(async (t) => {
+				if (!interaction.guildId) {
+					return;
+				}
 				const modalInputText = t.fields.getTextInputValue("stickyInput");
 				if (!modalInputText) {
-					t.reply("スティッキーに登録するメッセージがないよ！っ");
+					await t.reply("スティッキーに登録するメッセージがないよ！っ");
 					return;
 				}
 				const message = await channel.send(modalInputText);
@@ -86,6 +93,7 @@ export class StickyCreateCommandHandler implements SlashCommandHandler {
 					await t.reply("スティッキーの投稿に失敗したよ！っ");
 					return;
 				}
+
 				await t.reply(
 					await this.stickyLogic.create(
 						new StickyDto(
