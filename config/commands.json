@@ -60,7 +60,7 @@
 			]
 		},
 		{
-			"name": "reminderコマンド",
+			"name": "reminderカテゴリー",
 			"commands": [
 				{
 					"name": "/reminderset",
@@ -86,7 +86,7 @@
 			]
 		},
 		{
-			"name": "candyコマンド",
+			"name": "candyカテゴリー",
 			"commands": [
 				{
 					"name": "/candycheck",
@@ -126,7 +126,7 @@
 			]
 		},
 		{
-			"name": "reviewコマンド",
+			"name": "reviewカテゴリー",
 			"commands": [
 				{
 					"name": "/reviewgacha",
@@ -145,7 +145,7 @@
 			]
 		},
 		{
-			"name": "minecraftコマンド",
+			"name": "minecraftカテゴリー",
 			"commands": [
 				{
 					"name": "/minecraftstart",
@@ -164,7 +164,7 @@
 			]
 		},
 		{
-			"name": "stickyコマンド",
+			"name": "stickyカテゴリー",
 			"commands": [
 				{
 					"name": "/stickycreate",
