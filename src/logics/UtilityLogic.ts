@@ -18,9 +18,13 @@ export class UtilityLogic implements IUtilityLogic {
 				`## ${c.name}`,
 				...c.commands.flatMap((command) => [
 					`- \`${command.name}\``,
-					`  - 値　　： ${command.parameter}`,
-					`  - 例　　： ${command.example}`,
-					`  - 説明　： ${command.description}`,
+					...(type.getValue() !== "all"
+						? [
+								`  - 値　　： ${command.parameter}`,
+								`  - 例　　： ${command.example}`,
+								`  - 要約　： ${command.summary}`,
+							]
+						: []),
 				]),
 			]);
 		return texts.join("\n");

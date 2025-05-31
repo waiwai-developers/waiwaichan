@@ -104,7 +104,7 @@ export class CandyLogic implements ICandyLogic {
 						return `${item.name.getValue()}${amount.getValue() > 1 ? `${amount.getValue()}個` : ""}と交換したよ！っ`;
 					});
 			})
-			.catch((_err) => "アイテムは持ってないよ！っ");
+			.catch((_err: Error) => "アイテムは持ってないよ！っ");
 	}
 
 	async drawItems(
@@ -156,7 +156,10 @@ export class CandyLogic implements ICandyLogic {
 
 				//天上の場合に置換
 				const lastJackpodCandyId =
-					await this.userCandyItemRepository.lastJackpodCandyId(guildId, userId);
+					await this.userCandyItemRepository.lastJackpodCandyId(
+						guildId,
+						userId,
+					);
 				const candyCountFromJackpod =
 					await this.candyRepository.candyCountFromJackpod(
 						guildId,
@@ -218,7 +221,7 @@ export class CandyLogic implements ICandyLogic {
 				});
 				return texts.join("\n");
 			})
-			.catch((_err) => "キャンディの数が足りないよ！っ");
+			.catch((_err: Error) => "キャンディの数が足りないよ！っ");
 	}
 
 	async getItems(
@@ -350,7 +353,7 @@ export class CandyLogic implements ICandyLogic {
 					guildId,
 					giver,
 					messageId,
-					CandyCategoryType.CATEGORY_TYPE_SUPER,
+					candyCategoryType,
 				);
 				// duplicate reaction
 				if (candies.length > 0) {

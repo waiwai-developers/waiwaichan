@@ -3,6 +3,7 @@ import {
 	SchedulerRepoTypes,
 } from "@/src/entities/constants/DIContainerTypes";
 import type { IReminderSchedulerRepository } from "@/src/logics/Interfaces/repositories/database/IReminderSchedulerRepository";
+import type { ITransaction } from "@/src/logics/Interfaces/repositories/database/ITransaction";
 import { schedulerContainer } from "@/src/scheduler.di.config";
 import { type Client, TextChannel } from "discord.js";
 

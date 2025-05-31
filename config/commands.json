@@ -1,158 +1,199 @@
 {
 	"categories": [
 		{
-			"name": "mainコマンド",
+			"name": "utilityカテゴリー",
 			"commands": [
 				{
 					"name": "/help",
 					"example": "/help",
 					"parameter": "none",
-					"description": "コマンドの一覧と詳細を確認する"
+					"summary": "コマンドの一覧と詳細を確認する",
+					"detail": "/hepコマンドはページの一覧を表示しそのスコープに合わせて表示する情報量を調節することが出来ます。例えば全てのコマンドを選択した時はコマンド名のみ表示されますが、カテゴリの全てのコマンドを表示させた時は値、例、説明が表示され、特定のコマンドを選択したときは値、例、説明、詳細が表示されます。"
 				},
 				{
 					"name": "/waiwai",
 					"example": "/waiwai",
 					"parameter": "none",
-					"description": "waiwaiで場を盛り上げる"
+					"summary": "waiwaiで場を盛り上げる",
+					"detail": "/waiwaiコマンドはコマンドを送信するとwaiwaiと応答するだけのコマンドです。特にその他の機能はなくserverの死活監理などヘスルチェックを手動で行う時に主に利用されます。"
 				},
 				{
 					"name": "/parrot",
 					"example": "/parrot message: It's not a parrot, it's a parakeet",
 					"parameter": "message: string",
-					"description": "メッセージの内容をオウムがえしする"
+					"summary": "メッセージの内容をオウムがえしする",
+					"detail": "/parrotコマンドは送信したパラメーターと同じ内容で応答するだけのコマンドです。特にその他の機能はなくserverの死活監理などヘスルチェックを手動で行う時に主に利用されます。"
 				},
 				{
 					"name": "/dice",
 					"example": "/dice message: 10",
 					"parameter": "message: integer",
-					"description": "指定した数の目のサイコロを転がす"
+					"summary": "指定した数の目のサイコロを転がす",
+					"detail": "/diceコマンドは送信したParameterの数字のサイコロを振ることが出来るコマンドです。例えばパラメーターに100を渡した時は1から100の数が生成されそのうちランダムに値を返します。"
 				},
 				{
 					"name": "/choice",
 					"example": "/choice message: apple orange grape",
 					"parameter": "message: [string]",
-					"description": "指定した単語から選んでもらう"
-				},
+					"summary": "指定した単語から選んでもらう",
+					"detail": "/choiceコマンドは送信したパラメーターを半角空白区切りで分割しそのうちひとつをランダムに返すコマンドです。特にその他の機能はなく誰か一人を選出する時などにに主に利用されます。"
+				}
+			]
+		},
+		{
+			"name": "chatカテゴリー",
+			"commands": [
 				{
 					"name": "/translate",
 					"example": "/translate title: hello world source: English target: Japanese message: hello world",
 					"parameter": "title: string, source: string, target: string",
-					"description": "指定した言語から言語へ翻訳を行う"
+					"summary": "指定した言語から言語へ翻訳を行う",
+					"detail": "/translateコマンドはパラメーターで選択した言語から言語へ翻訳をスレッドを立てて行うコマンドです。立てたスレッドの中で投稿を行うと指定した言語から言語へと翻訳することが出来きます"
 				},
 				{
 					"name": "/talk",
 					"example": "/talk title: please tell me your favorite food",
 					"parameter": "title: string",
-					"description": "スレッドを立ててwaiwaiちゃんと会話をする"
+					"summary": "スレッドを立ててwaiwaiちゃんと会話をする",
+					"detail": "/talkコマンドはスレッドを立ててwaiwaichanと会話を行うコマンドです。立てたスレッドの中で投稿を行うと設定されたbotの人格と会話をすることが出来き多種多様な質問を行うことが出来ます。"
 				}
 			]
 		},
 		{
-			"name": "reminderコマンド",
+			"name": "reminderカテゴリー",
 			"commands": [
 				{
 					"name": "/reminderset",
 					"example": "/reminderset datetime: 2024-01-01 00:00:00 username: waiwaichan message: hello",
 					"parameter": "datetime: datetime, username: string, message: string",
-					"description": "新しくリマインダーを登録する"
+					"summary": "新しくリマインダーを登録する",
+					"detail": "/remindersetコマンドは送信したパラメーターの時間になると通知を飛ばすリマインダーを設定出来るコマンドです。メンション先を設定することでeveryoneやhereやuserなど設定できます。"
 				},
 				{
 					"name": "/reminderdelete",
 					"example": "/reminderdelete id: 1",
 					"parameter": "id: integer",
-					"description": "登録されているリマインダーを削除する"
+					"summary": "登録されているリマインダーを削除する",
+					"detail": "/reminderdeleteコマンドは既に設定されている送信したパラメーターのidのリマインダーを削除出来るコマンドです。idがなかった場合には特に何も起こらずエラーメッセージが返ってきます。"
 				},
 				{
 					"name": "/reminderlist",
 					"example": "/reminderlist",
 					"parameter": "none",
-					"description": "登録されているリマインダーを確認する"
+					"summary": "登録されているリマインダーを確認する",
+					"detail": "/reminderlistコマンドは既に設定されているリマインダーの一覧を表示することが出来るコマンドです。/reminderdeleteで削除する時にパラメーターに指定するidを取得する為に使用します。"
 				}
 			]
 		},
 		{
-			"name": "candyコマンド",
+			"name": "candyカテゴリー",
 			"commands": [
 				{
 					"name": "/candycheck",
 					"example": "/candycheck",
 					"parameter": "none",
-					"description": "付与されているキャンディの数を確認する"
+					"summary": "付与されているキャンディの数を確認する",
+					"detail": "/candycheckコマンドは現在持っているキャンディーの個数を表示し確認することが出来るコマンドです。/candydrawや/candyboxdrawで消費するキャンディーがあるかを確認する為に使用します。"
 				},
 				{
 					"name": "/candydraw",
 					"example": "/candydraw",
 					"parameter": "none",
-					"description": "キャンディを消費しガチャを回す"
+					"summary": "キャンディを消費しガチャを回す",
+					"detail": "/candydrawコマンドは現在持っているキャンディーを1個消費して単発ガチャを回す事が出来るコマンドです。ハズレが1種類とお菓子とTシャツの2種類の当たりがあり現在はTシャツが出ないまま150回まわすと確定でTシャツが当たります。"
 				},
 				{
 					"name": "/candyboxdraw ",
 					"example": "/candyboxdraw",
 					"parameter": "none",
-					"description": "キャンディを複数消費しガチャを回す"
+					"summary": "キャンディを複数消費しガチャを回す",
+					"detail": "/candyboxdrawコマンドは現在持っているキャンディーを10個消費して連続ガチャを回す事が出来るコマンドです。ハズレが1種類とお菓子とTシャツの2種類の当たりがあり10回中1回は必ず何かが必ず当たりTシャツが出ないまま150回まわすと確定でTシャツが当たります。"
 				},
 				{
 					"name": "/candyitem",
 					"example": "/candyitem",
 					"parameter": "none",
-					"description": "キャンディで取得したアイテムを確認する"
+					"summary": "キャンディで取得したアイテムを確認する",
+					"detail": "/candyitemコマンドは現在持っているアイテムの種類と個数を表示し確認することが出来るコマンドです。/candyexchangeで交換出来るアイテムあるかを確認する為に使用します。"
 				},
 				{
 					"name": "/candychange",
-					"example": "/candychange id: 1",
-					"parameter": "id: integer",
-					"description": "キャンディで取得したアイテムを交換する"
+					"example": "/candychange type: お菓子 amount: 10",
+					"parameter": "type: string amount: integer" ,
+					"summary": "キャンディで取得したアイテムを交換する",
+					"detail": "/candychangeコマンドは現在持っているアイテムの種類と個数のパラメーターを指定しそれを交換する事が出来るコマンドです。実行すると/candyitemで表示されるアイテムが消費されなくなります"
 				}
 			]
 		},
 		{
-			"name": "reviewコマンド",
+			"name": "reviewカテゴリー",
 			"commands": [
 				{
 					"name": "/reviewgacha",
 					"example": "/reviewgacha id: 1",
 					"parameter": "id: integer",
-					"description": "レビューガチャを回してレビュワーをアサインする"
+					"summary": "レビューガチャを回してレビュワーをアサインする",
+					"detail": "/reviewgachaコマンドはガチャを回しランダムにgithub上でpull reqのレビュワーとしてアサインしスレッドを立ててレビューを行うコマンドです。親レビュワーと子レビュワーというユーザーグループがあり現在の設定では2人選出されそのうち必ず一人は親レビュワーとなります。"
 				},
 				{
 					"name": "/reviewlist",
 					"example": "/reviewlist",
 					"parameter": "none",
-					"description": "レビューにアサインされているpull reqを表示する"
+					"summary": "レビューにアサインされているpull reqを表示する",
+					"detail": "/reviewlistコマンドは現在アサインされているのpull reqの一覧を表示するためのコマンドです。仕様でステータスが未レビューとなっているpull reqのみ表示されるので全てではないという点に注意が必要です。"
 				}
 			]
 		},
 		{
-			"name": "minecraftコマンド",
+			"name": "minecraftカテゴリー",
 			"commands": [
 				{
 					"name": "/minecraftstart",
 					"example": "/minecraftstart",
 					"parameter": "none",
-					"description": "minecraftサーバーを起動する"
+					"summary": "minecraftサーバーを起動する",
+					"detail": "/minecraftstartコマンドはGCPのサーバーを起動しマインクラフトを起動するコマンドです。サーバーの起動までに少し時間がかかるのと起動中は課金が発生するのでこまめに落として下さい"
 				},
 				{
 					"name": "/minecraftstop",
 					"example": "/minecraftstop",
 					"parameter": "none",
-					"description": "minecraftサーバーを停止する"
+					"summary": "minecraftサーバーを停止する",
+					"detail": "/minecraftstopコマンドはGCPのサーバーを停止しマインクラフトを落とすコマンドです。サーバーの停止までに少し時間がかかるのと停止中は課金が発生しないのでこまめに落として下さい"
 				}
 			]
 		},
 		{
-			"name": "stickyコマンド",
+			"name": "stickyカテゴリー",
 			"commands": [
 				{
 					"name": "/stickycreate",
 					"example": "/stickycreate channelId: 1",
 					"parameter": "id: integer",
-					"description": "stickyをチャンネルに登録する"
+					"summary": "stickyをチャンネルに登録する",
+					"detail": "/stickycreateコマンドはチャンネルに新しくスティッキーを登録するコマンドです。登録されたスティッキーは常に最新の投稿として表示され新しい投稿が行われると過去のスティッキーの投稿を削除し新しくスティッキーを投稿し直します。"
+				},
+				{
+					"name": "/stickyupdate",
+					"example": "/stickyupdate channelId: 1",
+					"parameter": "id: integer",
+					"summary": "stickyのメッセージを更新する",
+					"detail": "stickyupdateコマンドはチャンネルに登録されたスティッキーのメッセージを更新するコマンドです。登録されたスティッキーのデータを更新したあと投稿されている文章を更新します。"
 				},
 				{
 					"name": "/stickydelete",
 					"example": "/stickydelete channelId: 1",
 					"parameter": "id: integer",
-					"description": "stickyをチャンネルから削除する"
+					"summary": "stickyをチャンネルから削除する",
+					"detail": "stickydeleteコマンドはチャンネルに登録されたスティッキーを削除するコマンドです。登録されたスティッキーのデータを削除したあと投稿されている文章も削除します。"
+				},
+				{
+					"name": "/stickylist",
+					"example": "/stickylist",
+					"parameter": "none",
+					"summary": "stickyの一覧を表示する",
+					"detail": "stickylistコマンドはスティッキーが登録されているチャンネルのリンクの一覧を表示するコマンドです。チャンネルのidを取得しstickydeleteを実行する為に使います。"
+
 				}
 			]
 		}
