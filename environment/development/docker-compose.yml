@@ -73,9 +73,9 @@ services:
       retries: 5
       start_period: 30s
       timeout: 5s
-  redis:
-    container_name: waiwai-redis
-    image: redis:8.0.2
+  cache:
+    container_name: waiwai-valkey
+    image: valkey/valkey:8.1.1
     restart: always
     ports:
       - "6379:6379"
