@@ -36,7 +36,7 @@
 		"dayjs": "^1.11.13",
 		"deepl-node": "^1.14.0",
 		"discord-api-types": "^0.37.107",
-		"discord.js": "^14.16.3",
+		"discord.js": "^14.19.3",
 		"dotenv": "^16.4.5",
 		"google-auth-library": "^9.15.1",
 		"googleapis": "^148.0.0",
@@ -55,7 +55,9 @@
 		"ts-mockito": "^2.6.1",
 		"tsc-alias": "^1.8.10",
 		"typescript": "^5.6.3",
-		"umzug": "^3.8.2"
+		"umzug": "^3.8.2",
+		"undici": "^7.10.0",
+		"valkey": "^0.0.3"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4",
@@ -68,6 +70,9 @@
 		"swc-plugin-coverage-instrument": "^0.0.25",
 		"testcontainers": "^10.15.0",
 		"tsx": "^4.19.2"
+	},
+	"overrides": {
+		"undici": "^7.10.0"
 	},
 	"mocha": {
 		"diff": true,
