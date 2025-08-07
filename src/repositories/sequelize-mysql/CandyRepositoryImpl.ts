@@ -128,6 +128,7 @@ class CandyRepositoryImpl extends Model implements ICandyRepository {
 			where: {
 				guildId: guildId.getValue(),
 				receiveUserId: userId.getValue(),
+				expiredAt: { [Op.gt]: dayjs().toDate() },
 			},
 			limit: candyCount.getValue(),
 		}).then((cs) => {
