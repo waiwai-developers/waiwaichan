@@ -8,6 +8,9 @@ export const RepoTypes = {
 	UserCandyItemRepository: Symbol.for("UserCandyItemRepository"),
 	ReminderRepository: Symbol.for("ReminderRepository"),
 	ThreadRepository: Symbol.for("ThreadRepository"),
+	PersonalityRepository: Symbol.for("PersonalityRepository"),
+	ContextRepository: Symbol.for("ContextRepository"),
+	PersonalityContextRepository: Symbol.for("PersonalityContextRepository"),
 	ChatAIRepository: Symbol.for("ChatAIRepository"),
 	TranslateRepository: Symbol.for("TranslateRepository"),
 	VMInstanceRepository: Symbol.for("VMInstanceRepository"),
@@ -18,6 +21,9 @@ export const RepoTypes = {
 };
 export const LogicTypes = {
 	ThreadLogic: Symbol.for("ThreadLogic"),
+	PersonalityLogic: Symbol.for("PersonalityLogic"),
+	ContextLogic: Symbol.for("ContextLogic"),
+	PersonalityContextLogic: Symbol.for("PersonalityContextLogic"),
 	ChatAILogic: Symbol.for("ChatAILogic"),
 	MinecraftServerLogic: Symbol.for("MinecraftServerLogic"),
 	CandyLogic: Symbol.for("CandyLogic"),
