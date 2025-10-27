@@ -1,11 +1,11 @@
 import { ContextsConst } from "@/src/entities/constants/Contexts";
 import type { Seed } from "@/migrator/umzug";
 import { Op } from "sequelize";
-import { MigrateContextModel } from "./models/MigrateContextModel";
+import { SeederContextModel } from "./models/SeederContextModel";
 
 export const up: Seed = async ({ context: sequelize }) => {
-	sequelize.addModels([MigrateContextModel]);
-	await new MigrateContextModel().bulkUpsert(ContextsConst.contexts.map((c) => (
+	sequelize.addModels([SeederContextModel]);
+	await new SeederContextModel().bulkUpsert(ContextsConst.contexts.map((c) => (
 		{
 			"id": c.id,
 			"name": c.name,
