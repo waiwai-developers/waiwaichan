@@ -8,26 +8,26 @@ import {
 } from "sequelize-typescript";
 
 @Table({
-	tableName: "Personalities",
+	tableName: "Items",
 	timestamps: true,
 })
-class MigratePersonalityModel extends Model {
+class SeederPointItemModel extends Model {
 	@PrimaryKey
 	@AutoIncrement
 	@Column(DataType.INTEGER)
 	declare id: number;
 	@Column(DataType.STRING)
 	declare name: string;
-	@Column(DataType.JSON)
-	declare prompt: JSON;
+	@Column(DataType.STRING)
+	declare description: string;
 
 	async bulkUpsert(
-		data: Array<{ id: number; name: string; prompt: JSON }>,
+		data: Array<{ id: number; name: string; description: string }>,
 	) {
 		await Promise.all(
-			data.map(async (d) => await MigratePersonalityModel.upsert(d)),
+			data.map(async (d) => await SeederPointItemModel.upsert(d)),
 		);
 	}
 }
 
-export { MigratePersonalityModel };
+export { SeederPointItemModel };

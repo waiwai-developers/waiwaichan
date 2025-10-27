@@ -10,7 +10,7 @@ import {
 	tableName: "PersonalityContexts",
 	timestamps: true,
 })
-class MigratePersonalityContextModel extends Model {
+class SeederPersonalityContextModel extends Model {
 	@PrimaryKey
 	@Column(DataType.INTEGER)
 	declare personalityId: number;
@@ -22,9 +22,9 @@ class MigratePersonalityContextModel extends Model {
 		data: Array<{ personalityId: number; contextId: number; }>,
 	) {
 		await Promise.all(
-			data.map(async (d) => await MigratePersonalityContextModel.upsert(d)),
+			data.map(async (d) => await SeederPersonalityContextModel.upsert(d)),
 		);
 	}
 }
 
-export { MigratePersonalityContextModel };
+export { SeederPersonalityContextModel };

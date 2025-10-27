@@ -1,12 +1,12 @@
 import { PersonalitiesConst } from "@/src/entities/constants/Personalities";
 import type { Seed } from "@/migrator/umzug";
 import { Op } from "sequelize";
-import { MigratePersonalityModel } from "./models/MigratePersonalityModel";
+import { SeederPersonalityModel } from "./models/SeederPersonalityModel";
 export const PERSONALITY_RECORDS = [PersonalitiesConst];
 
 export const up: Seed = async ({ context: sequelize }) => {
-	sequelize.addModels([MigratePersonalityModel]);
-	await new MigratePersonalityModel().bulkUpsert(
+	sequelize.addModels([SeederPersonalityModel]);
+	await new SeederPersonalityModel().bulkUpsert(
 		PersonalitiesConst.personalities.map((p) => (
 			{
 				"id": p.id,
