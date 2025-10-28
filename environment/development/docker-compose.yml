@@ -2,9 +2,6 @@ x-base-service: &base-service
   build:
     context: ../../.
     dockerfile: environment/development/Dockerfile
-  depends_on:
-    database:
-      condition: service_healthy
   networks:
     - server-network
   environment:
@@ -26,6 +23,12 @@ services:
       - type: volume
         source: backend_node_modules
         target: /app/node_modules
+    # migrate の完了を待つ
+    depends_on:
+      database:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     command: sh -c "npm i && pnpm run dev"
   scheduler:
     <<: *base-service
@@ -40,6 +43,12 @@ services:
         target: /app/node_modules
     networks:
       - server-network
+    # migrate の完了を待つ
+    depends_on:
+      database:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     command: sh -c "npm i && pnpm run dev:scheduler"
   migrate:
     <<: *base-service
@@ -52,6 +61,9 @@ services:
       - type: volume
         source: migrate_node_modules
         target: /app/node_modules
+    depends_on:
+      database:
+        condition: service_healthy
     command: sh -c "npm i && pnpm run migrate up && pnpm run seed up && pnpm run datafix up"
   database:
     container_name: waiwai-database
