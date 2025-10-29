@@ -18,6 +18,10 @@ import { StickyCreateCommandHandler } from "@/src/handlers/discord.js/commands/S
 import { StickyDeleteCommandHandler } from "@/src/handlers/discord.js/commands/StickyDeleteCommandHandler";
 import { StickyListCommandHandler } from "@/src/handlers/discord.js/commands/StickyListCommandHandler";
 import { StickyUpdateCommandHandler } from "@/src/handlers/discord.js/commands/StickyUpdateCommandHandler";
+import { RoomAddChannelCreateCommandHandler } from "@/src/handlers/discord.js/commands/RoomAddChannelCreateCommandHandler";
+import { RoomAddChannelDeleteCommandHandler } from "@/src/handlers/discord.js/commands/RoomAddChannelDeleteCommandHandler";
+import { RoomNotificationChannelCreateCommandHandler } from "@/src/handlers/discord.js/commands/RoomNotificationChannelCreateCommandHandler";
+import { RoomNotificationChannelDeleteCommandHandler } from "@/src/handlers/discord.js/commands/RoomNotificationChannelDeleteCommandHandler";
 import { TalkCommandHandler } from "@/src/handlers/discord.js/commands/TalkCommandHandler";
 import { TranslateCommandHandler } from "@/src/handlers/discord.js/commands/TranslateCommandHandler";
 import { WaiwaiCommandHandler } from "@/src/handlers/discord.js/commands/WaiwaiCommandHandler";
@@ -45,4 +49,8 @@ export {
 	StickyUpdateCommandHandler,
 	StickyDeleteCommandHandler,
 	StickyListCommandHandler,
+	RoomAddChannelCreateCommandHandler,
+	RoomAddChannelDeleteCommandHandler,
+	RoomNotificationChannelCreateCommandHandler,
+	RoomNotificationChannelDeleteCommandHandler,
 };
