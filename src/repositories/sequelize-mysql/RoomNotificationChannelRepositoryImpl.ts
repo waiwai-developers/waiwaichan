@@ -14,7 +14,7 @@ import {
 
 @injectable()
 @Table({
-	tableName: "Stickies",
+	tableName: "RoomNotificationChannels",
 	timestamps: true,
 	paranoid: true,
 })
