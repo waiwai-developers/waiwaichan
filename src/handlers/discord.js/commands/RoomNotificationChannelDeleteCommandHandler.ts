@@ -1,12 +1,9 @@
 import { RoleConfig } from "@/src/entities/config/RoleConfig";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
-import { RoomNotificationChannelDto } from "@/src/entities/dto/RoomNotificationChannelDto";
-import { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
 import { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
 import type { IRoomNotificationChannelLogic } from "@/src/logics/Interfaces/logics/IRoomNotificationChannelLogic";
 import type { CacheType, ChatInputCommandInteraction } from "discord.js";
-import { TextChannel } from "discord.js";
 import { inject, injectable } from "inversify";
 
 @injectable()
