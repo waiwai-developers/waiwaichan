@@ -16,6 +16,8 @@ export const RepoTypes = {
 	VMInstanceRepository: Symbol.for("VMInstanceRepository"),
 	PullRequestRepository: Symbol.for("PullRequestRepository"),
 	StickyRepository: Symbol.for("StickyRepository"),
+	RoomAddChannelRepository: Symbol.for("RoomAddChannelRepository"),
+	RoomNotificationChannelRepository: Symbol.for("RoomNotificationChannelRepository"),
 	SequelizeModels: Symbol.for("SequelizeModels"),
 	Logger: Symbol.for("Logger"),
 };
@@ -33,6 +35,8 @@ export const LogicTypes = {
 	StickyLogic: Symbol.for("StickyLogic"),
 	UtilityLogic: Symbol.for("UtilityLogic"),
 	CrownLogic: Symbol.for("CrownLogic"),
+	RoomAddChannelLogic: Symbol.for("RoomAddChannelLogic"),
+	RoomNotificationChannelLogic: Symbol.for("RoomNotificationChannelLogic"),
 };
 
 export const RouteTypes = {
