@@ -10,7 +10,9 @@ import { TextChannel } from "discord.js";
 import { inject, injectable } from "inversify";
 
 @injectable()
-export class RoomNotificationChannelCreateCommandHandler implements SlashCommandHandler {
+export class RoomNotificationChannelCreateCommandHandler
+	implements SlashCommandHandler
+{
 	@inject(LogicTypes.RoomNotificationChannelLogic)
 	private roomNotificationChannelLogic!: IRoomNotificationChannelLogic;
 	isHandle(commandName: string): boolean {
@@ -35,13 +37,12 @@ export class RoomNotificationChannelCreateCommandHandler implements SlashCommand
 			return;
 		}
 
-		const roomNotificationChannel = await this.roomNotificationChannelLogic.find(
+		const roomNotificationChannel =
+			await this.roomNotificationChannelLogic.find(
 				new DiscordGuildId(interaction.guildId),
-		);
-		if (roomNotificationChannel !== undefined) {
-			await interaction.reply(
-				"部屋通知チャンネルが既に登録されているよ！っ",
 			);
+		if (roomNotificationChannel !== undefined) {
+			await interaction.reply("部屋通知チャンネルが既に登録されているよ！っ");
 			return;
 		}
 
@@ -59,7 +60,9 @@ export class RoomNotificationChannelCreateCommandHandler implements SlashCommand
 			await this.roomNotificationChannelLogic.create(
 				new RoomNotificationChannelDto(
 					new DiscordGuildId(interaction.guildId),
-					new DiscordMessageId(interaction.options.getString("channelid", true)),
+					new DiscordMessageId(
+						interaction.options.getString("channelid", true),
+					),
 				),
 			),
 		);

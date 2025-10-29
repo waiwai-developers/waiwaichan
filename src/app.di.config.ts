@@ -17,14 +17,14 @@ import {
 	ReminderSetCommandHandler,
 	ReviewGachaCommandHandler,
 	ReviewListCommandHandler,
-	StickyCreateCommandHandler,
-	StickyDeleteCommandHandler,
-	StickyListCommandHandler,
-	StickyUpdateCommandHandler,
 	RoomAddChannelCreateCommandHandler,
 	RoomAddChannelDeleteCommandHandler,
 	RoomNotificationChannelCreateCommandHandler,
 	RoomNotificationChannelDeleteCommandHandler,
+	StickyCreateCommandHandler,
+	StickyDeleteCommandHandler,
+	StickyListCommandHandler,
+	StickyUpdateCommandHandler,
 	TalkCommandHandler,
 	TranslateCommandHandler,
 	WaiwaiCommandHandler,
@@ -50,9 +50,9 @@ import type { IPersonalityContextLogic } from "@/src/logics/Interfaces/logics/IP
 import type { IPersonalityLogic } from "@/src/logics/Interfaces/logics/IPersonalityLogic";
 import type { IPullRequestLogic } from "@/src/logics/Interfaces/logics/IPullRequestLogic";
 import type { IReminderLogic } from "@/src/logics/Interfaces/logics/IReminderLogic";
-import type { IStickyLogic } from "@/src/logics/Interfaces/logics/IStickyLogic";
 import type { IRoomAddChannelLogic } from "@/src/logics/Interfaces/logics/IRoomAddChannelLogic";
 import type { IRoomNotificationChannelLogic } from "@/src/logics/Interfaces/logics/IRoomNotificationChannelLogic";
+import type { IStickyLogic } from "@/src/logics/Interfaces/logics/IStickyLogic";
 import type { IThreadLogic } from "@/src/logics/Interfaces/logics/IThreadLogic";
 import type { ITranslatorLogic } from "@/src/logics/Interfaces/logics/ITranslatorLogic";
 import type { IUtilityLogic } from "@/src/logics/Interfaces/logics/IUtilityLogic";
@@ -81,9 +81,9 @@ import { PersonalityContextLogic } from "@/src/logics/PersonalityContextLogic";
 import { PersonalityLogic } from "@/src/logics/PersonalityLogic";
 import { PullRequestLogic } from "@/src/logics/PullRequestLogic";
 import { ReminderLogic } from "@/src/logics/ReminderLogic";
-import { StickyLogic } from "@/src/logics/StickyLogic";
 import { RoomAddChannelLogic } from "@/src/logics/RoomAddChannelLogic";
 import { RoomNotificationChannelLogic } from "@/src/logics/RoomNotificationChannelLogic";
+import { StickyLogic } from "@/src/logics/StickyLogic";
 import { ThreadLogic } from "@/src/logics/ThreadLogic";
 import { TranslatorLogic } from "@/src/logics/TranslatorLogic";
 import { UtilityLogic } from "@/src/logics/UtilityLogic";

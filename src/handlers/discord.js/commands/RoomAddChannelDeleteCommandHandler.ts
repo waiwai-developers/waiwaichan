@@ -36,15 +36,13 @@ export class RoomAddChannelDeleteCommandHandler implements SlashCommandHandler {
 			new DiscordGuildId(interaction.guildId),
 		);
 		if (roomAddChannel === undefined) {
-			await interaction.reply(
-				"部屋追加チャンネルが登録されていなかったよ！っ",
-			);
+			await interaction.reply("部屋追加チャンネルが登録されていなかったよ！っ");
 			return;
 		}
 
 		await interaction.reply(
 			await this.roomAddChannelLogic.delete(
-				new DiscordGuildId(interaction.guildId)
+				new DiscordGuildId(interaction.guildId),
 			),
 		);
 	}

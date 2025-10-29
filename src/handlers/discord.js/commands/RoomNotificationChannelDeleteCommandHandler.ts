@@ -7,7 +7,9 @@ import type { CacheType, ChatInputCommandInteraction } from "discord.js";
 import { inject, injectable } from "inversify";
 
 @injectable()
-export class RoomNotificationChannelDeleteCommandHandler implements SlashCommandHandler {
+export class RoomNotificationChannelDeleteCommandHandler
+	implements SlashCommandHandler
+{
 	@inject(LogicTypes.RoomNotificationChannelLogic)
 	private roomNotificationChannelLogic!: IRoomNotificationChannelLogic;
 	isHandle(commandName: string): boolean {
@@ -32,19 +34,18 @@ export class RoomNotificationChannelDeleteCommandHandler implements SlashCommand
 			return;
 		}
 
-		const roomNotificationChannel = await this.roomNotificationChannelLogic.find(
-			new DiscordGuildId(interaction.guildId),
-		);
-		if (roomNotificationChannel === undefined) {
-			await interaction.reply(
-				"部屋追加チャンネルが登録されていなかったよ！っ",
+		const roomNotificationChannel =
+			await this.roomNotificationChannelLogic.find(
+				new DiscordGuildId(interaction.guildId),
 			);
+		if (roomNotificationChannel === undefined) {
+			await interaction.reply("部屋追加チャンネルが登録されていなかったよ！っ");
 			return;
 		}
 
 		await interaction.reply(
 			await this.roomNotificationChannelLogic.delete(
-				new DiscordGuildId(interaction.guildId)
+				new DiscordGuildId(interaction.guildId),
 			),
 		);
 	}

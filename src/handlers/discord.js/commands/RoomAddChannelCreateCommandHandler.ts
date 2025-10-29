@@ -39,9 +39,7 @@ export class RoomAddChannelCreateCommandHandler implements SlashCommandHandler {
 			new DiscordGuildId(interaction.guildId),
 		);
 		if (roomAddChannel !== undefined) {
-			await interaction.reply(
-				"部屋追加チャンネルが既に登録されているよ！っ",
-			);
+			await interaction.reply("部屋追加チャンネルが既に登録されているよ！っ");
 			return;
 		}
 
@@ -59,7 +57,9 @@ export class RoomAddChannelCreateCommandHandler implements SlashCommandHandler {
 			await this.roomAddChannelLogic.create(
 				new RoomAddChannelDto(
 					new DiscordGuildId(interaction.guildId),
-					new DiscordMessageId(interaction.options.getString("channelid", true)),
+					new DiscordMessageId(
+						interaction.options.getString("channelid", true),
+					),
 				),
 			),
 		);

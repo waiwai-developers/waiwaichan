@@ -1,4 +1,3 @@
-import { ContainerDown, ContainerUp } from "@/tests/fixtures/database/ContainerTest";
 import { InternalErrorMessage } from "@/src/entities/DiscordErrorMessages";
 import { AppConfig } from "@/src/entities/config/AppConfig";
 import type { ChatAIMessageDto } from "@/src/entities/dto/ChatAIMessageDto";
@@ -18,6 +17,7 @@ import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnecto
 import { PersonalityContextRepositoryImpl } from "@/src/repositories/sequelize-mysql/PersonalityContextRepositoryImpl";
 import { PersonalityRepositoryImpl } from "@/src/repositories/sequelize-mysql/PersonalityRepositoryImpl";
 import { ThreadRepositoryImpl } from "@/src/repositories/sequelize-mysql/ThreadRepositoryImpl";
+import { ContainerDown, ContainerUp } from "@/tests/fixtures/database/ContainerTest";
 import { mockMessage } from "@/tests/fixtures/discord.js/MockMessage";
 import { mockSlashCommand, waitUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { TestDiscordServer } from "@/tests/fixtures/discord.js/TestDiscordServer";

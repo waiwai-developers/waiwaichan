@@ -18,7 +18,10 @@ import {
 	timestamps: true,
 	paranoid: true,
 })
-class RoomNotificationChannelRepositoryImpl extends Model implements IRoomNotificationChannelRepository {
+class RoomNotificationChannelRepositoryImpl
+	extends Model
+	implements IRoomNotificationChannelRepository
+{
 	@PrimaryKey
 	@AutoIncrement
 	@Column(DataType.INTEGER)
@@ -38,12 +41,14 @@ class RoomNotificationChannelRepositoryImpl extends Model implements IRoomNotifi
 	async delete(discordGuildId: DiscordGuildId): Promise<boolean> {
 		return RoomNotificationChannelRepositoryImpl.destroy({
 			where: {
-				guildId: discordGuildId.getValue()
+				guildId: discordGuildId.getValue(),
 			},
 		}).then((res) => res > 0);
 	}
 
-	async findOne(discordGuildId: DiscordGuildId): Promise<RoomNotificationChannelDto | undefined> {
+	async findOne(
+		discordGuildId: DiscordGuildId,
+	): Promise<RoomNotificationChannelDto | undefined> {
 		return RoomNotificationChannelRepositoryImpl.findOne({
 			where: {
 				guildId: discordGuildId.getValue(),

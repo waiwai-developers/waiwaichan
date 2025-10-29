@@ -18,7 +18,10 @@ import {
 	timestamps: true,
 	paranoid: true,
 })
-class RoomAddChannelRepositoryImpl extends Model implements IRoomAddChannelRepository {
+class RoomAddChannelRepositoryImpl
+	extends Model
+	implements IRoomAddChannelRepository
+{
 	@PrimaryKey
 	@AutoIncrement
 	@Column(DataType.INTEGER)
@@ -43,7 +46,9 @@ class RoomAddChannelRepositoryImpl extends Model implements IRoomAddChannelRepos
 		}).then((res) => res > 0);
 	}
 
-	async findOne(discordGuildId: DiscordGuildId): Promise<RoomAddChannelDto | undefined> {
+	async findOne(
+		discordGuildId: DiscordGuildId,
+	): Promise<RoomAddChannelDto | undefined> {
 		return RoomAddChannelRepositoryImpl.findOne({
 			where: {
 				guildId: discordGuildId.getValue(),

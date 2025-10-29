@@ -17,7 +17,9 @@ export const RepoTypes = {
 	PullRequestRepository: Symbol.for("PullRequestRepository"),
 	StickyRepository: Symbol.for("StickyRepository"),
 	RoomAddChannelRepository: Symbol.for("RoomAddChannelRepository"),
-	RoomNotificationChannelRepository: Symbol.for("RoomNotificationChannelRepository"),
+	RoomNotificationChannelRepository: Symbol.for(
+		"RoomNotificationChannelRepository",
+	),
 	SequelizeModels: Symbol.for("SequelizeModels"),
 	Logger: Symbol.for("Logger"),
 };

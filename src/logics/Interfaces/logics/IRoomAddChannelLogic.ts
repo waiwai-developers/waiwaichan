@@ -1,5 +1,5 @@
 import type { RoomAddChannelDto } from "@/src/entities/dto/RoomAddChannelDto";
-import { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
+import type { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
 
 export interface IRoomAddChannelLogic {
 	create(data: RoomAddChannelDto): Promise<string>;

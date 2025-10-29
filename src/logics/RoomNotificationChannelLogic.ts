@@ -1,13 +1,15 @@
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import type { RoomNotificationChannelDto } from "@/src/entities/dto/RoomNotificationChannelDto";
+import type { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
 import type { IRoomNotificationChannelLogic } from "@/src/logics/Interfaces/logics/IRoomNotificationChannelLogic";
 import type { IRoomNotificationChannelRepository } from "@/src/logics/Interfaces/repositories/database/IRoomNotificationChannelRepository";
 import type { ITransaction } from "@/src/logics/Interfaces/repositories/database/ITransaction";
 import { inject, injectable } from "inversify";
-import { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
 
 @injectable()
-export class RoomNotificationChannelLogic implements IRoomNotificationChannelLogic {
+export class RoomNotificationChannelLogic
+	implements IRoomNotificationChannelLogic
+{
 	@inject(RepoTypes.RoomNotificationChannelRepository)
 	private readonly RoomNotificationChannelRepository!: IRoomNotificationChannelRepository;
 
@@ -21,9 +23,13 @@ export class RoomNotificationChannelLogic implements IRoomNotificationChannelLog
 		});
 	}
 
-	async find(discordGuildId: DiscordGuildId): Promise<RoomNotificationChannelDto | undefined> {
+	async find(
+		discordGuildId: DiscordGuildId,
+	): Promise<RoomNotificationChannelDto | undefined> {
 		return this.transaction.startTransaction(async () => {
-			return await this.RoomNotificationChannelRepository.findOne(discordGuildId);
+			return await this.RoomNotificationChannelRepository.findOne(
+				discordGuildId,
+			);
 		});
 	}
 
