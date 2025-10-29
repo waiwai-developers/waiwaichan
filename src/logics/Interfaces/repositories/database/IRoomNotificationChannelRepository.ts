@@ -3,6 +3,6 @@ import { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
 
 export interface IRoomNotificationChannelRepository {
 	create(data: RoomNotificationChannelDto): Promise<boolean>;
-	findOne(data: RoomNotificationChannelDto): Promise<RoomNotificationChannelDto | undefined>;
+	findOne(discordGuildId: DiscordGuildId): Promise<RoomNotificationChannelDto | undefined>;
 	delete(discordGuildId: DiscordGuildId): Promise<boolean>;
 }

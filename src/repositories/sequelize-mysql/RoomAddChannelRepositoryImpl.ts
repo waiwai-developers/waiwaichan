@@ -43,11 +43,10 @@ class RoomAddChannelRepositoryImpl extends Model implements IRoomAddChannelRepos
 		}).then((res) => res > 0);
 	}
 
-	async findOne(data: RoomAddChannelDto): Promise<RoomAddChannelDto | undefined> {
+	async findOne(discordGuildId: DiscordGuildId): Promise<RoomAddChannelDto | undefined> {
 		return RoomAddChannelRepositoryImpl.findOne({
 			where: {
-				guildId: data.guildId.getValue(),
-				channelId: data.channelId.getValue(),
+				guildId: discordGuildId.getValue(),
 			},
 		}).then((res) => (res ? res.toDto() : undefined));
 	}

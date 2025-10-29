@@ -37,10 +37,7 @@ export class RoomNotificationChannelCreateCommandHandler implements SlashCommand
 		}
 
 		const roomNotificationChannel = await this.roomNotificationChannelLogic.find(
-			new RoomNotificationChannelDto(
 				new DiscordGuildId(interaction.guildId),
-				new DiscordChannelId(interaction.options.getString("channelid", true))
-			)
 		);
 		if (roomNotificationChannel !== undefined) {
 			await interaction.reply(

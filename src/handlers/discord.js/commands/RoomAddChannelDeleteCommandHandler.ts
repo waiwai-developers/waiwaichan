@@ -36,10 +36,7 @@ export class RoomAddChannelDeleteCommandHandler implements SlashCommandHandler {
 		}
 
 		const roomAddChannel = await this.roomAddChannelLogic.find(
-			new RoomAddChannelDto(
-				new DiscordGuildId(interaction.guildId),
-				new DiscordChannelId(interaction.options.getString("channelid", true))
-			)
+			new DiscordGuildId(interaction.guildId),
 		);
 		if (roomAddChannel === undefined) {
 			await interaction.reply(

@@ -21,9 +21,9 @@ export class RoomNotificationChannelLogic implements IRoomNotificationChannelLog
 		});
 	}
 
-	async find(data: RoomNotificationChannelDto): Promise<RoomNotificationChannelDto | undefined> {
+	async find(discordGuildId: DiscordGuildId): Promise<RoomNotificationChannelDto | undefined> {
 		return this.transaction.startTransaction(async () => {
-			return await this.RoomNotificationChannelRepository.findOne(data);
+			return await this.RoomNotificationChannelRepository.findOne(discordGuildId);
 		});
 	}
 

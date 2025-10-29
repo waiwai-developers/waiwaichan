@@ -43,11 +43,10 @@ class RoomNotificationChannelRepositoryImpl extends Model implements IRoomNotifi
 		}).then((res) => res > 0);
 	}
 
-	async findOne(data: RoomNotificationChannelDto): Promise<RoomNotificationChannelDto | undefined> {
+	async findOne(discordGuildId: DiscordGuildId): Promise<RoomNotificationChannelDto | undefined> {
 		return RoomNotificationChannelRepositoryImpl.findOne({
 			where: {
-				guildId: data.guildId.getValue(),
-				channelId: data.channelId.getValue(),
+				guildId: discordGuildId.getValue(),
 			},
 		}).then((res) => (res ? res.toDto() : undefined));
 	}
