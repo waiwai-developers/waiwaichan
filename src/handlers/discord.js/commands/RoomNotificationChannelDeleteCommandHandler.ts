@@ -45,16 +45,6 @@ export class RoomNotificationChannelDeleteCommandHandler implements SlashCommand
 			return;
 		}
 
-		const channel = interaction.guild?.channels.cache.get(
-			interaction.options.getString("channelid", true),
-		);
-		if (!(channel instanceof TextChannel)) {
-			await interaction.reply(
-				"このチャンネルは部屋通知チャンネルとして登録できないよ！っ",
-			);
-			return;
-		}
-
 		await interaction.reply(
 			await this.roomNotificationChannelLogic.delete(
 				new DiscordGuildId(interaction.guildId)

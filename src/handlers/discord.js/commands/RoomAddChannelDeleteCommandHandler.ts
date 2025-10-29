@@ -45,16 +45,6 @@ export class RoomAddChannelDeleteCommandHandler implements SlashCommandHandler {
 			return;
 		}
 
-		const channel = interaction.guild?.channels.cache.get(
-			interaction.options.getString("channelid", true),
-		);
-		if (!(channel instanceof TextChannel)) {
-			await interaction.reply(
-				"このチャンネルは部屋追加チャンネルとして登録できないよ！っ",
-			);
-			return;
-		}
-
 		await interaction.reply(
 			await this.roomAddChannelLogic.delete(
 				new DiscordGuildId(interaction.guildId)
