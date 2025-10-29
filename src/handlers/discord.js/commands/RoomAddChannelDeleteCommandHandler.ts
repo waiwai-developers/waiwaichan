@@ -15,7 +15,7 @@ export class RoomAddChannelDeleteCommandHandler implements SlashCommandHandler {
 	@inject(LogicTypes.RoomAddChannelLogic)
 	private roomAddChannelLogic!: IRoomAddChannelLogic;
 	isHandle(commandName: string): boolean {
-		return commandName === "roomAddChannelDelete";
+		return commandName === "roomaddchanneldelete";
 	}
 
 	async handle(
