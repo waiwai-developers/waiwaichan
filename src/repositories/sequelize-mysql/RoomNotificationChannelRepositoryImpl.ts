@@ -35,11 +35,10 @@ class RoomNotificationChannelRepositoryImpl extends Model implements IRoomNotifi
 		}).then((res) => !!res);
 	}
 
-	async delete(data: RoomNotificationChannelDto): Promise<boolean> {
+	async delete(discordGuildId: DiscordGuildId): Promise<boolean> {
 		return RoomNotificationChannelRepositoryImpl.destroy({
 			where: {
-				guildId: data.guildId.getValue(),
-				channelId: data.channelId.getValue(),
+				guildId: discordGuildId.getValue()
 			},
 		}).then((res) => res > 0);
 	}

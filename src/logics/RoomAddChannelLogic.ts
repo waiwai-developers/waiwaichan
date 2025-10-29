@@ -4,6 +4,7 @@ import type { IRoomAddChannelLogic } from "@/src/logics/Interfaces/logics/IRoomA
 import type { IRoomAddChannelRepository } from "@/src/logics/Interfaces/repositories/database/IRoomAddChannelRepository";
 import type { ITransaction } from "@/src/logics/Interfaces/repositories/database/ITransaction";
 import { inject, injectable } from "inversify";
+import { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
 
 @injectable()
 export class RoomAddChannelLogic implements IRoomAddChannelLogic {
@@ -26,9 +27,9 @@ export class RoomAddChannelLogic implements IRoomAddChannelLogic {
 		});
 	}
 
-	async delete(data: RoomAddChannelDto): Promise<string> {
+	async delete(discordGuildId: DiscordGuildId): Promise<string> {
 		return this.transaction.startTransaction(async () => {
-			await this.RoomAddChannelRepository.delete(data);
+			await this.RoomAddChannelRepository.delete(discordGuildId);
 			return "部屋追加チャンネルを削除したよ！っ";
 		});
 	}

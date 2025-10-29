@@ -35,11 +35,10 @@ class RoomAddChannelRepositoryImpl extends Model implements IRoomAddChannelRepos
 		}).then((res) => !!res);
 	}
 
-	async delete(data: RoomAddChannelDto): Promise<boolean> {
+	async delete(discordGuildId: DiscordGuildId): Promise<boolean> {
 		return RoomAddChannelRepositoryImpl.destroy({
 			where: {
-				guildId: data.guildId.getValue(),
-				channelId: data.channelId.getValue(),
+				guildId: discordGuildId.getValue(),
 			},
 		}).then((res) => res > 0);
 	}

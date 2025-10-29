@@ -3,7 +3,6 @@ import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
 import { RoomAddChannelDto } from "@/src/entities/dto/RoomAddChannelDto";
 import { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
 import { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
-import { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
 import type { IRoomAddChannelLogic } from "@/src/logics/Interfaces/logics/IRoomAddChannelLogic";
 import type { CacheType, ChatInputCommandInteraction } from "discord.js";
@@ -61,10 +60,7 @@ export class RoomAddChannelDeleteCommandHandler implements SlashCommandHandler {
 
 		await interaction.reply(
 			await this.roomAddChannelLogic.delete(
-				new RoomAddChannelDto(
-					new DiscordGuildId(interaction.guildId),
-					new DiscordMessageId(interaction.options.getString("channelid", true)),
-				),
+				new DiscordGuildId(interaction.guildId)
 			),
 		);
 	}
