@@ -1,18 +1,22 @@
 import type { Migration } from "@/migrator/umzug";
 import { DataTypes } from "sequelize";
 
-const TABLE_NAME = "RoomAddNotificationChannels";
+const TABLE_NAME = "RoomNotificationChannels";
 
 export const up: Migration = async ({ context: sequelize }) => {
 	await sequelize.getQueryInterface().createTable(TABLE_NAME, {
+		id: {
+			allowNull: false,
+			autoIncrement: true,
+			primaryKey: true,
+			type: DataTypes.INTEGER,
+		},
 		guildId: {
 			allowNull: false,
-			primaryKey: true,
 			type: DataTypes.BIGINT,
 		},
-		channelid: {
+		channelId: {
 			allowNull: false,
-			primaryKey: true,
 			type: DataTypes.BIGINT,
 		},
 		createdAt: {
@@ -23,8 +27,8 @@ export const up: Migration = async ({ context: sequelize }) => {
 			allowNull: false,
 			type: DataTypes.DATE,
 		},
-		deleteAt: {
-			allowNull: false,
+		deletedAt: {
+			allowNull: true,
 			type: DataTypes.DATE,
 		},
 	});
