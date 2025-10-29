@@ -6,6 +6,8 @@ import { ContextRepositoryImpl } from "./ContextRepositoryImpl";
 import { CrownRepositoryImpl } from "./CrownRepositoryImpl";
 import { PersonalityContextRepositoryImpl } from "./PersonalityContextRepositoryImpl";
 import { PersonalityRepositoryImpl } from "./PersonalityRepositoryImpl";
+import { RoomAddChannelRepositoryImpl } from "./RoomAddChannelRepositoryImpl";
+import { RoomNotificationChannelRepositoryImpl } from "./RoomNotificationChannelRepositoryImpl";
 import { StickyRepositoryImpl } from "./StickyRepositoryImpl";
 import { ThreadRepositoryImpl } from "./ThreadRepositoryImpl";
 import { UserCandyItemRepositoryImpl } from "./UserCandyItemRepositoryImpl";
@@ -21,5 +23,7 @@ export {
 	PersonalityRepositoryImpl,
 	ContextRepositoryImpl,
 	PersonalityContextRepositoryImpl,
+	RoomAddChannelRepositoryImpl,
+	RoomNotificationChannelRepositoryImpl,
 	StickyRepositoryImpl,
 };
