@@ -1,9 +1,5 @@
 import { RoleConfig } from "@/src/entities/config/RoleConfig";
-import {
-	RoomAddChannelRepositoryImpl,
-	RoomChannelRepositoryImpl,
-	RoomNotificationChannelRepositoryImpl,
-} from "@/src/repositories/sequelize-mysql";
+import { RoomAddChannelRepositoryImpl, RoomChannelRepositoryImpl, RoomNotificationChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql";
 import { MysqlConnector } from "@/tests/fixtures/database/MysqlConnector";
 import { mockSlashCommand, waitUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { expect } from "chai";
@@ -817,7 +813,6 @@ describe("Test Room Commands", () => {
 		})();
 	});
 
-
 	/**
 	 * VoiceChannelConnectHandlerのテスト
 	 */
@@ -840,11 +835,11 @@ describe("Test Room Commands", () => {
 
 			const beforeCount = await RoomChannelRepositoryImpl.count();
 
-		// イベント発火
-		const TEST_CLIENT = await TestDiscordServer.getClient();
-		TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
+			// イベント発火
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
 
-		await new Promise((resolve) => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 1000));
 
 			// データが作成されていないことを確認
 			const afterCount = await RoomChannelRepositoryImpl.count();
@@ -1058,7 +1053,7 @@ describe("Test Room Commands", () => {
 			// テキストチャンネルのモックを追加
 			addMockTextChannel(newState, notificationChannelId, async (options: any) => {
 				notificationSent = true;
-				if (options.embeds && options.embeds[0]) {
+				if (options.embeds?.[0]) {
 					const embed = options.embeds[0];
 					notificationContent = embed.data?.title || "";
 				}
@@ -1372,7 +1367,7 @@ describe("Test Room Commands", () => {
 			// テキストチャンネルのモックを追加
 			addMockTextChannel(oldState, notificationChannelId, async (options: any) => {
 				notificationSent = true;
-				if (options.embeds && options.embeds[0]) {
+				if (options.embeds?.[0]) {
 					const embed = options.embeds[0];
 					notificationContent = embed.data?.title || "";
 				}
@@ -1427,5 +1422,4 @@ describe("Test Room Commands", () => {
 			expect(deleted).to.be.undefined;
 		})();
 	});
-
 });

@@ -31,7 +31,7 @@ export function mockVoiceState(
 					filter: () => ({ size: 0 }),
 				},
 				createdTimestamp: Date.now() - 3600000,
-		  }
+			}
 		: null;
 
 	// newChannelのモック
@@ -40,7 +40,7 @@ export function mockVoiceState(
 				id: String(newChannelId),
 				name: "Test New Voice Channel",
 				isTextBased: () => false,
-		  }
+			}
 		: null;
 
 	// 初期チャンネルをキャッシュに追加
@@ -132,11 +132,7 @@ export function mockVoiceState(
 /**
  * テキストチャンネルのモックを追加する
  */
-export function addMockTextChannel(
-	state: any,
-	channelId: string,
-	send: (options: any) => Promise<any>,
-) {
+export function addMockTextChannel(state: any, channelId: string, send: (options: any) => Promise<any>) {
 	const textChannelMock = {
 		id: channelId,
 		isTextBased: () => true,
