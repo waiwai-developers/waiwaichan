@@ -27,9 +27,9 @@ export class VoiceChannelConnectHandler
 	@inject(LogicTypes.RoomChannelLogic)
 	private roomChannelLogic!: IRoomChannelLogic;
 
-	async handle({ oldState, newState }: VoiceChannelState): Promise<void> {
+	async handle({ newState }: VoiceChannelState): Promise<void> {
 		// 新規接続でない
-		if (oldState.channelId !== null || newState.channelId === null) {
+		if (newState.channelId === null) {
 			this.logger.info("not voice channel connect");
 			return;
 		}
@@ -62,8 +62,8 @@ export class VoiceChannelConnectHandler
 		});
 		await this.roomChannelLogic.create(
 			new RoomChannelDto(
-				new DiscordGuildId(newState.guild.id),
-				new DiscordChannelId(newState.channelId),
+				new DiscordGuildId(newChannel.guildId),
+				new DiscordChannelId(newChannel.id),
 			),
 		);
 		await newState.member.voice.setChannel(newChannel);
