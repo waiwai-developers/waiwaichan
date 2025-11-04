@@ -6,7 +6,7 @@ import { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
 import type { IRoomAddChannelLogic } from "@/src/logics/Interfaces/logics/IRoomAddChannelLogic";
 import type { CacheType, ChatInputCommandInteraction } from "discord.js";
-import { TextChannel } from "discord.js";
+import { VoiceChannel } from "discord.js";
 import { inject, injectable } from "inversify";
 
 @injectable()
@@ -46,7 +46,7 @@ export class RoomAddChannelCreateCommandHandler implements SlashCommandHandler {
 		const channel = interaction.guild?.channels.cache.get(
 			interaction.options.getString("channelid", true),
 		);
-		if (!(channel instanceof TextChannel)) {
+		if (!(channel instanceof VoiceChannel)) {
 			await interaction.reply(
 				"このチャンネルは部屋追加チャンネルとして登録できないよ！っ",
 			);
