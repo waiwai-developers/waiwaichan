@@ -54,7 +54,6 @@ import type { IPersonalityLogic } from "@/src/logics/Interfaces/logics/IPersonal
 import type { IPullRequestLogic } from "@/src/logics/Interfaces/logics/IPullRequestLogic";
 import type { IReminderLogic } from "@/src/logics/Interfaces/logics/IReminderLogic";
 import type { IRoomAddChannelLogic } from "@/src/logics/Interfaces/logics/IRoomAddChannelLogic";
-import type { IRoomChannelLogic } from "@/src/logics/Interfaces/logics/IRoomChannelLogic";
 import type { IRoomNotificationChannelLogic } from "@/src/logics/Interfaces/logics/IRoomNotificationChannelLogic";
 import type { IStickyLogic } from "@/src/logics/Interfaces/logics/IStickyLogic";
 import type { IThreadLogic } from "@/src/logics/Interfaces/logics/IThreadLogic";
@@ -71,7 +70,6 @@ import type { IPersonalityContextRepository } from "@/src/logics/Interfaces/repo
 import type { IPersonalityRepository } from "@/src/logics/Interfaces/repositories/database/IPersonalityRepository";
 import type { IReminderRepository } from "@/src/logics/Interfaces/repositories/database/IReminderRepository";
 import type { IRoomAddChannelRepository } from "@/src/logics/Interfaces/repositories/database/IRoomAddChannelRepository";
-import type { IRoomChannelRepository } from "@/src/logics/Interfaces/repositories/database/IRoomChannelRepository";
 import type { IRoomNotificationChannelRepository } from "@/src/logics/Interfaces/repositories/database/IRoomNotificationChannelRepository";
 import type { IStickyRepository } from "@/src/logics/Interfaces/repositories/database/IStickyRepository";
 import type { IThreadRepository } from "@/src/logics/Interfaces/repositories/database/IThreadRepository";
@@ -87,7 +85,6 @@ import { PersonalityLogic } from "@/src/logics/PersonalityLogic";
 import { PullRequestLogic } from "@/src/logics/PullRequestLogic";
 import { ReminderLogic } from "@/src/logics/ReminderLogic";
 import { RoomAddChannelLogic } from "@/src/logics/RoomAddChannelLogic";
-import { RoomChannelLogic } from "@/src/logics/RoomChannelLogic";
 import { RoomNotificationChannelLogic } from "@/src/logics/RoomNotificationChannelLogic";
 import { StickyLogic } from "@/src/logics/StickyLogic";
 import { ThreadLogic } from "@/src/logics/ThreadLogic";
@@ -108,7 +105,6 @@ import {
 	PersonalityRepositoryImpl,
 	ReminderRepositoryImpl,
 	RoomAddChannelRepositoryImpl,
-	RoomChannelRepositoryImpl,
 	RoomNotificationChannelRepositoryImpl,
 	StickyRepositoryImpl,
 	ThreadRepositoryImpl,
@@ -144,7 +140,6 @@ appContainer.bind<IPersonalityRepository>(RepoTypes.PersonalityRepository).to(Pe
 appContainer.bind<IContextRepository>(RepoTypes.ContextRepository).to(ContextRepositoryImpl);
 appContainer.bind<IPersonalityContextRepository>(RepoTypes.PersonalityContextRepository).to(PersonalityContextRepositoryImpl);
 appContainer.bind<IRoomAddChannelRepository>(RepoTypes.RoomAddChannelRepository).to(RoomAddChannelRepositoryImpl);
-appContainer.bind<IRoomChannelRepository>(RepoTypes.RoomChannelRepository).to(RoomChannelRepositoryImpl);
 appContainer.bind<IRoomNotificationChannelRepository>(RepoTypes.RoomNotificationChannelRepository).to(RoomNotificationChannelRepositoryImpl);
 appContainer.bind<IStickyRepository>(RepoTypes.StickyRepository).to(StickyRepositoryImpl);
 // ChatGPT
@@ -172,7 +167,6 @@ appContainer.bind<IPullRequestLogic>(LogicTypes.PullRequestLogic).to(PullRequest
 appContainer.bind<ITranslatorLogic>(LogicTypes.TranslatorLogic).to(TranslatorLogic);
 appContainer.bind<IStickyLogic>(LogicTypes.StickyLogic).to(StickyLogic);
 appContainer.bind<IRoomAddChannelLogic>(LogicTypes.RoomAddChannelLogic).to(RoomAddChannelLogic);
-appContainer.bind<IRoomChannelLogic>(LogicTypes.RoomChannelLogic).to(RoomChannelLogic);
 appContainer.bind<IRoomNotificationChannelLogic>(LogicTypes.RoomNotificationChannelLogic).to(RoomNotificationChannelLogic);
 appContainer.bind<IUtilityLogic>(LogicTypes.UtilityLogic).to(UtilityLogic);
 
