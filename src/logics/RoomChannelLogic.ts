@@ -19,7 +19,7 @@ export class RoomChannelLogic implements IRoomChannelLogic {
 		});
 	}
 
-	async find(data: RoomChannelDto): Promise<RoomChannelDto| undefined> {
+	async find(data: RoomChannelDto): Promise<RoomChannelDto | undefined> {
 		return this.transaction.startTransaction(async () => {
 			return await this.RoomChannelRepository.findOne(data);
 		});

@@ -39,14 +39,12 @@ class RoomChannelRepositoryImpl
 	}
 
 	async findOne(data: RoomChannelDto): Promise<RoomChannelDto | undefined> {
-		return RoomChannelRepositoryImpl.findOne(
-			{
-				where: {
-					guildId: data.guildId.getValue(),
-					channelId: data.channelId.getValue(),
-				},
-			}
-		).then((res) => (res ? res.toDto() : undefined));
+		return RoomChannelRepositoryImpl.findOne({
+			where: {
+				guildId: data.guildId.getValue(),
+				channelId: data.channelId.getValue(),
+			},
+		}).then((res) => (res ? res.toDto() : undefined));
 	}
 
 	async delete(data: RoomChannelDto): Promise<boolean> {
