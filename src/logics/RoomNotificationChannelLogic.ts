@@ -19,7 +19,7 @@ export class RoomNotificationChannelLogic
 	async create(data: RoomNotificationChannelDto): Promise<string> {
 		return this.transaction.startTransaction(async () => {
 			await this.RoomNotificationChannelRepository.create(data);
-			return "部屋追加チャンネルを登録したよ！っ";
+			return "部屋通知チャンネルを登録したよ！っ";
 		});
 	}
 
