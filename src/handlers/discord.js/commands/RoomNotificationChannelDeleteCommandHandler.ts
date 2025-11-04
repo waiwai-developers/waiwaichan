@@ -39,7 +39,7 @@ export class RoomNotificationChannelDeleteCommandHandler
 				new DiscordGuildId(interaction.guildId),
 			);
 		if (roomNotificationChannel === undefined) {
-			await interaction.reply("部屋追加チャンネルが登録されていなかったよ！っ");
+			await interaction.reply("部屋通知チャンネルが登録されていなかったよ！っ");
 			return;
 		}
 

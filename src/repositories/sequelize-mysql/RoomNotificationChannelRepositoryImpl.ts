@@ -4,7 +4,6 @@ import { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
 import type { IRoomNotificationChannelRepository } from "@/src/logics/Interfaces/repositories/database/IRoomNotificationChannelRepository";
 import { injectable } from "inversify";
 import {
-	AutoIncrement,
 	Column,
 	DataType,
 	Model,
@@ -22,10 +21,6 @@ class RoomNotificationChannelRepositoryImpl
 	extends Model
 	implements IRoomNotificationChannelRepository
 {
-	@PrimaryKey
-	@AutoIncrement
-	@Column(DataType.INTEGER)
-	declare id: number;
 	@Column(DataType.STRING)
 	declare guildId: string;
 	@Column(DataType.STRING)

@@ -36,7 +36,7 @@ export class RoomNotificationChannelLogic
 	async delete(discordGuildId: DiscordGuildId): Promise<string> {
 		return this.transaction.startTransaction(async () => {
 			await this.RoomNotificationChannelRepository.delete(discordGuildId);
-			return "部屋追加チャンネルを削除したよ！っ";
+			return "部屋通知チャンネルを削除したよ！っ";
 		});
 	}
 }
