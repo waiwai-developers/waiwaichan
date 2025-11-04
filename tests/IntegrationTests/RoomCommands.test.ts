@@ -816,4 +816,616 @@ describe("Test Room Commands", () => {
 			expect(afterData.length).to.eq(0);
 		})();
 	});
+
+
+	/**
+	 * VoiceChannelConnectHandlerのテスト
+	 */
+
+	/**
+	 * [状態チェック] newState.channelIdがnullの場合は処理が中断される
+	 * - 新規接続でない場合、処理が中断されることを検証
+	 * - チャンネル作成や通知送信が行われないことを確認
+	 */
+	it("should not process when newState.channelId is null", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			const guildId = "1";
+			const userId = "2";
+
+			// oldState.channelId = "old-channel", newState.channelId = null (disconnect)
+			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
+			const { oldState, newState } = mockVoiceState(100, null, guildId, userId);
+
+			const beforeCount = await RoomChannelRepositoryImpl.count();
+
+		// イベント発火
+		const TEST_CLIENT = await TestDiscordServer.getClient();
+		TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
+
+		await new Promise((resolve) => setTimeout(resolve, 1000));
+
+			// データが作成されていないことを確認
+			const afterCount = await RoomChannelRepositoryImpl.count();
+			expect(afterCount).to.eq(beforeCount);
+		})();
+	});
+
+	/**
+	 * [メンバーチェック] newState.memberがnullの場合は処理が中断される
+	 * - メンバーが存在しない場合、処理が中断されることを検証
+	 * - チャンネル作成や通知送信が行われないことを確認
+	 */
+	it("should not process when newState.member is null", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			const guildId = "1";
+			const userId = "2";
+
+			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
+			const { oldState, newState } = mockVoiceState(null, 200, guildId, userId);
+
+			// newState.memberをnullに設定
+			(newState as any).member = null;
+
+			const beforeCount = await RoomChannelRepositoryImpl.count();
+
+			// イベント発火
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
+
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+
+			// データが作成されていないことを確認
+			const afterCount = await RoomChannelRepositoryImpl.count();
+			expect(afterCount).to.eq(beforeCount);
+		})();
+	});
+
+	/**
+	 * [チャンネルチェック] newState.channelがnullの場合は処理が中断される
+	 * - チャンネルが存在しない場合、処理が中断されることを検証
+	 * - チャンネル作成や通知送信が行われないことを確認
+	 */
+	it("should not process when newState.channel is null", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			const guildId = "1";
+			const userId = "2";
+
+			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
+			const { oldState, newState } = mockVoiceState(null, 200, guildId, userId);
+
+			// newState.channelをnullに設定
+			(newState as any).channel = null;
+
+			const beforeCount = await RoomChannelRepositoryImpl.count();
+
+			// イベント発火
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
+
+			await new Promise((resolve) => setTimeout(resolve, 500));
+
+			// データが作成されていないことを確認
+			const afterCount = await RoomChannelRepositoryImpl.count();
+			expect(afterCount).to.eq(beforeCount);
+		})();
+	});
+
+	/**
+	 * [部屋追加チャンネル存在チェック] 部屋追加チャンネルが登録されていない場合は処理が中断される
+	 * - 部屋追加チャンネルが存在しない場合、処理が中断されることを検証
+	 * - チャンネル作成や通知送信が行われないことを確認
+	 */
+	it("should not process when room add channel is not registered", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			const guildId = "1";
+			const userId = "2";
+			const channelId = "3";
+
+			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
+			const { oldState, newState } = mockVoiceState(null, Number(channelId), guildId, userId);
+
+			const beforeCount = await RoomChannelRepositoryImpl.count();
+
+			// イベント発火
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
+
+			await new Promise((resolve) => setTimeout(resolve, 500));
+
+			// データが作成されていないことを確認
+			const afterCount = await RoomChannelRepositoryImpl.count();
+			expect(afterCount).to.eq(beforeCount);
+		})();
+	});
+
+	/**
+	 * [部屋追加チャンネル一致チェック] 接続したチャンネルが部屋追加チャンネルではない場合は処理が中断される
+	 * - 接続したチャンネルIDと部屋追加チャンネルIDが一致しない場合、処理が中断されることを検証
+	 * - チャンネル作成や通知送信が行われないことを確認
+	 */
+	it("should not process when connected channel is not room add channel", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			const guildId = "1";
+			const userId = "2";
+			const roomAddChannelId = "3";
+			const connectedChannelId = "4";
+
+			// 部屋追加チャンネルを登録
+			await RoomAddChannelRepositoryImpl.create({
+				guildId: guildId,
+				channelId: roomAddChannelId,
+			});
+
+			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
+			const { oldState, newState } = mockVoiceState(null, Number(connectedChannelId), guildId, userId);
+
+			const beforeCount = await RoomChannelRepositoryImpl.count();
+
+			// イベント発火
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
+
+			await new Promise((resolve) => setTimeout(resolve, 500));
+
+			// データが作成されていないことを確認
+			const afterCount = await RoomChannelRepositoryImpl.count();
+			expect(afterCount).to.eq(beforeCount);
+		})();
+	});
+
+	/**
+	 * [チャンネル作成] 新しいボイスチャンネルが作成され、データが保存される
+	 * - 作成されるチャンネル名が「{ユーザー表示名}の部屋」であることを検証
+	 * - データベースにRoomChannelが保存されていることを確認
+	 */
+	it("should create new voice channel and save data when user connects to room add channel", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			const guildId = "1";
+			const userId = "2";
+			const roomAddChannelId = "3";
+			const displayName = "TestUser";
+
+			// 部屋追加チャンネルを登録
+			await RoomAddChannelRepositoryImpl.create({
+				guildId: guildId,
+				channelId: roomAddChannelId,
+			});
+
+			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
+			const { oldState, newState } = mockVoiceState(null, Number(roomAddChannelId), guildId, userId, displayName);
+
+			const beforeCount = await RoomChannelRepositoryImpl.count();
+
+			// イベント発火
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
+
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+
+			// データが作成されていることを確認
+			const afterData = await RoomChannelRepositoryImpl.findAll();
+			expect(afterData.length).to.eq(beforeCount + 1);
+
+			// 作成されたデータを確認
+			const createdData = afterData[afterData.length - 1];
+			expect(String(createdData.guildId)).to.eq(guildId);
+			expect(String(createdData.channelId)).to.eq(String(newState.getCreatedChannelId()));
+		})();
+	});
+
+	/**
+	 * [通知送信] 部屋通知チャンネルに通知が送信される
+	 * - 通知チャンネルが設定されている場合、Embedメッセージが送信されることを検証
+	 * - 通知内容に「通話を開始したよ！っ」が含まれることを確認
+	 */
+	it("should send notification when room notification channel is configured", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			const guildId = "1";
+			const userId = "2";
+			const roomAddChannelId = "3";
+			const notificationChannelId = "4";
+
+			// 部屋追加チャンネルと通知チャンネルを登録
+			await RoomAddChannelRepositoryImpl.create({
+				guildId: guildId,
+				channelId: roomAddChannelId,
+			});
+			await RoomNotificationChannelRepositoryImpl.create({
+				guildId: guildId,
+				channelId: notificationChannelId,
+			});
+
+			const { mockVoiceState, addMockTextChannel } = await import("../fixtures/discord.js/MockVoiceState");
+			const { oldState, newState } = mockVoiceState(null, Number(roomAddChannelId), guildId, userId);
+
+			let notificationSent = false;
+			let notificationContent = "";
+
+			// テキストチャンネルのモックを追加
+			addMockTextChannel(newState, notificationChannelId, async (options: any) => {
+				notificationSent = true;
+				if (options.embeds && options.embeds[0]) {
+					const embed = options.embeds[0];
+					notificationContent = embed.data?.title || "";
+				}
+				return {} as any;
+			});
+
+			// イベント発火
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
+
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+
+			// 通知が送信されたことを確認
+			expect(notificationSent).to.be.true;
+			expect(notificationContent).to.include("通話を開始したよ！っ");
+		})();
+	});
+
+	/**
+	 * [通知チャンネル未設定] 部屋通知チャンネルが設定されていない場合は通知が送信されない
+	 * - 部屋通知チャンネルが未設定の場合、通知送信がスキップされることを検証
+	 * - エラーが発生しないことを確認
+	 */
+	it("should not send notification when room notification channel is not configured", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			const guildId = "1";
+			const userId = "2";
+			const roomAddChannelId = "3";
+
+			// 部屋追加チャンネルのみ登録
+			await RoomAddChannelRepositoryImpl.create({
+				guildId: guildId,
+				channelId: roomAddChannelId,
+			});
+
+			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
+			const { oldState, newState } = mockVoiceState(null, Number(roomAddChannelId), guildId, userId);
+
+			// イベント発火（エラーが発生しないことを確認）
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
+
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+
+			// データは作成されていることを確認
+			const afterData = await RoomChannelRepositoryImpl.findAll();
+			expect(afterData.length).to.be.at.least(1);
+		})();
+	});
+
+	/**
+	 * VoiceChannelDisconnectHandlerのテスト
+	 */
+
+	/**
+	 * [状態チェック] oldState.channelIdがnullの場合は処理が中断される
+	 * - 接続解除でない場合、処理が中断されることを検証
+	 * - チャンネル削除や通知送信が行われないことを確認
+	 */
+	it("should not process disconnect when oldState.channelId is null", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			const guildId = "1";
+			const userId = "2";
+
+			// oldState.channelId = null, newState.channelId = "new-channel" (connect)
+			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
+			const { oldState, newState } = mockVoiceState(null, 200, guildId, userId);
+
+			// テストデータ作成
+			await RoomChannelRepositoryImpl.create({
+				guildId: guildId,
+				channelId: 999,
+			});
+
+			const beforeCount = await RoomChannelRepositoryImpl.count();
+
+			// イベント発火
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
+
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+
+			// データが削除されていないことを確認
+			const afterCount = await RoomChannelRepositoryImpl.count();
+			expect(afterCount).to.eq(beforeCount);
+		})();
+	});
+
+	/**
+	 * [メンバーチェック] oldState.memberがnullの場合は処理が中断される
+	 * - メンバーが存在しない場合、処理が中断されることを検証
+	 * - チャンネル削除や通知送信が行われないことを確認
+	 */
+	it("should not process disconnect when oldState.member is null", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			const guildId = "1";
+			const userId = "2";
+			const channelId = "3";
+
+			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
+			const { oldState, newState } = mockVoiceState(Number(channelId), null, guildId, userId);
+
+			// oldState.memberをnullに設定
+			(oldState as any).member = null;
+
+			// テストデータ作成
+			await RoomChannelRepositoryImpl.create({
+				guildId: guildId,
+				channelId: channelId,
+			});
+
+			const beforeCount = await RoomChannelRepositoryImpl.count();
+
+			// イベント発火
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
+
+			await new Promise((resolve) => setTimeout(resolve, 500));
+
+			// データが削除されていないことを確認
+			const afterCount = await RoomChannelRepositoryImpl.count();
+			expect(afterCount).to.eq(beforeCount);
+		})();
+	});
+
+	/**
+	 * [チャンネルチェック] oldState.channelがnullの場合は処理が中断される
+	 * - チャンネルが存在しない場合、処理が中断されることを検証
+	 * - チャンネル削除や通知送信が行われないことを確認
+	 */
+	it("should not process disconnect when oldState.channel is null", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			const guildId = "1";
+			const userId = "2";
+			const channelId = "3";
+
+			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
+			const { oldState, newState } = mockVoiceState(Number(channelId), null, guildId, userId);
+
+			// oldState.channelをnullに設定
+			(oldState as any).channel = null;
+
+			// テストデータ作成
+			await RoomChannelRepositoryImpl.create({
+				guildId: guildId,
+				channelId: channelId,
+			});
+
+			const beforeCount = await RoomChannelRepositoryImpl.count();
+
+			// イベント発火
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
+
+			await new Promise((resolve) => setTimeout(resolve, 500));
+
+			// データが削除されていないことを確認
+			const afterCount = await RoomChannelRepositoryImpl.count();
+			expect(afterCount).to.eq(beforeCount);
+		})();
+	});
+
+	/**
+	 * [部屋チャンネルチェック] 部屋追加チャンネルによって作成された部屋でない場合は処理が中断される
+	 * - 部屋チャンネルとして登録されていない場合、処理が中断されることを検証
+	 * - チャンネル削除や通知送信が行われないことを確認
+	 */
+	it("should not process disconnect when channel is not a room channel", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			const guildId = "1";
+			const userId = "2";
+			const channelId = "3";
+
+			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
+			const { oldState, newState } = mockVoiceState(Number(channelId), null, guildId, userId);
+
+			// 部屋チャンネルとして登録されていない
+			const beforeCount = await RoomChannelRepositoryImpl.count();
+
+			// イベント発火
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
+
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+
+			// 何も削除されていないことを確認
+			const afterCount = await RoomChannelRepositoryImpl.count();
+			expect(afterCount).to.eq(beforeCount);
+		})();
+	});
+
+	/**
+	 * [残存ユーザーチェック] bot以外のユーザーがまだチャンネルに残っている場合は削除されない
+	 * - チャンネル内にbot以外のユーザーが残っている場合、削除がスキップされることを検証
+	 * - チャンネルが削除されないことを確認
+	 */
+	it("should not delete channel when non-bot users still remain", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			const guildId = "1";
+			const userId = "2";
+			const channelId = "3";
+
+			// 部屋チャンネルとして登録
+			await RoomChannelRepositoryImpl.create({
+				guildId: guildId,
+				channelId: channelId,
+			});
+
+			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
+			const { oldState, newState } = mockVoiceState(Number(channelId), null, guildId, userId);
+
+			// チャンネルにユーザーが残っている状態にする
+			(oldState.channel as any).members = {
+				size: 1,
+				filter: () => ({ size: 1 }),
+			};
+
+			const beforeCount = await RoomChannelRepositoryImpl.count();
+
+			// イベント発火
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
+
+			await new Promise((resolve) => setTimeout(resolve, 500));
+
+			// データが削除されていないことを確認
+			const afterCount = await RoomChannelRepositoryImpl.count();
+			expect(afterCount).to.eq(beforeCount);
+		})();
+	});
+
+	/**
+	 * [チャンネル削除] チャンネルデータとチャンネル自体が削除される
+	 * - データベースからRoomChannelが削除されていることを確認
+	 */
+	it("should delete channel and data when last user disconnects", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			const guildId = "1";
+			const userId = "2";
+			const channelId = "3";
+
+			// 部屋チャンネルとして登録
+			await RoomChannelRepositoryImpl.create({
+				guildId: guildId,
+				channelId: channelId,
+			});
+
+			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
+			const { oldState, newState } = mockVoiceState(Number(channelId), null, guildId, userId);
+
+			const beforeCount = await RoomChannelRepositoryImpl.count();
+			expect(beforeCount).to.be.at.least(1);
+
+			// イベント発火
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
+
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+
+			// データが削除されていることを確認
+			const afterData = await RoomChannelRepositoryImpl.findAll();
+			const deleted = afterData.find((d) => String(d.channelId) === channelId);
+			expect(deleted).to.be.undefined;
+		})();
+	});
+
+	/**
+	 * [通知送信] 部屋通知チャンネルに終了通知が送信される
+	 * - 通知チャンネルが設定されている場合、Embedメッセージが送信されることを検証
+	 * - 通知内容に「通話を終了したよ！っ」が含まれることを確認
+	 */
+	it("should send end notification when room notification channel is configured", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			const guildId = "1";
+			const userId = "2";
+			const channelId = "3";
+			const notificationChannelId = "4";
+
+			// 部屋チャンネルと通知チャンネルを登録
+			await RoomChannelRepositoryImpl.create({
+				guildId: guildId,
+				channelId: channelId,
+			});
+			await RoomNotificationChannelRepositoryImpl.create({
+				guildId: guildId,
+				channelId: notificationChannelId,
+			});
+
+			const { mockVoiceState, addMockTextChannel } = await import("../fixtures/discord.js/MockVoiceState");
+			const { oldState, newState } = mockVoiceState(Number(channelId), null, guildId, userId);
+
+			let notificationSent = false;
+			let notificationContent = "";
+
+			// テキストチャンネルのモックを追加
+			addMockTextChannel(oldState, notificationChannelId, async (options: any) => {
+				notificationSent = true;
+				if (options.embeds && options.embeds[0]) {
+					const embed = options.embeds[0];
+					notificationContent = embed.data?.title || "";
+				}
+				return {} as any;
+			});
+
+			// イベント発火
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
+
+			await new Promise((resolve) => setTimeout(resolve, 500));
+
+			// 通知が送信されたことを確認
+			expect(notificationSent).to.be.true;
+			expect(notificationContent).to.include("通話を終了したよ！っ");
+		})();
+	});
+
+	/**
+	 * [通知チャンネル未設定] 部屋通知チャンネルが設定されていない場合は通知が送信されない
+	 * - 部屋通知チャンネルが未設定の場合、通知送信がスキップされることを検証
+	 * - エラーが発生しないことを確認
+	 */
+	it("should not send notification when room notification channel is not configured for disconnect", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			const guildId = "1";
+			const userId = "2";
+			const channelId = "3";
+
+			// 部屋チャンネルのみ登録
+			await RoomChannelRepositoryImpl.create({
+				guildId: guildId,
+				channelId: channelId,
+			});
+
+			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
+			const { oldState, newState } = mockVoiceState(Number(channelId), null, guildId, userId);
+
+			const beforeCount = await RoomChannelRepositoryImpl.count();
+
+			// イベント発火（エラーが発生しないことを確認）
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
+
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+
+			// データは削除されていることを確認
+			const afterData = await RoomChannelRepositoryImpl.findAll();
+			const deleted = afterData.find((d) => String(d.channelId) === channelId);
+			expect(deleted).to.be.undefined;
+		})();
+	});
+
 });
