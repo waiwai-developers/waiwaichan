@@ -51,7 +51,7 @@ class RoomChannelRepositoryImpl
 		return RoomChannelRepositoryImpl.destroy({
 			where: {
 				guildId: data.guildId.getValue(),
-				channelId: data.guildId.getValue(),
+				channelId: data.channelId.getValue(),
 			},
 		}).then((res) => res > 0);
 	}
