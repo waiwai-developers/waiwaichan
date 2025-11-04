@@ -1,13 +1,10 @@
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
-import { RoomChannelDto } from "@/src/entities/dto/RoomChannelDto";
-import { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
 import { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
 import type {
 	VoiceChannelEventHandler,
 	VoiceChannelState,
 } from "@/src/handlers/discord.js/events/VoiceChannelEventHandler";
-import type { IRoomChannelLogic } from "@/src/logics/Interfaces/logics/IRoomChannelLogic";
 import type { IRoomNotificationChannelLogic } from "@/src/logics/Interfaces/logics/IRoomNotificationChannelLogic";
 import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 import { EmbedBuilder } from "discord.js";
@@ -21,8 +18,6 @@ export class VoiceChannelDisconnectHandler
 	private readonly logger!: ILogger;
 	@inject(LogicTypes.RoomNotificationChannelLogic)
 	private roomNotificationChannelLogic!: IRoomNotificationChannelLogic;
-	@inject(LogicTypes.RoomChannelLogic)
-	private roomChannelLogic!: IRoomChannelLogic;
 
 	async handle({ oldState, newState }: VoiceChannelState): Promise<void> {
 		// 接続解除でない
@@ -49,13 +44,22 @@ export class VoiceChannelDisconnectHandler
 		// チャンネル名を保存
 		const channelName = oldState.channel.name;
 
-		//立てた部屋データと部屋を削除
-		await this.roomChannelLogic.delete(
-			new RoomChannelDto(
-				new DiscordGuildId(oldState.guild.id),
-				new DiscordChannelId(oldState.channelId),
-			),
-		);
+		// チャンネルの経過時間を保存
+		const createdTimestamp = oldState.channel.createdTimestamp;
+		const currentTimestamp = Date.now();
+		const elapsedMs = currentTimestamp - createdTimestamp;
+
+		const hours = Math.floor(elapsedMs / (1000 * 60 * 60));
+		const minutes = Math.floor((elapsedMs % (1000 * 60 * 60)) / (1000 * 60));
+		const seconds = Math.floor((elapsedMs % (1000 * 60)) / 1000);
+
+		const hoursStr = hours === 0 ? "00" : `${hours}`
+		const minutesStr = minutes === 0 ? "00" : `${minutes}`
+		const secondsStr = seconds === 0 ? "00" : `${seconds}`
+
+		const channelElapsedTimeStr = `${hoursStr}時間${minutesStr}分${secondsStr}秒`;
+
+		//立てた部屋を削除
 		await oldState.guild.channels.delete(oldState.channelId);
 
 		//guildIDから部屋通知Channelを取得し通知を送信
@@ -90,6 +94,11 @@ export class VoiceChannelDisconnectHandler
 				{
 					name: "終了時刻",
 					value: new Date().toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" }),
+					inline: true,
+				},
+				{
+					name: "経過時間",
+					value: channelElapsedTimeStr,
 					inline: true,
 				},
 			)

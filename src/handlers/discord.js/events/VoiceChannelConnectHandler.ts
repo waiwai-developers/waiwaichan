@@ -1,14 +1,11 @@
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
-import { RoomChannelDto } from "@/src/entities/dto/RoomChannelDto";
-import { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
 import { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
 import type {
 	VoiceChannelEventHandler,
 	VoiceChannelState,
 } from "@/src/handlers/discord.js/events/VoiceChannelEventHandler";
 import type { IRoomAddChannelLogic } from "@/src/logics/Interfaces/logics/IRoomAddChannelLogic";
-import type { IRoomChannelLogic } from "@/src/logics/Interfaces/logics/IRoomChannelLogic";
 import type { IRoomNotificationChannelLogic } from "@/src/logics/Interfaces/logics/IRoomNotificationChannelLogic";
 import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 import { ChannelType, EmbedBuilder } from "discord.js";
@@ -24,11 +21,9 @@ export class VoiceChannelConnectHandler
 	private roomAddChannelLogic!: IRoomAddChannelLogic;
 	@inject(LogicTypes.RoomNotificationChannelLogic)
 	private roomNotificationChannelLogic!: IRoomNotificationChannelLogic;
-	@inject(LogicTypes.RoomChannelLogic)
-	private roomChannelLogic!: IRoomChannelLogic;
 
 	async handle({ oldState, newState }: VoiceChannelState): Promise<void> {
-		// 新規接続でない
+		//新規接続でない
 		if (oldState.channelId !== null || newState.channelId === null) {
 			this.logger.info("not voice channel connect");
 			return;
@@ -55,17 +50,11 @@ export class VoiceChannelConnectHandler
 			return;
 		}
 
-		//新しく部屋と部屋データを作成しユーザーを移動
+		//新しく部屋を作成しユーザーを移動
 		const newChannel = await newState.guild.channels.create({
 			name: `${newState.member.user.displayName}の部屋`,
 			type: ChannelType.GuildVoice,
 		});
-		await this.roomChannelLogic.create(
-			new RoomChannelDto(
-				new DiscordGuildId(newState.guild.id),
-				new DiscordChannelId(newState.channelId),
-			),
-		);
 		await newState.member.voice.setChannel(newChannel);
 
 		//guildIDから部屋通知Channelを取得し通知を送信
