@@ -20,7 +20,6 @@ export const RepoTypes = {
 	RoomNotificationChannelRepository: Symbol.for(
 		"RoomNotificationChannelRepository",
 	),
-	RoomChannelRepository: Symbol.for("RoomChannelRepository"),
 	SequelizeModels: Symbol.for("SequelizeModels"),
 	Logger: Symbol.for("Logger"),
 };
@@ -40,7 +39,6 @@ export const LogicTypes = {
 	CrownLogic: Symbol.for("CrownLogic"),
 	RoomAddChannelLogic: Symbol.for("RoomAddChannelLogic"),
 	RoomNotificationChannelLogic: Symbol.for("RoomNotificationChannelLogic"),
-	RoomChannelLogic: Symbol.for("RoomChannelLogic"),
 };
 
 export const RouteTypes = {
