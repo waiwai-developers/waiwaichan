@@ -6,6 +6,7 @@ import type {
 	DiscordEventHandler,
 	ReactionInteraction,
 } from "@/src/handlers/discord.js/events/DiscordEventHandler";
+import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 import type { DiscordEventRouter } from "@/src/routes/discordjs/events/DiscordEventRouter";
 import type { Client } from "discord.js";
 import { inject, injectable, multiInject } from "inversify";
