@@ -1,6 +1,4 @@
-import type {
-	VoiceState,
-} from "discord.js";
+import type { VoiceState } from "discord.js";
 
 export type VoiceChannelState = {
 	oldState: VoiceState;
@@ -9,4 +7,3 @@ export type VoiceChannelState = {
 export interface VoiceChannelEventHandler<T> {
 	handle(arg: T): Promise<void>;
 }
-

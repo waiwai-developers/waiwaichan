@@ -2,7 +2,10 @@ import {
 	HandlerTypes,
 	RepoTypes,
 } from "@/src/entities/constants/DIContainerTypes";
-import type { VoiceChannelEventHandler, VoiceChannelState } from "@/src/handlers/discord.js/events/VoiceChannelEventHandler";
+import type {
+	VoiceChannelEventHandler,
+	VoiceChannelState,
+} from "@/src/handlers/discord.js/events/VoiceChannelEventHandler";
 
 import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 import type { DiscordEventRouter } from "@/src/routes/discordjs/events/DiscordEventRouter";
@@ -18,17 +21,20 @@ export class VoiceChannelEventRouter implements DiscordEventRouter {
 	private readonly handlers!: VoiceChannelEventHandler<VoiceChannelState>[];
 
 	register(client: Client<boolean>): void {
-		client.on('voiceStateUpdate', async (oldState: VoiceState, newState: VoiceState) => {
-			try {
-				this.logger.debug(
-					`change voice channel status oldState: ${oldState} newState: ${newState}`,
-				);
-				await Promise.all(
-					this.handlers.map((h) => h.handle({ oldState, newState })),
-				);
-			} catch (error) {
-				this.logger.error(`Error: ${error}`);
-			}
-		})
+		client.on(
+			"voiceStateUpdate",
+			async (oldState: VoiceState, newState: VoiceState) => {
+				try {
+					this.logger.debug(
+						`change voice channel status oldState: ${oldState} newState: ${newState}`,
+					);
+					await Promise.all(
+						this.handlers.map((h) => h.handle({ oldState, newState })),
+					);
+				} catch (error) {
+					this.logger.error(`Error: ${error}`);
+				}
+			},
+		);
 	}
 }

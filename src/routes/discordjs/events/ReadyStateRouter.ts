@@ -1,8 +1,8 @@
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
+import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 import type { DiscordEventRouter } from "@/src/routes/discordjs/events/DiscordEventRouter";
 import type { Client } from "discord.js";
 import { inject, injectable } from "inversify";
-import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 
 @injectable()
 export class ReadyStateRouter implements DiscordEventRouter {
