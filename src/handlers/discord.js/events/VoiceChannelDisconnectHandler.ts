@@ -70,9 +70,9 @@ export class VoiceChannelDisconnectHandler
 		const minutes = Math.floor((elapsedMs % (1000 * 60 * 60)) / (1000 * 60));
 		const seconds = Math.floor((elapsedMs % (1000 * 60)) / 1000);
 
-		const hoursStr = hours === 0 ? "00" : `${hours}`
-		const minutesStr = minutes === 0 ? "00" : `${minutes}`
-		const secondsStr = seconds === 0 ? "00" : `${seconds}`
+		const hoursStr = hours === 0 ? "00" : `${hours}`;
+		const minutesStr = minutes === 0 ? "00" : `${minutes}`;
+		const secondsStr = seconds === 0 ? "00" : `${seconds}`;
 
 		const channelElapsedTimeStr = `${hoursStr}時間${minutesStr}分${secondsStr}秒`;
 
