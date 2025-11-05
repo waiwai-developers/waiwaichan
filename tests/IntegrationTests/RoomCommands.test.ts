@@ -865,10 +865,10 @@ describe("Test Room Commands", () => {
 			// newState.memberをnullに設定
 			(newState as any).member = null;
 
-			const beforeCount = await RoomChannelRepositoryImpl.count();
-
 			// イベント発火
 			const TEST_CLIENT = await TestDiscordServer.getClient();
+			const beforeCount = await RoomChannelRepositoryImpl.count();
+
 			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
 
 			await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -998,8 +998,8 @@ describe("Test Room Commands", () => {
 				channelId: roomAddChannelId,
 			});
 
-			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
-			const { oldState, newState } = mockVoiceState(null, Number(roomAddChannelId), guildId, userId, displayName);
+		const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
+		const { oldState, newState } = mockVoiceState(null, roomAddChannelId, guildId, userId, displayName);
 
 			const beforeCount = await RoomChannelRepositoryImpl.count();
 
@@ -1045,7 +1045,7 @@ describe("Test Room Commands", () => {
 			});
 
 			const { mockVoiceState, addMockTextChannel } = await import("../fixtures/discord.js/MockVoiceState");
-			const { oldState, newState } = mockVoiceState(null, Number(roomAddChannelId), guildId, userId);
+			const { oldState, newState } = mockVoiceState(null, roomAddChannelId, guildId, userId);
 
 			let notificationSent = false;
 			let notificationContent = "";
@@ -1092,7 +1092,7 @@ describe("Test Room Commands", () => {
 			});
 
 			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
-			const { oldState, newState } = mockVoiceState(null, Number(roomAddChannelId), guildId, userId);
+			const { oldState, newState } = mockVoiceState(null, roomAddChannelId, guildId, userId);
 
 			// イベント発火（エラーが発生しないことを確認）
 			const TEST_CLIENT = await TestDiscordServer.getClient();
