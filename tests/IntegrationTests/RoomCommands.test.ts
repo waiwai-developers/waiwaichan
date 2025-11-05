@@ -80,6 +80,151 @@ describe("Test Room Commands", () => {
 	});
 
 	/**
+	 * [正常作成 - データなし] サーバーにRoomAddChannelsデータがない状況でVoiceChannelで実行した時
+	 * - 部屋追加チャンネルを登録したよ！っと投稿されること
+	 * - RoomAddChannelsにdeletedAtがnullでデータ作成されること
+	 */
+	it("should create room add channel when no data exists", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			const guildId = "1";
+			const channelId = "2";
+			const userId = "3";
+
+			// 管理者ユーザーIDを設定
+			RoleConfig.users = [{ discordId: userId, role: "admin" }];
+
+			// コマンドのモック作成
+			const commandMock = mockSlashCommand("roomaddchannelcreate", { channelid: channelId }, userId);
+
+			// guildIdとchannelを設定
+			when(commandMock.guildId).thenReturn(guildId);
+			when(commandMock.channel).thenReturn({} as any);
+
+			// VoiceChannelを返すようにモック
+			when(commandMock.guild).thenReturn({
+				channels: {
+					cache: {
+						get: (id: string) => {
+							if (id === channelId) {
+								const voiceChannel = Object.create(VoiceChannel.prototype);
+								voiceChannel.id = channelId;
+								return voiceChannel;
+							}
+							return null;
+						},
+					},
+				},
+			} as any);
+
+			// replyメソッドをモック
+			let replyValue = "";
+			when(commandMock.reply(anything())).thenCall((message: string) => {
+				replyValue = message;
+				return Promise.resolve({} as any);
+			});
+
+			// データベースにデータが存在しないことを確認
+			const beforeData = await RoomAddChannelRepositoryImpl.findAll();
+			expect(beforeData.length).to.eq(0);
+
+			// コマンド実行
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+			// 応答を待つ
+			await waitUntilReply(commandMock, 100);
+
+			// 応答の検証
+			expect(replyValue).to.eq("部屋追加チャンネルを登録したよ！っ");
+
+			// データが作られていることを確認
+			const afterData = await RoomAddChannelRepositoryImpl.findAll();
+			expect(afterData.length).to.eq(1);
+			expect(String(afterData[0].guildId)).to.eq(String(guildId));
+			expect(String(afterData[0].channelId)).to.eq(String(channelId));
+			expect(afterData[0].deletedAt).to.be.null;
+		})();
+	});
+
+	/**
+	 * [正常作成 - deletedAtあり] サーバーにRoomAddChannelsデータがありdeletedAtがnullでない状況でVoiceChannelで実行した時
+	 * - 部屋追加チャンネルを登録したよ！っと投稿されること
+	 * - RoomAddChannelsにdeletedAtがnullでデータ作成されること
+	 */
+	it("should create room add channel when deleted data exists", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			const guildId = "1";
+			const channelId = "2";
+			const userId = "3";
+
+			// 管理者ユーザーIDを設定
+			RoleConfig.users = [{ discordId: userId, role: "admin" }];
+
+			// 削除済みのデータを作成
+			const deletedData = await RoomAddChannelRepositoryImpl.create({
+				guildId: guildId,
+				channelId: channelId,
+			});
+			await deletedData.destroy();
+
+			// 削除済みデータが存在することを確認（paranoid: trueなのでfindAllには含まれない）
+			const beforeActiveData = await RoomAddChannelRepositoryImpl.findAll();
+			expect(beforeActiveData.length).to.eq(0);
+
+			// コマンドのモック作成
+			const commandMock = mockSlashCommand("roomaddchannelcreate", { channelid: channelId }, userId);
+
+			// guildIdとchannelを設定
+			when(commandMock.guildId).thenReturn(guildId);
+			when(commandMock.channel).thenReturn({} as any);
+
+			// VoiceChannelを返すようにモック
+			when(commandMock.guild).thenReturn({
+				channels: {
+					cache: {
+						get: (id: string) => {
+							if (id === channelId) {
+								const voiceChannel = Object.create(VoiceChannel.prototype);
+								voiceChannel.id = channelId;
+								return voiceChannel;
+							}
+							return null;
+						},
+					},
+				},
+			} as any);
+
+			// replyメソッドをモック
+			let replyValue = "";
+			when(commandMock.reply(anything())).thenCall((message: string) => {
+				replyValue = message;
+				return Promise.resolve({} as any);
+			});
+
+			// コマンド実行
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+			// 応答を待つ
+			await waitUntilReply(commandMock, 100);
+
+			// 応答の検証
+			expect(replyValue).to.eq("部屋追加チャンネルを登録したよ！っ");
+
+			// 新しいデータが作られていることを確認
+			const afterData = await RoomAddChannelRepositoryImpl.findAll();
+			expect(afterData.length).to.eq(1);
+			expect(String(afterData[0].guildId)).to.eq(String(guildId));
+			expect(String(afterData[0].channelId)).to.eq(String(channelId));
+			expect(afterData[0].deletedAt).to.be.null;
+		})();
+	});
+
+	/**
 	 * [既存チェック] 既に部屋追加チャンネルが登録されている場合は新規作成できない
 	 * - RoomAddChannelLogic.findが呼ばれることを検証
 	 * - 部屋追加チャンネルが既に存在する場合にエラーメッセージが返されることを検証
@@ -133,6 +278,7 @@ describe("Test Room Commands", () => {
 			// データが増えていないことを確認
 			const afterData = await RoomAddChannelRepositoryImpl.findAll();
 			expect(afterData.length).to.eq(1);
+			expect(afterData[0].deletedAt).to.be.null;
 		})();
 	});
 
@@ -319,12 +465,10 @@ describe("Test Room Commands", () => {
 	});
 
 	/**
-	 * [存在チェック] 登録されていない部屋追加チャンネルは削除できない
-	 * - RoomAddChannelLogic.findが呼ばれることを検証
-	 * - 部屋追加チャンネルが存在しない場合にエラーメッセージが返されることを検証
-	 * - RoomAddChannelLogic.deleteが呼ばれないことを検証
+	 * [存在チェック - データなし] サーバーにRoomAddChannelsデータがない状況でVoiceChannelで実行した時
+	 * - 部屋追加チャンネルが登録されていなかったよ！っと投稿されること
 	 */
-	it("should not delete room add channel when not exists", function (this: Mocha.Context) {
+	it("should not delete room add channel when no data exists", function (this: Mocha.Context) {
 		this.timeout(10_000);
 
 		return (async () => {
@@ -361,14 +505,17 @@ describe("Test Room Commands", () => {
 
 			// 応答の検証
 			expect(replyValue).to.eq("部屋追加チャンネルが登録されていなかったよ！っ");
+
+			// データベースにデータが存在しないことを再確認
+			const afterData = await RoomAddChannelRepositoryImpl.findAll();
+			expect(afterData.length).to.eq(0);
 		})();
 	});
 
 	/**
-	 * [正常削除] 部屋追加チャンネルが正常に削除される
-	 * - RoomAddChannelLogic.deleteが正しいパラメータで呼ばれることを検証
-	 * - 削除成功時に成功メッセージが返されることを検証
-	 * - データベースから部屋追加チャンネルが削除されていることを確認
+	 * [正常削除] サーバーにRoomAddChannelsデータがdeletedAtがnullである状況でVoiceChannelで実行した時
+	 * - 部屋追加チャンネルを削除したよ！っと投稿されること
+	 * - RoomAddChannelsのデータのdeletedAtに値が入ること
 	 */
 	it("should delete room add channel successfully", function (this: Mocha.Context) {
 		this.timeout(10_000);
@@ -404,6 +551,7 @@ describe("Test Room Commands", () => {
 			// データベースにデータが存在することを確認
 			const beforeData = await RoomAddChannelRepositoryImpl.findAll();
 			expect(beforeData.length).to.eq(1);
+			expect(beforeData[0].deletedAt).to.be.null;
 
 			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
@@ -415,9 +563,68 @@ describe("Test Room Commands", () => {
 			// 応答の検証
 			expect(replyValue).to.eq("部屋追加チャンネルを削除したよ！っ");
 
-			// データが削除されていることを確認
+			// データが論理削除されていることを確認（findAllでは取得できない）
 			const afterData = await RoomAddChannelRepositoryImpl.findAll();
 			expect(afterData.length).to.eq(0);
+
+			// paranoid: falseで削除済みデータを取得して確認
+			const deletedData = await RoomAddChannelRepositoryImpl.findAll({
+				paranoid: false,
+			});
+			expect(deletedData.length).to.eq(1);
+			expect(deletedData[0].deletedAt).to.not.be.null;
+		})();
+	});
+
+	/**
+	 * [存在チェック - deletedAtあり] サーバーにRoomAddChannelsデータがdeletedAtがnullでない状況でVoiceChannelで実行した時
+	 * - 部屋追加チャンネルが登録されていなかったよ！っと投稿されること
+	 */
+	it("should not delete room add channel when already deleted", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			const guildId = "1";
+			const channelId = "2";
+			const userId = "3";
+
+			// 管理者ユーザーIDを設定
+			RoleConfig.users = [{ discordId: userId, role: "admin" }];
+
+			// 削除済みのデータを作成
+			const deletedData = await RoomAddChannelRepositoryImpl.create({
+				guildId: guildId,
+				channelId: channelId,
+			});
+			await deletedData.destroy();
+
+			// コマンドのモック作成
+			const commandMock = mockSlashCommand("roomaddchanneldelete", {}, userId);
+
+			// guildIdとchannelを設定
+			when(commandMock.guildId).thenReturn(guildId);
+			when(commandMock.channel).thenReturn({} as any);
+
+			// replyメソッドをモック
+			let replyValue = "";
+			when(commandMock.reply(anything())).thenCall((message: string) => {
+				replyValue = message;
+				return Promise.resolve({} as any);
+			});
+
+			// データベースにアクティブなデータが存在しないことを確認
+			const beforeData = await RoomAddChannelRepositoryImpl.findAll();
+			expect(beforeData.length).to.eq(0);
+
+			// コマンド実行
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+			// 応答を待つ
+			await waitUntilReply(commandMock, 100);
+
+			// 応答の検証
+			expect(replyValue).to.eq("部屋追加チャンネルが登録されていなかったよ！っ");
 		})();
 	});
 
@@ -469,6 +676,151 @@ describe("Test Room Commands", () => {
 			// データが作られていないことを確認
 			const afterData = await RoomNotificationChannelRepositoryImpl.findAll();
 			expect(afterData.length).to.eq(0);
+		})();
+	});
+
+	/**
+	 * [正常作成 - データなし] サーバーにRoomNotificationChannelsデータがない状況でTextChannelで実行した時
+	 * - 部屋通知チャンネルを登録したよ！っと投稿されること
+	 * - RoomNotificationChannelsにdeletedAtがnullでデータ作成されること
+	 */
+	it("should create room notification channel when no data exists", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			const guildId = "1";
+			const channelId = "2";
+			const userId = "3";
+
+			// 管理者ユーザーIDを設定
+			RoleConfig.users = [{ discordId: userId, role: "admin" }];
+
+			// コマンドのモック作成
+			const commandMock = mockSlashCommand("roomnotificationchannelcreate", { channelid: channelId }, userId);
+
+			// guildIdとchannelを設定
+			when(commandMock.guildId).thenReturn(guildId);
+			when(commandMock.channel).thenReturn({} as any);
+
+			// TextChannelを返すようにモック
+			when(commandMock.guild).thenReturn({
+				channels: {
+					cache: {
+						get: (id: string) => {
+							if (id === channelId) {
+								const textChannel = Object.create(TextChannel.prototype);
+								textChannel.id = channelId;
+								return textChannel;
+							}
+							return null;
+						},
+					},
+				},
+			} as any);
+
+			// replyメソッドをモック
+			let replyValue = "";
+			when(commandMock.reply(anything())).thenCall((message: string) => {
+				replyValue = message;
+				return Promise.resolve({} as any);
+			});
+
+			// データベースにデータが存在しないことを確認
+			const beforeData = await RoomNotificationChannelRepositoryImpl.findAll();
+			expect(beforeData.length).to.eq(0);
+
+			// コマンド実行
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+			// 応答を待つ
+			await waitUntilReply(commandMock, 100);
+
+			// 応答の検証
+			expect(replyValue).to.eq("部屋通知チャンネルを登録したよ！っ");
+
+			// データが作られていることを確認
+			const afterData = await RoomNotificationChannelRepositoryImpl.findAll();
+			expect(afterData.length).to.eq(1);
+			expect(String(afterData[0].guildId)).to.eq(String(guildId));
+			expect(String(afterData[0].channelId)).to.eq(String(channelId));
+			expect(afterData[0].deletedAt).to.be.null;
+		})();
+	});
+
+	/**
+	 * [正常作成 - deletedAtあり] サーバーにRoomNotificationChannelsデータがありdeletedAtがnullでない状況でTextChannelで実行した時
+	 * - 部屋通知チャンネルを登録したよ！っと投稿されること
+	 * - RoomNotificationChannelsにdeletedAtがnullでデータ作成されること
+	 */
+	it("should create room notification channel when deleted data exists", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			const guildId = "1";
+			const channelId = "2";
+			const userId = "3";
+
+			// 管理者ユーザーIDを設定
+			RoleConfig.users = [{ discordId: userId, role: "admin" }];
+
+			// 削除済みのデータを作成
+			const deletedData = await RoomNotificationChannelRepositoryImpl.create({
+				guildId: guildId,
+				channelId: channelId,
+			});
+			await deletedData.destroy();
+
+			// 削除済みデータが存在することを確認（paranoid: trueなのでfindAllには含まれない）
+			const beforeActiveData = await RoomNotificationChannelRepositoryImpl.findAll();
+			expect(beforeActiveData.length).to.eq(0);
+
+			// コマンドのモック作成
+			const commandMock = mockSlashCommand("roomnotificationchannelcreate", { channelid: channelId }, userId);
+
+			// guildIdとchannelを設定
+			when(commandMock.guildId).thenReturn(guildId);
+			when(commandMock.channel).thenReturn({} as any);
+
+			// TextChannelを返すようにモック
+			when(commandMock.guild).thenReturn({
+				channels: {
+					cache: {
+						get: (id: string) => {
+							if (id === channelId) {
+								const textChannel = Object.create(TextChannel.prototype);
+								textChannel.id = channelId;
+								return textChannel;
+							}
+							return null;
+						},
+					},
+				},
+			} as any);
+
+			// replyメソッドをモック
+			let replyValue = "";
+			when(commandMock.reply(anything())).thenCall((message: string) => {
+				replyValue = message;
+				return Promise.resolve({} as any);
+			});
+
+			// コマンド実行
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+			// 応答を待つ
+			await waitUntilReply(commandMock, 100);
+
+			// 応答の検証
+			expect(replyValue).to.eq("部屋通知チャンネルを登録したよ！っ");
+
+			// 新しいデータが作られていることを確認
+			const afterData = await RoomNotificationChannelRepositoryImpl.findAll();
+			expect(afterData.length).to.eq(1);
+			expect(String(afterData[0].guildId)).to.eq(String(guildId));
+			expect(String(afterData[0].channelId)).to.eq(String(channelId));
+			expect(afterData[0].deletedAt).to.be.null;
 		})();
 	});
 
@@ -526,6 +878,7 @@ describe("Test Room Commands", () => {
 			// データが増えていないことを確認
 			const afterData = await RoomNotificationChannelRepositoryImpl.findAll();
 			expect(afterData.length).to.eq(1);
+			expect(afterData[0].deletedAt).to.be.null;
 		})();
 	});
 
@@ -711,12 +1064,10 @@ describe("Test Room Commands", () => {
 	});
 
 	/**
-	 * [存在チェック] 登録されていない部屋通知チャンネルは削除できない
-	 * - RoomNotificationChannelLogic.findが呼ばれることを検証
-	 * - 部屋通知チャンネルが存在しない場合にエラーメッセージが返されることを検証
-	 * - RoomNotificationChannelLogic.deleteが呼ばれないことを検証
+	 * [存在チェック - データなし] サーバーにRoomNotificationChannelsデータがない状況で実行した時
+	 * - 部屋通知チャンネルが登録されていなかったよ！っと投稿されること
 	 */
-	it("should not delete room notification channel when not exists", function (this: Mocha.Context) {
+	it("should not delete room notification channel when no data exists", function (this: Mocha.Context) {
 		this.timeout(10_000);
 
 		return (async () => {
@@ -753,14 +1104,17 @@ describe("Test Room Commands", () => {
 
 			// 応答の検証
 			expect(replyValue).to.eq("部屋通知チャンネルが登録されていなかったよ！っ");
+
+			// データベースにデータが存在しないことを再確認
+			const afterData = await RoomNotificationChannelRepositoryImpl.findAll();
+			expect(afterData.length).to.eq(0);
 		})();
 	});
 
 	/**
-	 * [正常削除] 部屋通知チャンネルが正常に削除される
-	 * - RoomNotificationChannelLogic.deleteが正しいパラメータで呼ばれることを検証
-	 * - 削除成功時に成功メッセージが返されることを検証
-	 * - データベースから部屋通知チャンネルが削除されていることを確認
+	 * [正常削除] サーバーにRoomNotificationChannelsデータがdeletedAtがnullである状況で実行した時
+	 * - 部屋通知チャンネルを削除したよ！っと投稿されること
+	 * - RoomNotificationChannelsのデータのdeletedAtに値が入ること
 	 */
 	it("should delete room notification channel successfully", function (this: Mocha.Context) {
 		this.timeout(10_000);
@@ -796,6 +1150,7 @@ describe("Test Room Commands", () => {
 			// データベースにデータが存在することを確認
 			const beforeData = await RoomNotificationChannelRepositoryImpl.findAll();
 			expect(beforeData.length).to.eq(1);
+			expect(beforeData[0].deletedAt).to.be.null;
 
 			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
@@ -807,9 +1162,68 @@ describe("Test Room Commands", () => {
 			// 応答の検証
 			expect(replyValue).to.eq("部屋通知チャンネルを削除したよ！っ");
 
-			// データが削除されていることを確認
+			// データが論理削除されていることを確認（findAllでは取得できない）
 			const afterData = await RoomNotificationChannelRepositoryImpl.findAll();
 			expect(afterData.length).to.eq(0);
+
+			// paranoid: falseで削除済みデータを取得して確認
+			const deletedData = await RoomNotificationChannelRepositoryImpl.findAll({
+				paranoid: false,
+			});
+			expect(deletedData.length).to.eq(1);
+			expect(deletedData[0].deletedAt).to.not.be.null;
+		})();
+	});
+
+	/**
+	 * [存在チェック - deletedAtあり] サーバーにRoomNotificationChannelsデータがdeletedAtがnullでない状況で実行した時
+	 * - 部屋通知チャンネルが登録されていなかったよ！っと投稿されること
+	 */
+	it("should not delete room notification channel when already deleted", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			const guildId = "1";
+			const channelId = "2";
+			const userId = "3";
+
+			// 管理者ユーザーIDを設定
+			RoleConfig.users = [{ discordId: userId, role: "admin" }];
+
+			// 削除済みのデータを作成
+			const deletedData = await RoomNotificationChannelRepositoryImpl.create({
+				guildId: guildId,
+				channelId: channelId,
+			});
+			await deletedData.destroy();
+
+			// コマンドのモック作成
+			const commandMock = mockSlashCommand("roomnotificationchanneldelete", {}, userId);
+
+			// guildIdとchannelを設定
+			when(commandMock.guildId).thenReturn(guildId);
+			when(commandMock.channel).thenReturn({} as any);
+
+			// replyメソッドをモック
+			let replyValue = "";
+			when(commandMock.reply(anything())).thenCall((message: string) => {
+				replyValue = message;
+				return Promise.resolve({} as any);
+			});
+
+			// データベースにアクティブなデータが存在しないことを確認
+			const beforeData = await RoomNotificationChannelRepositoryImpl.findAll();
+			expect(beforeData.length).to.eq(0);
+
+			// コマンド実行
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+			// 応答を待つ
+			await waitUntilReply(commandMock, 100);
+
+			// 応答の検証
+			expect(replyValue).to.eq("部屋通知チャンネルが登録されていなかったよ！っ");
 		})();
 	});
 
