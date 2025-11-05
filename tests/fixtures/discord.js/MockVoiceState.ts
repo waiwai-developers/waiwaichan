@@ -21,7 +21,7 @@ export function mockVoiceState(
 	// oldChannelのモック
 	const oldChannelMock = oldChannelId
 		? {
-				id: oldChannelId,
+				id: String(oldChannelId),
 				name: "Test Old Voice Channel",
 				members: {
 					size: 0,
@@ -40,25 +40,35 @@ export function mockVoiceState(
 			}
 		: null;
 
+	// 初期チャンネルをキャッシュに追加
+	if (oldChannelMock) {
+		channelCache.set(String(oldChannelId), oldChannelMock);
+	}
+	if (newChannelMock && String(newChannelId) !== String(oldChannelId)) {
+		channelCache.set(String(newChannelId), newChannelMock);
+	}
+
 	// 共通のguild.channels構造（両方のstateで共有）
 	const guildChannels = {
 		cache: {
-			get: (id: string) => {
-				const idStr = id;
+			get: (id: number | string) => {
+				const idStr = String(id);
 				return channelCache.get(idStr) || null;
 			},
 		},
 		create: async (options: any) => {
+			createdChannelId = String(Math.floor(Math.random() * 1000000) + 1000);
 			const newChannel = {
 				id: createdChannelId,
 				guildId: guildId,
 				name: options.name,
 				createdTimestamp: Date.now(),
 			};
+			channelCache.set(createdChannelId, newChannel);
 			return newChannel;
 		},
 		delete: async (id: string) => {
-			channelCache.delete(id);
+			channelCache.delete(String(id));
 			return true;
 		},
 	};
@@ -71,7 +81,7 @@ export function mockVoiceState(
 
 	// oldState
 	const oldState = {
-		channelId: oldChannelId ? oldChannelId : null,
+		channelId: oldChannelId ? String(oldChannelId) : null,
 		member: {
 			user: {
 				id: userId,
@@ -90,7 +100,7 @@ export function mockVoiceState(
 
 	// newState
 	const newState = {
-		channelId: newChannelId ? newChannelId : null,
+		channelId: newChannelId ? String(newChannelId) : null,
 		member: {
 			user: {
 				id: userId,
@@ -129,7 +139,7 @@ export function addMockTextChannel(state: any, channelId: string, send: (options
 	// Update guild.channels.cache.get
 	const originalGet = state.guild.channels.cache.get;
 	state.guild.channels.cache.get = (id: string) => {
-		if (id === channelId) {
+		if (String(id) === channelId) {
 			return textChannelMock;
 		}
 		return originalGet(id);
