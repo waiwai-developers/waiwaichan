@@ -1018,7 +1018,7 @@ describe("Test Room Commands", () => {
 
 			// 作成されたデータを確認
 			const createdData = afterData[afterData.length - 1];
-			expect(String(createdData.guildId)).to.eq(guildId);
+			expect(String(createdData.guildId)).to.eq(String(guildId));
 			expect(String(createdData.channelId)).to.eq(String(newState.getCreatedChannelId()));
 		})();
 	});
@@ -1035,7 +1035,8 @@ describe("Test Room Commands", () => {
 			const guildId = "1";
 			const userId = "2";
 			const roomAddChannelId = "3";
-			const notificationChannelId = "4";
+			const roomNotificationChannelId = "4";
+			const newChannelId = roomAddChannelId;
 
 			// 部屋追加チャンネルと通知チャンネルを登録
 			await RoomAddChannelRepositoryImpl.create({
@@ -1044,17 +1045,17 @@ describe("Test Room Commands", () => {
 			});
 			await RoomNotificationChannelRepositoryImpl.create({
 				guildId: guildId,
-				channelId: notificationChannelId,
+				channelId: roomNotificationChannelId,
 			});
 
 			const { mockVoiceState, addMockTextChannel } = await import("../fixtures/discord.js/MockVoiceState");
-			const { oldState, newState } = mockVoiceState(null, roomAddChannelId, guildId, userId);
+			const { oldState, newState } = mockVoiceState(null, newChannelId, guildId, userId);
 
 			let notificationSent = false;
 			let notificationContent = "";
 
 			// テキストチャンネルのモックを追加
-			addMockTextChannel(newState, notificationChannelId, async (options: any) => {
+			addMockTextChannel(newState, roomNotificationChannelId, async (options: any) => {
 				notificationSent = true;
 				if (options.embeds?.[0]) {
 					const embed = options.embeds[0];
