@@ -12,8 +12,8 @@ export interface MockVoiceStateResult {
  * VoiceStateのモックを作成する（プロパティを上書き可能な形式）
  */
 export function mockVoiceState(
-	oldChannelId: number | null,
-	newChannelId: number | null,
+	oldChannelId: string | null,
+	newChannelId: string | null,
 	guildId: string,
 	userId: string,
 	displayName = "TestUser",

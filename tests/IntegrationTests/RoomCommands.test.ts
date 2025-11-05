@@ -828,10 +828,11 @@ describe("Test Room Commands", () => {
 		return (async () => {
 			const guildId = "1";
 			const userId = "2";
+			const oldChannelId = "100"
 
 			// oldState.channelId = "old-channel", newState.channelId = null (disconnect)
 			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
-			const { oldState, newState } = mockVoiceState(100, null, guildId, userId);
+			const { oldState, newState } = mockVoiceState(oldChannelId, null, guildId, userId);
 
 			const beforeCount = await RoomChannelRepositoryImpl.count();
 
@@ -858,9 +859,10 @@ describe("Test Room Commands", () => {
 		return (async () => {
 			const guildId = "1";
 			const userId = "2";
+			const newChannelId = "200"
 
 			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
-			const { oldState, newState } = mockVoiceState(null, 200, guildId, userId);
+			const { oldState, newState } = mockVoiceState(null, newChannelId, guildId, userId);
 
 			// newState.memberをnullに設定
 			(newState as any).member = null;
@@ -890,9 +892,10 @@ describe("Test Room Commands", () => {
 		return (async () => {
 			const guildId = "1";
 			const userId = "2";
+			const newChannelId = "200"
 
 			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
-			const { oldState, newState } = mockVoiceState(null, 200, guildId, userId);
+			const { oldState, newState } = mockVoiceState(null, newChannelId, guildId, userId);
 
 			// newState.channelをnullに設定
 			(newState as any).channel = null;
@@ -925,7 +928,7 @@ describe("Test Room Commands", () => {
 			const channelId = "3";
 
 			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
-			const { oldState, newState } = mockVoiceState(null, Number(channelId), guildId, userId);
+			const { oldState, newState } = mockVoiceState(null, channelId, guildId, userId);
 
 			const beforeCount = await RoomChannelRepositoryImpl.count();
 
@@ -962,7 +965,7 @@ describe("Test Room Commands", () => {
 			});
 
 			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
-			const { oldState, newState } = mockVoiceState(null, Number(connectedChannelId), guildId, userId);
+			const { oldState, newState } = mockVoiceState(null, connectedChannelId, guildId, userId);
 
 			const beforeCount = await RoomChannelRepositoryImpl.count();
 
@@ -1121,10 +1124,11 @@ describe("Test Room Commands", () => {
 		return (async () => {
 			const guildId = "1";
 			const userId = "2";
+			const newChannelId = "200"
 
 			// oldState.channelId = null, newState.channelId = "new-channel" (connect)
 			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
-			const { oldState, newState } = mockVoiceState(null, 200, guildId, userId);
+			const { oldState, newState } = mockVoiceState(null, newChannelId, guildId, userId);
 
 			// テストデータ作成
 			await RoomChannelRepositoryImpl.create({
@@ -1160,7 +1164,7 @@ describe("Test Room Commands", () => {
 			const channelId = "3";
 
 			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
-			const { oldState, newState } = mockVoiceState(Number(channelId), null, guildId, userId);
+			const { oldState, newState } = mockVoiceState(channelId, null, guildId, userId);
 
 			// oldState.memberをnullに設定
 			(oldState as any).member = null;
@@ -1199,7 +1203,7 @@ describe("Test Room Commands", () => {
 			const channelId = "3";
 
 			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
-			const { oldState, newState } = mockVoiceState(Number(channelId), null, guildId, userId);
+			const { oldState, newState } = mockVoiceState(channelId, null, guildId, userId);
 
 			// oldState.channelをnullに設定
 			(oldState as any).channel = null;
@@ -1238,7 +1242,7 @@ describe("Test Room Commands", () => {
 			const channelId = "3";
 
 			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
-			const { oldState, newState } = mockVoiceState(Number(channelId), null, guildId, userId);
+			const { oldState, newState } = mockVoiceState(channelId, null, guildId, userId);
 
 			// 部屋チャンネルとして登録されていない
 			const beforeCount = await RoomChannelRepositoryImpl.count();
@@ -1275,7 +1279,7 @@ describe("Test Room Commands", () => {
 			});
 
 			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
-			const { oldState, newState } = mockVoiceState(Number(channelId), null, guildId, userId);
+			const { oldState, newState } = mockVoiceState(channelId, null, guildId, userId);
 
 			// チャンネルにユーザーが残っている状態にする
 			(oldState.channel as any).members = {
@@ -1316,7 +1320,7 @@ describe("Test Room Commands", () => {
 			});
 
 			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
-			const { oldState, newState } = mockVoiceState(Number(channelId), null, guildId, userId);
+			const { oldState, newState } = mockVoiceState(channelId, null, guildId, userId);
 
 			const beforeCount = await RoomChannelRepositoryImpl.count();
 			expect(beforeCount).to.be.at.least(1);
@@ -1359,7 +1363,7 @@ describe("Test Room Commands", () => {
 			});
 
 			const { mockVoiceState, addMockTextChannel } = await import("../fixtures/discord.js/MockVoiceState");
-			const { oldState, newState } = mockVoiceState(Number(channelId), null, guildId, userId);
+			const { oldState, newState } = mockVoiceState(channelId, null, guildId, userId);
 
 			let notificationSent = false;
 			let notificationContent = "";
@@ -1406,7 +1410,7 @@ describe("Test Room Commands", () => {
 			});
 
 			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
-			const { oldState, newState } = mockVoiceState(Number(channelId), null, guildId, userId);
+			const { oldState, newState } = mockVoiceState(channelId, null, guildId, userId);
 
 			const beforeCount = await RoomChannelRepositoryImpl.count();
 
