@@ -31,7 +31,9 @@ export class RoomAddChannelCreateCommandHandler implements SlashCommandHandler {
 			RoleConfig.users.find((u) => u.discordId === interaction.user.id)
 				?.role !== "admin"
 		) {
-			await interaction.reply("部屋追加チャンネルを登録する権限を持っていないよ！っ");
+			await interaction.reply(
+				"部屋追加チャンネルを登録する権限を持っていないよ！っ",
+			);
 			return;
 		}
 
