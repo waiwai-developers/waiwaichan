@@ -1,6 +1,3 @@
-import type { GuildMember, VoiceChannel, VoiceState } from "discord.js";
-import { anything, instance, mock, when } from "ts-mockito";
-
 export interface MockVoiceStateResult {
 	oldState: any;
 	newState: any;
@@ -24,7 +21,7 @@ export function mockVoiceState(
 	// oldChannelのモック
 	const oldChannelMock = oldChannelId
 		? {
-				id: String(oldChannelId),
+				id: oldChannelId,
 				name: "Test Old Voice Channel",
 				members: {
 					size: 0,
@@ -37,41 +34,31 @@ export function mockVoiceState(
 	// newChannelのモック
 	const newChannelMock = newChannelId
 		? {
-				id: String(newChannelId),
+				id: newChannelId,
 				name: "Test New Voice Channel",
 				isTextBased: () => false,
 			}
 		: null;
 
-	// 初期チャンネルをキャッシュに追加
-	if (oldChannelMock) {
-		channelCache.set(String(oldChannelId), oldChannelMock);
-	}
-	if (newChannelMock && String(newChannelId) !== String(oldChannelId)) {
-		channelCache.set(String(newChannelId), newChannelMock);
-	}
-
 	// 共通のguild.channels構造（両方のstateで共有）
 	const guildChannels = {
 		cache: {
-			get: (id: number | string) => {
-				const idStr = String(id);
+			get: (id: string) => {
+				const idStr = id;
 				return channelCache.get(idStr) || null;
 			},
 		},
 		create: async (options: any) => {
-			createdChannelId = String(Math.floor(Math.random() * 1000000) + 1000);
 			const newChannel = {
 				id: createdChannelId,
 				guildId: guildId,
 				name: options.name,
 				createdTimestamp: Date.now(),
 			};
-			channelCache.set(createdChannelId, newChannel);
 			return newChannel;
 		},
 		delete: async (id: string) => {
-			channelCache.delete(String(id));
+			channelCache.delete(id);
 			return true;
 		},
 	};
@@ -84,7 +71,7 @@ export function mockVoiceState(
 
 	// oldState
 	const oldState = {
-		channelId: oldChannelId ? String(oldChannelId) : null,
+		channelId: oldChannelId ? oldChannelId : null,
 		member: {
 			user: {
 				id: userId,
@@ -103,7 +90,7 @@ export function mockVoiceState(
 
 	// newState
 	const newState = {
-		channelId: newChannelId ? String(newChannelId) : null,
+		channelId: newChannelId ? newChannelId : null,
 		member: {
 			user: {
 				id: userId,
@@ -142,7 +129,7 @@ export function addMockTextChannel(state: any, channelId: string, send: (options
 	// Update guild.channels.cache.get
 	const originalGet = state.guild.channels.cache.get;
 	state.guild.channels.cache.get = (id: string) => {
-		if (String(id) === channelId) {
+		if (id === channelId) {
 			return textChannelMock;
 		}
 		return originalGet(id);
