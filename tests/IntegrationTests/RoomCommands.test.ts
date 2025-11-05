@@ -1232,6 +1232,244 @@ describe("Test Room Commands", () => {
 	 */
 
 	/**
+	 * [部屋追加チャンネル入室 - 両方設定済み] roomaddchannelsとroomnotificationchannelsが作成済みでroomaddchannelsの部屋に入室した時
+	 * - 新しく部屋が作成されユーザーがその部屋に移動しroomchannelsにデータが作成されること
+	 * - 通話を開始したよ！っとroomnotificationchannelsの部屋に投稿されること
+	 */
+	it("should create room and send notification when both channels are configured and user joins room add channel", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			const guildId = "1";
+			const userId = "2";
+			const roomAddChannelId = "3";
+			const roomNotificationChannelId = "4";
+			const displayName = "TestUser";
+
+			// 部屋追加チャンネルと通知チャンネルを登録
+			await RoomAddChannelRepositoryImpl.create({
+				guildId: guildId,
+				channelId: roomAddChannelId,
+			});
+			await RoomNotificationChannelRepositoryImpl.create({
+				guildId: guildId,
+				channelId: roomNotificationChannelId,
+			});
+
+			const { mockVoiceState, addMockTextChannel } = await import("../fixtures/discord.js/MockVoiceState");
+			const { oldState, newState } = mockVoiceState(null, roomAddChannelId, guildId, userId, displayName);
+
+			let notificationSent = false;
+			let notificationContent = "";
+
+			// テキストチャンネルのモックを追加
+			addMockTextChannel(newState, roomNotificationChannelId, async (options: any) => {
+				notificationSent = true;
+				if (options.embeds?.[0]) {
+					const embed = options.embeds[0];
+					notificationContent = embed.data?.title || "";
+				}
+				return {} as any;
+			});
+
+			const beforeCount = await RoomChannelRepositoryImpl.count();
+
+			// イベント発火
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
+
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+
+			// 部屋が作成されたことを確認
+			const afterData = await RoomChannelRepositoryImpl.findAll();
+			expect(afterData.length).to.eq(beforeCount + 1);
+
+			// 作成されたデータを確認
+			const createdData = afterData[afterData.length - 1];
+			expect(String(createdData.guildId)).to.eq(String(guildId));
+			expect(String(createdData.channelId)).to.eq(String(newState.getCreatedChannelId()));
+
+			// 通知が送信されたことを確認
+			expect(notificationSent).to.be.true;
+			expect(notificationContent).to.include("通話を開始したよ！っ");
+		})();
+	});
+
+	/**
+	 * [部屋追加チャンネル以外入室 - 両方設定済み] roomaddchannelsとroomnotificationchannelsが作成済みでroomaddchannels以外の部屋に入室した時
+	 * - 新しく部屋が作成されずroomchannelsにデータが作成されないこと
+	 * - 通話を開始したよ！っとroomnotificationchannelsの部屋に投稿されないこと
+	 */
+	it("should not create room nor send notification when both channels are configured but user joins non-room-add channel", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			const guildId = "1";
+			const userId = "2";
+			const roomAddChannelId = "3";
+			const normalChannelId = "5";
+			const roomNotificationChannelId = "4";
+
+			// 部屋追加チャンネルと通知チャンネルを登録
+			await RoomAddChannelRepositoryImpl.create({
+				guildId: guildId,
+				channelId: roomAddChannelId,
+			});
+			await RoomNotificationChannelRepositoryImpl.create({
+				guildId: guildId,
+				channelId: roomNotificationChannelId,
+			});
+
+			const { mockVoiceState, addMockTextChannel } = await import("../fixtures/discord.js/MockVoiceState");
+			const { oldState, newState } = mockVoiceState(null, normalChannelId, guildId, userId);
+
+			let notificationSent = false;
+
+			// テキストチャンネルのモックを追加
+			addMockTextChannel(newState, roomNotificationChannelId, async (options: any) => {
+				notificationSent = true;
+				return {} as any;
+			});
+
+			const beforeCount = await RoomChannelRepositoryImpl.count();
+
+			// イベント発火
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
+
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+
+			// 部屋が作成されていないことを確認
+			const afterCount = await RoomChannelRepositoryImpl.count();
+			expect(afterCount).to.eq(beforeCount);
+
+			// 通知が送信されていないことを確認
+			expect(notificationSent).to.be.false;
+		})();
+	});
+
+	/**
+	 * [部屋追加チャンネル入室 - roomaddchannelsのみ設定] roomaddchannelsのみ作成済みでroomaddchannelsの部屋に入室した時
+	 * - 新しく部屋が作成されユーザーがその部屋に移動しroomchannelsにデータが作成されること
+	 * - 通話を開始したよ！っとroomnotificationchannelsの部屋に投稿されないこと
+	 */
+	it("should create room but not send notification when only room add channel is configured", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			const guildId = "1";
+			const userId = "2";
+			const roomAddChannelId = "3";
+			const displayName = "TestUser";
+
+			// 部屋追加チャンネルのみ登録（通知チャンネルは登録しない）
+			await RoomAddChannelRepositoryImpl.create({
+				guildId: guildId,
+				channelId: roomAddChannelId,
+			});
+
+			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
+			const { oldState, newState } = mockVoiceState(null, roomAddChannelId, guildId, userId, displayName);
+
+			const beforeCount = await RoomChannelRepositoryImpl.count();
+
+			// イベント発火
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
+
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+
+			// 部屋が作成されたことを確認
+			const afterData = await RoomChannelRepositoryImpl.findAll();
+			expect(afterData.length).to.eq(beforeCount + 1);
+
+			// 作成されたデータを確認
+			const createdData = afterData[afterData.length - 1];
+			expect(String(createdData.guildId)).to.eq(String(guildId));
+			expect(String(createdData.channelId)).to.eq(String(newState.getCreatedChannelId()));
+		})();
+	});
+
+	/**
+	 * [部屋追加チャンネル入室 - roomnotificationchannelsのみ設定] roomnotificationchannelsのみ作成済みで部屋に入室した時
+	 * - 新しく部屋が作成されずroomchannelsにデータが作成されないこと
+	 * - 通話を開始したよ！っとroomnotificationchannelsの部屋に投稿されないこと
+	 */
+	it("should not create room nor send notification when only room notification channel is configured", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			const guildId = "1";
+			const userId = "2";
+			const channelId = "3";
+			const roomNotificationChannelId = "4";
+
+			// 通知チャンネルのみ登録（部屋追加チャンネルは登録しない）
+			await RoomNotificationChannelRepositoryImpl.create({
+				guildId: guildId,
+				channelId: roomNotificationChannelId,
+			});
+
+			const { mockVoiceState, addMockTextChannel } = await import("../fixtures/discord.js/MockVoiceState");
+			const { oldState, newState } = mockVoiceState(null, channelId, guildId, userId);
+
+			let notificationSent = false;
+
+			// テキストチャンネルのモックを追加
+			addMockTextChannel(newState, roomNotificationChannelId, async (options: any) => {
+				notificationSent = true;
+				return {} as any;
+			});
+
+			const beforeCount = await RoomChannelRepositoryImpl.count();
+
+			// イベント発火
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
+
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+
+			// 部屋が作成されていないことを確認
+			const afterCount = await RoomChannelRepositoryImpl.count();
+			expect(afterCount).to.eq(beforeCount);
+
+			// 通知が送信されていないことを確認
+			expect(notificationSent).to.be.false;
+		})();
+	});
+
+	/**
+	 * [部屋追加チャンネル入室 - 両方未設定] roomnotificationchannelsとroomaddchannelsの両方が作成されておらず部屋に入室した時
+	 * - 新しく部屋が作成されずroomchannelsにデータが作成されないこと
+	 * - 通話を開始したよ！っとroomnotificationchannelsの部屋に投稿されないこと
+	 */
+	it("should not create room nor send notification when neither channel is configured", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			const guildId = "1";
+			const userId = "2";
+			const channelId = "3";
+
+			// どちらも登録しない
+			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
+			const { oldState, newState } = mockVoiceState(null, channelId, guildId, userId);
+
+			const beforeCount = await RoomChannelRepositoryImpl.count();
+
+			// イベント発火
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
+
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+
+			// 部屋が作成されていないことを確認
+			const afterCount = await RoomChannelRepositoryImpl.count();
+			expect(afterCount).to.eq(beforeCount);
+		})();
+	});
+
+	/**
 	 * [状態チェック] newState.channelIdがnullの場合は処理が中断される
 	 * - 新規接続でない場合、処理が中断されることを検証
 	 * - チャンネル作成や通知送信が行われないことを確認
