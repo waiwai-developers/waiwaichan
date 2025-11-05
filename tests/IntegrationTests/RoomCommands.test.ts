@@ -1296,6 +1296,72 @@ describe("Test Room Commands", () => {
 	});
 
 	/**
+	 * [部屋追加チャンネル入室 - 両方設定済み・別の部屋から移動] roomaddchannelsとroomnotificationchannelsが作成済みで既にユーザーが別の部屋にいる場合にroomaddchannelsの部屋に入室した時
+	 * - 新しく部屋が作成されユーザーがその部屋に移動しroomchannelsにデータが作成されること
+	 * - 通話を開始したよ！っとroomnotificationchannelsの部屋に投稿されること
+	 */
+	it("should create room and send notification when user moves from another channel to room add channel", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			const guildId = "1";
+			const userId = "2";
+			const oldChannelId = "100"; // 元いた部屋
+			const roomAddChannelId = "3";
+			const roomNotificationChannelId = "4";
+			const displayName = "TestUser";
+
+			// 部屋追加チャンネルと通知チャンネルを登録
+			await RoomAddChannelRepositoryImpl.create({
+				guildId: guildId,
+				channelId: roomAddChannelId,
+			});
+			await RoomNotificationChannelRepositoryImpl.create({
+				guildId: guildId,
+				channelId: roomNotificationChannelId,
+			});
+
+			const { mockVoiceState, addMockTextChannel } = await import("../fixtures/discord.js/MockVoiceState");
+			// oldChannelIdに別のチャンネルIDを設定（既に別の部屋にいる状態）
+			const { oldState, newState } = mockVoiceState(oldChannelId, roomAddChannelId, guildId, userId, displayName);
+
+			let notificationSent = false;
+			let notificationContent = "";
+
+			// テキストチャンネルのモックを追加
+			addMockTextChannel(newState, roomNotificationChannelId, async (options: any) => {
+				notificationSent = true;
+				if (options.embeds?.[0]) {
+					const embed = options.embeds[0];
+					notificationContent = embed.data?.title || "";
+				}
+				return {} as any;
+			});
+
+			const beforeCount = await RoomChannelRepositoryImpl.count();
+
+			// イベント発火
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
+
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+
+			// 部屋が作成されたことを確認
+			const afterData = await RoomChannelRepositoryImpl.findAll();
+			expect(afterData.length).to.eq(beforeCount + 1);
+
+			// 作成されたデータを確認
+			const createdData = afterData[afterData.length - 1];
+			expect(String(createdData.guildId)).to.eq(String(guildId));
+			expect(String(createdData.channelId)).to.eq(String(newState.getCreatedChannelId()));
+
+			// 通知が送信されたことを確認
+			expect(notificationSent).to.be.true;
+			expect(notificationContent).to.include("通話を開始したよ！っ");
+		})();
+	});
+
+	/**
 	 * [部屋追加チャンネル以外入室 - 両方設定済み] roomaddchannelsとroomnotificationchannelsが作成済みでroomaddchannels以外の部屋に入室した時
 	 * - 新しく部屋が作成されずroomchannelsにデータが作成されないこと
 	 * - 通話を開始したよ！っとroomnotificationchannelsの部屋に投稿されないこと
