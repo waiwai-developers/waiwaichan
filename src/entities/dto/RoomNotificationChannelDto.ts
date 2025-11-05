@@ -3,7 +3,7 @@ import type { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
 
 export class RoomNotificationChannelDto {
 	constructor(
-		public guildId: DiscordChannelId,
-		public channelId: DiscordGuildId,
+		public guildId: DiscordGuildId,
+		public channelId: DiscordChannelId,
 	) {}
 }
