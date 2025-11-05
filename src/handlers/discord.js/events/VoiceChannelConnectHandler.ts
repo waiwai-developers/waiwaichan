@@ -50,7 +50,8 @@ export class VoiceChannelConnectHandler
 			this.logger.info("not exist room add channel");
 			return;
 		}
-		if (roomAddChannel.channelId.getValue() !== newState.channelId) {
+		//todo: おそらくすべてのguildIdやchannelIdでstringのように見えているが実はBigintで扱われている可能性があるので修正する
+		if (String(roomAddChannel.channelId.getValue()) !== String(newState.channelId)) {
 			this.logger.info("not match room add channel");
 			return;
 		}
