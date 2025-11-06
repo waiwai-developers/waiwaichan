@@ -164,7 +164,7 @@ export class CandyLogic implements ICandyLogic {
 				//今年中に既にJackpotが当たっていた場合、Jackpotの結果をHITに置き換える
 				if (hasJackpotThisYear) {
 					randomNums = randomNums.map((rn) =>
-						rn % PROBABILITY_JACKPOT === 0 ? PROBABILITY_HIT : rn
+						rn % PROBABILITY_JACKPOT === 0 ? PROBABILITY_HIT : rn,
 					);
 				//今年中にJackpotが当たっていない場合のみ天上の場合に置換
 				} else {
@@ -182,7 +182,9 @@ export class CandyLogic implements ICandyLogic {
 								: undefined,
 						);
 					const pityIndex =
-						PITY_COUNT - (candyCountFromJackpod.getValue() - candyIds.length) - 1;
+						PITY_COUNT -
+						(candyCountFromJackpod.getValue() - candyIds.length) -
+						1;
 					const isOverPity = candyCountFromJackpod.getValue() >= PITY_COUNT;
 					const isNotJackpotToPity = !randomNums
 						.slice(0, pityIndex)
@@ -193,17 +195,17 @@ export class CandyLogic implements ICandyLogic {
 				}
 
 				// itemの作成
-				const mapCandyIdHitIds = [
-					...Array(AppConfig.backend.candyBoxAmount).keys(),
-				].map((i) => ({
-					candyId: candyIds[i],
-					hitId:
-						randomNums[i] % PROBABILITY_JACKPOT === 0
-							? new CandyItemId(ID_JACKPOT)
-							: randomNums[i] % PROBABILITY_HIT === 0
-								? new CandyItemId(ID_HIT)
-								: new CandyItemId(ID_OUT),
-				}));
+				const mapCandyIdHitIds = [...Array(candyIds.length).keys()].map(
+					(i) => ({
+						candyId: candyIds[i],
+						hitId:
+							randomNums[i] % PROBABILITY_JACKPOT === 0
+								? new CandyItemId(ID_JACKPOT)
+								: randomNums[i] % PROBABILITY_HIT === 0
+									? new CandyItemId(ID_HIT)
+									: new CandyItemId(ID_OUT),
+					}),
+				);
 				const mapWinCandyIdHitIds = mapCandyIdHitIds.filter(
 					(m) => m.hitId.getValue() !== ID_OUT,
 				);

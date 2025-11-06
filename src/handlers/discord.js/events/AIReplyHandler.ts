@@ -1,6 +1,6 @@
 import { AppConfig } from "@/src/entities/config/AppConfig";
-import { Thread_Fetch_Nom } from "@/src/entities/constants/Thread";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
+import { Thread_Fetch_Nom } from "@/src/entities/constants/Thread";
 import { ChatAIMessageDto } from "@/src/entities/dto/ChatAIMessageDto";
 import { ChatAIContent } from "@/src/entities/vo/ChatAIContent";
 import { ChatAIPrompt } from "@/src/entities/vo/ChatAIPrompt";
