@@ -2,7 +2,7 @@ import "reflect-metadata";
 import { ITEM_RECORDS } from "@/migrator/seeds/20241111041901-item";
 import { AppConfig } from "@/src/entities/config/AppConfig";
 import { SUPER_CANDY_AMOUNT } from "@/src/entities/constants/Candies";
-import { ID_HIT, ID_JACKPOT } from "@/src/entities/constants/Items";
+import { ID_HIT, ID_JACKPOT, PITY_COUNT } from "@/src/entities/constants/Items";
 import { CandyCategoryType } from "@/src/entities/vo/CandyCategoryType";
 import { CandyRepositoryImpl, UserCandyItemRepositoryImpl } from "@/src/repositories/sequelize-mysql";
 import { MysqlConnector } from "@/tests/fixtures/database/MysqlConnector";
@@ -1124,7 +1124,7 @@ describe("Test Candy Commands", () => {
 			const commandMock = mockSlashCommand("candydraw");
 
 			// 十分な数のキャンディを用意（天井に到達する数）
-			const candyAmount = 150;
+			const candyAmount = PITY_COUNT;
 			const insertData = [];
 			for (let i = 0; i < candyAmount; i++) {
 				const date = new Date();
@@ -1272,7 +1272,7 @@ describe("Test Candy Commands", () => {
 			const commandMock = mockSlashCommand("candydraw");
 
 			// 十分な数のキャンディを用意（天井に到達する数）
-			const candyAmount = 150;
+			const candyAmount = PITY_COUNT;
 			const insertData = [];
 			for (let i = 0; i < candyAmount; i++) {
 				const date = new Date();
