@@ -129,6 +129,7 @@ class UserCandyItemRepositoryImpl
 		userId: DiscordUserId,
 	): Promise<boolean> {
 		return UserCandyItemRepositoryImpl.findOne({
+			attributes: ["id"],
 			where: {
 				guildId: guildId.getValue(),
 				userId: userId.getValue(),
