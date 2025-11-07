@@ -126,13 +126,6 @@ export class CandyLogic implements ICandyLogic {
 					);
 				}
 
-				// 今年中にJackpotが当たっているかチェック
-				const hasJackpotThisYear =
-					await this.userCandyItemRepository.hasJackpotInCurrentYear(
-						guildId,
-						userId,
-					);
-
 				// itemの抽選
 				let randomNums: number[] = [];
 				if (candyIds.length >= AppConfig.backend.candyBoxAmount) {
@@ -161,12 +154,19 @@ export class CandyLogic implements ICandyLogic {
 					}
 				}
 
+				// 今年中にJackpotが当たっているかチェック
+				const hasJackpotThisYear =
+					await this.userCandyItemRepository.hasJackpotInCurrentYear(
+						guildId,
+						userId,
+					);
+
 				//今年中に既にJackpotが当たっていた場合、Jackpotの結果をHITに置き換える
 				if (hasJackpotThisYear) {
 					randomNums = randomNums.map((rn) =>
 						rn % PROBABILITY_JACKPOT === 0 ? PROBABILITY_HIT : rn,
 					);
-				//今年中にJackpotが当たっていない場合のみ天上の場合に置換
+					//今年中にJackpotが当たっていない場合のみ天上の場合に置換
 				} else {
 					const lastJackpodCandyId =
 						await this.userCandyItemRepository.lastJackpodCandyId(
