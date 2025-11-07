@@ -333,8 +333,8 @@ describe("Test Candy Commands", () => {
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("candyboxdraw", {});
 
-			// 156個のキャンディを用意（146個は使用済み、残りは未使用）
-			const candyAmount = 156;
+			// PITY_COUNT個のキャンディを用意（PITY_COUNT - 3個は使用済み、残りは未使用）
+			const candyAmount = PITY_COUNT;
 			const insertData = [];
 
 			// 日付を設定して、146個は使用済み、残りは未使用に
@@ -1196,7 +1196,7 @@ describe("Test Candy Commands", () => {
 			const commandMock = mockSlashCommand("candyboxdraw", {});
 
 			// 十分な数のキャンディを用意（天井に到達する数）
-			const candyAmount = 156;
+			const candyAmount = PITY_COUNT;
 			const insertData = [];
 			for (let i = 0; i < candyAmount; i++) {
 				const date = new Date();
