@@ -9,6 +9,7 @@ x-base-service: &base-service
     - server-network
   environment:
     GOOGLE_APPLICATION_CREDENTIALS: config/key.json
+    NODE_OPTIONS: --no-deprecation
   volumes:
     - type: bind
       source: ../../config
