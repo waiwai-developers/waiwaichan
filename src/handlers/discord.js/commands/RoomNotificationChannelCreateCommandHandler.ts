@@ -51,7 +51,7 @@ export class RoomNotificationChannelCreateCommandHandler
 		);
 		if (!(channel instanceof TextChannel)) {
 			await interaction.reply(
-				"このチャンネルは部屋通知チャンネルとして登録できないよ！っ",
+				"このチャンネルはテキストチャンネルでないので部屋通知チャンネルとして登録できないよ！っ",
 			);
 			return;
 		}

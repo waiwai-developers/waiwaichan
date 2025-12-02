@@ -50,7 +50,7 @@ export class RoomAddChannelCreateCommandHandler implements SlashCommandHandler {
 		);
 		if (!(channel instanceof VoiceChannel)) {
 			await interaction.reply(
-				"このチャンネルは部屋追加チャンネルとして登録できないよ！っ",
+				"このチャンネルはボイスチャンネルないので部屋追加チャンネルとして登録できないよ！っ",
 			);
 			return;
 		}
