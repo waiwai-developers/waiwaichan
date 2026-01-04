@@ -85,6 +85,19 @@ services:
       retries: 5
       start_period: 30s
       timeout: 5s
+  cache:
+    container_name: waiwai-valkey
+    image: valkey/valkey:8.1.1
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - server-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 networks:
   server-network:
     driver: bridge
