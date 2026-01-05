@@ -105,7 +105,6 @@ import { SlashCommandRouter } from "@/src/routes/discordjs/events/SlashCommandRo
 import type { Message } from "discord.js";
 import { Container } from "inversify";
 import type { Sequelize } from "sequelize";
-import type { ILogger } from "./logics/Interfaces/repositories/logger/ILogger";
 const appContainer = new Container();
 
 // Repositories
