@@ -154,42 +154,58 @@ export class CandyLogic implements ICandyLogic {
 					}
 				}
 
-				//天上の場合に置換
-				const lastJackpodCandyId =
-					await this.userCandyItemRepository.lastJackpodCandyId(
+				// 今年中にJackpotが当たっているかチェック
+				const hasJackpotThisYear =
+					await this.userCandyItemRepository.hasJackpotInCurrentYear(
 						guildId,
 						userId,
 					);
-				const candyCountFromJackpod =
-					await this.candyRepository.candyCountFromJackpod(
-						guildId,
-						userId,
-						lastJackpodCandyId
-							? new CandyId(lastJackpodCandyId?.getValue())
-							: undefined,
+
+				//今年中に既にJackpotが当たっていた場合、Jackpotの結果をHITに置き換える
+				if (hasJackpotThisYear) {
+					randomNums = randomNums.map((rn) =>
+						rn % PROBABILITY_JACKPOT === 0 ? PROBABILITY_HIT : rn,
 					);
-				const pityIndex =
-					PITY_COUNT - (candyCountFromJackpod.getValue() - candyIds.length) - 1;
-				const isOverPity = candyCountFromJackpod.getValue() >= PITY_COUNT;
-				const isNotJackpotToPity = !randomNums
-					.slice(0, pityIndex)
-					.includes(PROBABILITY_JACKPOT);
-				if (isOverPity && isNotJackpotToPity) {
-					randomNums.splice(pityIndex, 1, PROBABILITY_JACKPOT);
+					//今年中にJackpotが当たっていない場合のみ天上の場合に置換
+				} else {
+					const lastJackpodCandyId =
+						await this.userCandyItemRepository.lastJackpodCandyId(
+							guildId,
+							userId,
+						);
+					const candyCountFromJackpod =
+						await this.candyRepository.candyCountFromJackpod(
+							guildId,
+							userId,
+							lastJackpodCandyId
+								? new CandyId(lastJackpodCandyId?.getValue())
+								: undefined,
+						);
+					const pityIndex =
+						PITY_COUNT -
+						(candyCountFromJackpod.getValue() - candyIds.length) -
+						1;
+					const isOverPity = candyCountFromJackpod.getValue() >= PITY_COUNT;
+					const isNotJackpotToPity = !randomNums
+						.slice(0, pityIndex)
+						.includes(PROBABILITY_JACKPOT);
+					if (isOverPity && isNotJackpotToPity) {
+						randomNums.splice(pityIndex, 1, PROBABILITY_JACKPOT);
+					}
 				}
 
 				// itemの作成
-				const mapCandyIdHitIds = [
-					...Array(AppConfig.backend.candyBoxAmount).keys(),
-				].map((i) => ({
-					candyId: candyIds[i],
-					hitId:
-						randomNums[i] % PROBABILITY_JACKPOT === 0
-							? new CandyItemId(ID_JACKPOT)
-							: randomNums[i] % PROBABILITY_HIT === 0
-								? new CandyItemId(ID_HIT)
-								: new CandyItemId(ID_OUT),
-				}));
+				const mapCandyIdHitIds = [...Array(candyIds.length).keys()].map(
+					(i) => ({
+						candyId: candyIds[i],
+						hitId:
+							randomNums[i] % PROBABILITY_JACKPOT === 0
+								? new CandyItemId(ID_JACKPOT)
+								: randomNums[i] % PROBABILITY_HIT === 0
+									? new CandyItemId(ID_HIT)
+									: new CandyItemId(ID_OUT),
+					}),
+				);
 				const mapWinCandyIdHitIds = mapCandyIdHitIds.filter(
 					(m) => m.hitId.getValue() !== ID_OUT,
 				);
