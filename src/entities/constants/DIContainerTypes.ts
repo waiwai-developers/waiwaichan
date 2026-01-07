@@ -16,6 +16,11 @@ export const RepoTypes = {
 	VMInstanceRepository: Symbol.for("VMInstanceRepository"),
 	PullRequestRepository: Symbol.for("PullRequestRepository"),
 	StickyRepository: Symbol.for("StickyRepository"),
+	RoomAddChannelRepository: Symbol.for("RoomAddChannelRepository"),
+	RoomNotificationChannelRepository: Symbol.for(
+		"RoomNotificationChannelRepository",
+	),
+	RoomChannelRepository: Symbol.for("RoomChannelRepository"),
 	SequelizeModels: Symbol.for("SequelizeModels"),
 	Logger: Symbol.for("Logger"),
 };
@@ -33,6 +38,9 @@ export const LogicTypes = {
 	StickyLogic: Symbol.for("StickyLogic"),
 	UtilityLogic: Symbol.for("UtilityLogic"),
 	CrownLogic: Symbol.for("CrownLogic"),
+	RoomAddChannelLogic: Symbol.for("RoomAddChannelLogic"),
+	RoomNotificationChannelLogic: Symbol.for("RoomNotificationChannelLogic"),
+	RoomChannelLogic: Symbol.for("RoomChannelLogic"),
 };
 
 export const RouteTypes = {
@@ -40,6 +48,7 @@ export const RouteTypes = {
 	MessageReplyRoute: Symbol.for("MessageReplyRoute"),
 	ReadyStateRoute: Symbol.for("ReadyStateRoute"),
 	ReactionRoute: Symbol.for("ReactionRoute"),
+	VoiceChannelEventRoute: Symbol.for("VoiceChannelEventRoute"),
 };
 
 export const SchedulerRepoTypes = {
@@ -50,4 +59,5 @@ export const HandlerTypes = {
 	SlashCommandHandler: Symbol.for("SlashCommandHandler"),
 	ReactionHandler: Symbol.for("ReactionHandler"),
 	MessageHandler: Symbol.for("MessageHandler"),
+	VoiceChannelEventHandler: Symbol.for("VoiceChannelEventHandler"),
 };

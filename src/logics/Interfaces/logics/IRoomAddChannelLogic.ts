@@ -1,0 +1,8 @@
+import type { RoomAddChannelDto } from "@/src/entities/dto/RoomAddChannelDto";
+import type { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
+
+export interface IRoomAddChannelLogic {
+	create(data: RoomAddChannelDto): Promise<string>;
+	find(discordGuildId: DiscordGuildId): Promise<RoomAddChannelDto | undefined>;
+	delete(discordGuildId: DiscordGuildId): Promise<string>;
+}

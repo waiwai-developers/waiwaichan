@@ -16,6 +16,7 @@ export class TestDiscordServer extends DiscordServer {
 			appContainer.getAsync<DiscordEventRouter>(RouteTypes.SlashCommandRoute),
 			appContainer.get<DiscordEventRouter>(RouteTypes.MessageReplyRoute),
 			appContainer.get<DiscordEventRouter>(RouteTypes.ReactionRoute),
+			appContainer.get<DiscordEventRouter>(RouteTypes.VoiceChannelEventRoute),
 		]);
 
 		this.EventRoutes.forEach((event) => {

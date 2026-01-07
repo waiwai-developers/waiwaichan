@@ -96,7 +96,11 @@
 			"src/**/*.ts"
 		],
 		"exclude": [
-			"src/logics/Interfaces/**/*.ts"
+			"src/logics/Interfaces/**/*.ts",
+			"src/entities/dto/**/*.ts",
+			"src/entities/vo/**/*.ts",
+			"src/entities/constants/**/*.ts",
+			"src/entities/config/**/*.ts"
 		],
 		"all": true,
 		"source-map": true
