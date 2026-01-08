@@ -51,7 +51,9 @@ export class VoiceChannelConnectHandler
 			return;
 		}
 		//todo: おそらくすべてのguildIdやchannelIdでstringのように見えているが実はBigintで扱われている可能性があるので修正する
-		if (String(roomAddChannel.channelId.getValue()) !== String(newState.channelId)) {
+		if (
+			String(roomAddChannel.channelId.getValue()) !== String(newState.channelId)
+		) {
 			this.logger.info("not match room add channel");
 			return;
 		}

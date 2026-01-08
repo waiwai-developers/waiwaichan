@@ -95,10 +95,6 @@ import { TranslatorLogic } from "@/src/logics/TranslatorLogic";
 import { UtilityLogic } from "@/src/logics/UtilityLogic";
 import { ChatGPTRepositoryImpl } from "@/src/repositories/chatgptapi/ChatGPTRepositoryImpl";
 import { DeepLTranslateRepositoryImpl } from "@/src/repositories/deeplapi/DeepLTranslateRepositoryImpl";
-import { GCPComputeEngineInstanceRepositoryImpl } from "@/src/repositories/gcpapi/GCPComputeEngineInstanceRepositoryImpl";
-import { GithubPullRequestRepositoryImpl } from "@/src/repositories/githubapi/GithubPullRequestRepositoryImpl";
-import { PinoLogger } from "@/src/repositories/logger/PinoLogger";
-import { AwaitSemaphoreMutex } from "@/src/repositories/mutex/AwaitSemaphoreMutex";
 import {
 	CandyItemRepositoryImpl,
 	CandyRepositoryImpl,
@@ -113,7 +109,11 @@ import {
 	StickyRepositoryImpl,
 	ThreadRepositoryImpl,
 	UserCandyItemRepositoryImpl,
-} from "@/src/repositories/sequelize-mysql";
+} from "@/src/repositories/drizzle-orm/mysql";
+import { GCPComputeEngineInstanceRepositoryImpl } from "@/src/repositories/gcpapi/GCPComputeEngineInstanceRepositoryImpl";
+import { GithubPullRequestRepositoryImpl } from "@/src/repositories/githubapi/GithubPullRequestRepositoryImpl";
+import { PinoLogger } from "@/src/repositories/logger/PinoLogger";
+import { AwaitSemaphoreMutex } from "@/src/repositories/mutex/AwaitSemaphoreMutex";
 import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnector";
 import { SequelizeTransaction } from "@/src/repositories/sequelize-mysql/SequelizeTransaction";
 import type { DiscordEventRouter } from "@/src/routes/discordjs/events/DiscordEventRouter";

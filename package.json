@@ -23,6 +23,7 @@
 	"dependencies": {
 		"@abraham/reflection": "^0.12.0",
 		"@google-cloud/compute": "^4.8.0",
+		"@marcus-dutton/atlas": "^2.0.15",
 		"@octokit/app": "^15.1.1",
 		"@octokit/core": "^6.1.2",
 		"@swc-node/register": "^1.10.9",
@@ -38,6 +39,7 @@
 		"discord-api-types": "^0.37.107",
 		"discord.js": "^14.16.3",
 		"dotenv": "^16.4.5",
+		"drizzle-orm": "^0.45.1",
 		"inversify": "^6.1.4",
 		"mocha": "^11.0.1",
 		"moment": "^2.30.1",
