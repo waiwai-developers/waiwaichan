@@ -28,11 +28,7 @@ describe("Test Review Commands", () => {
 		 */
 		it("should early return when interaction.channel is null", async () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
-			const commandMock = mockSlashCommand(
-				"reviewgacha",
-				{ id: 1 },
-				{ userId: AccountsConfig.users[0].discordId, withChannel: false },
-			);
+			const commandMock = mockSlashCommand("reviewgacha", { id: 1 }, { userId: AccountsConfig.users[0].discordId, withChannel: false });
 
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
@@ -52,11 +48,7 @@ describe("Test Review Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			const { message } = createMockMessage();
 
-			const commandMock = mockSlashCommand(
-				"reviewgacha",
-				{ id: 1 },
-				{ userId: AccountsConfig.users[0].discordId, withChannel: true },
-			);
+			const commandMock = mockSlashCommand("reviewgacha", { id: 1 }, { userId: AccountsConfig.users[0].discordId, withChannel: true });
 
 			when(commandMock.reply(anything())).thenResolve(message);
 
@@ -76,11 +68,7 @@ describe("Test Review Commands", () => {
 		it("should create thread with correct name format and autoArchiveDuration", async () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 
-			const commandMock = mockSlashCommand(
-				"reviewgacha",
-				{ id: 1 },
-				{ userId: AccountsConfig.users[0].discordId, withChannel: true },
-			);
+			const commandMock = mockSlashCommand("reviewgacha", { id: 1 }, { userId: AccountsConfig.users[0].discordId, withChannel: true });
 
 			// Create message mock inline to properly capture startThread
 			const messageMock = mock<Message<boolean>>();
@@ -134,11 +122,7 @@ describe("Test Review Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			const { message } = createMockMessage();
 
-			const commandMock = mockSlashCommand(
-				"reviewgacha",
-				{ id: 1 },
-				{ userId: AccountsConfig.users[1].discordId, withChannel: true },
-			);
+			const commandMock = mockSlashCommand("reviewgacha", { id: 1 }, { userId: AccountsConfig.users[1].discordId, withChannel: true });
 
 			let result = "";
 			when(commandMock.reply(anything())).thenCall((args) => {
@@ -159,11 +143,7 @@ describe("Test Review Commands", () => {
 		 */
 		it("should return error when id is null", async () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
-			const commandMock = mockSlashCommand(
-				"reviewgacha",
-				{ id: null },
-				{ userId: AccountsConfig.users[0].discordId, withChannel: true },
-			);
+			const commandMock = mockSlashCommand("reviewgacha", { id: null }, { userId: AccountsConfig.users[0].discordId, withChannel: true });
 
 			let result = "";
 			when(commandMock.reply(anything())).thenCall((args) => {
@@ -189,11 +169,7 @@ describe("Test Review Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			const { message } = createMockMessage();
 
-			const commandMock = mockSlashCommand(
-				"reviewgacha",
-				{ id: 999 },
-				{ userId: AccountsConfig.users[0].discordId, withChannel: true },
-			);
+			const commandMock = mockSlashCommand("reviewgacha", { id: 999 }, { userId: AccountsConfig.users[0].discordId, withChannel: true });
 
 			let result = "";
 			when(commandMock.reply(anything())).thenCall((args) => {
@@ -220,11 +196,7 @@ describe("Test Review Commands", () => {
 
 			// Run test multiple times to verify parent reviewer is always included
 			for (let i = 0; i < 10; i++) {
-				const commandMock = mockSlashCommand(
-					"reviewgacha",
-					{ id: 1 },
-					{ userId: AccountsConfig.users[0].discordId, withChannel: true },
-				);
+				const commandMock = mockSlashCommand("reviewgacha", { id: 1 }, { userId: AccountsConfig.users[0].discordId, withChannel: true });
 
 				let result = "";
 				when(commandMock.reply(anything())).thenCall((args) => {
@@ -262,11 +234,7 @@ describe("Test Review Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			const { message } = createMockMessage();
 
-			const commandMock = mockSlashCommand(
-				"reviewgacha",
-				{ id: 1 },
-				{ userId: AccountsConfig.users[0].discordId, withChannel: true },
-			);
+			const commandMock = mockSlashCommand("reviewgacha", { id: 1 }, { userId: AccountsConfig.users[0].discordId, withChannel: true });
 
 			let result = "";
 			when(commandMock.reply(anything())).thenCall((args) => {

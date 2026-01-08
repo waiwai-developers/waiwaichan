@@ -1,6 +1,14 @@
 import { DiscordCommandRegister } from "@/src/routes/discordjs/DiscordCommandRegister";
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
-import { type CacheType, ChatInputCommandInteraction, type CommandInteractionOptionResolver, type Message, TextChannel, type ThreadChannel, User } from "discord.js";
+import {
+	type CacheType,
+	ChatInputCommandInteraction,
+	type CommandInteractionOptionResolver,
+	type Message,
+	TextChannel,
+	type ThreadChannel,
+	User,
+} from "discord.js";
 import { anything, instance, mock, verify, when } from "ts-mockito";
 
 export type MockSlashCommandOptions = {
@@ -10,23 +18,30 @@ export type MockSlashCommandOptions = {
 	replyMessage?: Message<boolean>;
 };
 
-export const mockSlashCommand = (commandName: string, options: any = {}, userIdOrOptions: string | MockSlashCommandOptions = "1234", guildId = "9999") => {
+export const mockSlashCommand = (
+	commandName: string,
+	options: any = {},
+	userIdOrOptions: string | MockSlashCommandOptions = "1234",
+	guildIdParam = "9999",
+) => {
 	// Handle both old and new API
 	let userId: string;
+	let guildId: string;
 	let withChannel: boolean;
 	let replyMessage: Message<boolean> | undefined;
-	
+
 	if (typeof userIdOrOptions === "string") {
 		userId = userIdOrOptions;
+		guildId = guildIdParam;
 		withChannel = false;
 		replyMessage = undefined;
 	} else {
 		userId = userIdOrOptions.userId ?? "1234";
-		guildId = userIdOrOptions.guildId ?? "9999";
+		guildId = userIdOrOptions.guildId ?? guildIdParam;
 		withChannel = userIdOrOptions.withChannel ?? false;
 		replyMessage = userIdOrOptions.replyMessage;
 	}
-	
+
 	const commandInteractionMock = mock(ChatInputCommandInteraction);
 	const found = new DiscordCommandRegister().commands.find((b) => b.name === commandName);
 	const optionsMock = mock<Omit<CommandInteractionOptionResolver<CacheType>, "getMessage" | "getFocused">>();
@@ -93,7 +108,7 @@ export const mockSlashCommand = (commandName: string, options: any = {}, userIdO
 	when(commandInteractionMock.user).thenReturn(instance(userMock));
 	when(commandInteractionMock.channelId).thenReturn("5678");
 	when(commandInteractionMock.guildId).thenReturn(guildId);
-	
+
 	// Setup channel mock if requested
 	if (withChannel) {
 		const channelMock = mock(TextChannel);
@@ -108,7 +123,12 @@ export const mockSlashCommand = (commandName: string, options: any = {}, userIdO
 	} else {
 		when(commandInteractionMock.channel).thenReturn(null);
 	}
-	
+
+	// Setup reply to return replyMessage if provided
+	if (replyMessage) {
+		when(commandInteractionMock.reply(anything())).thenResolve(replyMessage);
+	}
+
 	return commandInteractionMock;
 };
 
@@ -116,11 +136,11 @@ export const createMockMessage = (guildId = "9999", messageId = "msg-123") => {
 	const messageMock = mock<Message<boolean>>();
 	when(messageMock.guildId).thenReturn(guildId);
 	when(messageMock.id).thenReturn(messageId);
-	
+
 	const threadMock = mock<ThreadChannel>();
 	when(threadMock.id).thenReturn("thread-123");
 	when(messageMock.startThread(anything())).thenResolve(instance(threadMock) as any);
-	
+
 	return { messageMock, message: instance(messageMock), threadMock };
 };
 
