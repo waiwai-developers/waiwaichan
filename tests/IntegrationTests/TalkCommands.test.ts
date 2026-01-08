@@ -176,24 +176,8 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 			create: async () => ({}),
 		} as any);
 
-		// モックのメッセージ設定
-		when(commandMock.reply(anything())).thenResolve({
-			id: testMessageId,
-			guildId: testGuildId,
-			startThread: async (options: any) => {
-				// スレッドタイトルの検証
-				expect(options.name).to.equal(expectedThreadTitle);
-				return {};
-			},
-		} as any);
-
 		// オブジェクト引数を受け取るreplyメソッドのモック
-		when(
-			commandMock.reply({
-				content: "以下にお話する場を用意したよ！っ",
-				fetchReply: true,
-			}),
-		).thenResolve({
+		when(commandMock.reply(anything())).thenResolve({
 			id: testMessageId,
 			guildId: testGuildId,
 			startThread: async (options: any) => {
