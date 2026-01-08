@@ -1496,6 +1496,11 @@ describe("Test Candy Commands", () => {
 			}));
 			await CandyRepositoryImpl.bulkCreate(insertData);
 
+			let value = "";
+			when(commandMock.reply(anything())).thenCall((args) => {
+				value = args;
+			});
+
 			// guildIdの設定
 			when(commandMock.guildId).thenReturn("1234567890");
 
@@ -1678,7 +1683,7 @@ describe("Test Candy Commands", () => {
 			// コマンドを複数回実行（天井到達後に確実にジャックポットが出るまで）
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			const maxDraws = 11; // 天井到達を確実にするため複数回実行
-			
+
 			for (let i = 0; i < maxDraws && !jackpotFound; i++) {
 				TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 				await waitSlashUntilReply(commandMock, 100, i + 1);

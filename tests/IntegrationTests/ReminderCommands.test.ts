@@ -11,6 +11,16 @@ import { type Channel, type ChannelManager, type Client, type Collection, type S
 import { anything, instance, mock, verify, when } from "ts-mockito";
 
 describe("Test Reminder Commands", () => {
+	/**
+	 * ReminderSetCommandHandlerのテスト
+	 */
+
+	/**
+	 * [正常系] リマインダーを正常に設定できる
+	 * - コマンド実行時にリマインダーが登録されることを検証
+	 * - 成功メッセージが返されることを検証
+	 * - データベースに正しいパラメータでリマインダーが保存されることを検証
+	 */
 	it("test /reminderset datetime:2999/12/31 23:59:59 message:feature reminder", async () => {
 		const commandMock = mockSlashCommand("reminderset", {
 			username: "username",
@@ -26,11 +36,17 @@ describe("Test Reminder Commands", () => {
 		expect(res.length).to.eq(1);
 
 		expect(res[0].id).to.eq(1);
+		expect(res[0].guildId).to.eq(9999);
 		expect(res[0].userId).to.eq(1234);
 		expect(res[0].channelId).to.eq(5678);
 		expect(res[0].message).to.eq("test reminder");
 	});
 
+	/**
+	 * [日時検証] 過去の日時ではリマインダーを設定できない
+	 * - 過去の日時が指定された場合にエラーメッセージが返されることを検証
+	 * - リマインダーが登録されないことを検証
+	 */
 	it("test /reminderset when old datetime", async () => {
 		const commandMock = mockSlashCommand("reminderset", {
 			username: "username",
@@ -45,6 +61,11 @@ describe("Test Reminder Commands", () => {
 		verify(commandMock.reply("過去の日付のリマインドは設定できないよ！っ")).once();
 	});
 
+	/**
+	 * [パラメータ検証] ユーザー名がnullの場合はエラーになる
+	 * - ユーザー名がnullの場合にエラーメッセージが返されることを検証
+	 * - 内部エラーメッセージが表示されることを検証
+	 */
 	it("test /reminderset with null username", async () => {
 		const commandMock = mockSlashCommand("reminderset", {
 			username: null,
@@ -59,6 +80,11 @@ describe("Test Reminder Commands", () => {
 		verify(commandMock.reply(InternalErrorMessage)).once();
 	});
 
+	/**
+	 * [パラメータ検証] 日時がnullの場合はエラーになる
+	 * - 日時がnullの場合にエラーメッセージが返されることを検証
+	 * - 内部エラーメッセージが表示されることを検証
+	 */
 	it("test /reminderset with null datetime", async () => {
 		const commandMock = mockSlashCommand("reminderset", {
 			username: "username",
@@ -73,6 +99,11 @@ describe("Test Reminder Commands", () => {
 		verify(commandMock.reply(InternalErrorMessage)).once();
 	});
 
+	/**
+	 * [パラメータ検証] メッセージがnullの場合はエラーになる
+	 * - メッセージがnullの場合にエラーメッセージが返されることを検証
+	 * - 内部エラーメッセージが表示されることを検証
+	 */
 	it("test /reminderset with null message", async () => {
 		const commandMock = mockSlashCommand("reminderset", {
 			username: "username",
@@ -87,6 +118,14 @@ describe("Test Reminder Commands", () => {
 		verify(commandMock.reply(InternalErrorMessage)).once();
 	});
 
+	/**
+	 * ReminderListCommandHandlerのテスト
+	 */
+
+	/**
+	 * [リスト表示] リマインダーが登録されていない場合はその旨を表示する
+	 * - リマインダーが存在しない場合に適切なメッセージが返されることを検証
+	 */
 	it("test /reminderlist with no remind", async () => {
 		const commandMock = mockSlashCommand("reminderlist");
 
@@ -96,10 +135,17 @@ describe("Test Reminder Commands", () => {
 		verify(commandMock.reply("リマインドは予約されていないよ！っ")).once();
 	});
 
+	/**
+	 * [リスト表示] 登録されているリマインダーの一覧が表示される
+	 * - 複数のリマインダーが登録されている場合に一覧が表示されることを検証
+	 * - リマインダーが適切なフォーマットで表示されることを検証
+	 * - ID、日時、メッセージが正しく表示されることを検証
+	 */
 	it("test /reminderlist when remind contain", async () => {
 		new MysqlConnector();
 		await ReminderRepositoryImpl.bulkCreate([
 			{
+				guildId: 9999,
 				userId: 1234,
 				channelId: 5678,
 				receiveUserName: "username",
@@ -107,6 +153,7 @@ describe("Test Reminder Commands", () => {
 				remindAt: "2999/12/31 23:59:59",
 			},
 			{
+				guildId: 9999,
 				userId: 1234,
 				channelId: 5678,
 				receiveUserName: "username",
@@ -131,10 +178,21 @@ describe("Test Reminder Commands", () => {
 		);
 	});
 
+	/**
+	 * ReminderDeleteCommandHandlerのテスト
+	 */
+
+	/**
+	 * [正常系] 存在するリマインダーを削除できる
+	 * - 指定したIDのリマインダーが削除されることを検証
+	 * - 成功メッセージが返されることを検証
+	 * - 他のリマインダーは削除されないことを検証
+	 */
 	it("test /reminderdelete when id exist", async () => {
 		new MysqlConnector();
 		const [forDeleteObj, forNotDeleteObjSameUserId, forNotDeleteObjDifferentUserId] = await ReminderRepositoryImpl.bulkCreate([
 			{
+				guildId: 9999,
 				userId: 1234,
 				channelId: 5678,
 				receiveUserName: "username",
@@ -142,6 +200,7 @@ describe("Test Reminder Commands", () => {
 				remindAt: "2999/12/31 23:59:59",
 			},
 			{
+				guildId: 9999,
 				userId: 1234,
 				channelId: 5678,
 				receiveUserName: "username",
@@ -149,6 +208,7 @@ describe("Test Reminder Commands", () => {
 				remindAt: "2999/12/31 23:59:59",
 			},
 			{
+				guildId: 9999,
 				userId: 9012,
 				channelId: 3456,
 				receiveUserName: "username",
@@ -181,10 +241,16 @@ describe("Test Reminder Commands", () => {
 		expect(res[1].message).to.eq(forNotDeleteObjDifferentUserId.message);
 	});
 
+	/**
+	 * [ユーザー検証] 他のユーザーのリマインダーは削除できない
+	 * - 異なるユーザーIDのリマインダーを削除しようとした場合にエラーメッセージが返されることを検証
+	 * - リマインダーが削除されないことを検証
+	 */
 	it("test /reminderdelete when different user id", async () => {
 		new MysqlConnector();
 		const [inserted0, inserted1, inserted2] = await ReminderRepositoryImpl.bulkCreate([
 			{
+				guildId: 9999,
 				userId: 9012,
 				channelId: 5678,
 				receiveUserName: "username",
@@ -192,6 +258,7 @@ describe("Test Reminder Commands", () => {
 				remindAt: "2999/12/31 23:59:59",
 			},
 			{
+				guildId: 9999,
 				userId: 1234,
 				channelId: 5678,
 				receiveUserName: "username",
@@ -199,6 +266,7 @@ describe("Test Reminder Commands", () => {
 				remindAt: "2999/12/31 23:59:59",
 			},
 			{
+				guildId: 9999,
 				userId: 9012,
 				channelId: 3456,
 				receiveUserName: "username",
@@ -236,6 +304,10 @@ describe("Test Reminder Commands", () => {
 		expect(res[2].message).to.eq(inserted2.message);
 	});
 
+	/**
+	 * [存在チェック] 存在しないリマインダーは削除できない
+	 * - 存在しないIDを指定した場合にエラーメッセージが返されることを検証
+	 */
 	it("test /reminderdelete when id not exist", async () => {
 		const commandMock = mockSlashCommand("reminderdelete", {
 			id: 0,
@@ -248,6 +320,11 @@ describe("Test Reminder Commands", () => {
 		verify(commandMock.reply("リマインドの予約はされていなかったよ！っ")).once();
 	});
 
+	/**
+	 * [パラメータ検証] IDがnullの場合はエラーになる
+	 * - IDがnullの場合にエラーメッセージが返されることを検証
+	 * - 内部エラーメッセージが表示されることを検証
+	 */
 	it("test /reminderdelete when id is null", async () => {
 		const commandMock = mockSlashCommand("reminderdelete", {
 			id: null,
@@ -260,10 +337,21 @@ describe("Test Reminder Commands", () => {
 		verify(commandMock.reply(InternalErrorMessage)).once();
 	});
 
+	/**
+	 * ReminderNotifyHandlerのテスト
+	 */
+
+	/**
+	 * [リマインダー通知] 指定時刻に達したリマインダーが通知される
+	 * - 時刻が過ぎたリマインダーがチャンネルに送信されることを検証
+	 * - 送信後にリマインダーが削除されることを検証
+	 * - 未来のリマインダーは削除されないことを検証
+	 */
 	it("test reminder", async () => {
 		new MysqlConnector();
 		const [inserted0, inserted1, inserted2] = await ReminderRepositoryImpl.bulkCreate([
 			{
+				guildId: 9999,
 				userId: 9012,
 				channelId: 5678,
 				receiveUserName: "username",
@@ -271,6 +359,7 @@ describe("Test Reminder Commands", () => {
 				remindAt: dayjs().subtract(1, "second"),
 			},
 			{
+				guildId: 9999,
 				userId: 1234,
 				channelId: 5678,
 				receiveUserName: "username",
@@ -278,6 +367,7 @@ describe("Test Reminder Commands", () => {
 				remindAt: "2999/12/31 23:59:59",
 			},
 			{
+				guildId: 9999,
 				userId: 9012,
 				channelId: 3456,
 				receiveUserName: "username",
@@ -329,6 +419,10 @@ describe("Test Reminder Commands", () => {
 		expect(res[1].message).to.eq(inserted2.message);
 	});
 
+	/**
+	 * [リマインダー通知] リマインダーが登録されていない場合は何も送信されない
+	 * - リマインダーが存在しない場合にチャンネルへの送信が行われないことを検証
+	 */
 	it("test reminder no post when no reminder registered", async () => {
 		const channelMock = mock<TextChannel>();
 		const mockedChannel = instance(channelMock);
@@ -363,10 +457,16 @@ describe("Test Reminder Commands", () => {
 		expect("expect reach here").to.false;
 	});
 
+	/**
+	 * [エラーハンドリング] 送信エラー時はリマインダーが削除されない
+	 * - 送信時にエラーが発生した場合にリマインダーが削除されないことを検証
+	 * - トランザクションのロールバックが正しく行われることを検証
+	 */
 	it("test reminder on error", async () => {
 		new MysqlConnector();
 		const [inserted0, inserted1, inserted2] = await ReminderRepositoryImpl.bulkCreate([
 			{
+				guildId: 9999,
 				userId: 9012,
 				channelId: 5678,
 				receiveUserName: "username",
@@ -374,6 +474,7 @@ describe("Test Reminder Commands", () => {
 				remindAt: dayjs().subtract(1, "second"),
 			},
 			{
+				guildId: 9999,
 				userId: 1234,
 				channelId: 5678,
 				receiveUserName: "username",
@@ -381,6 +482,7 @@ describe("Test Reminder Commands", () => {
 				remindAt: "2999/12/31 23:59:59",
 			},
 			{
+				guildId: 9999,
 				userId: 9012,
 				channelId: 3456,
 				receiveUserName: "username",
@@ -390,6 +492,7 @@ describe("Test Reminder Commands", () => {
 		]);
 
 		const channelMock = mock<TextChannel>();
+		when(channelMock.send(anything())).thenThrow(new Error("mock error"));
 		const mockedChannel = instance(channelMock);
 		Object.setPrototypeOf(mockedChannel, TextChannel.prototype);
 		const cacheMock = mock<Collection<Snowflake, Channel>>();
@@ -398,46 +501,34 @@ describe("Test Reminder Commands", () => {
 		when(channelManagerMock.cache).thenReturn(instance(cacheMock));
 		const clientMock = mock<Client>();
 		when(clientMock.channels).thenReturn(instance(channelManagerMock));
-		await ReminderNotifyHandler(instance(clientMock));
+
 		try {
-			await new Promise((resolve, reject) => {
-				const startTime = Date.now();
-				const timer = setInterval(() => {
-					try {
-						verify(channelMock.send(anything())).atLeast(1);
-						clearInterval(timer);
-						return resolve(null);
-					} catch (_) {
-						if (Date.now() - startTime > 500) {
-							clearInterval(timer);
-							reject(new Error("Timeout: Method was not called within the time limit."));
-						}
-					}
-				}, 100);
-			});
-		} catch (e) {
-			verify(channelMock.send(anything())).never();
-
-			const res = await ReminderRepositoryImpl.findAll();
-			expect(res.length).to.eq(3);
-
-			expect(res[0].id).to.eq(inserted0.id);
-			expect(res[0].userId).to.eq(inserted0.userId);
-			expect(res[0].channelId).to.eq(inserted0.channelId);
-			expect(res[0].message).to.eq(inserted0.message);
-
-			expect(res[1].id).to.eq(inserted1.id);
-			expect(res[1].userId).to.eq(inserted1.userId);
-			expect(res[1].channelId).to.eq(inserted1.channelId);
-			expect(res[1].message).to.eq(inserted1.message);
-
-			expect(res[2].id).to.eq(inserted2.id);
-			expect(res[2].userId).to.eq(inserted2.userId);
-			expect(res[2].channelId).to.eq(inserted2.channelId);
-			expect(res[2].message).to.eq(inserted2.message);
-			return;
+			await ReminderNotifyHandler(instance(clientMock));
+		} catch (_) {
+			// Expected error due to mock error
 		}
-		expect("expect reach here").to.false;
+
+		// Wait a bit for any async operations to complete
+		await new Promise((resolve) => setTimeout(resolve, 100));
+
+		// Verify that the reminder was NOT deleted because of the error (rollback occurred)
+		const res = await ReminderRepositoryImpl.findAll();
+		expect(res.length).to.eq(3);
+
+		expect(res[0].id).to.eq(inserted0.id);
+		expect(res[0].userId).to.eq(inserted0.userId);
+		expect(res[0].channelId).to.eq(inserted0.channelId);
+		expect(res[0].message).to.eq(inserted0.message);
+
+		expect(res[1].id).to.eq(inserted1.id);
+		expect(res[1].userId).to.eq(inserted1.userId);
+		expect(res[1].channelId).to.eq(inserted1.channelId);
+		expect(res[1].message).to.eq(inserted1.message);
+
+		expect(res[2].id).to.eq(inserted2.id);
+		expect(res[2].userId).to.eq(inserted2.userId);
+		expect(res[2].channelId).to.eq(inserted2.channelId);
+		expect(res[2].message).to.eq(inserted2.message);
 	});
 
 	afterEach(async () => {
