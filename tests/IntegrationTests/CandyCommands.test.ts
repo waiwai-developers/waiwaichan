@@ -1496,6 +1496,11 @@ describe("Test Candy Commands", () => {
 			}));
 			await CandyRepositoryImpl.bulkCreate(insertData);
 
+			let value = "";
+			when(commandMock.reply(anything())).thenCall((args) => {
+				value = args;
+			});
+
 			// guildIdの設定
 			when(commandMock.guildId).thenReturn("1234567890");
 
