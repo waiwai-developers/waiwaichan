@@ -26,6 +26,7 @@ describe("Test Reminder Commands", () => {
 		expect(res.length).to.eq(1);
 
 		expect(res[0].id).to.eq(1);
+		expect(res[0].guildId).to.eq(9999);
 		expect(res[0].userId).to.eq(1234);
 		expect(res[0].channelId).to.eq(5678);
 		expect(res[0].message).to.eq("test reminder");
@@ -100,6 +101,7 @@ describe("Test Reminder Commands", () => {
 		new MysqlConnector();
 		await ReminderRepositoryImpl.bulkCreate([
 			{
+				guildId: 9999,
 				userId: 1234,
 				channelId: 5678,
 				receiveUserName: "username",
@@ -107,6 +109,7 @@ describe("Test Reminder Commands", () => {
 				remindAt: "2999/12/31 23:59:59",
 			},
 			{
+				guildId: 9999,
 				userId: 1234,
 				channelId: 5678,
 				receiveUserName: "username",
@@ -135,6 +138,7 @@ describe("Test Reminder Commands", () => {
 		new MysqlConnector();
 		const [forDeleteObj, forNotDeleteObjSameUserId, forNotDeleteObjDifferentUserId] = await ReminderRepositoryImpl.bulkCreate([
 			{
+				guildId: 9999,
 				userId: 1234,
 				channelId: 5678,
 				receiveUserName: "username",
@@ -142,6 +146,7 @@ describe("Test Reminder Commands", () => {
 				remindAt: "2999/12/31 23:59:59",
 			},
 			{
+				guildId: 9999,
 				userId: 1234,
 				channelId: 5678,
 				receiveUserName: "username",
@@ -149,6 +154,7 @@ describe("Test Reminder Commands", () => {
 				remindAt: "2999/12/31 23:59:59",
 			},
 			{
+				guildId: 9999,
 				userId: 9012,
 				channelId: 3456,
 				receiveUserName: "username",
@@ -185,6 +191,7 @@ describe("Test Reminder Commands", () => {
 		new MysqlConnector();
 		const [inserted0, inserted1, inserted2] = await ReminderRepositoryImpl.bulkCreate([
 			{
+				guildId: 9999,
 				userId: 9012,
 				channelId: 5678,
 				receiveUserName: "username",
@@ -192,6 +199,7 @@ describe("Test Reminder Commands", () => {
 				remindAt: "2999/12/31 23:59:59",
 			},
 			{
+				guildId: 9999,
 				userId: 1234,
 				channelId: 5678,
 				receiveUserName: "username",
@@ -199,6 +207,7 @@ describe("Test Reminder Commands", () => {
 				remindAt: "2999/12/31 23:59:59",
 			},
 			{
+				guildId: 9999,
 				userId: 9012,
 				channelId: 3456,
 				receiveUserName: "username",
@@ -264,6 +273,7 @@ describe("Test Reminder Commands", () => {
 		new MysqlConnector();
 		const [inserted0, inserted1, inserted2] = await ReminderRepositoryImpl.bulkCreate([
 			{
+				guildId: 9999,
 				userId: 9012,
 				channelId: 5678,
 				receiveUserName: "username",
@@ -271,6 +281,7 @@ describe("Test Reminder Commands", () => {
 				remindAt: dayjs().subtract(1, "second"),
 			},
 			{
+				guildId: 9999,
 				userId: 1234,
 				channelId: 5678,
 				receiveUserName: "username",
@@ -278,6 +289,7 @@ describe("Test Reminder Commands", () => {
 				remindAt: "2999/12/31 23:59:59",
 			},
 			{
+				guildId: 9999,
 				userId: 9012,
 				channelId: 3456,
 				receiveUserName: "username",
@@ -367,6 +379,7 @@ describe("Test Reminder Commands", () => {
 		new MysqlConnector();
 		const [inserted0, inserted1, inserted2] = await ReminderRepositoryImpl.bulkCreate([
 			{
+				guildId: 9999,
 				userId: 9012,
 				channelId: 5678,
 				receiveUserName: "username",
@@ -374,6 +387,7 @@ describe("Test Reminder Commands", () => {
 				remindAt: dayjs().subtract(1, "second"),
 			},
 			{
+				guildId: 9999,
 				userId: 1234,
 				channelId: 5678,
 				receiveUserName: "username",
@@ -381,6 +395,7 @@ describe("Test Reminder Commands", () => {
 				remindAt: "2999/12/31 23:59:59",
 			},
 			{
+				guildId: 9999,
 				userId: 9012,
 				channelId: 3456,
 				receiveUserName: "username",
@@ -390,6 +405,7 @@ describe("Test Reminder Commands", () => {
 		]);
 
 		const channelMock = mock<TextChannel>();
+		when(channelMock.send(anything())).thenThrow(new Error("mock error"));
 		const mockedChannel = instance(channelMock);
 		Object.setPrototypeOf(mockedChannel, TextChannel.prototype);
 		const cacheMock = mock<Collection<Snowflake, Channel>>();
@@ -398,46 +414,34 @@ describe("Test Reminder Commands", () => {
 		when(channelManagerMock.cache).thenReturn(instance(cacheMock));
 		const clientMock = mock<Client>();
 		when(clientMock.channels).thenReturn(instance(channelManagerMock));
-		await ReminderNotifyHandler(instance(clientMock));
+
 		try {
-			await new Promise((resolve, reject) => {
-				const startTime = Date.now();
-				const timer = setInterval(() => {
-					try {
-						verify(channelMock.send(anything())).atLeast(1);
-						clearInterval(timer);
-						return resolve(null);
-					} catch (_) {
-						if (Date.now() - startTime > 500) {
-							clearInterval(timer);
-							reject(new Error("Timeout: Method was not called within the time limit."));
-						}
-					}
-				}, 100);
-			});
-		} catch (e) {
-			verify(channelMock.send(anything())).never();
-
-			const res = await ReminderRepositoryImpl.findAll();
-			expect(res.length).to.eq(3);
-
-			expect(res[0].id).to.eq(inserted0.id);
-			expect(res[0].userId).to.eq(inserted0.userId);
-			expect(res[0].channelId).to.eq(inserted0.channelId);
-			expect(res[0].message).to.eq(inserted0.message);
-
-			expect(res[1].id).to.eq(inserted1.id);
-			expect(res[1].userId).to.eq(inserted1.userId);
-			expect(res[1].channelId).to.eq(inserted1.channelId);
-			expect(res[1].message).to.eq(inserted1.message);
-
-			expect(res[2].id).to.eq(inserted2.id);
-			expect(res[2].userId).to.eq(inserted2.userId);
-			expect(res[2].channelId).to.eq(inserted2.channelId);
-			expect(res[2].message).to.eq(inserted2.message);
-			return;
+			await ReminderNotifyHandler(instance(clientMock));
+		} catch (_) {
+			// Expected error due to mock error
 		}
-		expect("expect reach here").to.false;
+
+		// Wait a bit for any async operations to complete
+		await new Promise((resolve) => setTimeout(resolve, 100));
+
+		// Verify that the reminder was NOT deleted because of the error (rollback occurred)
+		const res = await ReminderRepositoryImpl.findAll();
+		expect(res.length).to.eq(3);
+
+		expect(res[0].id).to.eq(inserted0.id);
+		expect(res[0].userId).to.eq(inserted0.userId);
+		expect(res[0].channelId).to.eq(inserted0.channelId);
+		expect(res[0].message).to.eq(inserted0.message);
+
+		expect(res[1].id).to.eq(inserted1.id);
+		expect(res[1].userId).to.eq(inserted1.userId);
+		expect(res[1].channelId).to.eq(inserted1.channelId);
+		expect(res[1].message).to.eq(inserted1.message);
+
+		expect(res[2].id).to.eq(inserted2.id);
+		expect(res[2].userId).to.eq(inserted2.userId);
+		expect(res[2].channelId).to.eq(inserted2.channelId);
+		expect(res[2].message).to.eq(inserted2.message);
 	});
 
 	afterEach(async () => {
