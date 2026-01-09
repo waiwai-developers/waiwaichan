@@ -4,7 +4,7 @@ import { ContainerDown, ContainerUp } from "@/tests/fixtures/database/ContainerT
 export const mochaHooks = {
 	beforeAll: [
 		async function () {
-			process.env.NODE_ENV = "test";
+			process.env.NODE_ENV = "testing";
 			// @ts-ignore
 			this.timeout(150_000);
 			await ContainerUp();
