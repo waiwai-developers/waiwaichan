@@ -5,7 +5,7 @@ import { DatabaseConfig, type DatabaseConfigType } from "@/src/entities/config/D
 import { MySqlContainer, type StartedMySqlContainer } from "@testcontainers/mysql";
 let container: StartedMySqlContainer;
 
-const TEMP_DATABASE_FILE = path.join("./config/database.json");
+const TEMP_DATABASE_FILE = path.join("./config/databasetest.json");
 
 export const ContainerUp = async () => {
 	container = await new MySqlContainer().withDatabase(DatabaseConfig.test.database).withRootPassword(DatabaseConfig.test.password).start();
