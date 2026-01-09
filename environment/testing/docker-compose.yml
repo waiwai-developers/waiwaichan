@@ -54,6 +54,8 @@ services:
     <<: *base-service
     container_name: waiwai-migrate
     restart: "no"
+    environment:
+      NODE_ENV: testing
     volumes:
       - type: bind
         source: ../../.
