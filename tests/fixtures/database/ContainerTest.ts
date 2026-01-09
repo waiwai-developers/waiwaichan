@@ -1,14 +1,18 @@
 import * as fs from "node:fs";
 import path from "node:path";
 import { migrator, seeder } from "@/migrator/umzug";
-import { DatabaseConfig, type DatabaseConfigType } from "@/src/entities/config/DatabaseConfig";
+import { GetTestDBConfig, type DatabaseConfigType } from "@/src/entities/config/DatabaseConfig";
 import { MySqlContainer, type StartedMySqlContainer } from "@testcontainers/mysql";
 let container: StartedMySqlContainer;
 
 const TEMP_DATABASE_FILE = path.join("./config/databasetest.json");
 
 export const ContainerUp = async () => {
-	container = await new MySqlContainer().withDatabase(DatabaseConfig.test.database).withRootPassword(DatabaseConfig.test.password).start();
+	const testDBConfig = GetTestDBConfig();
+	if (!testDBConfig) {
+		throw new Error("Test database configuration not found: config/databasetest.json is required");
+	}
+	container = await new MySqlContainer().withDatabase(testDBConfig.database).withRootPassword(testDBConfig.password).start();
 	const dbc: DatabaseConfigType = {
 		host: container.getHost(),
 		port: container.getPort(),
@@ -20,7 +24,7 @@ export const ContainerUp = async () => {
 	await migrator(dbc).up();
 	await seeder(dbc).up();
 	const isConfigExist = fs.existsSync(TEMP_DATABASE_FILE);
-	let config = { test: dbc };
+	let config = { testing: dbc };
 	if (isConfigExist) {
 		const content = fs.readFileSync(TEMP_DATABASE_FILE, "utf8");
 		config = Object.assign(JSON.parse(content), config);
