@@ -15,27 +15,12 @@ jobs:
         uses: actions/checkout@v4
       - name: set up docker buildx
         uses: docker/setup-buildx-action@v3
-      - name: build docker images
+      - name: docker compose up
         run: |
           docker compose \
             -f environment/testing/docker-compose.yml \
-            build
-      - name: Start services (database + migrate + app)
-        run: |
-          docker compose \
-            -f environment/testing/docker-compose.yml \
-            up -d database migrate
-      - name: Wait for migrate to complete
-        run: |
-          docker compose \
-            -f environment/testing/docker-compose.yml \
-            wait migrate
-      - name: start backend
-        run: |
-          docker compose \
-            -f environment/testing/docker-compose.yml \
-            up -d backend
-      - name: Run pnpm test inside backend container
+            up -d
+      - name: run pnpm test inside backend container
         run: |
           docker compose \
             -f environment/testing/docker-compose.yml \
