@@ -1,0 +1,10 @@
+{
+	"test": {
+		"username": "test-user",
+		"password": "test-password",
+		"database": "test-database",
+		"host": "database",
+		"port": 3306,
+		"dialect": "mysql"
+	}
+}
