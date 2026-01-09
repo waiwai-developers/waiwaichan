@@ -18,37 +18,37 @@ jobs:
       - name: build docker images
         run: |
           docker compose \
-            -f environment/development/docker-compose.yml \
+            -f environment/testing/docker-compose.yml \
             build
       - name: Start services (database + migrate + app)
         run: |
           docker compose \
-            -f environment/development/docker-compose.yml \
+            -f environment/testing/docker-compose.yml \
             up -d database migrate
       - name: Wait for migrate to complete
         run: |
           docker compose \
-            -f environment/development/docker-compose.yml \
+            -f environment/testing/docker-compose.yml \
             wait migrate
       - name: start backend
         run: |
           docker compose \
-            -f environment/development/docker-compose.yml \
+            -f environment/testing/docker-compose.yml \
             up -d backend
       - name: Run pnpm test inside backend container
         run: |
           docker compose \
-            -f environment/development/docker-compose.yml \
+            -f environment/testing/docker-compose.yml \
             exec -T backend pnpm test
       - name: show logs on failure
         if: failure()
         run: |
           docker compose \
-            -f environment/development/docker-compose.yml \
+            -f environment/testing/docker-compose.yml \
             logs --no-color
       - name: shutdown containers
         if: always()
         run: |
           docker compose \
-            -f environment/development/docker-compose.yml \
+            -f environment/testing/docker-compose.yml \
             down -v
