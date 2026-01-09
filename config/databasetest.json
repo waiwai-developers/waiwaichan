@@ -1,10 +1,10 @@
 {
 	"testing": {
-		"host": "localhost",
-		"port": 55009,
-		"username": "test-username",
+		"username": "test-user",
 		"password": "test-password",
 		"database": "test-database",
+		"host": "database",
+		"port": 3306,
 		"dialect": "mysql"
 	}
 }
