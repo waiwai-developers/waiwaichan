@@ -1,0 +1,95 @@
+x-base-service: &base-service
+  build:
+    context: ../../.
+    dockerfile: environment/testing/Dockerfile
+  networks:
+    - server-network
+  environment:
+    GOOGLE_APPLICATION_CREDENTIALS: config/key.json
+  volumes:
+    - type: bind
+      source: ../../config
+      target: /app/config
+services:
+  backend:
+    <<: *base-service
+    container_name: waiwai-backend
+    restart: always
+    tty: true
+    volumes:
+      - type: bind
+        source: ../../.
+        target: /app
+      - type: volume
+        source: backend_node_modules
+        target: /app/node_modules
+    # migrate の完了を待つ
+    depends_on:
+      database:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    command: sh -c "npm i && pnpm run dev"
+  scheduler:
+    <<: *base-service
+    container_name: waiwai-scheduler
+    restart: "always"
+    volumes:
+      - type: bind
+        source: ../../.
+        target: /app
+      - type: volume
+        source: scheduler_node_modules
+        target: /app/node_modules
+    networks:
+      - server-network
+    # migrate の完了を待つ
+    depends_on:
+      database:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    command: sh -c "npm i && pnpm run dev:scheduler"
+  migrate:
+    <<: *base-service
+    container_name: waiwai-migrate
+    restart: "no"
+    volumes:
+      - type: bind
+        source: ../../.
+        target: /app
+      - type: volume
+        source: migrate_node_modules
+        target: /app/node_modules
+    depends_on:
+      database:
+        condition: service_healthy
+    command: sh -c "npm i && pnpm run migrate up && pnpm run seed up && pnpm run datafix up"
+  database:
+    container_name: waiwai-database
+    env_file:
+      - ../../.envtest
+    restart: always
+    image: mysql:8.0
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - server-network
+    platform: linux/x86_64
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 5s
+networks:
+  server-network:
+    driver: bridge
+volumes:
+  mysql_data:
+  backend_node_modules:
+  scheduler_node_modules:
+  migrate_node_modules:
