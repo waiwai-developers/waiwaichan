@@ -1,0 +1,54 @@
+name: pnpm test on pull request ready
+on:
+  pull_request:
+    types:
+      - ready_for_review
+      - synchronize
+      - reopened
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v4
+      - name: set up docker buildx
+        uses: docker/setup-buildx-action@v3
+      - name: build docker images
+        run: |
+          docker compose \
+            -f environment/development/docker-compose.yml \
+            build
+      - name: Start services (database + migrate + app)
+        run: |
+          docker compose \
+            -f environment/development/docker-compose.yml \
+            up -d database migrate
+      - name: Wait for migrate to complete
+        run: |
+          docker compose \
+            -f environment/development/docker-compose.yml \
+            wait migrate
+      - name: start backend
+        run: |
+          docker compose \
+            -f environment/development/docker-compose.yml \
+            up -d backend
+      - name: Run pnpm test inside backend container
+        run: |
+          docker compose \
+            -f environment/development/docker-compose.yml \
+            exec -T backend pnpm test
+      - name: show logs on failure
+        if: failure()
+        run: |
+          docker compose \
+            -f environment/development/docker-compose.yml \
+            logs --no-color
+      - name: shutdown containers
+        if: always()
+        run: |
+          docker compose \
+            -f environment/development/docker-compose.yml \
+            down -v
