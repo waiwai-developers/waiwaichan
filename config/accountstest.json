@@ -1,5 +1,11 @@
 {
 	"testing": {
-		"users": []
+		"users": [
+			{
+				"githubId": "test-github-user",
+				"discordId": "test-discord-user",
+				"grade": "test-grade"
+			}
+		]
 	}
 }
