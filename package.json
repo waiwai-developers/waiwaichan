@@ -101,6 +101,16 @@
 		"all": true,
 		"source-map": true
 	},
+	"pnpm": {
+		"onlyBuiltDependencies": [
+			"@biomejs/biome",
+			"@swc/core",
+			"cpu-features",
+			"esbuild",
+			"protobufjs",
+			"ssh2"
+		]
+	},
 	"swc": {
 		"$schema": "https://swc.rs/schema.json",
 		"jsc": {
