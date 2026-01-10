@@ -12,7 +12,7 @@ export const mochaHooks = {
 	],
 	afterAll: [
 		async function () {
-			// @ts-ignore
+			// @ts-ignoreßß
 			this.timeout(150_000);
 		},
 	],
