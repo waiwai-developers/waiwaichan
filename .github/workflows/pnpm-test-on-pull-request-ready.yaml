@@ -2,8 +2,8 @@ name: pnpm test on pull request ready
 on:
   pull_request:
     types:
+      - opened
       - ready_for_review
-      - synchronize
       - reopened
 jobs:
   test:
@@ -20,7 +20,7 @@ jobs:
           docker compose \
             -f environment/testing/docker-compose.yml \
             up -d
-      - name: run pnpm test inside backend container
+      - name: run pnpm test into backend container
         run: |
           docker compose \
             -f environment/testing/docker-compose.yml \
@@ -34,7 +34,7 @@ jobs:
             logs --no-color
           echo "=== Migrate container logs ==="
           docker logs waiwai-migrate 2>&1 || true
-      - name: shutdown containers
+      - name: docker compose down
         if: always()
         run: |
           docker compose \
