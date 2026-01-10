@@ -9,12 +9,13 @@ export interface DatabaseConfigType {
 	port: number;
 	dialect: string;
 }
+
 interface DatabaseJsonType {
 	development: DatabaseConfigType;
 	production: DatabaseConfigType;
 }
 
-interface DatabaseTestJsonType {
+interface DatabaseConfigTestJsonType {
 	testing: DatabaseConfigType;
 }
 
@@ -26,7 +27,7 @@ const loadDatabaseConfig = (): DatabaseJsonType | null => {
 	return null;
 };
 
-const loadDatabaseTestConfig = (): DatabaseTestJsonType | null => {
+const loadDatabaseTestConfig = (): DatabaseConfigTestJsonType | null => {
 	const configPath = "config/databasetest.json";
 	if (existsSync(configPath)) {
 		return JSON.parse(readFileSync(configPath, "utf8"));
@@ -34,25 +35,10 @@ const loadDatabaseTestConfig = (): DatabaseTestJsonType | null => {
 	return null;
 };
 
-export const GetTestDBConfig = (): DatabaseConfigType | null => {
-	const testConfig = loadDatabaseTestConfig();
-	if (testConfig) {
-		return testConfig.testing;
-	}
-	return null;
-};
-
-export const GetEnvDBConfig = (): DatabaseConfigType => {
+export const GetEnvDatabaseConfig = (): DatabaseConfigType => {
 	const env = process.env.NODE_ENV || "development";
 
 	switch (env) {
-		case "testing": {
-			const testConfig = loadDatabaseTestConfig();
-			if (testConfig) {
-				return testConfig.testing;
-			}
-			throw new Error("Database configuration not found: config/databasetest.json is required for testing environment");
-		}
 		case "production": {
 			const config = loadDatabaseConfig();
 			if (config) {
@@ -60,19 +46,22 @@ export const GetEnvDBConfig = (): DatabaseConfigType => {
 			}
 			throw new Error("Database configuration not found: config/database.json is required for production environment");
 		}
-		case "development":
-		default: {
+		case "development": {
 			const config = loadDatabaseConfig();
 			if (config) {
 				return config.development;
 			}
 			throw new Error("Database configuration not found: config/database.json is required for development environment");
 		}
+		case "testing":
+		default: {
+			const testConfig = loadDatabaseTestConfig();
+			if (testConfig) {
+				return testConfig.testing;
+			}
+			throw new Error("Database configuration not found: config/databasetest.json is required for testing environment");
+		}
 	}
 };
 
-export const DatabaseConfig = loadDatabaseConfig() || {
-	production: {} as DatabaseConfigType,
-	development: {} as DatabaseConfigType,
-	testing: {} as DatabaseConfigType,
-};
+export const DatabaseConfig: DatabaseConfigType = GetEnvDatabaseConfig();

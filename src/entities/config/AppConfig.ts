@@ -68,21 +68,21 @@ export const GetEnvAppConfig = (): AppConfigType => {
 	const env = process.env.NODE_ENV || "development";
 
 	switch (env) {
-		case "testing": {
-			const testConfig = loadAppTestConfig();
-			if (testConfig) {
-				return testConfig.testing;
-			}
-			throw new Error("App configuration not found: config/configtest.json is required for testing environment");
-		}
 		case "production":
-		case "development":
-		default: {
+		case "development": {
 			const config = loadAppConfig();
 			if (config) {
 				return config;
 			}
 			throw new Error("App configuration not found: config/config.json is required");
+		}
+		case "testing":
+		default: {
+			const testConfig = loadAppTestConfig();
+			if (testConfig) {
+				return testConfig.testing;
+			}
+			throw new Error("App configuration not found: config/configtest.json is required for testing environment");
 		}
 	}
 };

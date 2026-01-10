@@ -35,21 +35,21 @@ export const GetEnvAccountsConfig = (): AccountsConfigType => {
 	const env = process.env.NODE_ENV || "development";
 
 	switch (env) {
-		case "testing": {
-			const testConfig = loadAccountsTestConfig();
-			if (testConfig) {
-				return testConfig.testing;
-			}
-			throw new Error("Accounts configuration not found: config/accountstest.json is required for testing environment");
-		}
 		case "production":
-		case "development":
-		default: {
+		case "development": {
 			const config = loadAccountsConfig();
 			if (config) {
 				return config;
 			}
 			throw new Error("Accounts configuration not found: config/accounts.json is required");
+		}
+		case "testing":
+		default: {
+			const testConfig = loadAccountsTestConfig();
+			if (testConfig) {
+				return testConfig.testing;
+			}
+			throw new Error("Accounts configuration not found: config/accountstest.json is required for testing environment");
 		}
 	}
 };
