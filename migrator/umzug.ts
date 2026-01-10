@@ -7,13 +7,13 @@ import { DatafixContextModel } from "@/migrator/datafixies/models/DatafixContext
 import { DatafixReminderModel } from "@/migrator/datafixies/models/DatafixReminderModel";
 import {
 	type DatabaseConfigType,
-	GetEnvDBConfig,
+	GetEnvDatabaseConfig,
 } from "@/src/entities/config/DatabaseConfig";
 import { Sequelize } from "sequelize-typescript";
 import { SequelizeStorage, Umzug } from "umzug";
 import type { MigrationParams } from "umzug/lib/types";
 
-export const migrator = (dbConfig: DatabaseConfigType = GetEnvDBConfig() ) => {
+export const migrator = (dbConfig: DatabaseConfigType = GetEnvDatabaseConfig() ) => {
 	const sequelize = new Sequelize(
 		dbConfig.database,
 		dbConfig.username,
@@ -37,7 +37,7 @@ export const migrator = (dbConfig: DatabaseConfigType = GetEnvDBConfig() ) => {
 	});
 };
 
-export const seeder = (dbConfig: DatabaseConfigType = GetEnvDBConfig()) => {
+export const seeder = (dbConfig: DatabaseConfigType = GetEnvDatabaseConfig()) => {
 	const sequelize = new Sequelize(
 		dbConfig.database,
 		dbConfig.username,
@@ -63,7 +63,7 @@ export const seeder = (dbConfig: DatabaseConfigType = GetEnvDBConfig()) => {
 	});
 };
 
-export const datafixer = (dbConfig: DatabaseConfigType = GetEnvDBConfig()) => {
+export const datafixer = (dbConfig: DatabaseConfigType = GetEnvDatabaseConfig()) => {
 	const sequelize = new Sequelize(
 		dbConfig.database,
 		dbConfig.username,

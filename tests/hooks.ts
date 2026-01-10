@@ -1,10 +1,10 @@
 import "reflect-metadata";
 import "@swc-node/register";
-import { ContainerDown, ContainerUp } from "@/tests/fixtures/database/ContainerTest";
+import { ContainerUp } from "@/tests/fixtures/database/ContainerTest";
 export const mochaHooks = {
 	beforeAll: [
 		async function () {
-			process.env.NODE_ENV = "test";
+			process.env.NODE_ENV = "testing";
 			// @ts-ignore
 			this.timeout(150_000);
 			await ContainerUp();
@@ -14,7 +14,6 @@ export const mochaHooks = {
 		async function () {
 			// @ts-ignore
 			this.timeout(150_000);
-			await ContainerDown();
 		},
 	],
 };

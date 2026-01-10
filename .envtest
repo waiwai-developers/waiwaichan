@@ -1,0 +1,4 @@
+MYSQL_ROOT_PASSWORD=test-admin
+MYSQL_USER=test-user
+MYSQL_PASSWORD=test-password
+MYSQL_DATABASE=test-database
