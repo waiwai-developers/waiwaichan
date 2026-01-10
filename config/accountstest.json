@@ -3,8 +3,18 @@
 		"users": [
 			{
 				"githubId": "test-github-user",
-				"discordId": "test-discord-user",
-				"grade": "test-grade"
+				"discordId": "123456789012345678",
+				"grade": "parent"
+			},
+			{
+				"githubId": "test-github-user-2",
+				"discordId": "234567890123456789",
+				"grade": "parent"
+			},
+			{
+				"githubId": "test-github-user-3",
+				"discordId": "345678901234567890",
+				"grade": "child"
 			}
 		]
 	}
