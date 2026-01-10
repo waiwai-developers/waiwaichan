@@ -1,4 +1,4 @@
-import { GetEnvDBConfig } from "@/src/entities/config/DatabaseConfig";
+import { DatabaseConfig } from "@/src/entities/config/DatabaseConfig";
 import type { IDataBaseConnector } from "@/src/logics/Interfaces/repositories/database/IDataBaseConnector";
 import { CandyItemRepositoryImpl } from "@/src/repositories/sequelize-mysql/CandyItemRepositoryImpl";
 import { CandyRepositoryImpl } from "@/src/repositories/sequelize-mysql/CandyRepositoryImpl";
@@ -14,7 +14,7 @@ export class MysqlConnector implements IDataBaseConnector<Sequelize, "mysql"> {
 	instance: Sequelize;
 
 	constructor() {
-		const dbConfig = GetEnvDBConfig();
+		const dbConfig = DatabaseConfig;
 		this.instance = new Sequelize(dbConfig.database, dbConfig.username, dbConfig.password, {
 			host: dbConfig.host,
 			port: dbConfig.port,
