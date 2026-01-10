@@ -1,6 +1,7 @@
 .env
 config/*.json
 !config/databasetest.json
+!config/configtest.json
 config/*.pem
 node_modules/
 ignore/
