@@ -28,9 +28,12 @@ jobs:
       - name: show logs on failure
         if: failure()
         run: |
+          echo "=== All container logs ==="
           docker compose \
             -f environment/testing/docker-compose.yml \
             logs --no-color
+          echo "=== Migrate container logs ==="
+          docker logs waiwai-migrate 2>&1 || true
       - name: shutdown containers
         if: always()
         run: |
