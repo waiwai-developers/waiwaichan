@@ -34,21 +34,21 @@ export const GetEnvRoleConfig = (): RoleConfigType => {
 	const env = process.env.NODE_ENV || "development";
 
 	switch (env) {
-		case "testing": {
-			const testConfig = loadRoleTestConfig();
-			if (testConfig) {
-				return testConfig.testing;
-			}
-			throw new Error("Role configuration not found: config/roletest.json is required for testing environment");
-		}
 		case "production":
-		case "development":
-		default: {
+		case "development": {
 			const config = loadRoleConfig();
 			if (config) {
 				return config;
 			}
 			throw new Error("Role configuration not found: config/role.json is required");
+		}
+		case "testing":
+		default: {
+			const testConfig = loadRoleTestConfig();
+			if (testConfig) {
+				return testConfig.testing;
+			}
+			throw new Error("Role configuration not found: config/roletest.json is required for testing environment");
 		}
 	}
 };
