@@ -29,7 +29,7 @@ services:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully
-    command: sh -c "pnpm install && pnpm run dev"
+    command: sh -c "npm i && pnpm run dev"
   scheduler:
     <<: *base-service
     container_name: waiwai-scheduler
@@ -49,14 +49,13 @@ services:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully
-    command: sh -c "pnpm install && pnpm run dev:scheduler"
+    command: sh -c "npm i && pnpm run dev:scheduler"
   migrate:
     <<: *base-service
     container_name: waiwai-migrate
     restart: "no"
     environment:
       NODE_ENV: testing
-      CI: "true"
     volumes:
       - type: bind
         source: ../../.
@@ -67,11 +66,11 @@ services:
     depends_on:
       database:
         condition: service_healthy
-    command: sh -c "pnpm install && pnpm run migrate up && pnpm run seed up"
+    command: sh -c "npm i && pnpm run migrate up && pnpm run seed up"
   database:
     container_name: waiwai-database
     env_file:
-      - ../../.envtest
+      - ../../.env
     restart: always
     image: mysql:8.0
     command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
@@ -83,11 +82,11 @@ services:
       - server-network
     platform: linux/x86_64
     healthcheck:
-      test: ["CMD", "mysql", "-utest-user", "-ptest-password", "-e", "SELECT 1", "test-database"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
-      retries: 10
-      start_period: 60s
-      timeout: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 5s
 networks:
   server-network:
     driver: bridge
