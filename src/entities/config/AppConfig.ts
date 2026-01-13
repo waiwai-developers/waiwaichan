@@ -1,5 +1,4 @@
 import { existsSync, readFileSync } from "node:fs";
-import process from "node:process";
 
 interface DiscordConfig {
 	token: string;
@@ -44,10 +43,6 @@ interface AppConfigType {
 	};
 }
 
-interface AppConfigTestJsonType {
-	testing: AppConfigType;
-}
-
 const loadAppConfig = (): AppConfigType | null => {
 	const configPath = "config/config.json";
 	if (existsSync(configPath)) {
@@ -56,35 +51,12 @@ const loadAppConfig = (): AppConfigType | null => {
 	return null;
 };
 
-const loadAppTestConfig = (): AppConfigTestJsonType | null => {
-	const configPath = "config/configtest.json";
-	if (existsSync(configPath)) {
-		return JSON.parse(readFileSync(configPath, "utf8"));
-	}
-	return null;
-};
-
 export const GetEnvAppConfig = (): AppConfigType => {
-	const env = process.env.NODE_ENV || "development";
-
-	switch (env) {
-		case "production":
-		case "development": {
-			const config = loadAppConfig();
-			if (config) {
-				return config;
-			}
-			throw new Error("App configuration not found: config/config.json is required");
-		}
-		case "testing":
-		default: {
-			const testConfig = loadAppTestConfig();
-			if (testConfig) {
-				return testConfig.testing;
-			}
-			throw new Error("App configuration not found: config/configtest.json is required for testing environment");
-		}
+	const config = loadAppConfig();
+	if (config) {
+		return config;
 	}
+	throw new Error("App configuration not found: config/config.json is required");
 };
 
 export const AppConfig: AppConfigType = GetEnvAppConfig();
