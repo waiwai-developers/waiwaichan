@@ -167,8 +167,24 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 			create: async () => ({}),
 		} as any);
 
-		// オブジェクト引数を受け取るreplyメソッドのモック
+		// モックのメッセージ設定
 		when(commandMock.reply(anything())).thenResolve({
+			id: testMessageId,
+			guildId: testGuildId,
+			startThread: async (options: any) => {
+				// スレッドタイトルの検証
+				expect(options.name).to.equal(expectedThreadTitle);
+				return {};
+			},
+		} as any);
+
+		// オブジェクト引数を受け取るreplyメソッドのモック
+		when(
+			commandMock.reply({
+				content: "以下にお話する場を用意したよ！っ",
+				fetchReply: true,
+			}),
+		).thenResolve({
 			id: testMessageId,
 			guildId: testGuildId,
 			startThread: async (options: any) => {
@@ -186,8 +202,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		await waitUntilReply(commandMock);
 
 		// 応答メッセージの検証
-		// 注意: 全テスト実行時は他のテストからのイベントリスナーの影響で複数回呼ばれる可能性があるため、atLeast(1)を使用
-		verify(commandMock.reply(anything())).atLeast(1);
+		verify(commandMock.reply(anything())).once();
 
 		// スレッドが作成されるまで少し待機
 		await new Promise((resolve) => setTimeout(resolve, 5000));
