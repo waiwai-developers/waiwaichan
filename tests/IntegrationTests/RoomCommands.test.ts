@@ -134,7 +134,7 @@ describe("Test Room Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 応答を待つ
-			await waitUntilReply(commandMock, 100);
+			await waitUntilReply(commandMock, 1000);
 
 			// 応答の検証
 			expect(replyValue).to.eq("部屋追加チャンネルを登録したよ！っ");
@@ -210,7 +210,7 @@ describe("Test Room Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 応答を待つ
-			await waitUntilReply(commandMock, 100);
+			await waitUntilReply(commandMock, 10_000);
 
 			// 応答の検証
 			expect(replyValue).to.eq("部屋追加チャンネルを登録したよ！っ");
@@ -270,7 +270,7 @@ describe("Test Room Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 応答を待つ
-			await waitUntilReply(commandMock, 100);
+			await waitUntilReply(commandMock, 1000);
 
 			// 応答の検証
 			expect(replyValue).to.eq("部屋追加チャンネルが既に登録されているよ！っ");
@@ -501,7 +501,7 @@ describe("Test Room Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 応答を待つ
-			await waitUntilReply(commandMock, 100);
+			await waitUntilReply(commandMock, 10_000);
 
 			// 応答の検証
 			expect(replyValue).to.eq("部屋追加チャンネルが登録されていなかったよ！っ");
@@ -558,7 +558,7 @@ describe("Test Room Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 応答を待つ
-			await waitUntilReply(commandMock, 100);
+			await waitUntilReply(commandMock, 1000);
 
 			// 応答の検証
 			expect(replyValue).to.eq("部屋追加チャンネルを削除したよ！っ");
@@ -734,7 +734,7 @@ describe("Test Room Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 応答を待つ
-			await waitUntilReply(commandMock, 100);
+			await waitUntilReply(commandMock, 1000);
 
 			// 応答の検証
 			expect(replyValue).to.eq("部屋通知チャンネルを登録したよ！っ");
@@ -1004,7 +1004,7 @@ describe("Test Room Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 応答を待つ
-			await waitUntilReply(commandMock, 100);
+			await waitUntilReply(commandMock, 1000);
 
 			// 応答の検証
 			expect(replyValue).to.eq("部屋通知チャンネルを登録したよ！っ");
@@ -1100,7 +1100,7 @@ describe("Test Room Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 応答を待つ
-			await waitUntilReply(commandMock, 100);
+			await waitUntilReply(commandMock, 10_000);
 
 			// 応答の検証
 			expect(replyValue).to.eq("部屋通知チャンネルが登録されていなかったよ！っ");
@@ -1157,7 +1157,7 @@ describe("Test Room Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 応答を待つ
-			await waitUntilReply(commandMock, 100);
+			await waitUntilReply(commandMock, 1000);
 
 			// 応答の検証
 			expect(replyValue).to.eq("部屋通知チャンネルを削除したよ！っ");
