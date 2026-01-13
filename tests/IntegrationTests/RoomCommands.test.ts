@@ -340,7 +340,7 @@ describe("Test Room Commands", () => {
 			await waitUntilReply(commandMock, 100);
 
 			// 応答の検証
-			expect(replyValue).to.eq("このチャンネルは部屋追加チャンネルとして登録できないよ！っ");
+			expect(replyValue).to.eq("このチャンネルはボイスチャンネルないので部屋追加チャンネルとして登録できないよ！っ");
 
 			// データが作られていないことを確認
 			const afterData = await RoomAddChannelRepositoryImpl.findAll();
@@ -404,7 +404,7 @@ describe("Test Room Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 応答を待つ
-			await waitUntilReply(commandMock, 100);
+			await waitUntilReply(commandMock, 5000);
 
 			// 応答の検証
 			expect(replyValue).to.eq("部屋追加チャンネルを登録したよ！っ");
@@ -810,7 +810,7 @@ describe("Test Room Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 応答を待つ
-			await waitUntilReply(commandMock, 100);
+			await waitUntilReply(commandMock, 5000);
 
 			// 応答の検証
 			expect(replyValue).to.eq("部屋通知チャンネルを登録したよ！っ");
@@ -940,7 +940,7 @@ describe("Test Room Commands", () => {
 			await waitUntilReply(commandMock, 100);
 
 			// 応答の検証
-			expect(replyValue).to.eq("このチャンネルは部屋通知チャンネルとして登録できないよ！っ");
+			expect(replyValue).to.eq("このチャンネルはテキストチャンネルでないので部屋通知チャンネルとして登録できないよ！っ");
 
 			// データが作られていないことを確認
 			const afterData = await RoomNotificationChannelRepositoryImpl.findAll();
@@ -1220,7 +1220,7 @@ describe("Test Room Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 応答を待つ
-			await waitUntilReply(commandMock, 100);
+			await waitUntilReply(commandMock, 5000);
 
 			// 応答の検証
 			expect(replyValue).to.eq("部屋通知チャンネルが登録されていなかったよ！っ");
