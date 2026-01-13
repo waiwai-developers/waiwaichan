@@ -82,7 +82,7 @@ services:
       - server-network
     platform: linux/x86_64
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "mysql", "-utest-user", "-ptest-password", "-e", "SELECT 1", "test-database"]
       interval: 10s
       retries: 5
       start_period: 30s
