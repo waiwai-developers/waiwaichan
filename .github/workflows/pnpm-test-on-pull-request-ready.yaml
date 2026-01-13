@@ -17,6 +17,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
       - name: rename config files for testing
         run: |
+          mv .envtest .env
           mv config/accountstest.json config/account.json
           mv config/configtest.json config/config.json
           mv config/databasetest.json config/database.json
