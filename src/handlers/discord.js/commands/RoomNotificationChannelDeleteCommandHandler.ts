@@ -1,0 +1,52 @@
+import { RoleConfig } from "@/src/entities/config/RoleConfig";
+import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
+import { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
+import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
+import type { IRoomNotificationChannelLogic } from "@/src/logics/Interfaces/logics/IRoomNotificationChannelLogic";
+import type { CacheType, ChatInputCommandInteraction } from "discord.js";
+import { inject, injectable } from "inversify";
+
+@injectable()
+export class RoomNotificationChannelDeleteCommandHandler
+	implements SlashCommandHandler
+{
+	@inject(LogicTypes.RoomNotificationChannelLogic)
+	private roomNotificationChannelLogic!: IRoomNotificationChannelLogic;
+	isHandle(commandName: string): boolean {
+		return commandName === "roomnotificationchanneldelete";
+	}
+
+	async handle(
+		interaction: ChatInputCommandInteraction<CacheType>,
+	): Promise<void> {
+		if (!interaction.guildId) {
+			return;
+		}
+		if (interaction.channel == null) {
+			return;
+		}
+		// NOTE: todo CommunityとUserの追加を行ったあとにrbacを実現する
+		if (
+			RoleConfig.users.find((u) => u.discordId === interaction.user.id)
+				?.role !== "admin"
+		) {
+			interaction.reply("部屋通知チャンネルを登録する権限を持っていないよ！っ");
+			return;
+		}
+
+		const roomNotificationChannel =
+			await this.roomNotificationChannelLogic.find(
+				new DiscordGuildId(interaction.guildId),
+			);
+		if (roomNotificationChannel === undefined) {
+			await interaction.reply("部屋通知チャンネルが登録されていなかったよ！っ");
+			return;
+		}
+
+		await interaction.reply(
+			await this.roomNotificationChannelLogic.delete(
+				new DiscordGuildId(interaction.guildId),
+			),
+		);
+	}
+}

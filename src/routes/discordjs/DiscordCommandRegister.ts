@@ -185,6 +185,30 @@ export class DiscordCommandRegister {
 			new SlashCommandBuilder()
 				.setName("stickylist")
 				.setDescription("sticky list"),
+			new SlashCommandBuilder()
+				.setName("roomaddchannelcreate")
+				.setDescription("room add channel create")
+				.addStringOption((option) =>
+					option
+						.setName("channelid")
+						.setDescription("string")
+						.setRequired(true),
+				),
+			new SlashCommandBuilder()
+				.setName("roomaddchanneldelete")
+				.setDescription("room add channel delete"),
+			new SlashCommandBuilder()
+				.setName("roomnotificationchannelcreate")
+				.setDescription("room notification channel create")
+				.addStringOption((option) =>
+					option
+						.setName("channelid")
+						.setDescription("string")
+						.setRequired(true),
+				),
+			new SlashCommandBuilder()
+				.setName("roomnotificationchanneldelete")
+				.setDescription("room notification channel delete"),
 		];
 	}
 	async register(token: string) {
