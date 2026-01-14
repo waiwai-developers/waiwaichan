@@ -19,7 +19,7 @@ jobs:
       - name: set pull request to draft if not already
         if: ${{ !github.event.pull_request.draft }}
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           gh pr ready $PR_NUMBER --undo
