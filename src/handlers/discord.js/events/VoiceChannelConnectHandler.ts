@@ -91,9 +91,13 @@ export class VoiceChannelConnectHandler
 			this.logger.info("notification channel is not text channel");
 			return;
 		}
+		const avatarUrl = newState.member.user.displayAvatarURL({
+			size: 1024,
+		});
 		const embed = new EmbedBuilder()
 			.setTitle("通話を開始したよ！っ")
 			.setDescription(`${newState.channel.name}`)
+			.setThumbnail(avatarUrl)
 			.addFields(
 				{
 					name: "開始ユーザー",
@@ -102,7 +106,9 @@ export class VoiceChannelConnectHandler
 				},
 				{
 					name: "開始時刻",
-					value: new Date().toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" }),
+					value: new Date().toLocaleString("ja-JP", {
+						timeZone: "Asia/Tokyo",
+					}),
 					inline: true,
 				},
 			)

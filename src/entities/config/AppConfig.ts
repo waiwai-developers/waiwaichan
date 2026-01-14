@@ -1,8 +1,8 @@
-import json from "../../../config/config.json" with { type: "json" };
+import { existsSync, readFileSync } from "node:fs";
+
 interface DiscordConfig {
 	token: string;
 	clientId: string;
-	guildId: string;
 }
 interface DeepLConfig {
 	deeplApiKey: string;
@@ -28,7 +28,7 @@ interface GCPInstanceConfig {
 	instance: string;
 }
 
-interface AppConfigJson {
+interface AppConfigType {
 	discord: DiscordConfig;
 	deepl: DeepLConfig;
 	openai: OpenAIConfig;
@@ -43,4 +43,22 @@ interface AppConfigJson {
 	};
 }
 
-export const AppConfig: AppConfigJson = json;
+const loadAppConfig = (): AppConfigType | null => {
+	const configPath = "config/config.json";
+	if (existsSync(configPath)) {
+		return JSON.parse(readFileSync(configPath, "utf8"));
+	}
+	return null;
+};
+
+export const GetEnvAppConfig = (): AppConfigType => {
+	const config = loadAppConfig();
+	if (config) {
+		return config;
+	}
+	throw new Error(
+		"App configuration not found: config/config.json is required",
+	);
+};
+
+export const AppConfig: AppConfigType = GetEnvAppConfig();
