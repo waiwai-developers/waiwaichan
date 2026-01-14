@@ -23,7 +23,9 @@ export const GetEnvAccountsConfig = (): AccountsConfigType => {
 	if (config) {
 		return config;
 	}
-	throw new Error("Accounts configuration not found: config/accounts.json is required");
+	throw new Error(
+		"Accounts configuration not found: config/accounts.json is required",
+	);
 };
 
 export const AccountsConfig: AccountsConfigType = GetEnvAccountsConfig();

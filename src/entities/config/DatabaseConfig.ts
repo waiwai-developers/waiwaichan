@@ -36,7 +36,9 @@ export const GetEnvDatabaseConfig = (): DatabaseConfigType => {
 			return config.production;
 		}
 	}
-	throw new Error("Database configuration not found: config/database.json is required for environment");
+	throw new Error(
+		"Database configuration not found: config/database.json is required for environment",
+	);
 };
 
 export const DatabaseConfig: DatabaseConfigType = GetEnvDatabaseConfig();

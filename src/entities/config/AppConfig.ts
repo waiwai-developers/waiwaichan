@@ -56,7 +56,9 @@ export const GetEnvAppConfig = (): AppConfigType => {
 	if (config) {
 		return config;
 	}
-	throw new Error("App configuration not found: config/config.json is required");
+	throw new Error(
+		"App configuration not found: config/config.json is required",
+	);
 };
 
 export const AppConfig: AppConfigType = GetEnvAppConfig();
