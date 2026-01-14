@@ -6,6 +6,7 @@ x-base-service: &base-service
     - server-network
   environment:
     GOOGLE_APPLICATION_CREDENTIALS: config/key.json
+    NODE_ENV: production
   volumes:
     - type: bind
       source: ../../config
@@ -24,11 +25,9 @@ services:
         source: backend_node_modules
         target: /app/node_modules
     depends_on:
-      database:
-        condition: service_healthy
       migrate:
         condition: service_completed_successfully
-    command: sh -c "npm i && pnpm run dev"
+    command: sh -c "pnpm i && pnpm run dev"
   scheduler:
     <<: *base-service
     container_name: waiwai-scheduler
@@ -41,17 +40,13 @@ services:
         source: scheduler_node_modules
         target: /app/node_modules
     depends_on:
-      database:
-        condition: service_healthy
       migrate:
         condition: service_completed_successfully
-    command: sh -c "npm i && pnpm run dev:scheduler"
+    command: sh -c "pnpm i && pnpm run dev:scheduler"
   migrate:
     <<: *base-service
     container_name: waiwai-migrate
     restart: "no"
-    environment:
-      NODE_ENV: production
     volumes:
       - type: bind
         source: ../../config
@@ -59,10 +54,7 @@ services:
       - type: volume
         source: migrate_node_modules
         target: /app/node_modules
-    depends_on:
-      database:
-        condition: service_healthy
-    command: sh -c "npm i && pnpm run migrate up && pnpm run seed up && pnpm run datafix up"
+    command: sh -c "pnpm i && pnpm run migrate up && pnpm run seed up && pnpm run datafix up"
 networks:
   server-network:
     driver: bridge
