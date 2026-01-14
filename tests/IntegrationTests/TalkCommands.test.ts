@@ -25,7 +25,7 @@ import type { TextChannel } from "discord.js";
 import { anything, instance, mock, verify, when } from "ts-mockito";
 
 describe("Test Talk Commands", function (this: Mocha.Suite) {
-	// テストのタイムアウト時間を延長（60秒）- ContainerUpの処理に時間がかかるため
+	// テストのタイムアウト時間を延長（60秒）
 	this.timeout(60_000);
 
 	beforeEach(async () => {
