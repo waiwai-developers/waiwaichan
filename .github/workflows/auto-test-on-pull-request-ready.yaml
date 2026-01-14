@@ -1,4 +1,4 @@
-name: pnpm test on pull request ready
+name: auto test on pull request ready
 on:
   pull_request:
     types:
