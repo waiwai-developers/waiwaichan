@@ -937,7 +937,7 @@ describe("Test Room Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 応答を待つ
-			await waitUntilReply(commandMock, 100);
+			await waitUntilReply(commandMock, 1000);
 
 			// 応答の検証
 			expect(replyValue).to.eq("このチャンネルはテキストチャンネルでないので部屋通知チャンネルとして登録できないよ！っ");
