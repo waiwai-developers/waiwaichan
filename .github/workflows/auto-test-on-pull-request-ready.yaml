@@ -15,8 +15,13 @@ jobs:
         uses: actions/checkout@v4
       - name: set up docker buildx
         uses: docker/setup-buildx-action@v3
-      - name: copy envtest to env
-        run: cp .envtest .env
+      - name: copy config files for testing
+        run: |
+          cp .envtest .env
+          cp config/accountstest.json config/accounts.json
+          cp config/configtest.json config/config.json
+          cp config/databasetest.json config/database.json
+          cp config/roletest.json config/role.json
       - name: docker compose up
         run: |
           docker compose \
