@@ -86,9 +86,9 @@ services:
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
-      retries: 5
-      start_period: 30s
-      timeout: 5s
+      retries: 10
+      start_period: 60s
+      timeout: 10s
 networks:
   server-network:
     driver: bridge
