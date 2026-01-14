@@ -26,7 +26,7 @@ jobs:
         run: |
           docker compose \
             -f environment/testing/docker-compose.yml \
-            up -d
+            up -d --wait
       - name: run pnpm test into backend container
         run: |
           docker compose \
