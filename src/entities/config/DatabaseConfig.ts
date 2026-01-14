@@ -1,6 +1,4 @@
-import { readFileSync } from "node:fs";
-import process from "node:process";
-import json from "../../../config/database.json" with { type: "json" };
+import { existsSync, readFileSync } from "node:fs";
 
 export interface DatabaseConfigType {
 	username: string;
@@ -10,25 +8,37 @@ export interface DatabaseConfigType {
 	port: number;
 	dialect: string;
 }
+
 interface DatabaseJsonType {
-	development: DatabaseConfigType;
-	test: DatabaseConfigType;
-	production: DatabaseConfigType;
+	development?: DatabaseConfigType;
+	production?: DatabaseConfigType;
+	testing?: DatabaseConfigType;
 }
 
-export const GetEnvDBConfig = () => {
-	switch (process.env.NODE_ENV || "development") {
-		case "test": {
-			const json: DatabaseJsonType = JSON.parse(
-				readFileSync("config/database.json", "utf8"),
-			);
-			return json.test;
-		}
-		case "production":
-			return DatabaseConfig.production;
-		default:
-			return DatabaseConfig.development;
+const loadDatabaseConfig = (): DatabaseJsonType | null => {
+	const configPath = "config/database.json";
+	if (existsSync(configPath)) {
+		return JSON.parse(readFileSync(configPath, "utf8"));
 	}
+	return null;
 };
 
-export const DatabaseConfig: DatabaseJsonType = json;
+export const GetEnvDatabaseConfig = (): DatabaseConfigType => {
+	const config = loadDatabaseConfig();
+	if (config) {
+		const env = process.env.NODE_ENV || "production";
+		const envConfig = config[env as keyof DatabaseJsonType];
+		if (envConfig) {
+			return envConfig;
+		}
+		// Fallback to production if specified env is not found
+		if (config.production) {
+			return config.production;
+		}
+	}
+	throw new Error(
+		"Database configuration not found: config/database.json is required for environment",
+	);
+};
+
+export const DatabaseConfig: DatabaseConfigType = GetEnvDatabaseConfig();

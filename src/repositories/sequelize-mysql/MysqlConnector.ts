@@ -1,4 +1,4 @@
-import { GetEnvDBConfig } from "@/src/entities/config/DatabaseConfig";
+import { DatabaseConfig } from "@/src/entities/config/DatabaseConfig";
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import type { IDataBaseConnector } from "@/src/logics/Interfaces/repositories/database/IDataBaseConnector";
 import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
@@ -9,6 +9,9 @@ import { CrownRepositoryImpl } from "@/src/repositories/sequelize-mysql/CrownRep
 import { PersonalityContextRepositoryImpl } from "@/src/repositories/sequelize-mysql/PersonalityContextRepositoryImpl";
 import { PersonalityRepositoryImpl } from "@/src/repositories/sequelize-mysql/PersonalityRepositoryImpl";
 import { ReminderRepositoryImpl } from "@/src/repositories/sequelize-mysql/ReminderRepositoryImpl";
+import { RoomAddChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/RoomAddChannelRepositoryImpl";
+import { RoomChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/RoomChannelRepositoryImpl";
+import { RoomNotificationChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/RoomNotificationChannelRepositoryImpl";
 import { SequelizeLogger } from "@/src/repositories/sequelize-mysql/SequelizeLogger";
 import { StickyRepositoryImpl } from "@/src/repositories/sequelize-mysql/StickyRepositoryImpl";
 import { ThreadRepositoryImpl } from "@/src/repositories/sequelize-mysql/ThreadRepositoryImpl";
@@ -24,7 +27,7 @@ export class MysqlConnector implements IDataBaseConnector<Sequelize, "mysql"> {
 
 	instance: Sequelize;
 	constructor() {
-		const dbConfig = GetEnvDBConfig();
+		const dbConfig = DatabaseConfig;
 		this.instance = new Sequelize(
 			dbConfig.database,
 			dbConfig.username,
@@ -44,6 +47,9 @@ export class MysqlConnector implements IDataBaseConnector<Sequelize, "mysql"> {
 					PersonalityRepositoryImpl,
 					PersonalityContextRepositoryImpl,
 					ContextRepositoryImpl,
+					RoomAddChannelRepositoryImpl,
+					RoomChannelRepositoryImpl,
+					RoomNotificationChannelRepositoryImpl,
 					StickyRepositoryImpl,
 				],
 			},

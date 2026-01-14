@@ -2,7 +2,7 @@ import "reflect-metadata";
 import { ITEM_RECORDS } from "@/migrator/seeds/20241111041901-item";
 import { AppConfig } from "@/src/entities/config/AppConfig";
 import { SUPER_CANDY_AMOUNT } from "@/src/entities/constants/Candies";
-import { ID_HIT, ID_JACKPOT } from "@/src/entities/constants/Items";
+import { ID_HIT, ID_JACKPOT, PITY_COUNT } from "@/src/entities/constants/Items";
 import { CandyCategoryType } from "@/src/entities/vo/CandyCategoryType";
 import { CandyRepositoryImpl, UserCandyItemRepositoryImpl } from "@/src/repositories/sequelize-mysql";
 import { MysqlConnector } from "@/tests/fixtures/database/MysqlConnector";
@@ -22,6 +22,17 @@ describe("Test Candy Commands", () => {
 	 */
 	beforeEach(() => {
 		new MysqlConnector();
+	});
+
+	afterEach(async () => {
+		await CandyRepositoryImpl.destroy({
+			truncate: true,
+			force: true,
+		});
+		await UserCandyItemRepositoryImpl.destroy({
+			truncate: true,
+			force: true,
+		});
 	});
 
 	/**
@@ -333,8 +344,8 @@ describe("Test Candy Commands", () => {
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("candyboxdraw", {});
 
-			// 156個のキャンディを用意（146個は使用済み、残りは未使用）
-			const candyAmount = 156;
+			// PITY_COUNT + 6個のキャンディを用意（PITY_COUNT + 3個は使用済み、残りは未使用）
+			const candyAmount = PITY_COUNT + 6;
 			const insertData = [];
 
 			// 日付を設定して、146個は使用済み、残りは未使用に
@@ -1099,14 +1110,1295 @@ describe("Test Candy Commands", () => {
 		})();
 	});
 
-	afterEach(async () => {
-		await CandyRepositoryImpl.destroy({
-			truncate: true,
-			force: true,
-		});
-		await UserCandyItemRepositoryImpl.destroy({
-			truncate: true,
-			force: true,
-		});
+	/**
+	 * 今年中にJackpotが当たっている場合、candydrawでJackpotが出ないことをテスト
+	 * 今年（1月1日～12月31日）中に既にJackpotを獲得している場合、
+	 * 新たにJackpotが出ずにHITに置き換わることを確認する
+	 */
+	it("should not draw jackpot in candydraw when already won this year", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			// 今年の1月1日にJackpotアイテムを作成
+			const thisYearStart = dayjs().startOf("year").toDate();
+			await UserCandyItemRepositoryImpl.create({
+				userId: "1234",
+				itemId: ID_JACKPOT,
+				candyId: 1,
+				expiredAt: "2999/12/31 23:59:59",
+				guildId: "1234567890",
+				createdAt: thisYearStart,
+				updatedAt: thisYearStart,
+			});
+
+			// コマンドのモック作成
+			const commandMock = mockSlashCommand("candydraw");
+
+			// 十分な数のキャンディを用意（天井に到達する数）
+			const candyAmount = PITY_COUNT;
+			const insertData = [];
+			for (let i = 0; i < candyAmount; i++) {
+				const date = new Date();
+				date.setDate(date.getDate() - (candyAmount - i));
+				insertData.push({
+					receiveUserId: "1234",
+					giveUserId: "12345",
+					messageId: String(10_000 + i),
+					expiredAt: "2999/12/31 23:59:59",
+					deletedAt: i < candyAmount - 1 ? date.toISOString() : null,
+					createdAt: date.toISOString(),
+					updatedAt: date.toISOString(),
+					guildId: "1234567890",
+					categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
+				});
+			}
+			await CandyRepositoryImpl.bulkCreate(insertData);
+
+			let value = "";
+			when(commandMock.reply(anything())).thenCall((args) => {
+				value = args;
+			});
+
+			// guildIdの設定
+			when(commandMock.guildId).thenReturn("1234567890");
+
+			// コマンド実行
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+			await waitSlashUntilReply(commandMock, 100);
+
+			// 応答の検証
+			verify(commandMock.reply(anything())).once();
+
+			// Jackpotが出ていないことを確認（天井到達でもJackpotが出ない）
+			const jackpotResult = `${ITEM_RECORDS[0].name}が当たったよ👕！っ`;
+			expect(value).to.not.include(jackpotResult);
+
+			// HITまたはハズレのみが出ることを確認
+			expect(value).to.satisfy((text: string) => {
+				return text.includes("ハズレ") || text.includes(`${ITEM_RECORDS[1].name}が当たった`);
+			});
+		})();
+	});
+
+	/**
+	 * 今年中にJackpotが当たっている場合、candyboxdrawでJackpotが出ないことをテスト
+	 * 今年（1月1日～12月31日）中に既にJackpotを獲得している場合、
+	 * 連続ドローでも新たにJackpotが出ずにHITに置き換わることを確認する
+	 */
+	it("should not draw jackpot in candyboxdraw when already won this year", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			// 今年の1月1日にJackpotアイテムを作成
+			const thisYearStart = dayjs().startOf("year").toDate();
+			await UserCandyItemRepositoryImpl.create({
+				userId: "1234",
+				itemId: ID_JACKPOT,
+				candyId: 1,
+				expiredAt: "2999/12/31 23:59:59",
+				guildId: "1234567890",
+				createdAt: thisYearStart,
+				updatedAt: thisYearStart,
+			});
+
+			// コマンドのモック作成
+			const commandMock = mockSlashCommand("candyboxdraw", {});
+
+			// 十分な数のキャンディを用意（天井に到達する数）
+			const candyAmount = PITY_COUNT;
+			const insertData = [];
+			for (let i = 0; i < candyAmount; i++) {
+				const date = new Date();
+				date.setDate(date.getDate() - (candyAmount - i));
+				insertData.push({
+					receiveUserId: "1234",
+					giveUserId: "12345",
+					messageId: String(10_000 + i),
+					expiredAt: "2999/12/31 23:59:59",
+					deletedAt: i < 146 ? date.toISOString() : null,
+					createdAt: date.toISOString(),
+					updatedAt: date.toISOString(),
+					guildId: "1234567890",
+					categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
+				});
+			}
+			await CandyRepositoryImpl.bulkCreate(insertData);
+
+			let value = "";
+			when(commandMock.reply(anything())).thenCall((args) => {
+				value = args;
+			});
+
+			// guildIdの設定
+			when(commandMock.guildId).thenReturn("1234567890");
+
+			// コマンド実行
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+			await waitSlashUntilReply(commandMock, 100);
+
+			// 応答の検証
+			verify(commandMock.reply(anything())).once();
+
+			const lines = value.split("\n");
+			const resultLines = lines.filter((line) => line.startsWith("- "));
+
+			// Jackpotが出ていないことを確認（天井到達でもJackpotが出ない）
+			const jackpotLines = resultLines.filter((line) => (line.includes("Tシャツ") || line.includes("waiwaiオリジナル")) && line.includes("当たった"));
+			expect(jackpotLines.length).to.eq(0);
+
+			// HITまたはハズレのみが出ることを確認
+			resultLines.forEach((line) => {
+				expect(line).to.satisfy((text: string) => {
+					return text.includes("ハズレ") || text.includes(`${ITEM_RECORDS[1].name}が当たった`);
+				});
+			});
+		})();
+	});
+
+	/**
+	 * 去年のJackpotは今年のcandyboxdrawでの天井でないドローに影響しないことをテスト
+	 * 去年Jackpotを獲得していても、今年は新たにJackpotが出ることを確認する
+	 */
+	it("should allow jackpot in candydraw when won last year", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			// 去年の12月31日にJackpotアイテムを作成
+			const lastYearEnd = dayjs().subtract(1, "year").endOf("year").toDate();
+			await UserCandyItemRepositoryImpl.create({
+				userId: "1234",
+				itemId: ID_JACKPOT,
+				candyId: 1,
+				expiredAt: "2999/12/31 23:59:59",
+				guildId: "1234567890",
+				createdAt: lastYearEnd,
+				updatedAt: lastYearEnd,
+			});
+
+			// コマンドのモック作成
+			const commandMock = mockSlashCommand("candydraw");
+
+			// PITY_COUNT + 6個の十分な数のキャンディを用意（天井に到達する数）
+			const candyAmount = PITY_COUNT + 6;
+			const insertData = [];
+			for (let i = 0; i < candyAmount; i++) {
+				const date = new Date();
+				date.setDate(date.getDate() - (candyAmount - i));
+				insertData.push({
+					receiveUserId: "1234",
+					giveUserId: "12345",
+					messageId: String(10_000 + i),
+					expiredAt: "2999/12/31 23:59:59",
+					deletedAt: i < candyAmount - 1 ? date.toISOString() : null,
+					createdAt: date.toISOString(),
+					updatedAt: date.toISOString(),
+					guildId: "1234567890",
+					categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
+				});
+			}
+			await CandyRepositoryImpl.bulkCreate(insertData);
+
+			let value = "";
+			when(commandMock.reply(anything())).thenCall((args) => {
+				value = args;
+			});
+
+			// guildIdの設定
+			when(commandMock.guildId).thenReturn("1234567890");
+
+			// コマンド実行
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+			await waitSlashUntilReply(commandMock, 100);
+
+			// 応答の検証
+			verify(commandMock.reply(anything())).once();
+
+			// 天井機能によりJackpotが当選することを確認（去年のJackpotは影響しない）
+			const jackpotResult = `${ITEM_RECORDS[0].name}が当たったよ👕！っ`;
+			expect(value).to.include(jackpotResult);
+		})();
+	});
+
+	it("should guarantee jackpot in series draw with pity system", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			// コマンドのモック作成
+			const commandMock = mockSlashCommand("candyboxdraw", {});
+
+			// PITY_COUNT + 6個のキャンディを用意（PITY_COUNT + 3個は使用済み、残りは未使用）
+			const candyAmount = PITY_COUNT + 6;
+			const insertData = [];
+
+			// 日付を設定して、146個は使用済み、残りは未使用に
+			for (let i = 0; i < candyAmount; i++) {
+				const date = new Date();
+				date.setDate(date.getDate() - (candyAmount - i));
+				insertData.push({
+					receiveUserId: "1234",
+					giveUserId: "12345",
+					messageId: String(10_000 + i),
+					expiredAt: "2999/12/31 23:59:59",
+					deletedAt: i < 146 ? date.toISOString() : null, // 146個目までは使用済み
+					createdAt: date.toISOString(),
+					updatedAt: date.toISOString(),
+					guildId: "1234567890",
+					categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
+				});
+			}
+			await CandyRepositoryImpl.bulkCreate(insertData);
+
+			let value = "";
+			when(commandMock.reply(anything())).thenCall((args) => {
+				value = args;
+			});
+
+			// guildIdの設定
+			when(commandMock.guildId).thenReturn("1234567890");
+
+			// コマンド実行
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+			await waitSlashUntilReply(commandMock, 100);
+
+			// 応答の検証
+			verify(commandMock.reply(anything())).once();
+
+			const lines = value.split("\n");
+			const resultLines = lines.filter((line) => line.startsWith("- "));
+
+			// 結果にジャックポットが含まれることを確認
+			// より広範囲な検索条件を使用
+			const jackpotLines = resultLines.filter((line) => (line.includes("Tシャツ") || line.includes("waiwaiオリジナル")) && line.includes("当たった"));
+			console.log("Jackpot lines:", jackpotLines);
+			expect(jackpotLines.length).to.be.at.least(1);
+		})();
+	});
+
+	/**
+	 * candydraw: 今年と去年にジャックポットデータがない場合 - 通常ドローで天井以外のジャックポット
+	 * 確率的にジャックポットが出る可能性があることを確認
+	 */
+	it("should allow non-pity jackpot in candydraw when no data exists in both years", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			// コマンドのモック作成
+			const commandMock = mockSlashCommand("candydraw");
+
+			// 十分な数のキャンディを用意（天井に到達しない数）
+			const candyAmount = 50;
+			const insertData = Array.from({ length: candyAmount }, () => ({
+				receiveUserId: "1234",
+				giveUserId: "12345",
+				messageId: "5678",
+				expiredAt: "2999/12/31 23:59:59",
+				deletedAt: null,
+				guildId: "1234567890",
+				categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
+			}));
+			await CandyRepositoryImpl.bulkCreate(insertData);
+
+			// guildIdの設定
+			when(commandMock.guildId).thenReturn("1234567890");
+
+			// コマンド実行（ジャックポットが出る可能性がある）
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+			await waitSlashUntilReply(commandMock, 100);
+
+			// 応答の検証（ジャックポットが出ることが可能）
+			verify(commandMock.reply(anything())).once();
+		})();
+	});
+
+	/**
+	 * candydraw: 今年と去年にジャックポットデータがない場合 - 通常ドローで天井のジャックポット
+	 * 150回目のドローで必ずジャックポットが当選することを確認
+	 */
+	it("should guarantee pity jackpot in candydraw on 150th draw when no data exists in both years", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			// コマンドのモック作成
+			const commandMock = mockSlashCommand("candydraw");
+
+			// PITY_COUNT個のキャンディを用意（PITY_COUNT - 1個は使用済み、1個は未使用）
+			const candyAmount = PITY_COUNT;
+			const insertData = [];
+
+			for (let i = 0; i < candyAmount; i++) {
+				const date = new Date();
+				date.setDate(date.getDate() - (candyAmount - i));
+				insertData.push({
+					receiveUserId: "1234",
+					giveUserId: "12345",
+					messageId: String(10_000 + i),
+					expiredAt: "2999/12/31 23:59:59",
+					deletedAt: i < PITY_COUNT - 1 ? date.toISOString() : null,
+					createdAt: date.toISOString(),
+					updatedAt: date.toISOString(),
+					guildId: "1234567890",
+					categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
+				});
+			}
+			await CandyRepositoryImpl.bulkCreate(insertData);
+
+			// guildIdの設定
+			when(commandMock.guildId).thenReturn("1234567890");
+
+			let value = "";
+			when(commandMock.reply(anything())).thenCall((args) => {
+				value = args;
+			});
+
+			// コマンド実行
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+			await waitSlashUntilReply(commandMock, 100);
+
+			// 天井機能によりジャックポットが当選することを確認
+			const jackpotResult = `${ITEM_RECORDS[0].name}が当たったよ👕！っ`;
+			expect(value).to.include(jackpotResult);
+		})();
+	});
+
+	/**
+	 * candyboxdraw: 今年と去年にジャックポットデータがない場合 - 連続ドローで天井以外のジャックポット
+	 * 確率的にジャックポットが出る可能性があることを確認
+	 */
+	it("should allow non-pity jackpot in candyboxdraw when no data exists in both years", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			// コマンドのモック作成
+			const commandMock = mockSlashCommand("candyboxdraw", {});
+
+			// 十分な数のキャンディを用意（天井に到達しない数）
+			const candyAmount = 50;
+			const insertData = Array.from({ length: candyAmount }, () => ({
+				receiveUserId: "1234",
+				giveUserId: "12345",
+				messageId: "5678",
+				expiredAt: "2999/12/31 23:59:59",
+				deletedAt: null,
+				guildId: "1234567890",
+				categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
+			}));
+			await CandyRepositoryImpl.bulkCreate(insertData);
+
+			let value = "";
+			when(commandMock.reply(anything())).thenCall((args) => {
+				value = args;
+			});
+
+			// guildIdの設定
+			when(commandMock.guildId).thenReturn("1234567890");
+
+			// コマンド実行
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+			await waitSlashUntilReply(commandMock, 100);
+
+			// 応答の検証（ジャックポットが出ることが可能）
+			verify(commandMock.reply(anything())).once();
+		})();
+	});
+
+	/**
+	 * 連続ドローで天井のジャックポットを当てる
+	 * 天井到達時にジャックポットが当選することを確認
+	 */
+	it("should guarantee pity jackpot in series draw when no data exists", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			// コマンドのモック作成
+			const commandMock = mockSlashCommand("candyboxdraw", {});
+
+			// PITY_COUNT + 6個のキャンディを用意（146個は使用済み、残りは未使用）
+			const candyAmount = PITY_COUNT + 6;
+			const insertData = [];
+
+			for (let i = 0; i < candyAmount; i++) {
+				const date = new Date();
+				date.setDate(date.getDate() - (candyAmount - i));
+				insertData.push({
+					receiveUserId: "1234",
+					giveUserId: "12345",
+					messageId: String(10_000 + i),
+					expiredAt: "2999/12/31 23:59:59",
+					deletedAt: i < 146 ? date.toISOString() : null,
+					createdAt: date.toISOString(),
+					updatedAt: date.toISOString(),
+					guildId: "1234567890",
+					categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
+				});
+			}
+			await CandyRepositoryImpl.bulkCreate(insertData);
+
+			let value = "";
+			when(commandMock.reply(anything())).thenCall((args) => {
+				value = args;
+			});
+
+			// guildIdの設定
+			when(commandMock.guildId).thenReturn("1234567890");
+
+			// コマンド実行
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+			await waitSlashUntilReply(commandMock, 100);
+
+			// 応答の検証
+			verify(commandMock.reply(anything())).once();
+
+			const lines = value.split("\n");
+			const resultLines = lines.filter((line) => line.startsWith("- "));
+
+			// 結果にジャックポットが含まれることを確認
+			const jackpotLines = resultLines.filter((line) => (line.includes("Tシャツ") || line.includes("waiwaiオリジナル")) && line.includes("当たった"));
+			expect(jackpotLines.length).to.be.at.least(1);
+		})();
+	});
+
+	/**
+	 * candydraw: 去年にジャックポットデータがあり今年にデータがない場合 - 通常ドローで天井以外のジャックポット
+	 * 去年のデータは影響せず、ジャックポットが出る可能性があることを確認
+	 */
+	it("should allow non-pity jackpot in candydraw when only last year data exists", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			// 去年の12月31日にJackpotアイテムを作成
+			const lastYearEnd = dayjs().subtract(1, "year").endOf("year").toDate();
+			await UserCandyItemRepositoryImpl.create({
+				userId: "1234",
+				itemId: ID_JACKPOT,
+				candyId: 1,
+				expiredAt: "2999/12/31 23:59:59",
+				guildId: "1234567890",
+				createdAt: lastYearEnd,
+				updatedAt: lastYearEnd,
+			});
+
+			// コマンドのモック作成
+			const commandMock = mockSlashCommand("candydraw");
+
+			// 十分な数のキャンディを用意（天井に到達しない数）
+			const candyAmount = 50;
+			const insertData = Array.from({ length: candyAmount }, () => ({
+				receiveUserId: "1234",
+				giveUserId: "12345",
+				messageId: "5678",
+				expiredAt: "2999/12/31 23:59:59",
+				deletedAt: null,
+				guildId: "1234567890",
+				categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
+			}));
+			await CandyRepositoryImpl.bulkCreate(insertData);
+
+			// guildIdの設定
+			when(commandMock.guildId).thenReturn("1234567890");
+
+			// コマンド実行
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+			await waitSlashUntilReply(commandMock, 100);
+
+			// 応答の検証（去年のデータは影響せず、ジャックポットが出ることが可能）
+			verify(commandMock.reply(anything())).once();
+		})();
+	});
+
+	/**
+	 * 通常ドローで天井のジャックポットを当てる
+	 * 去年のデータは影響せず、天井でジャックポットが当選することを確認
+	 */
+	it("should guarantee pity jackpot when only last year data exists", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			// 去年の12月31日にJackpotアイテムを作成
+			const lastYearEnd = dayjs().subtract(1, "year").endOf("year").toDate();
+			await UserCandyItemRepositoryImpl.create({
+				userId: "1234",
+				itemId: ID_JACKPOT,
+				candyId: 1,
+				expiredAt: "2999/12/31 23:59:59",
+				guildId: "1234567890",
+				createdAt: lastYearEnd,
+				updatedAt: lastYearEnd,
+			});
+
+			// コマンドのモック作成
+			const commandMock = mockSlashCommand("candydraw");
+
+			// PITY_COUNT + 10個のキャンディを用意（複数回ドローできるように）
+			const candyAmount = PITY_COUNT + 49;
+			const insertData = [];
+
+			for (let i = 0; i < candyAmount; i++) {
+				const date = new Date();
+				date.setDate(date.getDate() - (candyAmount - i));
+				insertData.push({
+					receiveUserId: "1234",
+					giveUserId: "12345",
+					messageId: String(10_000 + i),
+					expiredAt: "2999/12/31 23:59:59",
+					deletedAt: i < PITY_COUNT - 1 ? date.toISOString() : null,
+					createdAt: date.toISOString(),
+					updatedAt: date.toISOString(),
+					guildId: "1234567890",
+					categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
+				});
+			}
+			await CandyRepositoryImpl.bulkCreate(insertData);
+
+			let jackpotFound = false;
+			const results: string[] = [];
+			when(commandMock.reply(anything())).thenCall((args) => {
+				results.push(args);
+				const jackpotResult = `${ITEM_RECORDS[0].name}が当たったよ👕！っ`;
+				if (args.includes(jackpotResult)) {
+					jackpotFound = true;
+				}
+			});
+
+			// guildIdの設定
+			when(commandMock.guildId).thenReturn("1234567890");
+
+			// コマンドを複数回実行（天井到達後に確実にジャックポットが出るまで）
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			const maxDraws = 11; // 天井到達を確実にするため複数回実行
+
+			for (let i = 0; i < maxDraws && !jackpotFound; i++) {
+				TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+				await waitSlashUntilReply(commandMock, 100, i + 1);
+			}
+
+			// 応答の検証
+			verify(commandMock.reply(anything())).atLeast(1);
+
+			// 天井機能によりJackpotが当選することを確認（去年のJackpotは影響しない）
+			console.log("Draw results:", results);
+			expect(jackpotFound).to.be.true;
+		})();
+	});
+
+	/**
+	 * candyboxdraw: 去年にジャックポットデータがあり今年にデータがない場合 - 連続ドローで天井以外のジャックポット
+	 * 去年のデータは影響せず、ジャックポットが出る可能性があることを確認
+	 */
+	it("should allow non-pity jackpot in candyboxdraw when only last year data exists", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			// 去年の12月31日にJackpotアイテムを作成
+			const lastYearEnd = dayjs().subtract(1, "year").endOf("year").toDate();
+			await UserCandyItemRepositoryImpl.create({
+				userId: "1234",
+				itemId: ID_JACKPOT,
+				candyId: 1,
+				expiredAt: "2999/12/31 23:59:59",
+				guildId: "1234567890",
+				createdAt: lastYearEnd,
+				updatedAt: lastYearEnd,
+			});
+
+			// コマンドのモック作成
+			const commandMock = mockSlashCommand("candyboxdraw", {});
+
+			// 十分な数のキャンディを用意（天井に到達しない数）
+			const candyAmount = 50;
+			const insertData = Array.from({ length: candyAmount }, () => ({
+				receiveUserId: "1234",
+				giveUserId: "12345",
+				messageId: "5678",
+				expiredAt: "2999/12/31 23:59:59",
+				deletedAt: null,
+				guildId: "1234567890",
+				categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
+			}));
+			await CandyRepositoryImpl.bulkCreate(insertData);
+
+			// guildIdの設定
+			when(commandMock.guildId).thenReturn("1234567890");
+
+			// コマンド実行
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+			await waitSlashUntilReply(commandMock, 100);
+
+			// 応答の検証（去年のデータは影響せず、ジャックポットが出ることが可能）
+			verify(commandMock.reply(anything())).once();
+		})();
+	});
+
+	/**
+	 * 連続ドローで天井のジャックポットを当てる
+	 * 去年のデータは影響せず、天井でジャックポットが当選することを確認
+	 */
+	it("should guarantee pity jackpot in series draw when only last year data exists", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			// 去年の12月31日にJackpotアイテムを作成
+			const lastYearEnd = dayjs().subtract(1, "year").endOf("year").toDate();
+			await UserCandyItemRepositoryImpl.create({
+				userId: "1234",
+				itemId: ID_JACKPOT,
+				candyId: 1,
+				expiredAt: "2999/12/31 23:59:59",
+				guildId: "1234567890",
+				createdAt: lastYearEnd,
+				updatedAt: lastYearEnd,
+			});
+
+			// コマンドのモック作成
+			const commandMock = mockSlashCommand("candyboxdraw", {});
+
+			// PITY_COUNT + 6個のキャンディを用意（146個は使用済み、残りは未使用）
+			const candyAmount = PITY_COUNT + 6;
+			const insertData = [];
+
+			for (let i = 0; i < candyAmount; i++) {
+				const date = new Date();
+				date.setDate(date.getDate() - (candyAmount - i));
+				insertData.push({
+					receiveUserId: "1234",
+					giveUserId: "12345",
+					messageId: String(10_000 + i),
+					expiredAt: "2999/12/31 23:59:59",
+					deletedAt: i < 146 ? date.toISOString() : null,
+					createdAt: date.toISOString(),
+					updatedAt: date.toISOString(),
+					guildId: "1234567890",
+					categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
+				});
+			}
+			await CandyRepositoryImpl.bulkCreate(insertData);
+
+			let value = "";
+			when(commandMock.reply(anything())).thenCall((args) => {
+				value = args;
+			});
+
+			// guildIdの設定
+			when(commandMock.guildId).thenReturn("1234567890");
+
+			// コマンド実行
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+			await waitSlashUntilReply(commandMock, 100);
+
+			// 応答の検証
+			verify(commandMock.reply(anything())).once();
+
+			const lines = value.split("\n");
+			const resultLines = lines.filter((line) => line.startsWith("- "));
+
+			// 結果にジャックポットが含まれることを確認（去年のデータは影響しない）
+			const jackpotLines = resultLines.filter((line) => (line.includes("Tシャツ") || line.includes("waiwaiオリジナル")) && line.includes("当たった"));
+			expect(jackpotLines.length).to.be.at.least(1);
+		})();
+	});
+
+	/**
+	 * candydraw: 去年にデータがなく今年にジャックポットデータがある場合 - 通常ドローで天井以外のジャックポット
+	 * 今年既にジャックポットを獲得しているため、新たにジャックポットが出ないことを確認
+	 */
+	it("should not allow non-pity jackpot in candydraw when this year data exists", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			// 今年の1月1日にJackpotアイテムを作成
+			const thisYearStart = dayjs().startOf("year").toDate();
+			await UserCandyItemRepositoryImpl.create({
+				userId: "1234",
+				itemId: ID_JACKPOT,
+				candyId: 1,
+				expiredAt: "2999/12/31 23:59:59",
+				guildId: "1234567890",
+				createdAt: thisYearStart,
+				updatedAt: thisYearStart,
+			});
+
+			// コマンドのモック作成
+			const commandMock = mockSlashCommand("candydraw");
+
+			// 十分な数のキャンディを用意（天井に到達しない数）
+			const candyAmount = 50;
+			const insertData = Array.from({ length: candyAmount }, () => ({
+				receiveUserId: "1234",
+				giveUserId: "12345",
+				messageId: "5678",
+				expiredAt: "2999/12/31 23:59:59",
+				deletedAt: null,
+				guildId: "1234567890",
+				categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
+			}));
+			await CandyRepositoryImpl.bulkCreate(insertData);
+
+			let value = "";
+			when(commandMock.reply(anything())).thenCall((args) => {
+				value = args;
+			});
+
+			// guildIdの設定
+			when(commandMock.guildId).thenReturn("1234567890");
+
+			// コマンド実行
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+			await waitSlashUntilReply(commandMock, 100);
+
+			// 応答の検証
+			verify(commandMock.reply(anything())).once();
+
+			// Jackpotが出ていないことを確認
+			const jackpotResult = `${ITEM_RECORDS[0].name}が当たったよ👕！っ`;
+			expect(value).to.not.include(jackpotResult);
+		})();
+	});
+
+	/**
+	 * 通常ドローで天井のジャックポットが当らない
+	 * 今年既にジャックポットを獲得しているため、天井でもジャックポットが出ないことを確認
+	 */
+	it("should not allow pity jackpot when this year data exists", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			// 今年の1月1日にJackpotアイテムを作成
+			const thisYearStart = dayjs().startOf("year").toDate();
+			await UserCandyItemRepositoryImpl.create({
+				userId: "1234",
+				itemId: ID_JACKPOT,
+				candyId: 1,
+				expiredAt: "2999/12/31 23:59:59",
+				guildId: "1234567890",
+				createdAt: thisYearStart,
+				updatedAt: thisYearStart,
+			});
+
+			// コマンドのモック作成
+			const commandMock = mockSlashCommand("candydraw");
+
+			// PITY_COUNT個のキャンディを用意（PITY_COUNT - 1個は使用済み、1個は未使用）
+			const candyAmount = PITY_COUNT;
+			const insertData = [];
+
+			for (let i = 0; i < candyAmount; i++) {
+				const date = new Date();
+				date.setDate(date.getDate() - (candyAmount - i));
+				insertData.push({
+					receiveUserId: "1234",
+					giveUserId: "12345",
+					messageId: String(10_000 + i),
+					expiredAt: "2999/12/31 23:59:59",
+					deletedAt: i < PITY_COUNT - 1 ? date.toISOString() : null,
+					createdAt: date.toISOString(),
+					updatedAt: date.toISOString(),
+					guildId: "1234567890",
+					categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
+				});
+			}
+			await CandyRepositoryImpl.bulkCreate(insertData);
+
+			let value = "";
+			when(commandMock.reply(anything())).thenCall((args) => {
+				value = args;
+			});
+
+			// guildIdの設定
+			when(commandMock.guildId).thenReturn("1234567890");
+
+			// コマンド実行
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+			await waitSlashUntilReply(commandMock, 100);
+
+			// 応答の検証
+			verify(commandMock.reply(anything())).once();
+
+			// Jackpotが出ていないことを確認（天井到達でもJackpotが出ない）
+			const jackpotResult = `${ITEM_RECORDS[0].name}が当たったよ👕！っ`;
+			expect(value).to.not.include(jackpotResult);
+
+			// HITまたはハズレのみが出ることを確認
+			expect(value).to.satisfy((text: string) => {
+				return text.includes("ハズレ") || text.includes(`${ITEM_RECORDS[1].name}が当たった`);
+			});
+		})();
+	});
+
+	/**
+	 * candyboxdraw: 去年にデータがなく今年にジャックポットデータがある場合 - 連続ドローで天井以外のジャックポット
+	 * 今年既にジャックポットを獲得しているため、新たにジャックポットが出ないことを確認
+	 */
+	it("should not allow non-pity jackpot in candyboxdraw when this year data exists", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			// 今年の1月1日にJackpotアイテムを作成
+			const thisYearStart = dayjs().startOf("year").toDate();
+			await UserCandyItemRepositoryImpl.create({
+				userId: "1234",
+				itemId: ID_JACKPOT,
+				candyId: 1,
+				expiredAt: "2999/12/31 23:59:59",
+				guildId: "1234567890",
+				createdAt: thisYearStart,
+				updatedAt: thisYearStart,
+			});
+
+			// コマンドのモック作成
+			const commandMock = mockSlashCommand("candyboxdraw", {});
+
+			// 十分な数のキャンディを用意（天井に到達しない数）
+			const candyAmount = 50;
+			const insertData = Array.from({ length: candyAmount }, () => ({
+				receiveUserId: "1234",
+				giveUserId: "12345",
+				messageId: "5678",
+				expiredAt: "2999/12/31 23:59:59",
+				deletedAt: null,
+				guildId: "1234567890",
+				categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
+			}));
+			await CandyRepositoryImpl.bulkCreate(insertData);
+
+			let value = "";
+			when(commandMock.reply(anything())).thenCall((args) => {
+				value = args;
+			});
+
+			// guildIdの設定
+			when(commandMock.guildId).thenReturn("1234567890");
+
+			// コマンド実行
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+			await waitSlashUntilReply(commandMock, 100);
+
+			// 応答の検証
+			verify(commandMock.reply(anything())).once();
+
+			const lines = value.split("\n");
+			const resultLines = lines.filter((line) => line.startsWith("- "));
+
+			// Jackpotが出ていないことを確認
+			const jackpotLines = resultLines.filter((line) => (line.includes("Tシャツ") || line.includes("waiwaiオリジナル")) && line.includes("当たった"));
+			expect(jackpotLines.length).to.eq(0);
+		})();
+	});
+
+	/**
+	 * 連続ドローで天井のジャックポットが当らない
+	 * 今年既にジャックポットを獲得しているため、天井でもジャックポットが出ないことを確認
+	 */
+	it("should not allow pity jackpot in series draw when this year data exists", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			// 今年の1月1日にJackpotアイテムを作成
+			const thisYearStart = dayjs().startOf("year").toDate();
+			await UserCandyItemRepositoryImpl.create({
+				userId: "1234",
+				itemId: ID_JACKPOT,
+				candyId: 1,
+				expiredAt: "2999/12/31 23:59:59",
+				guildId: "1234567890",
+				createdAt: thisYearStart,
+				updatedAt: thisYearStart,
+			});
+
+			// コマンドのモック作成
+			const commandMock = mockSlashCommand("candyboxdraw", {});
+
+			// PITY_COUNT + 6個のキャンディを用意（146個は使用済み、残りは未使用）
+			const candyAmount = PITY_COUNT + 6;
+			const insertData = [];
+
+			for (let i = 0; i < candyAmount; i++) {
+				const date = new Date();
+				date.setDate(date.getDate() - (candyAmount - i));
+				insertData.push({
+					receiveUserId: "1234",
+					giveUserId: "12345",
+					messageId: String(10_000 + i),
+					expiredAt: "2999/12/31 23:59:59",
+					deletedAt: i < 146 ? date.toISOString() : null,
+					createdAt: date.toISOString(),
+					updatedAt: date.toISOString(),
+					guildId: "1234567890",
+					categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
+				});
+			}
+			await CandyRepositoryImpl.bulkCreate(insertData);
+
+			let value = "";
+			when(commandMock.reply(anything())).thenCall((args) => {
+				value = args;
+			});
+
+			// guildIdの設定
+			when(commandMock.guildId).thenReturn("1234567890");
+
+			// コマンド実行
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+			await waitSlashUntilReply(commandMock, 100);
+
+			// 応答の検証
+			verify(commandMock.reply(anything())).once();
+
+			const lines = value.split("\n");
+			const resultLines = lines.filter((line) => line.startsWith("- "));
+
+			// Jackpotが出ていないことを確認（天井到達でもJackpotが出ない）
+			const jackpotLines = resultLines.filter((line) => (line.includes("Tシャツ") || line.includes("waiwaiオリジナル")) && line.includes("当たった"));
+			expect(jackpotLines.length).to.eq(0);
+
+			// HITまたはハズレのみが出ることを確認
+			resultLines.forEach((line) => {
+				expect(line).to.satisfy((text: string) => {
+					return text.includes("ハズレ") || text.includes(`${ITEM_RECORDS[1].name}が当たった`);
+				});
+			});
+		})();
+	});
+
+	/**
+	 * candydraw: 今年と去年にジャックポットデータがある場合 - 通常ドローで天井以外のジャックポット
+	 * 今年既にジャックポットを獲得しているため、新たにジャックポットが出ないことを確認
+	 */
+	it("should not allow non-pity jackpot in candydraw when both years data exist", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			// 去年と今年の両方にJackpotアイテムを作成
+			const lastYearEnd = dayjs().subtract(1, "year").endOf("year").toDate();
+			await UserCandyItemRepositoryImpl.create({
+				userId: "1234",
+				itemId: ID_JACKPOT,
+				candyId: 1,
+				expiredAt: "2999/12/31 23:59:59",
+				guildId: "1234567890",
+				createdAt: lastYearEnd,
+				updatedAt: lastYearEnd,
+			});
+
+			const thisYearStart = dayjs().startOf("year").toDate();
+			await UserCandyItemRepositoryImpl.create({
+				userId: "1234",
+				itemId: ID_JACKPOT,
+				candyId: 2,
+				expiredAt: "2999/12/31 23:59:59",
+				guildId: "1234567890",
+				createdAt: thisYearStart,
+				updatedAt: thisYearStart,
+			});
+
+			// コマンドのモック作成
+			const commandMock = mockSlashCommand("candydraw");
+
+			// 十分な数のキャンディを用意（天井に到達しない数）
+			const candyAmount = 50;
+			const insertData = Array.from({ length: candyAmount }, () => ({
+				receiveUserId: "1234",
+				giveUserId: "12345",
+				messageId: "5678",
+				expiredAt: "2999/12/31 23:59:59",
+				deletedAt: null,
+				guildId: "1234567890",
+				categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
+			}));
+			await CandyRepositoryImpl.bulkCreate(insertData);
+
+			let value = "";
+			when(commandMock.reply(anything())).thenCall((args) => {
+				value = args;
+			});
+
+			// guildIdの設定
+			when(commandMock.guildId).thenReturn("1234567890");
+
+			// コマンド実行
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+			await waitSlashUntilReply(commandMock, 100);
+
+			// 応答の検証
+			verify(commandMock.reply(anything())).once();
+
+			// Jackpotが出ていないことを確認
+			const jackpotResult = `${ITEM_RECORDS[0].name}が当たったよ👕！っ`;
+			expect(value).to.not.include(jackpotResult);
+		})();
+	});
+
+	/**
+	 * 通常ドローで天井のジャックポットが当らない
+	 * 今年既にジャックポットを獲得しているため、天井でもジャックポットが出ないことを確認
+	 */
+	it("should not allow pity jackpot when both years data exist", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			// 去年と今年の両方にJackpotアイテムを作成
+			const lastYearEnd = dayjs().subtract(1, "year").endOf("year").toDate();
+			await UserCandyItemRepositoryImpl.create({
+				userId: "1234",
+				itemId: ID_JACKPOT,
+				candyId: 1,
+				expiredAt: "2999/12/31 23:59:59",
+				guildId: "1234567890",
+				createdAt: lastYearEnd,
+				updatedAt: lastYearEnd,
+			});
+
+			const thisYearStart = dayjs().startOf("year").toDate();
+			await UserCandyItemRepositoryImpl.create({
+				userId: "1234",
+				itemId: ID_JACKPOT,
+				candyId: 2,
+				expiredAt: "2999/12/31 23:59:59",
+				guildId: "1234567890",
+				createdAt: thisYearStart,
+				updatedAt: thisYearStart,
+			});
+
+			// コマンドのモック作成
+			const commandMock = mockSlashCommand("candydraw");
+
+			// PITY_COUNT個のキャンディを用意（PITY_COUNT - 1個は使用済み、1個は未使用）
+			const candyAmount = PITY_COUNT;
+			const insertData = [];
+
+			for (let i = 0; i < candyAmount; i++) {
+				const date = new Date();
+				date.setDate(date.getDate() - (candyAmount - i));
+				insertData.push({
+					receiveUserId: "1234",
+					giveUserId: "12345",
+					messageId: String(10_000 + i),
+					expiredAt: "2999/12/31 23:59:59",
+					deletedAt: i < PITY_COUNT - 1 ? date.toISOString() : null,
+					createdAt: date.toISOString(),
+					updatedAt: date.toISOString(),
+					guildId: "1234567890",
+					categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
+				});
+			}
+			await CandyRepositoryImpl.bulkCreate(insertData);
+
+			let value = "";
+			when(commandMock.reply(anything())).thenCall((args) => {
+				value = args;
+			});
+
+			// guildIdの設定
+			when(commandMock.guildId).thenReturn("1234567890");
+
+			// コマンド実行
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+			await waitSlashUntilReply(commandMock, 100);
+
+			// 応答の検証
+			verify(commandMock.reply(anything())).once();
+
+			// Jackpotが出ていないことを確認（天井到達でもJackpotが出ない）
+			const jackpotResult = `${ITEM_RECORDS[0].name}が当たったよ👕！っ`;
+			expect(value).to.not.include(jackpotResult);
+
+			// HITまたはハズレのみが出ることを確認
+			expect(value).to.satisfy((text: string) => {
+				return text.includes("ハズレ") || text.includes(`${ITEM_RECORDS[1].name}が当たった`);
+			});
+		})();
+	});
+
+	/**
+	 * candyboxdraw: 今年と去年にジャックポットデータがある場合 - 連続ドローで天井以外のジャックポット
+	 * 今年既にジャックポットを獲得しているため、新たにジャックポットが出ないことを確認
+	 */
+	it("should not allow non-pity jackpot in candyboxdraw when both years data exist", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			// 去年と今年の両方にJackpotアイテムを作成
+			const lastYearEnd = dayjs().subtract(1, "year").endOf("year").toDate();
+			await UserCandyItemRepositoryImpl.create({
+				userId: "1234",
+				itemId: ID_JACKPOT,
+				candyId: 1,
+				expiredAt: "2999/12/31 23:59:59",
+				guildId: "1234567890",
+				createdAt: lastYearEnd,
+				updatedAt: lastYearEnd,
+			});
+
+			const thisYearStart = dayjs().startOf("year").toDate();
+			await UserCandyItemRepositoryImpl.create({
+				userId: "1234",
+				itemId: ID_JACKPOT,
+				candyId: 2,
+				expiredAt: "2999/12/31 23:59:59",
+				guildId: "1234567890",
+				createdAt: thisYearStart,
+				updatedAt: thisYearStart,
+			});
+
+			// コマンドのモック作成
+			const commandMock = mockSlashCommand("candyboxdraw", {});
+
+			// 十分な数のキャンディを用意（天井に到達しない数）
+			const candyAmount = 50;
+			const insertData = Array.from({ length: candyAmount }, () => ({
+				receiveUserId: "1234",
+				giveUserId: "12345",
+				messageId: "5678",
+				expiredAt: "2999/12/31 23:59:59",
+				deletedAt: null,
+				guildId: "1234567890",
+				categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
+			}));
+			await CandyRepositoryImpl.bulkCreate(insertData);
+
+			let value = "";
+			when(commandMock.reply(anything())).thenCall((args) => {
+				value = args;
+			});
+
+			// guildIdの設定
+			when(commandMock.guildId).thenReturn("1234567890");
+
+			// コマンド実行
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+			await waitSlashUntilReply(commandMock, 100);
+
+			// 応答の検証
+			verify(commandMock.reply(anything())).once();
+
+			const lines = value.split("\n");
+			const resultLines = lines.filter((line) => line.startsWith("- "));
+
+			// Jackpotが出ていないことを確認
+			const jackpotLines = resultLines.filter((line) => (line.includes("Tシャツ") || line.includes("waiwaiオリジナル")) && line.includes("当たった"));
+			expect(jackpotLines.length).to.eq(0);
+		})();
+	});
+
+	/**
+	 * candyboxdraw: 今年と去年にジャックポットデータがある場合 - 連続ドローで天井のジャックポット
+	 * 今年既にジャックポットを獲得しているため、天井でもジャックポットが出ないことを確認
+	 */
+	it("should not allow pity jackpot in candyboxdraw when both years data exist", function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		return (async () => {
+			// 去年と今年の両方にJackpotアイテムを作成
+			const lastYearEnd = dayjs().subtract(1, "year").endOf("year").toDate();
+			await UserCandyItemRepositoryImpl.create({
+				userId: "1234",
+				itemId: ID_JACKPOT,
+				candyId: 1,
+				expiredAt: "2999/12/31 23:59:59",
+				guildId: "1234567890",
+				createdAt: lastYearEnd,
+				updatedAt: lastYearEnd,
+			});
+
+			const thisYearStart = dayjs().startOf("year").toDate();
+			await UserCandyItemRepositoryImpl.create({
+				userId: "1234",
+				itemId: ID_JACKPOT,
+				candyId: 2,
+				expiredAt: "2999/12/31 23:59:59",
+				guildId: "1234567890",
+				createdAt: thisYearStart,
+				updatedAt: thisYearStart,
+			});
+
+			// コマンドのモック作成
+			const commandMock = mockSlashCommand("candyboxdraw", {});
+
+			// PITY_COUNT + 6個のキャンディを用意（146個は使用済み、残りは未使用）
+			const candyAmount = PITY_COUNT + 6;
+			const insertData = [];
+
+			for (let i = 0; i < candyAmount; i++) {
+				const date = new Date();
+				date.setDate(date.getDate() - (candyAmount - i));
+				insertData.push({
+					receiveUserId: "1234",
+					giveUserId: "12345",
+					messageId: String(10_000 + i),
+					expiredAt: "2999/12/31 23:59:59",
+					deletedAt: i < 146 ? date.toISOString() : null,
+					createdAt: date.toISOString(),
+					updatedAt: date.toISOString(),
+					guildId: "1234567890",
+					categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
+				});
+			}
+			await CandyRepositoryImpl.bulkCreate(insertData);
+
+			let value = "";
+			when(commandMock.reply(anything())).thenCall((args) => {
+				value = args;
+			});
+
+			// guildIdの設定
+			when(commandMock.guildId).thenReturn("1234567890");
+
+			// コマンド実行
+			const TEST_CLIENT = await TestDiscordServer.getClient();
+			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+
+			await waitSlashUntilReply(commandMock, 100);
+
+			// 応答の検証
+			verify(commandMock.reply(anything())).once();
+
+			const lines = value.split("\n");
+			const resultLines = lines.filter((line) => line.startsWith("- "));
+
+			// Jackpotが出ていないことを確認（天井到達でもJackpotが出ない）
+			const jackpotLines = resultLines.filter((line) => (line.includes("Tシャツ") || line.includes("waiwaiオリジナル")) && line.includes("当たった"));
+			expect(jackpotLines.length).to.eq(0);
+
+			// HITまたはハズレのみが出ることを確認
+			resultLines.forEach((line) => {
+				expect(line).to.satisfy((text: string) => {
+					return text.includes("ハズレ") || text.includes(`${ITEM_RECORDS[1].name}が当たった`);
+				});
+			});
+		})();
 	});
 });

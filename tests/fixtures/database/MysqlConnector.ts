@@ -1,8 +1,11 @@
-import { GetEnvDBConfig } from "@/src/entities/config/DatabaseConfig";
+import { DatabaseConfig } from "@/src/entities/config/DatabaseConfig";
 import type { IDataBaseConnector } from "@/src/logics/Interfaces/repositories/database/IDataBaseConnector";
 import { CandyItemRepositoryImpl } from "@/src/repositories/sequelize-mysql/CandyItemRepositoryImpl";
 import { CandyRepositoryImpl } from "@/src/repositories/sequelize-mysql/CandyRepositoryImpl";
 import { ReminderRepositoryImpl } from "@/src/repositories/sequelize-mysql/ReminderRepositoryImpl";
+import { RoomAddChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/RoomAddChannelRepositoryImpl";
+import { RoomChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/RoomChannelRepositoryImpl";
+import { RoomNotificationChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/RoomNotificationChannelRepositoryImpl";
 import { SequelizeLogger } from "@/src/repositories/sequelize-mysql/SequelizeLogger";
 import { StickyRepositoryImpl } from "@/src/repositories/sequelize-mysql/StickyRepositoryImpl";
 import { ThreadRepositoryImpl } from "@/src/repositories/sequelize-mysql/ThreadRepositoryImpl";
@@ -14,7 +17,7 @@ export class MysqlConnector implements IDataBaseConnector<Sequelize, "mysql"> {
 	instance: Sequelize;
 
 	constructor() {
-		const dbConfig = GetEnvDBConfig();
+		const dbConfig = DatabaseConfig;
 		this.instance = new Sequelize(dbConfig.database, dbConfig.username, dbConfig.password, {
 			host: dbConfig.host,
 			port: dbConfig.port,
@@ -27,6 +30,9 @@ export class MysqlConnector implements IDataBaseConnector<Sequelize, "mysql"> {
 				ReminderRepositoryImpl,
 				ThreadRepositoryImpl,
 				StickyRepositoryImpl,
+				RoomAddChannelRepositoryImpl,
+				RoomChannelRepositoryImpl,
+				RoomNotificationChannelRepositoryImpl,
 			],
 		});
 	}
