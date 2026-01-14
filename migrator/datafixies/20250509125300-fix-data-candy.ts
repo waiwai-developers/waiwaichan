@@ -2,7 +2,7 @@ import type { Datafix } from "@/migrator/umzug";
 import { DatafixCandyModel } from "./models/DatafixCandyModel";
 import { AppConfig } from "@/src/entities/config/AppConfig";
 
-export const up: Datafix = async () => {
+export const up: Datafix = async ({ context: sequelize }) => {
 	const candies = await DatafixCandyModel.findAll(
         {
 			where: {
