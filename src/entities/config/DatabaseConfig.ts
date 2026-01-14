@@ -10,8 +10,9 @@ export interface DatabaseConfigType {
 }
 
 interface DatabaseJsonType {
-	development: DatabaseConfigType;
-	production: DatabaseConfigType;
+	development?: DatabaseConfigType;
+	production?: DatabaseConfigType;
+	testing?: DatabaseConfigType;
 }
 
 const loadDatabaseConfig = (): DatabaseJsonType | null => {
@@ -25,7 +26,15 @@ const loadDatabaseConfig = (): DatabaseJsonType | null => {
 export const GetEnvDatabaseConfig = (): DatabaseConfigType => {
 	const config = loadDatabaseConfig();
 	if (config) {
-		return config.production;
+		const env = process.env.NODE_ENV || "production";
+		const envConfig = config[env as keyof DatabaseJsonType];
+		if (envConfig) {
+			return envConfig;
+		}
+		// Fallback to production if specified env is not found
+		if (config.production) {
+			return config.production;
+		}
 	}
 	throw new Error("Database configuration not found: config/database.json is required for environment");
 };
