@@ -1,6 +1,11 @@
 FROM node:22.5.1-alpine
 WORKDIR /app
 COPY . .
+# テスト用の設定ファイルをコピー
+RUN cp config/databasetest.json config/database.json && \
+    cp config/configtest.json config/config.json && \
+    cp config/accountstest.json config/accounts.json && \
+    cp config/roletest.json config/role.json
 RUN apk update && apk add mysql-client logrotate
 RUN npm i -g pnpm
 RUN pnpm install --frozen-lockfile
