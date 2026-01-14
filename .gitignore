@@ -1,4 +1,5 @@
 .env
+.pnpm-store
 config/*.json
 !config/databasetest.json
 !config/configtest.json
