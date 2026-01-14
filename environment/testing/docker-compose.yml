@@ -30,6 +30,12 @@ services:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "sh", "-c", "test -f /app/node_modules/.modules.yaml"]
+      interval: 5s
+      retries: 30
+      start_period: 60s
+      timeout: 5s
     command: sh -c "pnpm install && pnpm run dev"
   scheduler:
     <<: *base-service
