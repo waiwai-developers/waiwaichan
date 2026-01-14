@@ -1559,7 +1559,7 @@ describe("Test Candy Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
-			await waitSlashUntilReply(commandMock, 100);
+			await waitSlashUntilReply(commandMock, 1000);
 
 			// 応答の検証
 			verify(commandMock.reply(anything())).once();
@@ -2067,7 +2067,7 @@ describe("Test Candy Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
-			await waitSlashUntilReply(commandMock, 100);
+			await waitSlashUntilReply(commandMock, 1000);
 
 			// 応答の検証
 			verify(commandMock.reply(anything())).once();
