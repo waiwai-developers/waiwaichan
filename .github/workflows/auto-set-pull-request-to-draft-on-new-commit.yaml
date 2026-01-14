@@ -5,21 +5,22 @@ on:
     types:
       - synchronize
 
-permissions:
-  pull-requests: write
-  contents: read
-
 jobs:
   set-draft:
     runs-on: ubuntu-latest
+    if: ${{ !github.event.pull_request.draft }}
     steps:
+      - name: generate github app token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
       - name: checkout repository
         uses: actions/checkout@v4
-
-      - name: set pull request to draft if not already
-        if: ${{ !github.event.pull_request.draft }}
+      - name: set pull request to draft
         env:
-          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           gh pr ready $PR_NUMBER --undo
