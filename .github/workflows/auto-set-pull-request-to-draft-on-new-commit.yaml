@@ -17,10 +17,28 @@ jobs:
         with:
           script: |
             const pr = context.payload.pull_request;
-            await github.rest.pulls.update({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: pr.number,
-              draft: true
+
+            // 既にドラフトの場合はスキップ
+            if (pr.draft) {
+              console.log(`PR #${pr.number} is already a draft.`);
+              return;
+            }
+
+            // GraphQL APIを使用してドラフトに変換
+            const mutation = `
+              mutation($pullRequestId: ID!) {
+                convertPullRequestToDraft(input: {pullRequestId: $pullRequestId}) {
+                  pullRequest {
+                    id
+                    number
+                    isDraft
+                  }
+                }
+              }
+            `;
+
+            await github.graphql(mutation, {
+              pullRequestId: pr.node_id
             });
+
             console.log(`PR #${pr.number} has been set to draft.`);
