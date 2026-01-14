@@ -6,6 +6,7 @@ x-base-service: &base-service
     - server-network
   environment:
     GOOGLE_APPLICATION_CREDENTIALS: config/key.json
+    CI: "true"
   volumes:
     - type: bind
       source: ../../config
@@ -56,6 +57,7 @@ services:
     restart: "no"
     environment:
       NODE_ENV: testing
+      CI: "true"
     volumes:
       - type: bind
         source: ../../.
