@@ -18,7 +18,7 @@ jobs:
       - name: rename config files for testing
         run: |
           mv .envtest .env
-          mv config/accountstest.json config/account.json
+          mv config/accountstest.json config/accounts.json
           mv config/configtest.json config/config.json
           mv config/databasetest.json config/database.json
           mv config/roletest.json config/role.json
