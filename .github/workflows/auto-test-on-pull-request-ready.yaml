@@ -15,18 +15,18 @@ jobs:
         uses: actions/checkout@v4
       - name: set up docker buildx
         uses: docker/setup-buildx-action@v3
-      - name: rename config files for testing
+      - name: copy config files for testing
         run: |
-          mv .envtest .env
-          mv config/accountstest.json config/accounts.json
-          mv config/configtest.json config/config.json
-          mv config/databasetest.json config/database.json
-          mv config/roletest.json config/role.json
+          cp .envtest .env
+          cp config/accountstest.json config/accounts.json
+          cp config/configtest.json config/config.json
+          cp config/databasetest.json config/database.json
+          cp config/roletest.json config/role.json
       - name: docker compose up
         run: |
           docker compose \
             -f environment/testing/docker-compose.yml \
-            up -d --wait
+            up -d --wait --build
       - name: run pnpm test into backend container
         run: |
           docker compose \
