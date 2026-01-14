@@ -1,0 +1,33 @@
+name: auto set pull request to draft on new commit
+
+on:
+  pull_request:
+    types:
+      - synchronize
+
+permissions:
+  pull-requests: write
+
+jobs:
+  set-draft:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set PR to draft if not already
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+
+            if (pr.draft) {
+              console.log('PR is already draft. Skip.');
+              return;
+            }
+
+            await github.rest.pulls.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pr.number,
+              draft: true
+            });
+
+            console.log(`PR #${pr.number} has been set to draft.`);
