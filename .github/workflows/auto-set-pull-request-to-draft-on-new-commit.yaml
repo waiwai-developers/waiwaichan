@@ -20,7 +20,7 @@ jobs:
 
             // 既にドラフトの場合はスキップ
             if (pr.draft) {
-              console.log(`PR #${pr.number} is already a draft.`);
+              console.log(`pull request #${pr.number} is already a draft.`);
               return;
             }
 
@@ -41,4 +41,4 @@ jobs:
               pullRequestId: pr.node_id
             });
 
-            console.log(`PR #${pr.number} has been set to draft.`);
+            console.log(`pull request #${pr.number} has been set to draft.`);
