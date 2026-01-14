@@ -17,17 +17,10 @@ jobs:
         with:
           script: |
             const pr = context.payload.pull_request;
-
-            if (pr.draft) {
-              console.log('PR is already draft. Skip.');
-              return;
-            }
-
             await github.rest.pulls.update({
               owner: context.repo.owner,
               repo: context.repo.repo,
               pull_number: pr.number,
               draft: true
             });
-
             console.log(`PR #${pr.number} has been set to draft.`);
