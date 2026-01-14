@@ -87,6 +87,7 @@ export function mockVoiceState(
 				id: userId,
 				displayName: displayName,
 				bot: false,
+				displayAvatarURL: (options?: any) => "https://example.com/avatar.png",
 			},
 			voice: {
 				setChannel: async (channel: any) => {
@@ -106,6 +107,7 @@ export function mockVoiceState(
 				id: userId,
 				displayName: displayName,
 				bot: false,
+				displayAvatarURL: (options?: any) => "https://example.com/avatar.png",
 			},
 			voice: {
 				setChannel: async (channel: any) => {
