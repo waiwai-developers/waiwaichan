@@ -3,7 +3,7 @@
  * This module provides access to all Drizzle ORM based repositories and database utilities
  */
 
-import { GetEnvDBConfig } from "@/src/entities/config/DatabaseConfig";
+import { GetEnvDatabaseConfig } from "@/src/entities/config/DatabaseConfig";
 import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 import { drizzle } from "drizzle-orm/mysql2";
 import type { MySql2Database } from "drizzle-orm/mysql2";
@@ -54,7 +54,7 @@ export async function initializeDatabase(logger?: ILogger) {
 		return db;
 	}
 
-	const dbConfig = GetEnvDBConfig();
+	const dbConfig = GetEnvDatabaseConfig();
 
 	// Create MySQL connection pool
 	pool = mysql.createPool({
