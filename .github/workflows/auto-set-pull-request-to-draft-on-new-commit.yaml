@@ -7,38 +7,20 @@ on:
 
 permissions:
   pull-requests: write
+  contents: read
 
 jobs:
   set-draft:
     runs-on: ubuntu-latest
     steps:
-      - name: set pull reqest to draft if not already
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const pr = context.payload.pull_request;
+      - name: checkout repository
+        uses: actions/checkout@v4
 
-            // 既にドラフトの場合はスキップ
-            if (pr.draft) {
-              console.log(`pull request #${pr.number} is already a draft.`);
-              return;
-            }
-
-            // GraphQL APIを使用してドラフトに変換
-            const mutation = `
-              mutation($pullRequestId: ID!) {
-                convertPullRequestToDraft(input: {pullRequestId: $pullRequestId}) {
-                  pullRequest {
-                    id
-                    number
-                    isDraft
-                  }
-                }
-              }
-            `;
-
-            await github.graphql(mutation, {
-              pullRequestId: pr.node_id
-            });
-
-            console.log(`pull request #${pr.number} has been set to draft.`);
+      - name: set pull request to draft if not already
+        if: ${{ !github.event.pull_request.draft }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          gh pr ready $PR_NUMBER --undo
+          echo "pull request #$PR_NUMBER has been set to draft."
