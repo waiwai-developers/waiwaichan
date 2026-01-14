@@ -95,12 +95,9 @@ export class VoiceChannelConnectHandler
 			size: 1024,
 		});
 		const embed = new EmbedBuilder()
-			.setAuthor({
-				name: `${newState.member.user.username}`,
-				iconURL: avatarUrl,
-			})
 			.setTitle("通話を開始したよ！っ")
 			.setDescription(`${newState.channel.name}`)
+			.setThumbnail(avatarUrl)
 			.addFields(
 				{
 					name: "開始ユーザー",

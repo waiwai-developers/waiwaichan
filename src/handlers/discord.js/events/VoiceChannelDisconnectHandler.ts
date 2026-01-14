@@ -105,9 +105,13 @@ export class VoiceChannelDisconnectHandler
 			this.logger.info("notification channel is not text channel");
 			return;
 		}
+		const avatarUrl = oldState.member.user.displayAvatarURL({
+			size: 1024,
+		});
 		const embed = new EmbedBuilder()
 			.setTitle("通話を終了したよ！っ")
 			.setDescription(`${channelName}`)
+			.setThumbnail(avatarUrl)
 			.addFields(
 				{
 					name: "終了ユーザー",
