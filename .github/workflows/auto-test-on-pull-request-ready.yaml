@@ -6,7 +6,7 @@ on:
       - ready_for_review
       - reopened
 jobs:
-  test:
+  auto-test:
     runs-on: ubuntu-latest
     permissions:
       contents: read
