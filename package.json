@@ -85,8 +85,7 @@
 		"watch-ignore": [
 			"lib/vendor"
 		],
-		"spec": "tests/**/*.test.ts",
-		"require": "./tests/hooks.ts"
+		"spec": "tests/**/*.test.ts"
 	},
 	"c8": {
 		"reporter": [
@@ -106,6 +105,14 @@
 		],
 		"all": true,
 		"source-map": true
+	},
+	"pnpm": {
+		"onlyBuiltDependencies": [
+			"@biomejs/biome",
+			"@swc/core",
+			"esbuild",
+			"protobufjs"
+		]
 	},
 	"swc": {
 		"$schema": "https://swc.rs/schema.json",

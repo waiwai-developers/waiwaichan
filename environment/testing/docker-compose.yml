@@ -1,11 +1,13 @@
 x-base-service: &base-service
   build:
     context: ../../.
-    dockerfile: environment/development/Dockerfile
+    dockerfile: environment/testing/Dockerfile
   networks:
     - server-network
   environment:
     GOOGLE_APPLICATION_CREDENTIALS: config/key.json
+    CI: "true"
+    NODE_ENV: testing
   volumes:
     - type: bind
       source: ../../config
@@ -29,7 +31,13 @@ services:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully
-    command: sh -c "npm i && pnpm run dev"
+    healthcheck:
+      test: ["CMD", "sh", "-c", "test -f /app/node_modules/.modules.yaml"]
+      interval: 5s
+      retries: 30
+      start_period: 60s
+      timeout: 5s
+    command: sh -c "pnpm install && pnpm run dev"
   scheduler:
     <<: *base-service
     container_name: waiwai-scheduler
@@ -49,13 +57,14 @@ services:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully
-    command: sh -c "npm i && pnpm run dev:scheduler"
+    command: sh -c "pnpm install && pnpm run dev:scheduler"
   migrate:
     <<: *base-service
     container_name: waiwai-migrate
     restart: "no"
     environment:
-      NODE_ENV: development
+      NODE_ENV: testing
+      CI: "true"
     volumes:
       - type: bind
         source: ../../.
@@ -66,7 +75,7 @@ services:
     depends_on:
       database:
         condition: service_healthy
-    command: sh -c "npm i && pnpm run migrate up && pnpm run seed up && pnpm run datafix up"
+    command: sh -c "pnpm install && pnpm run migrate up && pnpm run seed up"
   database:
     container_name: waiwai-database
     env_file:

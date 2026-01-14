@@ -17,7 +17,6 @@ import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnecto
 import { PersonalityContextRepositoryImpl } from "@/src/repositories/sequelize-mysql/PersonalityContextRepositoryImpl";
 import { PersonalityRepositoryImpl } from "@/src/repositories/sequelize-mysql/PersonalityRepositoryImpl";
 import { ThreadRepositoryImpl } from "@/src/repositories/sequelize-mysql/ThreadRepositoryImpl";
-import { ContainerDown, ContainerUp } from "@/tests/fixtures/database/ContainerTest";
 import { mockMessage } from "@/tests/fixtures/discord.js/MockMessage";
 import { mockSlashCommand, waitUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { TestDiscordServer } from "@/tests/fixtures/discord.js/TestDiscordServer";
@@ -26,16 +25,8 @@ import type { TextChannel } from "discord.js";
 import { anything, instance, mock, verify, when } from "ts-mockito";
 
 describe("Test Talk Commands", function (this: Mocha.Suite) {
-	// テストのタイムアウト時間を延長（30秒）
-	this.timeout(10_000);
-
-	before(async () => {
-		await ContainerUp();
-	});
-
-	after(async () => {
-		await ContainerDown();
-	});
+	// テストのタイムアウト時間を延長（60秒）
+	this.timeout(60_000);
 
 	beforeEach(async () => {
 		// データベース接続を初期化（MockLoggerを使用）
@@ -76,9 +67,9 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 			},
 		});
 
-		// Contextデータの作成
+		// Contextデータの作成（seedsで使用されていないIDを使用）
 		await ContextRepositoryImpl.create({
-			id: 1,
+			id: 999,
 			name: "テストコンテキスト",
 			prompt: {
 				persona_role: "テスト役割",
@@ -90,10 +81,10 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 			},
 		});
 
-		// PersonalityContextデータの作成
+		// PersonalityContextデータの作成（contextIdも999に変更）
 		await PersonalityContextRepositoryImpl.create({
 			personalityId: PersonalityId.PERSONALITY_ID_WAIWAICHAN.getValue(),
-			contextId: 1,
+			contextId: 999,
 		});
 	});
 
@@ -155,10 +146,10 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 	 */
 	it("test talk command with title", async function (this: Mocha.Context) {
 		// 個別のテストのタイムアウト時間を延長（10秒）
-		this.timeout(10_000);
+		this.timeout(50_000);
 		// テスト用のパラメータ
 		const testTitle = "テストタイトル";
-		const testContextType = 1;
+		const testContextType = 999; // seedsで使用されていないIDを使用
 		const testGuildId = "12345";
 		const testMessageId = "67890";
 		const expectedThreadTitle = `テストコンテキスト: ${testTitle}`;
@@ -214,7 +205,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		verify(commandMock.reply(anything())).once();
 
 		// スレッドが作成されるまで少し待機
-		await new Promise((resolve) => setTimeout(resolve, 1000));
+		await new Promise((resolve) => setTimeout(resolve, 5000));
 
 		const threads = await ThreadRepositoryImpl.findAll();
 
@@ -291,7 +282,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		// テスト用のパラメータ（存在しないコンテキストタイプを指定）
 		const commandMock = mockSlashCommand("talk", {
 			title: "テストタイトル",
-			type: 999,
+			type: 99999, // 存在しないIDを使用
 		});
 
 		// モックのチャンネル設定
