@@ -92,7 +92,6 @@ export class VoiceChannelConnectHandler
 			return;
 		}
 		const avatarUrl = newState.member.user.displayAvatarURL({
-			dynamic: true,
 			size: 1024,
 		});
 		const embed = new EmbedBuilder()
