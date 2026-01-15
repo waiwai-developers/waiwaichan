@@ -12,7 +12,7 @@ x-base-service: &base-service
     - type: bind
       source: ../../config
       target: /app/config
-  mem_limit: 256m
+  mem_limit: 512m
   cpus: 0.5
   restart: always
   tty: true

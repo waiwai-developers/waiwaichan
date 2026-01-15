@@ -19,7 +19,7 @@ x-base-service: &base-service
     - type: volume
       source: node_modules
       target: /app/node_modules
-  mem_limit: 256m
+  mem_limit: 512m
   cpus: 0.5
   restart: always
   tty: true
