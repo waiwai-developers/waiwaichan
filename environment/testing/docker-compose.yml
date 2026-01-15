@@ -28,7 +28,7 @@ services:
     <<: *base-service
     container_name: waiwai-migrate
     restart: "no"
-    command: ["pnpm", "migrate"]
+    command: ["pnpm", "migrate:all"]
     depends_on:
       database:
         condition: service_healthy
