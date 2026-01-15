@@ -1,5 +1,4 @@
 x-base-service: &base-service
-  tty: true
   build:
     context: ../../.
     dockerfile: environment/testing/Dockerfile
