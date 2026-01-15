@@ -1,3 +1,4 @@
+version: "3.9"
 x-base-service: &base-service
   build:
     context: ../../.
@@ -5,83 +6,69 @@ x-base-service: &base-service
   networks:
     - server-network
   environment:
-    GOOGLE_APPLICATION_CREDENTIALS: config/key.json
-    CI: "true"
+    GOOGLE_APPLICATION_CREDENTIALS: /app/config/key.json
     NODE_ENV: testing
+    CI: "true"
+    NODE_OPTIONS: "--max-old-space-size=256 --no-deprecation"
   volumes:
     - type: bind
       source: ../../config
       target: /app/config
+    - type: bind
+      source: ../../.
+      target: /app
+    - type: volume
+      source: node_modules
+      target: /app/node_modules
+  mem_limit: 256m
+  restart: unless-stopped
+  tty: true
 services:
   backend:
     <<: *base-service
     container_name: waiwai-backend
-    restart: always
-    tty: true
-    volumes:
-      - type: bind
-        source: ../../.
-        target: /app
-      - type: volume
-        source: backend_node_modules
-        target: /app/node_modules
-    # migrate の完了を待つ
     depends_on:
       database:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully
+    # テスト実行（watch / dev はしない）
+    command: ["pnpm", "run", "test"]
     healthcheck:
-      test: ["CMD", "sh", "-c", "test -f /app/node_modules/.modules.yaml"]
-      interval: 5s
-      retries: 30
-      start_period: 60s
+      test: ["CMD", "sh", "-c", "node -e \"process.exit(0)\""]
+      interval: 10s
+      retries: 3
+      start_period: 30s
       timeout: 5s
-    command: sh -c "pnpm install && pnpm run dev"
   scheduler:
     <<: *base-service
     container_name: waiwai-scheduler
-    restart: "always"
-    volumes:
-      - type: bind
-        source: ../../.
-        target: /app
-      - type: volume
-        source: scheduler_node_modules
-        target: /app/node_modules
-    networks:
-      - server-network
-    # migrate の完了を待つ
     depends_on:
       database:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully
-    command: sh -c "pnpm install && pnpm run dev:scheduler"
+    command: ["pnpm", "run", "test:scheduler"]
   migrate:
     <<: *base-service
     container_name: waiwai-migrate
     restart: "no"
-    environment:
-      NODE_ENV: testing
-      CI: "true"
-    volumes:
-      - type: bind
-        source: ../../.
-        target: /app
-      - type: volume
-        source: migrate_node_modules
-        target: /app/node_modules
+    mem_limit: 512m
     depends_on:
       database:
         condition: service_healthy
-    command: sh -c "pnpm install && pnpm run migrate up && pnpm run seed up"
+    command:
+      [
+        "sh",
+        "-c",
+        "pnpm run migrate up && pnpm run seed up"
+      ]
   database:
     container_name: waiwai-database
+    image: mysql:8.0
+    platform: linux/x86_64
     env_file:
       - ../../.env
-    restart: always
-    image: mysql:8.0
     command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     ports:
       - "3306:3306"
@@ -89,7 +76,7 @@ services:
       - mysql_data:/var/lib/mysql
     networks:
       - server-network
-    platform: linux/x86_64
+    restart: unless-stopped
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
@@ -101,6 +88,4 @@ networks:
     driver: bridge
 volumes:
   mysql_data:
-  backend_node_modules:
-  scheduler_node_modules:
-  migrate_node_modules:
+  node_modules:

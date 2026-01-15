@@ -1,65 +1,40 @@
+version: "3.9"
+
 x-base-service: &base-service
-  build:
-    context: ../../.
-    dockerfile: environment/production/Dockerfile
+  image: waiwai-app:latest
   networks:
     - server-network
   environment:
-    GOOGLE_APPLICATION_CREDENTIALS: config/key.json
+    GOOGLE_APPLICATION_CREDENTIALS: /app/config/key.json
     NODE_ENV: production
-    NODE_OPTIONS: --no-deprecation
+    NODE_OPTIONS: "--max-old-space-size=256 --no-deprecation"
   volumes:
     - type: bind
       source: ../../config
       target: /app/config
+  restart: always
+  mem_limit: 256m
+  cpus: 0.5
 services:
   backend:
     <<: *base-service
     container_name: waiwai-backend
-    restart: always
-    tty: true
-    volumes:
-      - type: bind
-        source: ../../config
-        target: /app/config
-      - type: volume
-        source: backend_node_modules
-        target: /app/node_modules
-    depends_on:
-      migrate:
-        condition: service_completed_successfully
-    command: sh -c "pnpm i && pnpm run dev"
+    command: ["node", "dist/index.js"]
   scheduler:
     <<: *base-service
     container_name: waiwai-scheduler
-    restart: "always"
-    volumes:
-      - type: bind
-        source: ../../config
-        target: /app/config
-      - type: volume
-        source: scheduler_node_modules
-        target: /app/node_modules
-    depends_on:
-      migrate:
-        condition: service_completed_successfully
-    command: sh -c "pnpm i && pnpm run dev:scheduler"
+    command: ["node", "dist/scheduler.js"]
   migrate:
     <<: *base-service
     container_name: waiwai-migrate
     restart: "no"
-    volumes:
-      - type: bind
-        source: ../../config
-        target: /app/config
-      - type: volume
-        source: migrate_node_modules
-        target: /app/node_modules
-    command: sh -c "pnpm i && pnpm run migrate up && pnpm run seed up && pnpm run datafix up"
+    mem_limit: 512m
+    command:
+      [
+        "sh",
+        "-c",
+        "node dist/migrate.js && node dist/seed.js && node dist/datafix.js"
+      ]
 networks:
   server-network:
     driver: bridge
-volumes:
-  backend_node_modules:
-  scheduler_node_modules:
-  migrate_node_modules:
