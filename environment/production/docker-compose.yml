@@ -9,7 +9,7 @@ x-base-service: &base-service
     CI: "true"
     GOOGLE_APPLICATION_CREDENTIALS: config/key.json
     NODE_ENV: production
-    NODE_OPTIONS: --no-deprecation --max-old-space-size=1024
+    NODE_OPTIONS: --no-deprecation
   volumes:
     - type: bind
       source: ../../config
@@ -19,8 +19,6 @@ services:
     <<: *base-service
     container_name: waiwai-backend
     restart: always
-    mem_limit: 1g
-    mem_reservation: 256m
     volumes:
       - type: bind
         source: ../../config
@@ -35,9 +33,7 @@ services:
   scheduler:
     <<: *base-service
     container_name: waiwai-scheduler
-    restart: "always"
-    mem_limit: 512m
-    mem_reservation: 128m
+    restart: always
     volumes:
       - type: bind
         source: ../../config
@@ -53,11 +49,6 @@ services:
     <<: *base-service
     container_name: waiwai-migrate
     restart: "no"
-    mem_limit: 1g
-    mem_reservation: 256m
-    environment:
-      NODE_ENV: production
-      NODE_OPTIONS: --no-deprecation --max-old-space-size=1024
     volumes:
       - type: bind
         source: ../../config
