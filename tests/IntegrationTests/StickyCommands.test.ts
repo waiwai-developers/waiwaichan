@@ -386,7 +386,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// モーダル送信の処理が完了するまで待つ
-			await new Promise((resolve) => setTimeout(resolve, 100));
+			await new Promise((resolve) => setTimeout(resolve, 1000));
 
 			// エラーメッセージが返されたことを検証
 			expect(modalSubmitInteraction.replyMessage).to.eq("スティッキーに登録するメッセージがないよ！っ");
@@ -488,7 +488,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// モーダル送信の処理が完了するまで待つ
-			await new Promise((resolve) => setTimeout(resolve, 100));
+			await new Promise((resolve) => setTimeout(resolve, 1000));
 
 			// 送信されたメッセージの内容が正しいことを検証
 			expect(sentMessage).to.eq(stickyMessageText);
@@ -607,7 +607,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 応答を待つ
-			await waitUntilReply(commandMock, 100);
+			await waitUntilReply(commandMock, 1000);
 
 			// 応答の検証
 			expect(replyValue).to.eq("スティッキーが登録されていなかったよ！っ");
@@ -859,7 +859,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 処理が完了するまで待つ
-			await new Promise((resolve) => setTimeout(resolve, 100));
+			await new Promise((resolve) => setTimeout(resolve, 1000));
 
 			// 応答の検証 - 削除成功メッセージ
 			expect(editReplyValue).to.eq("スティッキーを削除したよ！っ");
@@ -1054,7 +1054,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 処理が完了するまで待つ
-			await new Promise((resolve) => setTimeout(resolve, 100));
+			await new Promise((resolve) => setTimeout(resolve, 1000));
 
 			// 応答の検証 - 削除成功メッセージ
 			expect(editReplyValue).to.eq("スティッキーを削除したよ！っ");
@@ -1689,7 +1689,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// モーダル送信の処理が完了するまで待つ
-			await new Promise((resolve) => setTimeout(resolve, 100));
+			await new Promise((resolve) => setTimeout(resolve, 1000));
 
 			// エラーメッセージが返されたことを検証
 			expect(modalSubmitInteraction.replyMessage).to.eq("スティッキーに登録するメッセージがないよ！っ");

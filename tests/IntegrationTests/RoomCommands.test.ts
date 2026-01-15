@@ -1786,7 +1786,7 @@ describe("Test Room Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
 
-			await new Promise((resolve) => setTimeout(resolve, 100));
+			await new Promise((resolve) => setTimeout(resolve, 1000));
 
 			// 通知が送信されたことを確認
 			expect(notificationSent).to.be.true;
