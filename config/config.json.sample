@@ -8,8 +8,7 @@
 	},
 	"openai": {
 		"openaiApiKey": "",
-		"gptModel": "",
-		"gptPrompt": ""
+		"gptModel": ""
 	},
 	"github": {
 		"appId": "",
