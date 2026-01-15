@@ -69,7 +69,7 @@ services:
     networks:
       - server-network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD-SHELL", "mysql -h localhost -u $$MYSQL_USER -p$$MYSQL_PASSWORD -e 'SELECT 1' $$MYSQL_DATABASE"]
       interval: 10s
       retries: 10
       start_period: 60s
