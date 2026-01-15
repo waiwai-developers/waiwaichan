@@ -1,13 +1,15 @@
 x-base-service: &base-service
+  tty: true
   build:
     context: ../../.
     dockerfile: environment/testing/Dockerfile
   networks:
     - server-network
   environment:
-    GOOGLE_APPLICATION_CREDENTIALS: config/key.json
     CI: "true"
+    GOOGLE_APPLICATION_CREDENTIALS: config/key.json
     NODE_ENV: testing
+    NODE_OPTIONS: --no-deprecation
   volumes:
     - type: bind
       source: ../../config
@@ -17,7 +19,6 @@ services:
     <<: *base-service
     container_name: waiwai-backend
     restart: always
-    tty: true
     volumes:
       - type: bind
         source: ../../.
@@ -25,7 +26,6 @@ services:
       - type: volume
         source: backend_node_modules
         target: /app/node_modules
-    # migrate の完了を待つ
     depends_on:
       database:
         condition: service_healthy
@@ -41,7 +41,7 @@ services:
   scheduler:
     <<: *base-service
     container_name: waiwai-scheduler
-    restart: "always"
+    restart: always
     volumes:
       - type: bind
         source: ../../.
@@ -49,9 +49,6 @@ services:
       - type: volume
         source: scheduler_node_modules
         target: /app/node_modules
-    networks:
-      - server-network
-    # migrate の完了を待つ
     depends_on:
       database:
         condition: service_healthy
@@ -62,9 +59,6 @@ services:
     <<: *base-service
     container_name: waiwai-migrate
     restart: "no"
-    environment:
-      NODE_ENV: testing
-      CI: "true"
     volumes:
       - type: bind
         source: ../../.
@@ -78,10 +72,11 @@ services:
     command: sh -c "pnpm install && pnpm run migrate up && pnpm run seed up"
   database:
     container_name: waiwai-database
+    image: mysql:8.0
+    platform: linux/x86_64
+    restart: always
     env_file:
       - ../../.env
-    restart: always
-    image: mysql:8.0
     command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     ports:
       - "3306:3306"
@@ -89,7 +84,6 @@ services:
       - mysql_data:/var/lib/mysql
     networks:
       - server-network
-    platform: linux/x86_64
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
