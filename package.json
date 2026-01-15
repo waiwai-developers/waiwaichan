@@ -108,8 +108,10 @@
 		"onlyBuiltDependencies": [
 			"@biomejs/biome",
 			"@swc/core",
+			"cpu-features",
 			"esbuild",
-			"protobufjs"
+			"protobufjs",
+			"ssh2"
 		]
 	},
 	"swc": {
