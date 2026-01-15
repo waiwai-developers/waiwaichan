@@ -2,8 +2,7 @@ FROM node:24-alpine
 RUN apk add --no-cache \
     mysql-client \
     logrotate
-ENV NODE_ENV=development \
-    NODE_OPTIONS="--max-old-space-size=1024"
+ENV NODE_ENV=testing
 WORKDIR /app
 RUN corepack enable \
     && corepack prepare pnpm@latest --activate
