@@ -31,7 +31,7 @@ jobs:
         run: |
           docker compose \
             -f environment/testing/docker-compose.yml \
-            exec -T backend sh -c "exec -T backend sh -c "node node_modules/mocha/bin/mocha dist/tests/IntegrationTests/*.test.js"
+            exec -T backend sh -c "node node_modules/mocha/bin/mocha dist/tests/IntegrationTests/*.test.js"
       - name: show logs on failure
         if: failure()
         run: |
