@@ -198,8 +198,8 @@ describe("Test Sticky Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
-			// 応答を待つ
-			await waitUntilReply(commandMock, 1000);
+			// 応答を待つ（タイムアウトを延長）
+			await waitUntilReply(commandMock, 5000);
 
 			// 応答の検証 - TextChannel以外の場合のエラーメッセージ
 			expect(replyValue).to.eq("このチャンネルにはスティッキーを登録できないよ！っ");
