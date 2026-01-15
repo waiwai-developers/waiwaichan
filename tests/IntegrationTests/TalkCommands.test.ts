@@ -330,7 +330,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 		// 応答がないことを確認するため少し待機
-		await new Promise((resolve) => setTimeout(resolve, 1000));
+		await new Promise((resolve) => setTimeout(resolve, 100));
 
 		// スレッドが作成されていないことを確認
 		// ロギングを無効化してからfindAllを実行
@@ -370,7 +370,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 		// 応答がないことを確認するため少し待機
-		await new Promise((resolve) => setTimeout(resolve, 1000));
+		await new Promise((resolve) => setTimeout(resolve, 100));
 
 		// スレッドが作成されていないことを確認
 		// ロギングを無効化してからfindAllを実行

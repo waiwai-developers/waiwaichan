@@ -270,7 +270,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// モーダルが表示されるまで少し待つ
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// モーダルが表示されたことを検証
 			verify(commandMock.showModal(anything())).once();
@@ -386,7 +386,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// モーダル送信の処理が完了するまで待つ
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// エラーメッセージが返されたことを検証
 			expect(modalSubmitInteraction.replyMessage).to.eq("スティッキーに登録するメッセージがないよ！っ");
@@ -488,7 +488,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// モーダル送信の処理が完了するまで待つ
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// 送信されたメッセージの内容が正しいことを検証
 			expect(sentMessage).to.eq(stickyMessageText);
@@ -859,7 +859,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 処理が完了するまで待つ
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// 応答の検証 - 削除成功メッセージ
 			expect(editReplyValue).to.eq("スティッキーを削除したよ！っ");
@@ -956,7 +956,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 処理が完了するまで待つ
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// 応答の検証 - 削除失敗メッセージ
 			expect(replyValue).to.eq("スティッキーの削除に失敗したよ！っ");
@@ -1054,7 +1054,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 処理が完了するまで待つ
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// 応答の検証 - 削除成功メッセージ
 			expect(editReplyValue).to.eq("スティッキーを削除したよ！っ");
@@ -1551,7 +1551,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// モーダルが表示されるまで少し待つ
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// モーダルが表示されたことを検証
 			verify(commandMock.showModal(anything())).once();
@@ -1689,7 +1689,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// モーダル送信の処理が完了するまで待つ
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// エラーメッセージが返されたことを検証
 			expect(modalSubmitInteraction.replyMessage).to.eq("スティッキーに登録するメッセージがないよ！っ");
@@ -1894,7 +1894,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("messageCreate", instance(messageMock));
 
 			// 処理が完了するまで少し待つ
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// テスト後のスティッキー情報を取得
 			const afterStickiy = await StickyRepositoryImpl.findOne({
@@ -1957,7 +1957,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("messageCreate", instance(messageMock));
 
 			// 処理が完了するまで少し待つ
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// テスト後のスティッキー情報を取得
 			const afterStickiy = await StickyRepositoryImpl.findOne({
@@ -2033,7 +2033,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("messageCreate", instance(messageMock));
 
 			// 処理が完了するまで少し待つ
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// テスト後のスティッキー情報を取得
 			const afterStickiy = await StickyRepositoryImpl.findOne({
@@ -2110,7 +2110,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("messageCreate", instance(messageMock));
 
 			// 処理が完了するまで少し待つ
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// テスト後のスティッキー情報を取得
 			const afterStickiy = await StickyRepositoryImpl.findOne({
@@ -2228,7 +2228,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("messageCreate", instance(messageMock));
 
 			// 処理が完了するまで少し待つ
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// テスト後のスティッキー情報を取得
 			const afterStickiy = await StickyRepositoryImpl.findOne({
