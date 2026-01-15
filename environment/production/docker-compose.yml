@@ -12,9 +12,10 @@ x-base-service: &base-service
     - type: bind
       source: ../../config
       target: /app/config
-  restart: always
   mem_limit: 256m
   cpus: 0.5
+  restart: always
+  tty: true
 services:
   backend:
     <<: *base-service
