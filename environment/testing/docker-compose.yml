@@ -18,27 +18,30 @@ services:
   backend:
     <<: *base-service
     container_name: waiwai-backend
-    restart: always
+    restart: "no"
     mem_limit: 1g
     mem_reservation: 512m
-    command: ["dist/src/app.js"]
+    # テスト環境ではDiscordに接続せず、テスト実行を待機する
+    # command: ["dist/src/app.js"]
+    command: ["tail", "-f", "/dev/null"]
     depends_on:
       database:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully
-  scheduler:
-    <<: *base-service
-    container_name: waiwai-scheduler
-    restart: always
-    mem_limit: 1g
-    mem_reservation: 512m
-    command: ["dist/src/scheduler.js"]
-    depends_on:
-      database:
-        condition: service_healthy
-      migrate:
-        condition: service_completed_successfully
+    # テスト環境ではbackendのコンテナでtestのみの実行でする
+  # scheduler:
+  #   <<: *base-service
+  #   container_name: waiwai-scheduler
+  #   restart: always
+  #   mem_limit: 1g
+  #   mem_reservation: 512m
+  #   command: ["dist/src/scheduler.js"]
+  #   depends_on:
+  #     database:
+  #       condition: service_healthy
+  #     migrate:
+  #       condition: service_completed_successfully
   migrate:
     <<: *base-service
     container_name: waiwai-migrate
