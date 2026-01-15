@@ -8,8 +8,7 @@
 	},
 	"openai": {
 		"openaiApiKey": "test-openai-api-key",
-		"gptModel": "gpt-4o-mini",
-		"gptPrompt": "test-prompt"
+		"gptModel": "gpt-4o-mini"
 	},
 	"github": {
 		"appId": "test-app-id",
