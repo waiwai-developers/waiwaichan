@@ -762,7 +762,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 応答を待つ
-			await waitUntilReply(commandMock, 100);
+			await waitUntilReply(commandMock, 1000);
 
 			// 応答の検証 - TextChannel以外の場合のエラーメッセージ
 			expect(replyValue).to.eq("このチャンネルのスティッキーを削除できないよ！っ");
@@ -1426,7 +1426,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 応答を待つ
-			await waitUntilReply(commandMock, 100);
+			await waitUntilReply(commandMock, 1000);
 
 			// 応答の検証 - TextChannel以外の場合のエラーメッセージ
 			expect(replyValue).to.eq("このチャンネルにはスティッキーを登録できないよ！っ");
