@@ -62,6 +62,7 @@ services:
     mem_limit: 1g
     mem_reservation: 256m
     environment:
+      CI: "true"
       NODE_ENV: development
       NODE_OPTIONS: --no-deprecation --max-old-space-size=768
     volumes:
