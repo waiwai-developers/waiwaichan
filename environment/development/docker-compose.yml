@@ -20,7 +20,7 @@ services:
     container_name: waiwai-backend
     restart: always
     mem_limit: 1g
-    mem_reservation: 256m
+    mem_reservation: 512m
     command: ["dist/src/app.js"]
     depends_on:
       database:
@@ -32,7 +32,7 @@ services:
     container_name: waiwai-scheduler
     restart: always
     mem_limit: 1g
-    mem_reservation: 256m
+    mem_reservation: 512m
     command: ["dist/src/scheduler.js"]
     depends_on:
       database:
@@ -44,7 +44,7 @@ services:
     container_name: waiwai-migrate
     restart: "no"
     mem_limit: 1g
-    mem_reservation: 256m
+    mem_reservation: 512m
     command: ["dist/migrator/migrator.js", "up"]
     depends_on:
       database:
@@ -55,7 +55,7 @@ services:
     platform: linux/x86_64
     restart: always
     mem_limit: 1g
-    mem_reservation: 256m
+    mem_reservation: 512m
     env_file:
       - ../../.env
     command: mysqld
