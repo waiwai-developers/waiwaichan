@@ -29,7 +29,6 @@ jobs:
           cp config/configtest.json config/config.json
           cp config/databasetest.json config/database.json
           cp config/roletest.json config/role.json
-
       - name: build docker image with cache
         uses: docker/build-push-action@v6
         with:
@@ -39,7 +38,6 @@ jobs:
           tags: waiwaichan-testing:latest
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
-
       - name: move cache
         run: |
           rm -rf /tmp/.buildx-cache
@@ -50,7 +48,6 @@ jobs:
           docker compose \
             -f environment/testing/docker-compose.yml \
             up -d --wait
-
       - name: run pnpm test into backend container
         run: |
           docker compose \
