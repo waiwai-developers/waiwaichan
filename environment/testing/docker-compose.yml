@@ -9,7 +9,6 @@ x-base-service: &base-service
     CI: "true"
     GOOGLE_APPLICATION_CREDENTIALS: /app/config/key.json
     NODE_ENV: testing
-    NODE_OPTIONS: --no-deprecation --max-old-space-size=1024
   volumes:
     - type: bind
       source: ../../config
@@ -19,8 +18,6 @@ services:
     <<: *base-service
     container_name: waiwai-backend
     restart: "no"
-    mem_limit: 1g
-    mem_reservation: 512m
     # テスト環境ではDiscordに接続せず、テスト実行を待機する
     # command: ["dist/src/app.js"]
     command: ["tail", "-f", "/dev/null"]
@@ -34,7 +31,6 @@ services:
   #   <<: *base-service
   #   container_name: waiwai-scheduler
   #   restart: always
-  #   mem_limit: 1g
   #   mem_reservation: 512m
   #   command: ["dist/src/scheduler.js"]
   #   depends_on:
@@ -46,8 +42,6 @@ services:
     <<: *base-service
     container_name: waiwai-migrate
     restart: "no"
-    mem_limit: 1g
-    mem_reservation: 512m
     command: ["dist/migrator/migrator.js", "up"]
     depends_on:
       database:
@@ -57,15 +51,12 @@ services:
     image: mysql:8.0
     platform: linux/x86_64
     restart: always
-    mem_limit: 1g
-    mem_reservation: 512m
     env_file:
       - ../../.env
     command: >
       mysqld
       --character-set-server=utf8mb4
       --collation-server=utf8mb4_unicode_ci
-      --innodb-buffer-pool-size=1024M
     ports:
       - "3306:3306"
     volumes:

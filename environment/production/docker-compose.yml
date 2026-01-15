@@ -7,7 +7,6 @@ x-base-service: &base-service
     - server-network
   environment:
     NODE_ENV: production
-    NODE_OPTIONS: --no-deprecation --max-old-space-size=2048
   volumes:
     - type: bind
       source: ../../config
@@ -17,8 +16,6 @@ services:
     <<: *base-service
     container_name: waiwai-backend
     restart: always
-    mem_limit: 1g
-    mem_reservation: 512m
     command: ["dist/src/app.js"]
     depends_on:
       migrate:
@@ -27,8 +24,6 @@ services:
     <<: *base-service
     container_name: waiwai-scheduler
     restart: always
-    mem_limit: 1g
-    mem_reservation: 512m
     command: ["dist/src/scheduler.js"]
     depends_on:
       migrate:
@@ -37,8 +32,6 @@ services:
     <<: *base-service
     container_name: waiwai-migrate
     restart: "no"
-    mem_limit: 1g
-    mem_reservation: 512m
     command: ["dist/migrator/migrator.js", "up"]
 networks:
   server-network:
