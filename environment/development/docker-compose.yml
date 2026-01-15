@@ -37,6 +37,7 @@ services:
     <<: *base-service
     container_name: waiwai-scheduler
     restart: "always"
+    tty: true
     mem_limit: 512m
     mem_reservation: 128m
     volumes:
@@ -62,6 +63,7 @@ services:
     mem_limit: 1g
     mem_reservation: 256m
     environment:
+      CI: "true"
       NODE_ENV: development
       NODE_OPTIONS: --no-deprecation --max-old-space-size=768
     volumes:
