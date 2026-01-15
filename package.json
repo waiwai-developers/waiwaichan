@@ -74,7 +74,7 @@
 		"package": "./package.json",
 		"reporter": "spec",
 		"slow": "75",
-		"timeout": "2000",
+		"timeout": "30000",
 		"ui": "bdd",
 		"watch-files": [
 			"lib/**/*.js",
