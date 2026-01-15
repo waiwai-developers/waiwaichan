@@ -18,26 +18,12 @@ services:
     <<: *base-service
     container_name: waiwai-backend
     restart: "no"
-    # テスト環境ではDiscordに接続せず、テスト実行を待機する
-    # command: ["dist/src/app.js"]
-    command: ["tail", "-f", "/dev/null"]
+    command: ["node ../node_modules/mocha/bin/mocha tests/IntegrationTests/*.test.js"]
     depends_on:
       database:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully
-    # テスト環境ではbackendのコンテナでtestのみの実行でする
-  # scheduler:
-  #   <<: *base-service
-  #   container_name: waiwai-scheduler
-  #   restart: always
-  #   mem_reservation: 512m
-  #   command: ["dist/src/scheduler.js"]
-  #   depends_on:
-  #     database:
-  #       condition: service_healthy
-  #     migrate:
-  #       condition: service_completed_successfully
   migrate:
     <<: *base-service
     container_name: waiwai-migrate
