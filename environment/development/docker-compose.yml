@@ -18,7 +18,7 @@ services:
     <<: *base-service
     container_name: waiwai-backend
     restart: always
-    command: ["dist/src/app.js"]
+    command: ["pnpm", "dev"]
     depends_on:
       database:
         condition: service_healthy
@@ -28,7 +28,7 @@ services:
     <<: *base-service
     container_name: waiwai-scheduler
     restart: always
-    command: ["dist/src/scheduler.js"]
+    command: ["pnpm", "dev:scheduler"]
     depends_on:
       database:
         condition: service_healthy
@@ -38,7 +38,7 @@ services:
     <<: *base-service
     container_name: waiwai-migrate
     restart: "no"
-    command: ["dist/migrator/migrator.js", "up"]
+    command: ["pnpm","migrate:all"]
     depends_on:
       database:
         condition: service_healthy

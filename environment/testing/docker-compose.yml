@@ -18,7 +18,7 @@ services:
     <<: *base-service
     container_name: waiwai-backend
     restart: "no"
-    command: ["node ../node_modules/mocha/bin/mocha tests/IntegrationTests/*.test.js"]
+    command: ["pnpm", "test"]
     depends_on:
       database:
         condition: service_healthy
@@ -28,7 +28,7 @@ services:
     <<: *base-service
     container_name: waiwai-migrate
     restart: "no"
-    command: ["dist/migrator/migrator.js", "up"]
+    command: ["pnpm", "migrate"]
     depends_on:
       database:
         condition: service_healthy
