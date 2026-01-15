@@ -62,7 +62,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 応答を待つ
-			await waitUntilReply(commandMock, 1000);
+			await waitUntilReply(commandMock, 100);
 
 			// 応答の検証
 			expect(replyValue).to.eq("スティッキーを登録する権限を持っていないよ！っ");
@@ -126,7 +126,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 応答を待つ
-			await waitUntilReply(commandMock, 1000);
+			await waitUntilReply(commandMock, 100);
 
 			// 応答の検証
 			expect(replyValue).to.eq("スティッキーが既にチャンネルに登録されているよ！っ");
@@ -553,7 +553,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 応答を待つ
-			await waitUntilReply(commandMock, 1000);
+			await waitUntilReply(commandMock, 100);
 
 			// 応答の検証
 			expect(replyValue).to.eq("スティッキーを登録する権限を持っていないよ！っ");
@@ -607,7 +607,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 応答を待つ
-			await waitUntilReply(commandMock, 1000);
+			await waitUntilReply(commandMock, 100);
 
 			// 応答の検証
 			expect(replyValue).to.eq("スティッキーが登録されていなかったよ！っ");
@@ -682,7 +682,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 応答を待つ
-			await waitUntilReply(commandMock, 1000);
+			await waitUntilReply(commandMock, 100);
 
 			// 応答の検証 - チャンネルが存在しない場合のエラーメッセージ
 			expect(replyValue).to.eq("スティッキーの投稿がなかったよ！っ");
@@ -762,7 +762,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 応答を待つ
-			await waitUntilReply(commandMock, 1000);
+			await waitUntilReply(commandMock, 100);
 
 			// 応答の検証 - TextChannel以外の場合のエラーメッセージ
 			expect(replyValue).to.eq("このチャンネルのスティッキーを削除できないよ！っ");
@@ -1107,7 +1107,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 応答を待つ
-			await waitUntilReply(commandMock, 1000);
+			await waitUntilReply(commandMock, 100);
 
 			// 応答の検証
 			expect(replyValue).to.eq("スティッキーを表示する権限を持っていないよ！っ");
@@ -1159,7 +1159,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 応答を待つ
-			await waitUntilReply(commandMock, 1000);
+			await waitUntilReply(commandMock, 100);
 
 			// 応答の検証
 			expect(replyValue).to.eq("スティッキーが登録されていなかったよ！っ");
@@ -1233,7 +1233,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 応答を待つ
-			await waitUntilReply(commandMock, 1000);
+			await waitUntilReply(commandMock, 100);
 
 			// 応答の検証
 			// 1. 適切なフォーマットで表示されていることを検証
@@ -1296,7 +1296,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 応答を待つ
-			await waitUntilReply(commandMock, 1000);
+			await waitUntilReply(commandMock, 100);
 
 			// 応答の検証
 			expect(replyValue).to.eq("スティッキーを更新する権限を持っていないよ！っ");
@@ -1346,7 +1346,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 応答を待つ
-			await waitUntilReply(commandMock, 1000);
+			await waitUntilReply(commandMock, 100);
 
 			// 応答の検証 - スティッキーが存在しない場合のエラーメッセージ
 			expect(replyValue).to.eq("スティッキーが登録されていなかったよ！っ");
@@ -1426,7 +1426,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 応答を待つ
-			await waitUntilReply(commandMock, 1000);
+			await waitUntilReply(commandMock, 100);
 
 			// 応答の検証 - TextChannel以外の場合のエラーメッセージ
 			expect(replyValue).to.eq("このチャンネルにはスティッキーを登録できないよ！っ");
