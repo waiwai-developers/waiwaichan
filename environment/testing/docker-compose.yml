@@ -1,4 +1,5 @@
 x-base-service: &base-service
+  tty: true
   build:
     context: ../../.
     dockerfile: environment/testing/Dockerfile
@@ -18,7 +19,6 @@ services:
     <<: *base-service
     container_name: waiwai-backend
     restart: always
-    tty: true
     mem_limit: 1g
     mem_reservation: 256m
     volumes:
@@ -71,7 +71,6 @@ services:
     mem_reservation: 256m
     environment:
       NODE_ENV: testing
-      CI: "true"
       NODE_OPTIONS: --no-deprecation --max-old-space-size=768
     volumes:
       - type: bind

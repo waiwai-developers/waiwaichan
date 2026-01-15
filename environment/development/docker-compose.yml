@@ -1,10 +1,12 @@
 x-base-service: &base-service
+  tty: true
   build:
     context: ../../.
     dockerfile: environment/development/Dockerfile
   networks:
     - server-network
   environment:
+    CI: "true"
     GOOGLE_APPLICATION_CREDENTIALS: config/key.json
     NODE_OPTIONS: --no-deprecation --max-old-space-size=512
   volumes:
@@ -16,7 +18,6 @@ services:
     <<: *base-service
     container_name: waiwai-backend
     restart: always
-    tty: true
     mem_limit: 1g
     mem_reservation: 256m
     volumes:
@@ -37,7 +38,6 @@ services:
     <<: *base-service
     container_name: waiwai-scheduler
     restart: "always"
-    tty: true
     mem_limit: 512m
     mem_reservation: 128m
     volumes:
@@ -63,7 +63,6 @@ services:
     mem_limit: 1g
     mem_reservation: 256m
     environment:
-      CI: "true"
       NODE_ENV: development
       NODE_OPTIONS: --no-deprecation --max-old-space-size=768
     volumes:
