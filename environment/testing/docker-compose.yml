@@ -19,7 +19,7 @@ x-base-service: &base-service
     - type: volume
       source: node_modules
       target: /app/node_modules
-  mem_limit: 512m
+  mem_limit: 1024m
   restart: always
   tty: true
 services:
@@ -52,7 +52,7 @@ services:
     <<: *base-service
     container_name: waiwai-migrate
     restart: "no"
-    mem_limit: 512m
+    mem_limit: 1024m
     depends_on:
       database:
         condition: service_healthy

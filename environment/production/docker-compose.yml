@@ -10,7 +10,7 @@ x-base-service: &base-service
     - type: bind
       source: ../../config
       target: /app/config
-  mem_limit: 512m
+  mem_limit: 1024m
   restart: always
   tty: true
 services:
@@ -26,7 +26,7 @@ services:
     <<: *base-service
     container_name: waiwai-migrate
     restart: "no"
-    mem_limit: 512m
+    mem_limit: 1024m
     command:
       [
         "sh",
