@@ -1,14 +1,14 @@
 x-base-service: &base-service
-  tty: true
   build:
     context: ../../.
     dockerfile: environment/development/Dockerfile
+  image: waiwai-app:development
   networks:
     - server-network
   environment:
     CI: "true"
-    GOOGLE_APPLICATION_CREDENTIALS: config/key.json
-    NODE_ENV: development
+    GOOGLE_APPLICATION_CREDENTIALS: /app/config/key.json
+    NODE_ENV: production
     NODE_OPTIONS: --no-deprecation --max-old-space-size=1024
   volumes:
     - type: bind
@@ -21,55 +21,34 @@ services:
     restart: always
     mem_limit: 1g
     mem_reservation: 256m
-    volumes:
-      - type: bind
-        source: ../../.
-        target: /app
-      - type: volume
-        source: backend_node_modules
-        target: /app/node_modules
+    command: ["dist/src/app.js"]
     depends_on:
       database:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully
-    command: sh -c "pnpm install && pnpm run dev"
   scheduler:
     <<: *base-service
     container_name: waiwai-scheduler
     restart: always
     mem_limit: 1g
     mem_reservation: 256m
-    volumes:
-      - type: bind
-        source: ../../.
-        target: /app
-      - type: volume
-        source: scheduler_node_modules
-        target: /app/node_modules
+    command: ["dist/src/scheduler.js"]
     depends_on:
       database:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully
-    command: sh -c "pnpm install && pnpm run dev:scheduler"
   migrate:
     <<: *base-service
     container_name: waiwai-migrate
     restart: "no"
     mem_limit: 1g
     mem_reservation: 256m
-    volumes:
-      - type: bind
-        source: ../../.
-        target: /app
-      - type: volume
-        source: migrate_node_modules
-        target: /app/node_modules
+    command: ["dist/migrator/migrator.js", "up"]
     depends_on:
       database:
         condition: service_healthy
-    command: sh -c "pnpm install && pnpm run migrate up && pnpm run seed up && pnpm run datafix up"
   database:
     container_name: waiwai-database
     image: mysql:8.0
@@ -79,7 +58,10 @@ services:
     mem_reservation: 256m
     env_file:
       - ../../.env
-    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --innodb-buffer-pool-size=1024M
+    command: mysqld
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --innodb-buffer-pool-size=1024M
     ports:
       - "3306:3306"
     volumes:
@@ -97,6 +79,3 @@ networks:
     driver: bridge
 volumes:
   mysql_data:
-  backend_node_modules:
-  scheduler_node_modules:
-  migrate_node_modules:

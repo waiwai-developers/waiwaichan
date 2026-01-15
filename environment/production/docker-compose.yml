@@ -1,15 +1,13 @@
 x-base-service: &base-service
-  tty: true
   build:
     context: ../../.
     dockerfile: environment/production/Dockerfile
+  image: waiwai-app:production
   networks:
     - server-network
   environment:
-    CI: "true"
-    GOOGLE_APPLICATION_CREDENTIALS: config/key.json
     NODE_ENV: production
-    NODE_OPTIONS: --no-deprecation --max-old-space-size=1024
+    NODE_OPTIONS: --max-old-space-size=1024
   volumes:
     - type: bind
       source: ../../config
@@ -19,54 +17,23 @@ services:
     <<: *base-service
     container_name: waiwai-backend
     restart: always
-    mem_limit: 1g
-    mem_reservation: 256m
-    volumes:
-      - type: bind
-        source: ../../config
-        target: /app/config
-      - type: volume
-        source: backend_node_modules
-        target: /app/node_modules
+    command: ["dist/src/app.js"]
     depends_on:
       migrate:
         condition: service_completed_successfully
-    command: sh -c "pnpm install && pnpm run dev"
   scheduler:
     <<: *base-service
     container_name: waiwai-scheduler
     restart: always
-    mem_limit: 1g
-    mem_reservation: 256m
-    volumes:
-      - type: bind
-        source: ../../config
-        target: /app/config
-      - type: volume
-        source: scheduler_node_modules
-        target: /app/node_modules
+    command: ["dist/src/scheduler.js"]
     depends_on:
       migrate:
         condition: service_completed_successfully
-    command: sh -c "pnpm install && pnpm run dev:scheduler"
   migrate:
     <<: *base-service
     container_name: waiwai-migrate
     restart: "no"
-    mem_limit: 1g
-    mem_reservation: 256m
-    volumes:
-      - type: bind
-        source: ../../config
-        target: /app/config
-      - type: volume
-        source: migrate_node_modules
-        target: /app/node_modules
-    command: sh -c "pnpm install && pnpm run migrate up && pnpm run seed up && pnpm run datafix up"
+    command: ["dist/migrator/migrator.js", "up"]
 networks:
   server-network:
     driver: bridge
-volumes:
-  backend_node_modules:
-  scheduler_node_modules:
-  migrate_node_modules:
