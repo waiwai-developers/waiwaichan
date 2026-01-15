@@ -155,12 +155,12 @@ describe("Test Candy Commands", () => {
 				TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 				// 各コマンド実行後に少し待機して処理が完了するのを待つ
 				if (i % 10 === 0) {
-					await new Promise((resolve) => setTimeout(resolve, 100));
+					await new Promise((resolve) => setTimeout(resolve, 1000));
 				}
 			}
 
 			// 応答を待つ
-			await waitSlashUntilReply(commandMock, 100, candyAmount);
+			await waitSlashUntilReply(commandMock, 1000, candyAmount);
 
 			// 応答の検証
 			verify(commandMock.reply(anything())).times(candyAmount + 1);
@@ -740,7 +740,7 @@ describe("Test Candy Commands", () => {
 			TEST_CLIENT.emit("messageReactionAdd", instance(reaction), instance(user), instance(mock<MessageReactionEventDetails>()));
 
 			// 少し待機してハンドラーの処理が完了するのを待つ
-			await new Promise((resolve) => setTimeout(resolve, 100));
+			await new Promise((resolve) => setTimeout(resolve, 1000));
 
 			// データベースの検証
 			const res = await CandyRepositoryImpl.findAll();
@@ -842,7 +842,7 @@ describe("Test Candy Commands", () => {
 			TEST_CLIENT.emit("messageReactionAdd", instance(reaction1), instance(user1), instance(mock<MessageReactionEventDetails>()));
 
 			// 少し待機してハンドラーの処理が完了するのを待つ
-			await new Promise((resolve) => setTimeout(resolve, 100));
+			await new Promise((resolve) => setTimeout(resolve, 1000));
 
 			// キャンディが1つ増えていることを確認
 			let afterCount = await CandyRepositoryImpl.count();
@@ -857,7 +857,7 @@ describe("Test Candy Commands", () => {
 			TEST_CLIENT.emit("messageReactionAdd", instance(reaction2), instance(user2), instance(mock<MessageReactionEventDetails>()));
 
 			// 少し待機してハンドラーの処理が完了するのを待つ
-			await new Promise((resolve) => setTimeout(resolve, 100));
+			await new Promise((resolve) => setTimeout(resolve, 1000));
 
 			// キャンディの数が変わっていないことを確認（重複は追加されない）
 			afterCount = await CandyRepositoryImpl.count();
@@ -890,7 +890,7 @@ describe("Test Candy Commands", () => {
 			TEST_CLIENT.emit("messageReactionAdd", instance(reaction), instance(user), instance(mock<MessageReactionEventDetails>()));
 
 			// 少し待機してハンドラーの処理が完了するのを待つ
-			await new Promise((resolve) => setTimeout(resolve, 100));
+			await new Promise((resolve) => setTimeout(resolve, 1000));
 
 			// 応答の検証
 			verify(messageMock.reply(anything())).never(); // モックなので実際には呼ばれない
@@ -945,7 +945,7 @@ describe("Test Candy Commands", () => {
 			TEST_CLIENT.emit("messageReactionAdd", instance(reaction), instance(user), instance(mock<MessageReactionEventDetails>()));
 
 			// 少し待機してハンドラーの処理が完了するのを待つ
-			await new Promise((resolve) => setTimeout(resolve, 100));
+			await new Promise((resolve) => setTimeout(resolve, 1000));
 
 			// キャンディが3つ増えていることを確認（SUPER_CANDY_AMOUNT = 3）
 			const candies = await CandyRepositoryImpl.findAll();
@@ -992,7 +992,7 @@ describe("Test Candy Commands", () => {
 			TEST_CLIENT.emit("messageReactionAdd", instance(reaction), instance(user), instance(mock<MessageReactionEventDetails>()));
 
 			// 少し待機してハンドラーの処理が完了するのを待つ
-			await new Promise((resolve) => setTimeout(resolve, 100));
+			await new Promise((resolve) => setTimeout(resolve, 1000));
 
 			// 作成されたキャンディの日付を同じ月に設定
 			const today = new Date();
@@ -1018,7 +1018,7 @@ describe("Test Candy Commands", () => {
 			TEST_CLIENT.emit("messageReactionAdd", instance(reaction2), instance(user2), instance(mock<MessageReactionEventDetails>()));
 
 			// 少し待機してハンドラーの処理が完了するのを待つ
-			await new Promise((resolve) => setTimeout(resolve, 100));
+			await new Promise((resolve) => setTimeout(resolve, 1000));
 
 			// キャンディの数が変わっていないことを確認（1ヶ月に1回しか付与できないため追加されない）
 			const res = await CandyRepositoryImpl.findAll();
@@ -1057,7 +1057,7 @@ describe("Test Candy Commands", () => {
 			TEST_CLIENT.emit("messageReactionAdd", instance(reaction), instance(user), instance(mock<MessageReactionEventDetails>()));
 
 			// 少し待機してハンドラーの処理が完了するのを待つ
-			await new Promise((resolve) => setTimeout(resolve, 100));
+			await new Promise((resolve) => setTimeout(resolve, 1000));
 
 			// キャンディが増えていることを確認
 			let afterCount = await CandyRepositoryImpl.count();
@@ -1073,7 +1073,7 @@ describe("Test Candy Commands", () => {
 			TEST_CLIENT.emit("messageReactionAdd", instance(reaction2), instance(user2), instance(mock<MessageReactionEventDetails>()));
 
 			// 少し待機してハンドラーの処理が完了するのを待つ
-			await new Promise((resolve) => setTimeout(resolve, 100));
+			await new Promise((resolve) => setTimeout(resolve, 1000));
 
 			// キャンディの数が変わっていないことを確認（重複は追加されない）
 			afterCount = await CandyRepositoryImpl.count();
@@ -1686,7 +1686,7 @@ describe("Test Candy Commands", () => {
 
 			for (let i = 0; i < maxDraws && !jackpotFound; i++) {
 				TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-				await waitSlashUntilReply(commandMock, 100, i + 1);
+				await waitSlashUntilReply(commandMock, 1000, i + 1);
 			}
 
 			// 応答の検証

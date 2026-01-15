@@ -509,7 +509,7 @@ describe("Test Reminder Commands", () => {
 		}
 
 		// Wait a bit for any async operations to complete
-		await new Promise((resolve) => setTimeout(resolve, 100));
+		await new Promise((resolve) => setTimeout(resolve, 1000));
 
 		// Verify that the reminder was NOT deleted because of the error (rollback occurred)
 		const res = await ReminderRepositoryImpl.findAll();

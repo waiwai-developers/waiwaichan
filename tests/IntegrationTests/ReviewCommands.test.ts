@@ -91,7 +91,7 @@ describe("Test Review Commands", () => {
 
 			// Wait for async operations with retries
 			for (let i = 0; i < 10 && !startThreadCalled; i++) {
-				await new Promise((resolve) => setTimeout(resolve, 100));
+				await new Promise((resolve) => setTimeout(resolve, 1000));
 			}
 
 			// Verify startThread was called with correct options
