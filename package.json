@@ -8,7 +8,7 @@
 		"build": "tsc && tsc-alias",
 		"start": "node dist/app.js",
 		"scheduler": "node dist/scheduler.js",
-        "migrate": "node dist/migrator/migrator.js",
+        "migrate": "node dist/migrator/migrator.js up",
         "seed": "node dist/migrator/seeder.js",
         "datafix": "node dist/migrator/datafixer.js",
         "migrate:all": "node dist/migrator/migrator.js up && node dist/migrator/seeder.js up && node dist/migrator/datafixer.js up",
