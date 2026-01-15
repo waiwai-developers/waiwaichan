@@ -39,15 +39,6 @@ services:
       retries: 3
       start_period: 30s
       timeout: 5s
-  scheduler:
-    <<: *base-service
-    container_name: waiwai-scheduler
-    depends_on:
-      database:
-        condition: service_healthy
-      migrate:
-        condition: service_completed_successfully
-    command: ["pnpm", "run", "test:scheduler"]
   migrate:
     <<: *base-service
     container_name: waiwai-migrate
