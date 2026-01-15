@@ -40,7 +40,9 @@ jobs:
             -f environment/testing/docker-compose.yml \
             logs --no-color
           echo "=== Migrate container logs ==="
-          docker logs waiwai-migrate 2>&1 || true
+          docker compose \
+            -f environment/testing/docker-compose.yml \
+            logs migrate --no-color 2>&1 || true
       - name: docker compose down
         if: always()
         run: |
