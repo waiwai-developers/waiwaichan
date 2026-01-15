@@ -9,7 +9,7 @@ x-base-service: &base-service
     CI: "true"
     GOOGLE_APPLICATION_CREDENTIALS: /app/config/key.json
     NODE_ENV: production
-    NODE_OPTIONS: --no-deprecation --max-old-space-size=1024
+    NODE_OPTIONS: --no-deprecation --max-old-space-size=2048
   volumes:
     - type: bind
       source: ../../config
