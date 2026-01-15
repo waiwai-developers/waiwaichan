@@ -18,7 +18,7 @@ services:
     restart: always
     command: ["dist/src/app.js"]
     depends_on:
-      migrate:
+      datafix:
         condition: service_completed_successfully
   scheduler:
     <<: *base-service
@@ -26,13 +26,29 @@ services:
     restart: always
     command: ["dist/src/scheduler.js"]
     depends_on:
-      migrate:
+      datafix:
         condition: service_completed_successfully
   migrate:
     <<: *base-service
     container_name: waiwai-migrate
     restart: "no"
     command: ["dist/migrator/migrator.js", "up"]
+  seed:
+    <<: *base-service
+    container_name: waiwai-seed
+    restart: "no"
+    command: ["dist/migrator/seeder.js", "up"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+  datafix:
+    <<: *base-service
+    container_name: waiwai-datafix
+    restart: "no"
+    command: ["dist/migrator/datafixer.js", "up"]
+    depends_on:
+      seed:
+        condition: service_completed_successfully
 networks:
   server-network:
     driver: bridge
