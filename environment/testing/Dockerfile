@@ -15,13 +15,10 @@ RUN mkdir -p logs
 ############################
 # runtime stage
 ############################
-# FROM gcr.io/distroless/nodejs24-debian13:latest
-FROM node:24-bookworm-slim
+FROM gcr.io/distroless/nodejs24-debian13:latest
 ENV NODE_ENV=testing
 WORKDIR /app
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder --chown=nonroot:nonroot /app/logs ./logs
-# CMD ["dist/src/app.js"]
-CMD ["node", "dist/src/app.js"]
