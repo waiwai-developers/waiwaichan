@@ -50,7 +50,7 @@ describe("Test Review Commands", () => {
 
 			const commandMock = mockSlashCommand("reviewgacha", { id: 1 }, { userId: AccountsConfig.users[0].discordId, withChannel: true });
 
-			when(commandMock.reply(anything())).thenResolve(message);
+			when(commandMock.reply(anything())).thenResolve(message as any);
 
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 			await waitUntilReply(commandMock);
@@ -85,7 +85,7 @@ describe("Test Review Commands", () => {
 			});
 
 			const message = instance(messageMock);
-			when(commandMock.reply(anything())).thenResolve(message);
+			when(commandMock.reply(anything())).thenResolve(message as any);
 
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 			await waitUntilReply(commandMock);

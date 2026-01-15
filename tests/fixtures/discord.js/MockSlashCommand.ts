@@ -128,7 +128,7 @@ export const mockSlashCommand = (
 
 	// Setup reply to return replyMessage if provided
 	if (replyMessage) {
-		when(commandInteractionMock.reply(anything())).thenResolve(replyMessage);
+		when(commandInteractionMock.reply(anything())).thenResolve(replyMessage as any);
 	}
 
 	return commandInteractionMock;
