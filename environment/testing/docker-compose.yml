@@ -8,6 +8,7 @@ x-base-service: &base-service
     GOOGLE_APPLICATION_CREDENTIALS: config/key.json
     CI: "true"
     NODE_ENV: testing
+    NODE_OPTIONS: --no-deprecation --max-old-space-size=512
   volumes:
     - type: bind
       source: ../../config
@@ -18,6 +19,8 @@ services:
     container_name: waiwai-backend
     restart: always
     tty: true
+    mem_limit: 1g
+    mem_reservation: 256m
     volumes:
       - type: bind
         source: ../../.
@@ -42,6 +45,8 @@ services:
     <<: *base-service
     container_name: waiwai-scheduler
     restart: "always"
+    mem_limit: 512m
+    mem_reservation: 128m
     volumes:
       - type: bind
         source: ../../.
@@ -62,9 +67,12 @@ services:
     <<: *base-service
     container_name: waiwai-migrate
     restart: "no"
+    mem_limit: 1g
+    mem_reservation: 256m
     environment:
       NODE_ENV: testing
       CI: "true"
+      NODE_OPTIONS: --no-deprecation --max-old-space-size=768
     volumes:
       - type: bind
         source: ../../.
@@ -82,7 +90,9 @@ services:
       - ../../.env
     restart: always
     image: mysql:8.0
-    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    mem_limit: 1g
+    mem_reservation: 256m
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --innodb-buffer-pool-size=256M
     ports:
       - "3306:3306"
     volumes:

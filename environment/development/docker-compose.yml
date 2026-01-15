@@ -6,7 +6,7 @@ x-base-service: &base-service
     - server-network
   environment:
     GOOGLE_APPLICATION_CREDENTIALS: config/key.json
-    NODE_OPTIONS: --no-deprecation
+    NODE_OPTIONS: --no-deprecation --max-old-space-size=512
   volumes:
     - type: bind
       source: ../../config
@@ -17,6 +17,8 @@ services:
     container_name: waiwai-backend
     restart: always
     tty: true
+    mem_limit: 1g
+    mem_reservation: 256m
     volumes:
       - type: bind
         source: ../../.
@@ -30,11 +32,13 @@ services:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully
-    command: sh -c "npm i && pnpm run dev"
+    command: sh -c "pnpm install && pnpm run dev"
   scheduler:
     <<: *base-service
     container_name: waiwai-scheduler
     restart: "always"
+    mem_limit: 512m
+    mem_reservation: 128m
     volumes:
       - type: bind
         source: ../../.
@@ -50,13 +54,16 @@ services:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully
-    command: sh -c "npm i && pnpm run dev:scheduler"
+    command: sh -c "pnpm install && pnpm run dev:scheduler"
   migrate:
     <<: *base-service
     container_name: waiwai-migrate
     restart: "no"
+    mem_limit: 1g
+    mem_reservation: 256m
     environment:
       NODE_ENV: development
+      NODE_OPTIONS: --no-deprecation --max-old-space-size=768
     volumes:
       - type: bind
         source: ../../.
@@ -67,14 +74,16 @@ services:
     depends_on:
       database:
         condition: service_healthy
-    command: sh -c "npm i && pnpm run migrate up && pnpm run seed up && pnpm run datafix up"
+    command: sh -c "pnpm install && pnpm run migrate up && pnpm run seed up && pnpm run datafix up"
   database:
     container_name: waiwai-database
     env_file:
       - ../../.env
     restart: always
     image: mysql:8.0
-    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    mem_limit: 1g
+    mem_reservation: 256m
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --innodb-buffer-pool-size=256M
     ports:
       - "3306:3306"
     volumes:
