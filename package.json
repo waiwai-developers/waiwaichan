@@ -11,7 +11,7 @@
         "migrate": "node dist/migrator/migrator.js",
         "seed": "node dist/migrator/seeder.js",
         "datafix": "node dist/migrator/datafixer.js",
-        "migrate:all": "node dist/migrator/migrator.js && node dist/migrator/seeder.js && node dist/migrator/datafixer.js",
+        "migrate:all": "node dist/migrator/migrator.js up && node dist/migrator/seeder.js up && node dist/migrator/datafixer.js up",
         "dev": "tsx watch src/app.ts",
         "dev:scheduler": "tsx watch src/scheduler.ts",
         "test": "mocha --import=@swc-node/register/esm-register",
