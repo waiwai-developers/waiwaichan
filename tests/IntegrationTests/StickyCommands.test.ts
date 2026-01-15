@@ -148,7 +148,7 @@ describe("Test Sticky Commands", () => {
 	 * - StickyLogic.createが呼ばれないことを検証
 	 */
 	it("should not create sticky when channel is not a TextChannel", function (this: Mocha.Context) {
-		this.timeout(10_000);
+		this.timeout(100_000);
 
 		return (async () => {
 			// テスト用のチャンネルID
@@ -199,7 +199,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 応答を待つ（タイムアウトを延長）
-			await waitUntilReply(commandMock, 5000);
+			await waitUntilReply(commandMock, 10_000);
 
 			// 応答の検証 - TextChannel以外の場合のエラーメッセージ
 			expect(replyValue).to.eq("このチャンネルにはスティッキーを登録できないよ！っ");

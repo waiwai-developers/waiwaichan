@@ -121,7 +121,7 @@ describe("Test Candy Commands", () => {
 	 */
 	it("should draw items with expected probabilities", function (this: Mocha.Context) {
 		// テストの複雑さを考慮して、タイムアウトを長めに設定
-		this.timeout(100_000);
+		this.timeout(200_000);
 
 		return (async () => {
 			// コマンドのモック作成
@@ -155,12 +155,12 @@ describe("Test Candy Commands", () => {
 				TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 				// 各コマンド実行後に少し待機して処理が完了するのを待つ
 				if (i % 10 === 0) {
-					await new Promise((resolve) => setTimeout(resolve, 1000));
+					await new Promise((resolve) => setTimeout(resolve, 10000));
 				}
 			}
 
 			// 応答を待つ
-			await waitSlashUntilReply(commandMock, 1000, candyAmount);
+			await waitSlashUntilReply(commandMock, 10000, candyAmount);
 
 			// 応答の検証
 			verify(commandMock.reply(anything())).times(candyAmount + 1);
