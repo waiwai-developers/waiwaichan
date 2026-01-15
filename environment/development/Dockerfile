@@ -1,4 +1,4 @@
-FROM node:24-alpine
+FROM node:22.5.1-alpine
 WORKDIR /app
 COPY . .
 RUN apk update && apk add mysql-client logrotate
