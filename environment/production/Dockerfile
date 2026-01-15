@@ -13,7 +13,7 @@ RUN pnpm run build
 RUN mkdir -p logs
 
 ############################
-# runtime stage (distroless)
+# runtime stage
 ############################
 FROM gcr.io/distroless/nodejs24-debian13:latest
 ENV NODE_ENV=production
