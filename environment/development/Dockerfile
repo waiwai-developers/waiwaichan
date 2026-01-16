@@ -28,4 +28,4 @@ COPY --from=builder /app/src ./src
 COPY --from=builder /app/migrator ./migrator
 COPY --from=builder /app/tests ./tests
 COPY --from=builder --chown=node:node /app/logs ./logs
-CMD ["pnpm", "run", "dev"]
+CMD ["pnpm", "run", "dev:backend:"]
