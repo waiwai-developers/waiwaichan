@@ -6,8 +6,6 @@ import { CandyItemCommandHandler } from "@/src/handlers/discord.js/commands/Cand
 import { ChoiceCommandHandler } from "@/src/handlers/discord.js/commands/ChoiceCommandHandler";
 import { DiceCommandHandler } from "@/src/handlers/discord.js/commands/DiceCommandHandler";
 import { HelpCommandHandler } from "@/src/handlers/discord.js/commands/HelpCommandHandler";
-import { MinecraftStartCommandHandler } from "@/src/handlers/discord.js/commands/MinecraftStartCommandHandler";
-import { MinecraftStopCommandHandler } from "@/src/handlers/discord.js/commands/MinecraftStopCommandHandler";
 import { ParrotCommandHandler } from "@/src/handlers/discord.js/commands/ParrotCommandHandler";
 import { ReminderDeleteCommandHandler } from "@/src/handlers/discord.js/commands/ReminderDeleteCommandHandler";
 import { ReminderListCommandHandler } from "@/src/handlers/discord.js/commands/ReminderListCommandHandler";
@@ -34,8 +32,6 @@ export {
 	ChoiceCommandHandler,
 	DiceCommandHandler,
 	HelpCommandHandler,
-	MinecraftStartCommandHandler,
-	MinecraftStopCommandHandler,
 	ParrotCommandHandler,
 	CandyCheckCommandHandler,
 	CandyExchangeCommandHandler,
