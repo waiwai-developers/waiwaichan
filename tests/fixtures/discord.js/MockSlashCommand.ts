@@ -103,6 +103,8 @@ export const mockSlashCommand = (
 	when(commandInteractionMock.commandName).thenReturn(commandName);
 	when(commandInteractionMock.isChatInputCommand()).thenReturn(true);
 	when(commandInteractionMock.deferReply()).thenResolve();
+	when(commandInteractionMock.replied).thenReturn(false);
+	when(commandInteractionMock.deferred).thenReturn(false);
 	const userMock = mock(User);
 	when(userMock.id).thenReturn(userId);
 	when(commandInteractionMock.user).thenReturn(instance(userMock));
@@ -126,7 +128,7 @@ export const mockSlashCommand = (
 
 	// Setup reply to return replyMessage if provided
 	if (replyMessage) {
-		when(commandInteractionMock.reply(anything())).thenResolve(replyMessage);
+		when(commandInteractionMock.reply(anything())).thenResolve(replyMessage as any);
 	}
 
 	return commandInteractionMock;

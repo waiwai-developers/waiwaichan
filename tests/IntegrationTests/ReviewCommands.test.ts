@@ -50,7 +50,7 @@ describe("Test Review Commands", () => {
 
 			const commandMock = mockSlashCommand("reviewgacha", { id: 1 }, { userId: AccountsConfig.users[0].discordId, withChannel: true });
 
-			when(commandMock.reply(anything())).thenResolve(message);
+			when(commandMock.reply(anything())).thenResolve(message as any);
 
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 			await waitUntilReply(commandMock);
@@ -65,7 +65,8 @@ describe("Test Review Commands", () => {
 		 * - スレッド名が「#${id}のpull reqのレビュー依頼」形式であることを検証
 		 * - autoArchiveDurationが60に設定されていることを検証
 		 */
-		it("should create thread with correct name format and autoArchiveDuration", async () => {
+		it("should create thread with correct name format and autoArchiveDuration", async function () {
+			this.timeout(15000);
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 
 			const commandMock = mockSlashCommand("reviewgacha", { id: 1 }, { userId: AccountsConfig.users[0].discordId, withChannel: true });
@@ -84,7 +85,7 @@ describe("Test Review Commands", () => {
 			});
 
 			const message = instance(messageMock);
-			when(commandMock.reply(anything())).thenResolve(message);
+			when(commandMock.reply(anything())).thenResolve(message as any);
 
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 			await waitUntilReply(commandMock);

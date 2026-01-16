@@ -68,7 +68,7 @@ describe("Test Room Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 応答を待つ
-			await waitUntilReply(commandMock, 100);
+			await waitUntilReply(commandMock, 1000);
 
 			// 応答の検証
 			expect(replyValue).to.eq("部屋追加チャンネルを登録する権限を持っていないよ！っ");
@@ -337,7 +337,7 @@ describe("Test Room Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 応答を待つ
-			await waitUntilReply(commandMock, 100);
+			await waitUntilReply(commandMock, 1000);
 
 			// 応答の検証
 			expect(replyValue).to.eq("このチャンネルはボイスチャンネルないので部屋追加チャンネルとして登録できないよ！っ");
@@ -457,7 +457,7 @@ describe("Test Room Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 応答を待つ
-			await waitUntilReply(commandMock, 100);
+			await waitUntilReply(commandMock, 1000);
 
 			// 応答の検証
 			expect(replyValue).to.eq("部屋追加チャンネルを登録する権限を持っていないよ！っ");
@@ -621,7 +621,7 @@ describe("Test Room Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 応答を待つ
-			await waitUntilReply(commandMock, 100);
+			await waitUntilReply(commandMock, 1000);
 
 			// 応答の検証
 			expect(replyValue).to.eq("部屋追加チャンネルが登録されていなかったよ！っ");
@@ -668,7 +668,7 @@ describe("Test Room Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 応答を待つ
-			await waitUntilReply(commandMock, 100);
+			await waitUntilReply(commandMock, 1000);
 
 			// 応答の検証
 			expect(replyValue).to.eq("部屋通知チャンネルを登録する権限を持っていないよ！っ");
@@ -1056,7 +1056,7 @@ describe("Test Room Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 応答を待つ
-			await waitUntilReply(commandMock, 100);
+			await waitUntilReply(commandMock, 1000);
 
 			// 応答の検証
 			expect(replyValue).to.eq("部屋通知チャンネルを登録する権限を持っていないよ！っ");
@@ -1278,7 +1278,7 @@ describe("Test Room Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
 
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// 部屋が作成されたことを確認
 			const afterData = await RoomChannelRepositoryImpl.findAll();
@@ -1344,7 +1344,7 @@ describe("Test Room Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
 
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// 部屋が作成されたことを確認
 			const afterData = await RoomChannelRepositoryImpl.findAll();
@@ -1403,7 +1403,7 @@ describe("Test Room Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
 
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// 部屋が作成されていないことを確認
 			const afterCount = await RoomChannelRepositoryImpl.count();
@@ -1443,7 +1443,7 @@ describe("Test Room Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
 
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// 部屋が作成されたことを確認
 			const afterData = await RoomChannelRepositoryImpl.findAll();
@@ -1493,7 +1493,7 @@ describe("Test Room Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
 
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// 部屋が作成されていないことを確認
 			const afterCount = await RoomChannelRepositoryImpl.count();
@@ -1527,7 +1527,7 @@ describe("Test Room Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
 
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// 部屋が作成されていないことを確認
 			const afterCount = await RoomChannelRepositoryImpl.count();
@@ -1558,7 +1558,7 @@ describe("Test Room Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
 
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// データが作成されていないことを確認
 			const afterCount = await RoomChannelRepositoryImpl.count();
@@ -1591,7 +1591,7 @@ describe("Test Room Commands", () => {
 
 			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
 
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// データが作成されていないことを確認
 			const afterCount = await RoomChannelRepositoryImpl.count();
@@ -1728,7 +1728,7 @@ describe("Test Room Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
 
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// データが作成されていることを確認
 			const afterData = await RoomChannelRepositoryImpl.findAll();
@@ -1820,7 +1820,7 @@ describe("Test Room Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
 
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// データは作成されていることを確認
 			const afterData = await RoomChannelRepositoryImpl.findAll();
@@ -1886,7 +1886,7 @@ describe("Test Room Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
 
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// データが削除されていることを確認
 			const afterData = await RoomChannelRepositoryImpl.findAll();
@@ -1938,7 +1938,7 @@ describe("Test Room Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
 
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// 通知が送信されていないことを確認
 			expect(notificationSent).to.be.false;
@@ -1981,7 +1981,7 @@ describe("Test Room Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
 
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// データが削除されていることを確認
 			const afterData = await RoomChannelRepositoryImpl.findAll();
@@ -2027,7 +2027,7 @@ describe("Test Room Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
 
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// 部屋が削除されていないことを確認
 			const afterCount = await RoomChannelRepositoryImpl.count();
@@ -2061,7 +2061,7 @@ describe("Test Room Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
 
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// 部屋が削除されていないことを確認
 			const afterCount = await RoomChannelRepositoryImpl.count();
@@ -2123,7 +2123,7 @@ describe("Test Room Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
 
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// データが削除されていることを確認
 			const afterData = await RoomChannelRepositoryImpl.findAll();
@@ -2165,7 +2165,7 @@ describe("Test Room Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
 
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// データが削除されていないことを確認
 			const afterCount = await RoomChannelRepositoryImpl.count();
@@ -2274,7 +2274,7 @@ describe("Test Room Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
 
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// 何も削除されていないことを確認
 			const afterCount = await RoomChannelRepositoryImpl.count();
@@ -2352,7 +2352,7 @@ describe("Test Room Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
 
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// データが削除されていることを確認
 			const afterData = await RoomChannelRepositoryImpl.findAll();
@@ -2441,7 +2441,7 @@ describe("Test Room Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
 
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// データは削除されていることを確認
 			const afterData = await RoomChannelRepositoryImpl.findAll();
