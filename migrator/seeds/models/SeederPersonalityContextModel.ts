@@ -18,9 +18,7 @@ class SeederPersonalityContextModel extends Model {
 	@Column(DataType.INTEGER)
 	declare contextId: number;
 
-	async bulkUpsert(
-		data: Array<{ personalityId: number; contextId: number; }>,
-	) {
+	async bulkUpsert(data: Array<{ personalityId: number; contextId: number }>) {
 		await Promise.all(
 			data.map(async (d) => await SeederPersonalityContextModel.upsert(d)),
 		);
