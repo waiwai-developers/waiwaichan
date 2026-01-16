@@ -21,9 +21,7 @@ class SeederContextModel extends Model {
 	@Column(DataType.JSON)
 	declare prompt: JSON;
 
-	async bulkUpsert(
-		data: Array<{ id: number; name: string; prompt: JSON }>,
-	) {
+	async bulkUpsert(data: Array<{ id: number; name: string; prompt: JSON }>) {
 		await Promise.all(
 			data.map(async (d) => await SeederContextModel.upsert(d)),
 		);
