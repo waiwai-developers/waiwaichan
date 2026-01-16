@@ -1,12 +1,12 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { DatafixCandyModel } from "@/migrator/datafixies/models/DatafixCandyModel";
-import { DatafixUserItemModel } from "@/migrator/datafixies/models/DatafixUserItemModel";
-import { DatafixThreadModel } from "@/migrator/datafixies/models/DatafixThreadModel";
-import { DatafixPersonalityModel } from "@/migrator/datafixies/models/DatafixPersonalityModel";
-import { DatafixPersonalityContextModel } from "@/migrator/datafixies/models/DatafixPersonalityContextModel";
 import { DatafixContextModel } from "@/migrator/datafixies/models/DatafixContextModel";
+import { DatafixPersonalityContextModel } from "@/migrator/datafixies/models/DatafixPersonalityContextModel";
+import { DatafixPersonalityModel } from "@/migrator/datafixies/models/DatafixPersonalityModel";
 import { DatafixReminderModel } from "@/migrator/datafixies/models/DatafixReminderModel";
+import { DatafixThreadModel } from "@/migrator/datafixies/models/DatafixThreadModel";
+import { DatafixUserItemModel } from "@/migrator/datafixies/models/DatafixUserItemModel";
 import {
 	type DatabaseConfigType,
 	GetEnvDatabaseConfig,
@@ -18,7 +18,9 @@ import type { MigrationParams } from "umzug/lib/types";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export const migrator = (dbConfig: DatabaseConfigType = GetEnvDatabaseConfig() ) => {
+export const migrator = (
+	dbConfig: DatabaseConfigType = GetEnvDatabaseConfig(),
+) => {
 	const sequelize = new Sequelize(
 		dbConfig.database,
 		dbConfig.username,
@@ -42,7 +44,9 @@ export const migrator = (dbConfig: DatabaseConfigType = GetEnvDatabaseConfig() )
 	});
 };
 
-export const seeder = (dbConfig: DatabaseConfigType = GetEnvDatabaseConfig()) => {
+export const seeder = (
+	dbConfig: DatabaseConfigType = GetEnvDatabaseConfig(),
+) => {
 	const sequelize = new Sequelize(
 		dbConfig.database,
 		dbConfig.username,
@@ -51,7 +55,12 @@ export const seeder = (dbConfig: DatabaseConfigType = GetEnvDatabaseConfig()) =>
 			host: dbConfig.host,
 			port: dbConfig.port,
 			dialect: "mysql",
-			models: [DatafixUserItemModel, DatafixCandyModel, DatafixThreadModel, DatafixReminderModel],
+			models: [
+				DatafixUserItemModel,
+				DatafixCandyModel,
+				DatafixThreadModel,
+				DatafixReminderModel,
+			],
 		},
 	);
 
@@ -68,7 +77,9 @@ export const seeder = (dbConfig: DatabaseConfigType = GetEnvDatabaseConfig()) =>
 	});
 };
 
-export const datafixer = (dbConfig: DatabaseConfigType = GetEnvDatabaseConfig()) => {
+export const datafixer = (
+	dbConfig: DatabaseConfigType = GetEnvDatabaseConfig(),
+) => {
 	const sequelize = new Sequelize(
 		dbConfig.database,
 		dbConfig.username,
@@ -77,7 +88,15 @@ export const datafixer = (dbConfig: DatabaseConfigType = GetEnvDatabaseConfig())
 			host: dbConfig.host,
 			port: dbConfig.port,
 			dialect: "mysql",
-			models: [DatafixUserItemModel, DatafixCandyModel, DatafixThreadModel, DatafixReminderModel, DatafixPersonalityModel, DatafixContextModel ,DatafixPersonalityContextModel],
+			models: [
+				DatafixUserItemModel,
+				DatafixCandyModel,
+				DatafixThreadModel,
+				DatafixReminderModel,
+				DatafixPersonalityModel,
+				DatafixContextModel,
+				DatafixPersonalityContextModel,
+			],
 		},
 	);
 
