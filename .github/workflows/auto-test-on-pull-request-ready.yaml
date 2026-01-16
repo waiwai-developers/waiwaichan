@@ -27,11 +27,11 @@ jobs:
           docker compose \
             -f environment/testing/docker-compose.yml \
             up -d --wait --build
-      - name: run pnpm test into backend container
+      - name: run test into backend container
         run: |
           docker compose \
             -f environment/testing/docker-compose.yml \
-            exec -T backend pnpm test
+            exec -T backend sh -c "pnpm test"
       - name: show logs on failure
         if: failure()
         run: |

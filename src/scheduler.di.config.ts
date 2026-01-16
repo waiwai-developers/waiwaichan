@@ -1,6 +1,8 @@
 import { RepoTypes, SchedulerRepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import type { IDataBaseConnector } from "@/src/logics/Interfaces/repositories/database/IDataBaseConnector";
 import type { IReminderSchedulerRepository } from "@/src/logics/Interfaces/repositories/database/IReminderSchedulerRepository";
+import type { ITransaction } from "@/src/logics/Interfaces/repositories/database/ITransaction";
+import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 import { PinoSchedulerLogger } from "@/src/repositories/logger/PinoSchedulerLogger";
 import { ReminderSchedulerRepositoryImpl } from "@/src/repositories/sequelize-mysql";
 import { MysqlSchedulerConnector } from "@/src/repositories/sequelize-mysql/MysqlSchedulerConnector";

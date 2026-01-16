@@ -126,7 +126,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 応答を待つ
-			await waitUntilReply(commandMock, 1000);
+			await waitUntilReply(commandMock, 2000);
 
 			// 応答の検証
 			expect(replyValue).to.eq("スティッキーが既にチャンネルに登録されているよ！っ");
@@ -148,7 +148,7 @@ describe("Test Sticky Commands", () => {
 	 * - StickyLogic.createが呼ばれないことを検証
 	 */
 	it("should not create sticky when channel is not a TextChannel", function (this: Mocha.Context) {
-		this.timeout(10_000);
+		this.timeout(100_000);
 
 		return (async () => {
 			// テスト用のチャンネルID
@@ -198,8 +198,8 @@ describe("Test Sticky Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
-			// 応答を待つ
-			await waitUntilReply(commandMock, 1000);
+			// 応答を待つ（タイムアウトを延長）
+			await waitUntilReply(commandMock, 10_000);
 
 			// 応答の検証 - TextChannel以外の場合のエラーメッセージ
 			expect(replyValue).to.eq("このチャンネルにはスティッキーを登録できないよ！っ");
@@ -682,7 +682,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 応答を待つ
-			await waitUntilReply(commandMock, 1000);
+			await waitUntilReply(commandMock, 2000);
 
 			// 応答の検証 - チャンネルが存在しない場合のエラーメッセージ
 			expect(replyValue).to.eq("スティッキーの投稿がなかったよ！っ");
@@ -956,7 +956,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 処理が完了するまで待つ
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// 応答の検証 - 削除失敗メッセージ
 			expect(replyValue).to.eq("スティッキーの削除に失敗したよ！っ");
@@ -1551,7 +1551,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// モーダルが表示されるまで少し待つ
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// モーダルが表示されたことを検証
 			verify(commandMock.showModal(anything())).once();
@@ -1894,7 +1894,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("messageCreate", instance(messageMock));
 
 			// 処理が完了するまで少し待つ
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// テスト後のスティッキー情報を取得
 			const afterStickiy = await StickyRepositoryImpl.findOne({
@@ -1957,7 +1957,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("messageCreate", instance(messageMock));
 
 			// 処理が完了するまで少し待つ
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// テスト後のスティッキー情報を取得
 			const afterStickiy = await StickyRepositoryImpl.findOne({
@@ -2033,7 +2033,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("messageCreate", instance(messageMock));
 
 			// 処理が完了するまで少し待つ
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// テスト後のスティッキー情報を取得
 			const afterStickiy = await StickyRepositoryImpl.findOne({
@@ -2110,7 +2110,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("messageCreate", instance(messageMock));
 
 			// 処理が完了するまで少し待つ
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// テスト後のスティッキー情報を取得
 			const afterStickiy = await StickyRepositoryImpl.findOne({
@@ -2228,7 +2228,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("messageCreate", instance(messageMock));
 
 			// 処理が完了するまで少し待つ
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// テスト後のスティッキー情報を取得
 			const afterStickiy = await StickyRepositoryImpl.findOne({

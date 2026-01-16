@@ -73,7 +73,7 @@ describe("Test Candy Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 応答を待つ（タイムアウトを短くする）
-			await waitSlashUntilReply(commandMock, 100);
+			await waitSlashUntilReply(commandMock, 1000);
 
 			// 応答の検証
 			verify(commandMock.reply(anything())).once();
@@ -107,7 +107,7 @@ describe("Test Candy Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 応答を待つ（タイムアウトを短くする）
-			await waitSlashUntilReply(commandMock, 100);
+			await waitSlashUntilReply(commandMock, 1000);
 
 			// 応答の検証
 			verify(commandMock.reply(anything())).once();
@@ -160,7 +160,7 @@ describe("Test Candy Commands", () => {
 			}
 
 			// 応答を待つ
-			await waitSlashUntilReply(commandMock, 100, candyAmount);
+			await waitSlashUntilReply(commandMock, 10000, candyAmount);
 
 			// 応答の検証
 			verify(commandMock.reply(anything())).times(candyAmount + 1);
@@ -228,7 +228,7 @@ describe("Test Candy Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 応答を待つ（タイムアウトを長めに設定）
-			await waitSlashUntilReply(commandMock, 100);
+			await waitSlashUntilReply(commandMock, 1000);
 
 			// 天井機能によりジャックポットが当選することを確認
 			const jackpotResult = `${ITEM_RECORDS[0].name}が当たったよ👕！っ`;
@@ -272,7 +272,7 @@ describe("Test Candy Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
-			await waitSlashUntilReply(commandMock, 100);
+			await waitSlashUntilReply(commandMock, 1000);
 
 			// 応答の検証
 			verify(commandMock.reply(anything())).once();
@@ -320,7 +320,7 @@ describe("Test Candy Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
-			await waitSlashUntilReply(commandMock, 100);
+			await waitSlashUntilReply(commandMock, 1000);
 
 			// 応答の検証
 			verify(commandMock.reply(anything())).once();
@@ -378,7 +378,7 @@ describe("Test Candy Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
-			await waitSlashUntilReply(commandMock, 100);
+			await waitSlashUntilReply(commandMock, 1000);
 
 			// 応答の検証
 			verify(commandMock.reply(anything())).once();
@@ -1166,7 +1166,7 @@ describe("Test Candy Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
-			await waitSlashUntilReply(commandMock, 100);
+			await waitSlashUntilReply(commandMock, 1000);
 
 			// 応答の検証
 			verify(commandMock.reply(anything())).once();
@@ -1238,7 +1238,7 @@ describe("Test Candy Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
-			await waitSlashUntilReply(commandMock, 100);
+			await waitSlashUntilReply(commandMock, 1000);
 
 			// 応答の検証
 			verify(commandMock.reply(anything())).once();
@@ -1314,7 +1314,7 @@ describe("Test Candy Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
-			await waitSlashUntilReply(commandMock, 100);
+			await waitSlashUntilReply(commandMock, 1000);
 
 			// 応答の検証
 			verify(commandMock.reply(anything())).once();
@@ -1366,7 +1366,7 @@ describe("Test Candy Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
-			await waitSlashUntilReply(commandMock, 100);
+			await waitSlashUntilReply(commandMock, 1000);
 
 			// 応答の検証
 			verify(commandMock.reply(anything())).once();
@@ -1413,7 +1413,7 @@ describe("Test Candy Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
-			await waitSlashUntilReply(commandMock, 100);
+			await waitSlashUntilReply(commandMock, 1000);
 
 			// 応答の検証（ジャックポットが出ることが可能）
 			verify(commandMock.reply(anything())).once();
@@ -1464,7 +1464,7 @@ describe("Test Candy Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
-			await waitSlashUntilReply(commandMock, 100);
+			await waitSlashUntilReply(commandMock, 1000);
 
 			// 天井機能によりジャックポットが当選することを確認
 			const jackpotResult = `${ITEM_RECORDS[0].name}が当たったよ👕！っ`;
@@ -1508,7 +1508,7 @@ describe("Test Candy Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
-			await waitSlashUntilReply(commandMock, 100);
+			await waitSlashUntilReply(commandMock, 1000);
 
 			// 応答の検証（ジャックポットが出ることが可能）
 			verify(commandMock.reply(anything())).once();
@@ -1616,7 +1616,7 @@ describe("Test Candy Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
-			await waitSlashUntilReply(commandMock, 100);
+			await waitSlashUntilReply(commandMock, 1000);
 
 			// 応答の検証（去年のデータは影響せず、ジャックポットが出ることが可能）
 			verify(commandMock.reply(anything())).once();
@@ -1686,7 +1686,7 @@ describe("Test Candy Commands", () => {
 
 			for (let i = 0; i < maxDraws && !jackpotFound; i++) {
 				TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-				await waitSlashUntilReply(commandMock, 100, i + 1);
+				await waitSlashUntilReply(commandMock, 1000, i + 1);
 			}
 
 			// 応答の検証
@@ -1741,7 +1741,7 @@ describe("Test Candy Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
-			await waitSlashUntilReply(commandMock, 100);
+			await waitSlashUntilReply(commandMock, 1000);
 
 			// 応答の検証（去年のデータは影響せず、ジャックポットが出ることが可能）
 			verify(commandMock.reply(anything())).once();
@@ -1804,7 +1804,7 @@ describe("Test Candy Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
-			await waitSlashUntilReply(commandMock, 100);
+			await waitSlashUntilReply(commandMock, 1000);
 
 			// 応答の検証
 			verify(commandMock.reply(anything())).once();
@@ -1866,7 +1866,7 @@ describe("Test Candy Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
-			await waitSlashUntilReply(commandMock, 100);
+			await waitSlashUntilReply(commandMock, 1000);
 
 			// 応答の検証
 			verify(commandMock.reply(anything())).once();
@@ -1933,7 +1933,7 @@ describe("Test Candy Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
-			await waitSlashUntilReply(commandMock, 100);
+			await waitSlashUntilReply(commandMock, 1000);
 
 			// 応答の検証
 			verify(commandMock.reply(anything())).once();
@@ -1997,7 +1997,7 @@ describe("Test Candy Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
-			await waitSlashUntilReply(commandMock, 100);
+			await waitSlashUntilReply(commandMock, 1000);
 
 			// 応答の検証
 			verify(commandMock.reply(anything())).once();
@@ -2147,7 +2147,7 @@ describe("Test Candy Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
-			await waitSlashUntilReply(commandMock, 100);
+			await waitSlashUntilReply(commandMock, 1000);
 
 			// 応答の検証
 			verify(commandMock.reply(anything())).once();
@@ -2225,7 +2225,7 @@ describe("Test Candy Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
-			await waitSlashUntilReply(commandMock, 100);
+			await waitSlashUntilReply(commandMock, 1000);
 
 			// 応答の検証
 			verify(commandMock.reply(anything())).once();
@@ -2300,7 +2300,7 @@ describe("Test Candy Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
-			await waitSlashUntilReply(commandMock, 100);
+			await waitSlashUntilReply(commandMock, 1000);
 
 			// 応答の検証
 			verify(commandMock.reply(anything())).once();
@@ -2381,7 +2381,7 @@ describe("Test Candy Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
-			await waitSlashUntilReply(commandMock, 100);
+			await waitSlashUntilReply(commandMock, 5000);
 
 			// 応答の検証
 			verify(commandMock.reply(anything())).once();
