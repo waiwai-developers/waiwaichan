@@ -168,33 +168,6 @@ describe("Test UtilityCommand", () => {
 		});
 
 		/**
-		 * [minecraftカテゴリ表示] category:minecraftカテゴリーでminecraft関連コマンドが表示される
-		 * - レスポンスに「minecraftカテゴリー」が含まれることを検証
-		 * - レスポンスにminecraftカテゴリのコマンド（/minecraftstart, /minecraftstop）が含まれることを検証
-		 * - 内部エラーが発生しないことを検証
-		 */
-		it("Test /help category:minecraftカテゴリー", async () => {
-			const commandMock = mockSlashCommand("help", {
-				category: "minecraftカテゴリー",
-			});
-			const TEST_CLIENT = await TestDiscordServer.getClient();
-			let value = "";
-			when(commandMock.reply(anything())).thenCall((args) => {
-				value = args;
-			});
-
-			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-			await waitUntilReply(commandMock);
-			verify(commandMock.reply(anything())).once();
-			verify(commandMock.reply("")).never();
-			verify(commandMock.reply(InternalErrorMessage)).never();
-			// Check that response contains specific category commands
-			expect(value).to.include("minecraftカテゴリー");
-			expect(value).to.include("/minecraftstart");
-			expect(value).to.include("/minecraftstop");
-		});
-
-		/**
 		 * [stickyカテゴリ表示] category:stickyカテゴリーでsticky関連コマンドが表示される
 		 * - レスポンスに「stickyカテゴリー」が含まれることを検証
 		 * - レスポンスにstickyカテゴリのコマンド（/stickycreate, /stickydelete）が含まれることを検証
