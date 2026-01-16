@@ -27,7 +27,6 @@
 	"license": "ISC",
 	"dependencies": {
 		"@abraham/reflection": "^0.12.0",
-		"@google-cloud/compute": "^4.12.0",
 		"@octokit/app": "^15.1.6",
 		"@octokit/core": "^6.1.6",
 		"@swc-node/register": "^1.11.1",
