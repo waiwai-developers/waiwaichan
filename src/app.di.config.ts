@@ -9,8 +9,6 @@ import {
 	ChoiceCommandHandler,
 	DiceCommandHandler,
 	HelpCommandHandler,
-	MinecraftStartCommandHandler,
-	MinecraftStopCommandHandler,
 	ParrotCommandHandler,
 	ReminderDeleteCommandHandler,
 	ReminderListCommandHandler,
@@ -48,7 +46,6 @@ import type { ICandyLogic } from "@/src/logics/Interfaces/logics/ICandyLogic";
 import type { IChatAILogic } from "@/src/logics/Interfaces/logics/IChatAILogic";
 import type { IContextLogic } from "@/src/logics/Interfaces/logics/IContextLogic";
 import type { ICrownLogic } from "@/src/logics/Interfaces/logics/ICrownLogic";
-import type { IMinecraftServerLogic } from "@/src/logics/Interfaces/logics/IMinecraftServerLogic";
 import type { IPersonalityContextLogic } from "@/src/logics/Interfaces/logics/IPersonalityContextLogic";
 import type { IPersonalityLogic } from "@/src/logics/Interfaces/logics/IPersonalityLogic";
 import type { IPullRequestLogic } from "@/src/logics/Interfaces/logics/IPullRequestLogic";
@@ -61,7 +58,6 @@ import type { IThreadLogic } from "@/src/logics/Interfaces/logics/IThreadLogic";
 import type { ITranslatorLogic } from "@/src/logics/Interfaces/logics/ITranslatorLogic";
 import type { IUtilityLogic } from "@/src/logics/Interfaces/logics/IUtilityLogic";
 import type { IChatAIRepository } from "@/src/logics/Interfaces/repositories/chataiapi/IChatAIRepository";
-import type { IVirtualMachineAPI } from "@/src/logics/Interfaces/repositories/cloudprovider/IVirtualMachineAPI";
 import type { ICandyItemRepository } from "@/src/logics/Interfaces/repositories/database/ICandyItemRepository";
 import type { ICandyRepository } from "@/src/logics/Interfaces/repositories/database/ICandyRepository";
 import type { IContextRepository } from "@/src/logics/Interfaces/repositories/database/IContextRepository";
@@ -81,7 +77,6 @@ import type { IPullRequestRepository } from "@/src/logics/Interfaces/repositorie
 import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 import type { IMutex } from "@/src/logics/Interfaces/repositories/mutex/IMutex";
 import type { ITranslatorRepository } from "@/src/logics/Interfaces/repositories/translator/ITranslatorRepository";
-import { MinecraftServerLogic } from "@/src/logics/MinecraftServerLogic";
 import { PersonalityContextLogic } from "@/src/logics/PersonalityContextLogic";
 import { PersonalityLogic } from "@/src/logics/PersonalityLogic";
 import { PullRequestLogic } from "@/src/logics/PullRequestLogic";
@@ -95,7 +90,6 @@ import { TranslatorLogic } from "@/src/logics/TranslatorLogic";
 import { UtilityLogic } from "@/src/logics/UtilityLogic";
 import { ChatGPTRepositoryImpl } from "@/src/repositories/chatgptapi/ChatGPTRepositoryImpl";
 import { DeepLTranslateRepositoryImpl } from "@/src/repositories/deeplapi/DeepLTranslateRepositoryImpl";
-import { GCPComputeEngineInstanceRepositoryImpl } from "@/src/repositories/gcpapi/GCPComputeEngineInstanceRepositoryImpl";
 import { GithubPullRequestRepositoryImpl } from "@/src/repositories/githubapi/GithubPullRequestRepositoryImpl";
 import { PinoLogger } from "@/src/repositories/logger/PinoLogger";
 import { AwaitSemaphoreMutex } from "@/src/repositories/mutex/AwaitSemaphoreMutex";
@@ -151,8 +145,6 @@ appContainer.bind<IStickyRepository>(RepoTypes.StickyRepository).to(StickyReposi
 appContainer.bind<IChatAIRepository>(RepoTypes.ChatAIRepository).to(ChatGPTRepositoryImpl);
 // DeepL
 appContainer.bind<ITranslatorRepository>(RepoTypes.TranslateRepository).to(DeepLTranslateRepositoryImpl);
-// GCP
-appContainer.bind<IVirtualMachineAPI>(RepoTypes.VMInstanceRepository).to(GCPComputeEngineInstanceRepositoryImpl);
 // Github
 appContainer.bind<IPullRequestRepository>(RepoTypes.PullRequestRepository).to(GithubPullRequestRepositoryImpl).inSingletonScope();
 // Logger
@@ -164,7 +156,6 @@ appContainer.bind<IPersonalityLogic>(LogicTypes.PersonalityLogic).to(Personality
 appContainer.bind<IContextLogic>(LogicTypes.ContextLogic).to(ContextLogic);
 appContainer.bind<IPersonalityContextLogic>(LogicTypes.PersonalityContextLogic).to(PersonalityContextLogic);
 appContainer.bind<IChatAILogic>(LogicTypes.ChatAILogic).to(ChatAILogic);
-appContainer.bind<IMinecraftServerLogic>(LogicTypes.MinecraftServerLogic).to(MinecraftServerLogic);
 appContainer.bind<ICandyLogic>(LogicTypes.CandyLogic).to(CandyLogic);
 appContainer.bind<ICrownLogic>(LogicTypes.CrownLogic).to(CrownLogic);
 appContainer.bind<IReminderLogic>(LogicTypes.ReminderLogic).to(ReminderLogic);
@@ -201,8 +192,6 @@ appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(Cand
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(CandyExchangeCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(ReviewGachaCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(ReviewListCommandHandler);
-appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(MinecraftStartCommandHandler);
-appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(MinecraftStopCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(StickyCreateCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(StickyDeleteCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(StickyUpdateCommandHandler);

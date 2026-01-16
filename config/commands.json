@@ -145,25 +145,6 @@
 			]
 		},
 		{
-			"name": "minecraftカテゴリー",
-			"commands": [
-				{
-					"name": "/minecraftstart",
-					"example": "/minecraftstart",
-					"parameter": "none",
-					"summary": "minecraftサーバーを起動する",
-					"detail": "/minecraftstartコマンドはGCPのサーバーを起動しマインクラフトを起動するコマンドです。サーバーの起動までに少し時間がかかるのと起動中は課金が発生するのでこまめに落として下さい"
-				},
-				{
-					"name": "/minecraftstop",
-					"example": "/minecraftstop",
-					"parameter": "none",
-					"summary": "minecraftサーバーを停止する",
-					"detail": "/minecraftstopコマンドはGCPのサーバーを停止しマインクラフトを落とすコマンドです。サーバーの停止までに少し時間がかかるのと停止中は課金が発生しないのでこまめに落として下さい"
-				}
-			]
-		},
-		{
 			"name": "stickyカテゴリー",
 			"commands": [
 				{

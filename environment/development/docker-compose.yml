@@ -40,7 +40,7 @@ services:
     <<: *base-service
     container_name: waiwai-migrate
     restart: "no"
-    command: ["pnpm", "migrate:all"]
+    command: ["pnpm", "migrateAll:up"]
     depends_on:
       database:
         condition: service_healthy
@@ -48,7 +48,7 @@ services:
     <<: *base-service
     container_name: waiwai-backend
     restart: always
-    command: ["pnpm", "dev"]
+    command: ["pnpm", "dev:backend"]
     depends_on:
       database:
         condition: service_healthy
