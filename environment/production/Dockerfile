@@ -21,4 +21,4 @@ WORKDIR /app
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
-CMD ["dist/app.js"]
+CMD ["dist/src/app.js"]
