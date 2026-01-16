@@ -18,7 +18,7 @@ services:
     <<: *base-service
     container_name: waiwai-backend
     restart: "no"
-    command: ["pnpm", "test"]
+    command: ["sleep", "infinity"]
     depends_on:
       database:
         condition: service_healthy
