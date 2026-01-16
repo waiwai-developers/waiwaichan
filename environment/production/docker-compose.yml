@@ -16,12 +16,12 @@ services:
     <<: *base-service
     container_name: waiwai-migrate
     restart: "no"
-    command: ["pnpm", "migrate:up"]
+    command: ["dist/migrator/migrator.js", "up"]
   seed:
     <<: *base-service
     container_name: waiwai-seed
     restart: "no"
-    command: ["pnpm", "seed:up"]
+    command: ["dist/migrator/seeder.js", "up"]
     depends_on:
       migrate:
         condition: service_completed_successfully
@@ -29,7 +29,7 @@ services:
     <<: *base-service
     container_name: waiwai-datafix
     restart: "no"
-    command: ["pnpm", "datafix:up"]
+    command: ["dist/migrator/datafixer.js", "up"]
     depends_on:
       seed:
         condition: service_completed_successfully
@@ -37,7 +37,7 @@ services:
     <<: *base-service
     container_name: waiwai-backend
     restart: always
-    command: ["pnpm", "prd:backend"]
+    command: ["dist/app.js"]
     depends_on:
       datafix:
         condition: service_completed_successfully
@@ -45,7 +45,7 @@ services:
     <<: *base-service
     container_name: waiwai-scheduler
     restart: always
-    command: ["pnpm", "prd:scheduler"]
+    command: ["dist/scheduler.js"]
     depends_on:
       datafix:
         condition: service_completed_successfully
