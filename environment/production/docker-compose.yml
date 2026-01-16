@@ -12,22 +12,6 @@ x-base-service: &base-service
       source: ../../config
       target: /app/config
 services:
-  backend:
-    <<: *base-service
-    container_name: waiwai-backend
-    restart: always
-    command: ["dist/src/app.js"]
-    depends_on:
-      datafix:
-        condition: service_completed_successfully
-  scheduler:
-    <<: *base-service
-    container_name: waiwai-scheduler
-    restart: always
-    command: ["dist/src/scheduler.js"]
-    depends_on:
-      datafix:
-        condition: service_completed_successfully
   migrate:
     <<: *base-service
     container_name: waiwai-migrate
@@ -48,6 +32,22 @@ services:
     command: ["dist/migrator/datafixer.js", "up"]
     depends_on:
       seed:
+        condition: service_completed_successfully
+  backend:
+    <<: *base-service
+    container_name: waiwai-backend
+    restart: always
+    command: ["dist/src/app.js"]
+    depends_on:
+      datafix:
+        condition: service_completed_successfully
+  scheduler:
+    <<: *base-service
+    container_name: waiwai-scheduler
+    restart: always
+    command: ["dist/src/scheduler.js"]
+    depends_on:
+      datafix:
         condition: service_completed_successfully
 networks:
   server-network:
