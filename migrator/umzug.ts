@@ -33,13 +33,42 @@ export const migrator = (
 	);
 	return new Umzug({
 		migrations: {
-			glob: path.join(__dirname, "migrations/*.js"),
+			glob: path.join(__dirname, "migrations/*.{js,ts}"),
+
+			resolve: ({ name, path: filepath, context }) => {
+				// 拡張子を除いたベース名
+				const baseName = name.replace(/\.(js|ts)$/, "");
+
+				// ★ meta には必ず .ts で保存
+				const storedName = `${baseName}.ts`;
+
+				if (!filepath) {
+					throw new Error(`Migration file path is undefined for: ${name}`);
+				}
+
+				return {
+					name: storedName,
+
+					up: async () => {
+						const migration = await import(filepath);
+						return migration.up(context);
+					},
+
+					down: async () => {
+						const migration = await import(filepath);
+						return migration.down?.(context);
+					},
+				};
+			},
 		},
-		context: sequelize,
+
+		context: sequelize.getQueryInterface(),
+
 		storage: new SequelizeStorage({
 			sequelize,
 			modelName: "umzug_migrator_meta",
 		}),
+
 		logger: console,
 	});
 };
@@ -66,13 +95,42 @@ export const seeder = (
 
 	return new Umzug({
 		migrations: {
-			glob: path.join(__dirname, "seeds/*.js"),
+			glob: path.join(__dirname, "seeds/*.{js,ts}"),
+
+			resolve: ({ name, path: filepath, context }) => {
+				// 拡張子を除いたベース名
+				const baseName = name.replace(/\.(js|ts)$/, "");
+
+				// ★ meta には必ず .ts で保存
+				const storedName = `${baseName}.ts`;
+
+				if (!filepath) {
+					throw new Error(`Migration file path is undefined for: ${name}`);
+				}
+
+				return {
+					name: storedName,
+
+					up: async () => {
+						const migration = await import(filepath);
+						return migration.up(context);
+					},
+
+					down: async () => {
+						const migration = await import(filepath);
+						return migration.down?.(context);
+					},
+				};
+			},
 		},
-		context: sequelize,
+
+		context: sequelize.getQueryInterface(),
+
 		storage: new SequelizeStorage({
 			sequelize,
 			modelName: "umzug_seeder_meta",
 		}),
+
 		logger: console,
 	});
 };
@@ -102,9 +160,37 @@ export const datafixer = (
 
 	return new Umzug({
 		migrations: {
-			glob: path.join(__dirname, "datafixies/*.js"),
+			glob: path.join(__dirname, "datafixies/*.{js,ts}"),
+
+			resolve: ({ name, path: filepath, context }) => {
+				// 拡張子を除いたベース名
+				const baseName = name.replace(/\.(js|ts)$/, "");
+
+				// ★ meta には必ず .ts で保存
+				const storedName = `${baseName}.ts`;
+
+				if (!filepath) {
+					throw new Error(`Migration file path is undefined for: ${name}`);
+				}
+
+				return {
+					name: storedName,
+
+					up: async () => {
+						const migration = await import(filepath);
+						return migration.up(context);
+					},
+
+					down: async () => {
+						const migration = await import(filepath);
+						return migration.down?.(context);
+					},
+				};
+			},
 		},
-		context: sequelize,
+
+		context: sequelize.getQueryInterface(),
+
 		storage: new SequelizeStorage({
 			sequelize,
 			modelName: "umzug_datafixer_meta",
