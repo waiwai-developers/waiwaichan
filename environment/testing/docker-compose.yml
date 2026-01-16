@@ -14,24 +14,6 @@ x-base-service: &base-service
       source: ../../config
       target: /app/config
 services:
-  backend:
-    <<: *base-service
-    container_name: waiwai-backend
-    restart: "no"
-    command: ["sleep", "infinity"]
-    depends_on:
-      database:
-        condition: service_healthy
-      migrate:
-        condition: service_completed_successfully
-  migrate:
-    <<: *base-service
-    container_name: waiwai-migrate
-    restart: "no"
-    command: ["pnpm", "migrate:all"]
-    depends_on:
-      database:
-        condition: service_healthy
   database:
     container_name: waiwai-database
     image: mysql:8.0
@@ -54,6 +36,24 @@ services:
       retries: 10
       start_period: 60s
       timeout: 10s
+  migrate:
+    <<: *base-service
+    container_name: waiwai-migrate
+    restart: "no"
+    command: ["pnpm", "migrate:all"]
+    depends_on:
+      database:
+        condition: service_healthy
+  backend:
+    <<: *base-service
+    container_name: waiwai-backend
+    restart: "no"
+    command: ["sleep", "infinity"]
+    depends_on:
+      database:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
 networks:
   server-network:
     driver: bridge
