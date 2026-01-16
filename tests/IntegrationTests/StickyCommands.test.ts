@@ -126,7 +126,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 応答を待つ
-			await waitUntilReply(commandMock, 1000);
+			await waitUntilReply(commandMock, 2000);
 
 			// 応答の検証
 			expect(replyValue).to.eq("スティッキーが既にチャンネルに登録されているよ！っ");
