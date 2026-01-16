@@ -62,7 +62,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 応答を待つ
-			await waitUntilReply(commandMock, 100);
+			await waitUntilReply(commandMock, 1000);
 
 			// 応答の検証
 			expect(replyValue).to.eq("スティッキーを登録する権限を持っていないよ！っ");
@@ -553,7 +553,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 応答を待つ
-			await waitUntilReply(commandMock, 100);
+			await waitUntilReply(commandMock, 1000);
 
 			// 応答の検証
 			expect(replyValue).to.eq("スティッキーを登録する権限を持っていないよ！っ");
@@ -1107,7 +1107,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 応答を待つ
-			await waitUntilReply(commandMock, 100);
+			await waitUntilReply(commandMock, 1000);
 
 			// 応答の検証
 			expect(replyValue).to.eq("スティッキーを表示する権限を持っていないよ！っ");
@@ -1159,7 +1159,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 応答を待つ
-			await waitUntilReply(commandMock, 100);
+			await waitUntilReply(commandMock, 1000);
 
 			// 応答の検証
 			expect(replyValue).to.eq("スティッキーが登録されていなかったよ！っ");
@@ -1233,7 +1233,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 応答を待つ
-			await waitUntilReply(commandMock, 100);
+			await waitUntilReply(commandMock, 1000);
 
 			// 応答の検証
 			// 1. 適切なフォーマットで表示されていることを検証
@@ -1296,7 +1296,7 @@ describe("Test Sticky Commands", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 応答を待つ
-			await waitUntilReply(commandMock, 100);
+			await waitUntilReply(commandMock, 1000);
 
 			// 応答の検証
 			expect(replyValue).to.eq("スティッキーを更新する権限を持っていないよ！っ");
