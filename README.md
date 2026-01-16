@@ -10,29 +10,29 @@ Start the server locally
 docker compose -f ./environment/development/docker-compose.yml up
 ```
 
-How to enter the environment
+How to enter into the environment
 ```
 docker compose -f ./environment/development/docker-compose.yml exec -it backend sh
 ```
 
-How to execute test the environment
+How to execute test in the environment
 ```
 docker compose -f environment/development/docker-compose.yml exec -T backend sh -c 'pnpm test'
 ```
 
-Execute the migration
+How to execute the QA with Coverage
 ```
-pnpm migrate up
-```
-
-Execute the rollback
-```
-pnpm migrate down
+docker compose -f environment/development/docker-compose.yml exec -T backend sh -c 'pnpm test:coverage'
 ```
 
-Insert seed data
+How to execute the migrate up
 ```
-pnpm seed up
+docker compose -f environment/development/docker-compose.yml exec -T backend sh -c 'pnpm migrateAll:up'
+```
+
+How to execute the migrate down
+```
+docker compose -f environment/development/docker-compose.yml exec -T backend sh -c 'pnpm migrateAll:down'
 ```
 
 Running formatter && linter
@@ -43,14 +43,4 @@ pnpm lint
 Running formatter && linter (unsafe) https://biomejs.dev/linter/#unsafe-fixes
 ```
 pnpm lint:unsafe
-```
-
-Execute the QA
-```
-pnpm test
-```
-
-Execute the QA with Coverage
-```
-pnpm test:coverage
 ```
