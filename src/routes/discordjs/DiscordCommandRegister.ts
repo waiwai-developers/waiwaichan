@@ -150,12 +150,6 @@ export class DiscordCommandRegister {
 				.setName("reviewlist")
 				.setDescription("reviewlist"),
 			new SlashCommandBuilder()
-				.setName("minecraftstart")
-				.setDescription("minecraftstart"),
-			new SlashCommandBuilder()
-				.setName("minecraftstop")
-				.setDescription("minecraftstop"),
-			new SlashCommandBuilder()
 				.setName("stickycreate")
 				.setDescription("sticky create")
 				.addStringOption((option) =>
