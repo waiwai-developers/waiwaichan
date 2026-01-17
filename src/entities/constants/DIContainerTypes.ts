@@ -33,6 +33,7 @@ export const LogicTypes = {
 	ReminderLogic: Symbol.for("ReminderLogic"),
 	PullRequestLogic: Symbol.for("PullRequestLogic"),
 	TranslatorLogic: Symbol.for("TranslateLogic"),
+	DiceLogic: Symbol.for("DiceLogic"),
 	StickyLogic: Symbol.for("StickyLogic"),
 	UtilityLogic: Symbol.for("UtilityLogic"),
 	CrownLogic: Symbol.for("CrownLogic"),
