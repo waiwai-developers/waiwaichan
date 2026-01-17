@@ -535,7 +535,7 @@ describe("Test UtilityCommand", () => {
 		});
 
 		it("reports extra input errors", async () => {
-			const result = await evaluateDice("11");
+			const result = await evaluateDice("1a");
 			expectFailure(result);
 			expect(result.description.getValue()).to.include("余計な入力");
 		});
