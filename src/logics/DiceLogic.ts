@@ -628,22 +628,15 @@ const logicalNot: Parser<Expr> = (input) => {
 	return compare(input);
 };
 
-const logicalAnd: Parser<Expr> = binary(
+const logical: Parser<Expr> = binary(
 	logicalNot,
-	tag("and"),
-	"Logical",
-	"比較する項",
-);
-
-const logicalOr: Parser<Expr> = binary(
-	logicalAnd,
-	tag("or"),
+	alt(tag("and"), tag("or")),
 	"Logical",
 	"比較する項",
 );
 
 const expr: Parser<Expr> = (input) => {
-	return logicalOr(input);
+	return logical(input);
 };
 
 const parseProgram: Parser<Expr> = (input) => {
