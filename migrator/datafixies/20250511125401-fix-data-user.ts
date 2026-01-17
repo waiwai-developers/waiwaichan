@@ -6,15 +6,20 @@ import { UserCategoryType } from "@/src/entities/vo/UserCategoryType";
 import { UserBatchStatus } from "@/src/entities/vo/UserBatchStatus";
 import { Client, GatewayIntentBits } from 'discord.js';
 
-const client = new Client({
-  intents: [
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMembers
-  ],
-});
-client.login(AppConfig.discord.token);
-
 export const up: Datafix = async () => {
+	if (process.env.CI === "true" || process.env.NODE_ENV === "testing") {
+		console.log("skip discord user datafix in CI/testing environment");
+		return;
+	}
+
+	const client = new Client({
+		intents: [
+			GatewayIntentBits.Guilds,
+			GatewayIntentBits.GuildMembers,
+		],
+	});
+	await client.login(AppConfig.discord.token);
+
 	try {
 		const communities = await DatafixCommunityModel.findAll();
 		for (const community of communities) {
