@@ -1,15 +1,11 @@
-import type { DiceSource } from "../vo/DiceSource";
-import type { DiceIsSecret } from "../vo/DiceIsSecret";
-import type { DiceShowDetails } from "../vo/DiceShowDetails";
-import type { DiscordUserDisplayName } from "../vo/DiscordUserDisplayName";
-import type { DiscordUserDefaultAvatarURL } from "../vo/DiscordUserDefaultAvatarURL";
+import type { DiceSource } from '@/src/entities/vo/DiceSource';
+import type { DiceIsSecret } from '@/src/entities/vo/DiceIsSecret';
+import type { DiceShowDetails } from '@/src/entities/vo/DiceShowDetails';
 
 export class DiceContextDto {
 	constructor(
 		public source: DiceSource,
 		public isSecret: DiceIsSecret,
 		public showDetails: DiceShowDetails,
-		public userDisplayName: DiscordUserDisplayName,
-		public userDefaultAvatarURL: DiscordUserDefaultAvatarURL,
-	) { }
+	) {}
 }

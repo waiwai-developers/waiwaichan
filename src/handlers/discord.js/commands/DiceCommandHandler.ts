@@ -9,6 +9,7 @@ import { DiceShowDetails } from "@/src/entities/vo/DiceShowDetails";
 import { DiceContextDto } from "@/src/entities/dto/DiceContextDto";
 import { DiscordUserDisplayName } from "@/src/entities/vo/DiscordUserDisplayName";
 import { DiscordUserDefaultAvatarURL } from "@/src/entities/vo/DiscordUserDefaultAvatarURL";
+import { EmbedBuilder } from "discord.js";
 
 @injectable()
 export class DiceCommandHandler implements SlashCommandHandler {
@@ -22,24 +23,38 @@ export class DiceCommandHandler implements SlashCommandHandler {
 	async handle(
 		interaction: ChatInputCommandInteraction<CacheType>,
 	): Promise<void> {
+		const context = new DiceContextDto(
+			new DiceSource(interaction.options?.getString("source", true)),
+			new DiceIsSecret(!!interaction.options?.getBoolean("secret", false)),
+			new DiceShowDetails(!!interaction.options?.getBoolean("details", false)),
+		);
+		const userDisplayName = new DiscordUserDisplayName(
+			interaction.user.displayName,
+		);
+		const userDefaultAvatarURL = new DiscordUserDefaultAvatarURL(
+			interaction.user.defaultAvatarURL,
+		);
+		const diceResult = await this.diceLogic.dice(context);
+
+		let embed = new EmbedBuilder()
+			.setColor(diceResult.ok.getValue() ? 0x2ecc71 : 0xe74c3c)
+			.setAuthor({
+				name: userDisplayName.getValue(),
+				iconURL:
+					interaction.user.avatarURL() ?? userDefaultAvatarURL.getValue(),
+			})
+			.setTitle(diceResult.title.getValue())
+			.setDescription(diceResult.description.getValue());
+
+		if (context.isSecret.getValue()) {
+			await interaction.user.send({ embeds: [embed] });
+			embed = new EmbedBuilder()
+				.setColor(0x2ecc71)
+				.setTitle("🎲シークレットダイス🎲");
+		}
+
 		await interaction.reply({
-			embeds: [
-				await this.diceLogic.dice(
-					new DiceContextDto(
-						new DiceSource(interaction.options?.getString("source", true)),
-						new DiceIsSecret(
-							!!interaction.options?.getBoolean("secret", false),
-						),
-						new DiceShowDetails(
-							!!interaction.options?.getBoolean("details", false),
-						),
-						new DiscordUserDisplayName(interaction.user.displayName),
-						new DiscordUserDefaultAvatarURL(interaction.user.defaultAvatarURL),
-					),
-					(options?) => { return interaction.user.avatarURL(options); },
-					async (embed) => { interaction.user.send({ embeds: [embed] }); }
-				)
-			]
+			embeds: [embed],
 		});
 	}
 }

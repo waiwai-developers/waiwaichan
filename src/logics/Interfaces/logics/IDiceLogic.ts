@@ -1,10 +1,6 @@
 import type { DiceContextDto } from "@/src/entities/dto/DiceContextDto";
-import type { EmbedBuilder, ImageURLOptions } from "discord.js";
+import type { DiceResultDto } from "@/src/entities/dto/DiceResultDto";
 
 export interface IDiceLogic {
-	dice(
-		ctx: DiceContextDto,
-		avatarURL: (options?: ImageURLOptions) => string | null,
-		send: (embed: EmbedBuilder) => Promise<void>,
-	): Promise<EmbedBuilder>;
+	dice(ctx: DiceContextDto): Promise<DiceResultDto>;
 }

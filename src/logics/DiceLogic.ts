@@ -1,53 +1,37 @@
-import { EmbedBuilder, type ImageURLOptions } from "discord.js";
 import { injectable } from "inversify";
-import type { IDiceLogic } from "./Interfaces/logics/IDiceLogic";
-import type { DiceContextDto } from "../entities/dto/DiceContextDto";
+import type { DiceContextDto } from "@/src/entities/dto/DiceContextDto";
+import { DiceResultDto } from "@/src/entities/dto/DiceResultDto";
+import { DiceResultDescription } from "@/src/entities/vo/DiceResultDescription";
+import { DiceResultOk } from "@/src/entities/vo/DiceResultOk";
+import { DiceResultTitle } from "@/src/entities/vo/DiceResultTitle";
+import type { IDiceLogic } from "@/src/logics/Interfaces/logics/IDiceLogic";
 
 @injectable()
 export class DiceLogic implements IDiceLogic {
-	async dice(
-		ctx: DiceContextDto,
-		avatarURL: (options?: ImageURLOptions) => string | null,
-		send: (embed: EmbedBuilder) => Promise<void>,
-	): Promise<EmbedBuilder> {
+	async dice(ctx: DiceContextDto): Promise<DiceResultDto> {
 		const result = new Interpreter().interpret(ctx.source.getValue());
 		const source = ctx.source.getValue();
 
-		let embed: EmbedBuilder;
 		if (result.ok) {
 			const filteredHistory = result.history.filter((s) => !/^\d+$/.test(s));
 			const lastOrValue = (arr: string[]): string => {
 				return arr.length ? arr[arr.length - 1] : `いる${result.value}`;
 			};
-			embed = new EmbedBuilder()
-				.setColor(0x2ecc71)
-				.setAuthor({
-					name: ctx.userDisplayName.getValue(),
-					iconURL: avatarURL() ?? ctx.userDefaultAvatarURL.getValue(),
-				})
-				.setTitle(source)
-				.setDescription(
+			return new DiceResultDto(
+				new DiceResultOk(true),
+				new DiceResultTitle(source),
+				new DiceResultDescription(
 					ctx.showDetails.getValue()
 						? filteredHistory.join("\n")
 						: lastOrValue(filteredHistory),
-				);
-		} else {
-			embed = new EmbedBuilder()
-				.setColor(0xe74c3c)
-				.setAuthor({
-					name: ctx.userDisplayName.getValue(),
-					iconURL: avatarURL() ?? ctx.userDefaultAvatarURL.getValue(),
-				})
-				.setTitle(`エラー: ${source}`)
-				.setDescription(result.error);
+				),
+			);
 		}
-		if (ctx.isSecret.getValue()) {
-			await send(embed);
-			embed = new EmbedBuilder()
-				.setColor(0x2ecc71)
-				.setTitle("🎲シークレットダイス🎲");
-		}
-		return embed;
+		return new DiceResultDto(
+			new DiceResultOk(false),
+			new DiceResultTitle(`エラー: ${source}`),
+			new DiceResultDescription(result.error),
+		);
 	}
 }
 
