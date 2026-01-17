@@ -615,7 +615,7 @@ const compare: Parser<Expr> = binary(
 
 const logicalNot: Parser<Expr> = (input) => {
 	const notResult = pair(
-		spaceDelimited(keyword("not")),
+		spaceDelimited(tag("not")),
 		withErrorContext(logicalNot, "比較する項"),
 	)(input);
 	if (notResult.ok) {
