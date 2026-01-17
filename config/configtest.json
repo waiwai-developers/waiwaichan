@@ -1,0 +1,33 @@
+{
+	"discord": {
+		"token": "test-token",
+		"clientId": "test-client-id"
+	},
+	"deepl": {
+		"deeplApiKey": "test-deepl-api-key"
+	},
+	"openai": {
+		"openaiApiKey": "test-openai-api-key",
+		"gptModel": "gpt-4o-mini"
+	},
+	"github": {
+		"appId": "test-app-id",
+		"privateKey": "config/cert.pem",
+		"installationId": "test-installation-id",
+		"token": "test-token",
+		"owner": "test-owner",
+		"repo": "test-repo"
+	},
+	"gcp": {
+		"project": "test-project",
+		"zone": "test-zone",
+		"instance": "test-instance"
+	},
+	"backend": {
+		"candyEmoji": "🍬",
+		"candySuperEmoji": "🍭",
+		"candyLogChannel": "test-channel",
+		"candyBoxAmount": 10,
+		"crownLogChannel": "test-crown-channel"
+	}
+}

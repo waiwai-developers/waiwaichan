@@ -1,6 +1,7 @@
 import { ITEM_RECORDS } from "@/migrator/seeds/20241111041901-item";
 import { AppConfig } from "@/src/entities/config/AppConfig";
 import { CommandsConfig } from "@/src/entities/config/CommandsConfig";
+import { ContextsConst } from "@/src/entities/constants/Contexts";
 import { TranslateConst } from "@/src/entities/constants/translate";
 import {
 	REST,
@@ -79,7 +80,19 @@ export class DiscordCommandRegister {
 				),
 			new SlashCommandBuilder()
 				.setName("talk")
-				.setDescription("talk string")
+				.setDescription("talk integer string")
+				.addIntegerOption((option) =>
+					option
+						.setName("type")
+						.setDescription("integer")
+						.setRequired(true)
+						.addChoices(
+							// TODO read from in memory db
+							ContextsConst.contexts.map((r) => {
+								return { name: r.name, value: r.id };
+							}),
+						),
+				)
 				.addStringOption((option) =>
 					option.setName("title").setDescription("string").setRequired(true),
 				),
@@ -159,6 +172,15 @@ export class DiscordCommandRegister {
 						.setRequired(true),
 				),
 			new SlashCommandBuilder()
+				.setName("stickyupdate")
+				.setDescription("sticky update")
+				.addStringOption((option) =>
+					option
+						.setName("channelid")
+						.setDescription("string")
+						.setRequired(true),
+				),
+			new SlashCommandBuilder()
 				.setName("stickydelete")
 				.setDescription("sticky delete")
 				.addStringOption((option) =>
@@ -167,6 +189,33 @@ export class DiscordCommandRegister {
 						.setDescription("string")
 						.setRequired(true),
 				),
+			new SlashCommandBuilder()
+				.setName("stickylist")
+				.setDescription("sticky list"),
+			new SlashCommandBuilder()
+				.setName("roomaddchannelcreate")
+				.setDescription("room add channel create")
+				.addStringOption((option) =>
+					option
+						.setName("channelid")
+						.setDescription("string")
+						.setRequired(true),
+				),
+			new SlashCommandBuilder()
+				.setName("roomaddchanneldelete")
+				.setDescription("room add channel delete"),
+			new SlashCommandBuilder()
+				.setName("roomnotificationchannelcreate")
+				.setDescription("room notification channel create")
+				.addStringOption((option) =>
+					option
+						.setName("channelid")
+						.setDescription("string")
+						.setRequired(true),
+				),
+			new SlashCommandBuilder()
+				.setName("roomnotificationchanneldelete")
+				.setDescription("room notification channel delete"),
 		];
 	}
 	async register(token: string) {

@@ -3,7 +3,8 @@ interface CommandType {
 	name: string;
 	example: string;
 	parameter: string;
-	description: string;
+	summary: string;
+	detail: string;
 }
 interface CommandsCategoryType {
 	name: string;

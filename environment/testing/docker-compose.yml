@@ -1,0 +1,61 @@
+x-base-service: &base-service
+  build:
+    context: ../../.
+    dockerfile: environment/testing/Dockerfile
+  image: waiwai-app:testing
+  networks:
+    - server-network
+  environment:
+    CI: "true"
+    GOOGLE_APPLICATION_CREDENTIALS: /app/config/key.json
+    NODE_ENV: testing
+  volumes:
+    - type: bind
+      source: ../../config
+      target: /app/config
+services:
+  database:
+    container_name: waiwai-database
+    image: mysql:8.0
+    platform: linux/x86_64
+    restart: always
+    env_file:
+      - ../../.env
+    command: mysqld
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - server-network
+    healthcheck:
+      test: ["CMD-SHELL", "mysql -h localhost -u $$MYSQL_USER -p$$MYSQL_PASSWORD -e 'SELECT 1' $$MYSQL_DATABASE"]
+      interval: 10s
+      retries: 10
+      start_period: 60s
+      timeout: 10s
+  migrate:
+    <<: *base-service
+    container_name: waiwai-migrate
+    restart: "no"
+    command: ["pnpm", "migrateAll:up"]
+    depends_on:
+      database:
+        condition: service_healthy
+  backend:
+    <<: *base-service
+    container_name: waiwai-backend
+    restart: "no"
+    command: ["sleep", "infinity"]
+    depends_on:
+      database:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+networks:
+  server-network:
+    driver: bridge
+volumes:
+  mysql_data:

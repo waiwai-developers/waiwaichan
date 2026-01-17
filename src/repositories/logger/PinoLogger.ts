@@ -1,3 +1,4 @@
+import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 import { pino } from "pino";
 
 const Logger = pino({
@@ -8,6 +9,7 @@ const Logger = pino({
 				target: "pino/file",
 				options: {
 					destination: "logs/waiwaichan.log",
+					mkdir: true,
 				},
 			},
 			{

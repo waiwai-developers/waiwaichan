@@ -1,28 +1,38 @@
 # waiwaichan
 
+Build the docker image
+```
+docker compose -f ./environment/development/docker-compose.yml build --no-cache
+```
+
 Start the server locally
 ```
 docker compose -f ./environment/development/docker-compose.yml up
 ```
 
-How to enter the environment
+How to enter into the environment
 ```
 docker compose -f ./environment/development/docker-compose.yml exec -it backend sh
 ```
 
-Execute the migration
+How to execute test in the environment
 ```
-pnpm migrate up
-```
-
-Execute the rollback
-```
-pnpm migrate down
+docker compose -f environment/development/docker-compose.yml exec -T backend sh -c 'pnpm test'
 ```
 
-Insert seed data
+How to execute the QA with Coverage
 ```
-pnpm seed up
+docker compose -f environment/development/docker-compose.yml exec -T backend sh -c 'pnpm test:coverage'
+```
+
+How to execute the migrate up
+```
+docker compose -f environment/development/docker-compose.yml exec -T backend sh -c 'pnpm migrateAll:up'
+```
+
+How to execute the migrate down
+```
+docker compose -f environment/development/docker-compose.yml exec -T backend sh -c 'pnpm migrateAll:down'
 ```
 
 Running formatter && linter
@@ -33,14 +43,4 @@ pnpm lint
 Running formatter && linter (unsafe) https://biomejs.dev/linter/#unsafe-fixes
 ```
 pnpm lint:unsafe
-```
-
-Execute the QA
-```
-pnpm test
-```
-
-Execute the QA with Coverage
-```
-pnpm test:coverage
 ```

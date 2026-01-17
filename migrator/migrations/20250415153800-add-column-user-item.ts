@@ -6,7 +6,7 @@ const COLUMN_NAME = "candyId";
 
 export const up: Migration = async ({ context: sequelize }) => {
 	await sequelize.getQueryInterface().addColumn(TABLE_NAME, COLUMN_NAME, {
-		type: DataTypes.INTEGER
+		type: DataTypes.INTEGER,
 	});
 };
 export const down: Migration = async ({ context: sequelize }) => {

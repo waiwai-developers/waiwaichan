@@ -4,6 +4,7 @@ import {
 	RepoTypes,
 } from "@/src/entities/constants/DIContainerTypes";
 import { CandyCategoryType } from "@/src/entities/vo/CandyCategoryType";
+import { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
 import { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
 import { DiscordMessageLink } from "@/src/entities/vo/DiscordMessageLink";
 import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
@@ -12,6 +13,7 @@ import type {
 	ReactionInteraction,
 } from "@/src/handlers/discord.js/events/DiscordEventHandler";
 import type { ICandyLogic } from "@/src/logics/Interfaces/logics/ICandyLogic";
+import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 import { TextChannel } from "discord.js";
 import { inject, injectable } from "inversify";
 
@@ -26,6 +28,10 @@ export class CandyReactionHandler
 	private readonly logger!: ILogger;
 
 	async handle({ reaction, user }: ReactionInteraction): Promise<void> {
+		if (!reaction.message.guildId) {
+			this.logger.debug("not guild message");
+			return;
+		}
 		if (reaction.partial) {
 			try {
 				await reaction.fetch();
@@ -54,29 +60,28 @@ export class CandyReactionHandler
 			return;
 		}
 
-		let res: string | undefined;
-
-		const isCandyEmoji = reaction.emoji.name === AppConfig.backend.candyEmoji;
-		const isCandySuperEmoji =
-			reaction.emoji.name === AppConfig.backend.candySuperEmoji;
-
-		if (isCandyEmoji || isCandySuperEmoji) {
-			res = await this.candyLogic.giveCandys(
-				new DiscordUserId(reaction.message.author.id),
-				new DiscordUserId(user.id),
-				new DiscordMessageId(reaction.message.id),
-				new DiscordMessageLink(reaction.message.url),
-				new CandyCategoryType(
-					isCandySuperEmoji
-						? CandyCategoryType.CATEGORY_TYPE_SUPER.getValue()
-						: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
-				),
-			);
-		} else {
-			this.logger.debug("not peer bonus emoji");
+		const candyCategoryType = ((ce) => {
+			switch (ce) {
+				case AppConfig.backend.candySuperEmoji:
+					return CandyCategoryType.CATEGORY_TYPE_SUPER;
+				case AppConfig.backend.candyEmoji:
+					return CandyCategoryType.CATEGORY_TYPE_NORMAL;
+				default:
+					return undefined;
+			}
+		})(reaction.emoji.name);
+		if (candyCategoryType == null) {
 			return;
 		}
 
+		const res = await this.candyLogic.giveCandys(
+			new DiscordGuildId(reaction.message.guildId),
+			new DiscordUserId(reaction.message.author.id),
+			new DiscordUserId(user.id),
+			new DiscordMessageId(reaction.message.id),
+			new DiscordMessageLink(reaction.message.url),
+			candyCategoryType,
+		);
 		if (!res) {
 			return;
 		}
@@ -84,7 +89,6 @@ export class CandyReactionHandler
 		const channel = reaction.message.guild?.channels.cache.get(
 			AppConfig.backend.candyLogChannel,
 		);
-
 		if (!(channel instanceof TextChannel)) {
 			return;
 		}
