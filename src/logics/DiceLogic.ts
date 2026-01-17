@@ -73,6 +73,7 @@ type Expr =
 	| { type: "Access"; expr: Expr; index: Expr; span: Span } // 配列アクセス
 	| ({ type: "Arithmetic"; op: ArithmeticOp } & BinaryOp) // 算術演算
 	| ({ type: "Compare"; op: CompareOp } & BinaryOp) // 比較演算
+	| { type: "LogicalNot"; expr: Expr; span: Span } // 論理否定
 	| ({ type: "Logical"; op: LogicalOp } & BinaryOp); // 論理演算
 
 // ==== Value =========================
@@ -599,8 +600,36 @@ const compare: Parser<Expr> = binary(
 	"比較する項",
 );
 
+const logicalNot: Parser<Expr> = (input) => {
+	const notResult = pair(
+		spaceDelimited(tag("not")),
+		withErrorContext(logicalNot, "比較する項"),
+	)(input);
+	if (notResult.ok) {
+		const remaining = notResult.remaining;
+		const totalConsumed = input.text.slice(
+			0,
+			input.text.length - remaining.text.length,
+		);
+		return {
+			ok: true,
+			value: {
+				type: "LogicalNot",
+				expr: notResult.value[1],
+				span: {
+					line: input.span.line,
+					column: input.span.column,
+					length: totalConsumed.length,
+				},
+			},
+			remaining,
+		};
+	}
+	return compare(input);
+};
+
 const logicalAnd: Parser<Expr> = binary(
-	compare,
+	logicalNot,
 	tag("and"),
 	"Logical",
 	"比較する項",
@@ -920,6 +949,23 @@ class Interpreter {
 					formatedData: `${lhs.value} ${expr.op} ${rhs.value} → ${value ? "✅" : "❌"}`,
 				});
 			}
+			case "LogicalNot": {
+				const value = this.evalExpr(expr.expr);
+				if (!value.ok) return value;
+				if (!isBoolean(value.value)) {
+					return {
+						ok: false,
+						error: createInterpretError(value, value.span, "真偽値"),
+					};
+				}
+				const resultValue = !value.value;
+				return this.addHistory({
+					ok: true,
+					value: resultValue,
+					span: expr.span,
+					formatedData: `not ${value.value} → ${resultValue ? "✅" : "❌"}`,
+				});
+			}
 			case "Logical": {
 				const lhs = this.evalExpr(expr.lhs);
 				if (!lhs.ok) return lhs;
@@ -937,13 +983,13 @@ class Interpreter {
 						error: createInterpretError(rhs, rhs.span, "真偽値と真偽値"),
 					};
 				}
-				const value =
+				const resultValue =
 					expr.op === "and" ? lhs.value && rhs.value : lhs.value || rhs.value;
 				return this.addHistory({
 					ok: true,
-					value,
+					value: resultValue,
 					span: expr.span,
-					formatedData: `${lhs.value} ${expr.op} ${rhs.value} → ${value ? "✅" : "❌"}`,
+					formatedData: `${lhs.value} ${expr.op} ${rhs.value} → ${resultValue ? "✅" : "❌"}`,
 				});
 			}
 		}
