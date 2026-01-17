@@ -1,8 +1,47 @@
 import { DiscordCommandRegister } from "@/src/routes/discordjs/DiscordCommandRegister";
 import { ApplicationCommandOptionType } from "discord-api-types/v10";
-import { type CacheType, ChatInputCommandInteraction, type CommandInteractionOptionResolver, User } from "discord.js";
+import {
+	type CacheType,
+	ChatInputCommandInteraction,
+	type CommandInteractionOptionResolver,
+	type Message,
+	TextChannel,
+	type ThreadChannel,
+	User,
+} from "discord.js";
 import { anything, instance, mock, verify, when } from "ts-mockito";
-export const mockSlashCommand = (commandName: string, options: any = {}, userId = "1234") => {
+
+export type MockSlashCommandOptions = {
+	userId?: string;
+	guildId?: string;
+	withChannel?: boolean;
+	replyMessage?: Message<boolean>;
+};
+
+export const mockSlashCommand = (
+	commandName: string,
+	options: any = {},
+	userIdOrOptions: string | MockSlashCommandOptions = "1234",
+	guildIdParam = "9999",
+) => {
+	// Handle both old and new API
+	let userId: string;
+	let guildId: string;
+	let withChannel: boolean;
+	let replyMessage: Message<boolean> | undefined;
+
+	if (typeof userIdOrOptions === "string") {
+		userId = userIdOrOptions;
+		guildId = guildIdParam;
+		withChannel = false;
+		replyMessage = undefined;
+	} else {
+		userId = userIdOrOptions.userId ?? "1234";
+		guildId = userIdOrOptions.guildId ?? guildIdParam;
+		withChannel = userIdOrOptions.withChannel ?? false;
+		replyMessage = userIdOrOptions.replyMessage;
+	}
+
 	const commandInteractionMock = mock(ChatInputCommandInteraction);
 	const found = new DiscordCommandRegister().commands.find((b) => b.name === commandName);
 	const optionsMock = mock<Omit<CommandInteractionOptionResolver<CacheType>, "getMessage" | "getFocused">>();
@@ -64,33 +103,73 @@ export const mockSlashCommand = (commandName: string, options: any = {}, userId 
 	when(commandInteractionMock.commandName).thenReturn(commandName);
 	when(commandInteractionMock.isChatInputCommand()).thenReturn(true);
 	when(commandInteractionMock.deferReply()).thenResolve();
+	when(commandInteractionMock.replied).thenReturn(false);
+	when(commandInteractionMock.deferred).thenReturn(false);
 	const userMock = mock(User);
 	when(userMock.id).thenReturn(userId);
 	when(commandInteractionMock.user).thenReturn(instance(userMock));
 	when(commandInteractionMock.channelId).thenReturn("5678");
+	when(commandInteractionMock.guildId).thenReturn(guildId);
+
+	// Setup channel mock if requested
+	if (withChannel) {
+		const channelMock = mock(TextChannel);
+		const threadMock = mock<ThreadChannel>();
+		when(threadMock.id).thenReturn("thread-123");
+		when(channelMock.threads).thenReturn({
+			create: async () => instance(threadMock),
+		} as any);
+		const mockedChannel = instance(channelMock);
+		Object.setPrototypeOf(mockedChannel, TextChannel.prototype);
+		when(commandInteractionMock.channel).thenReturn(mockedChannel);
+	} else {
+		when(commandInteractionMock.channel).thenReturn(null);
+	}
+
+	// Setup reply to return replyMessage if provided
+	if (replyMessage) {
+		when(commandInteractionMock.reply(anything())).thenResolve(replyMessage as any);
+	}
+
 	return commandInteractionMock;
+};
+
+export const createMockMessage = (guildId = "9999", messageId = "msg-123") => {
+	const messageMock = mock<Message<boolean>>();
+	when(messageMock.guildId).thenReturn(guildId);
+	when(messageMock.id).thenReturn(messageId);
+
+	const threadMock = mock<ThreadChannel>();
+	when(threadMock.id).thenReturn("thread-123");
+	when(messageMock.startThread(anything())).thenResolve(instance(threadMock) as any);
+
+	return { messageMock, message: instance(messageMock), threadMock };
 };
 
 export const waitUntilReply = async (commandInteractionMock: ChatInputCommandInteraction<CacheType>, timeout = 15000, atLeast = 1): Promise<void> => {
 	const startTime = Date.now();
 	return new Promise((resolve, reject) => {
-		const interval = setInterval(async () => {
-			await new Promise(() => {
+		const interval = setInterval(() => {
+			try {
+				// Try to verify if reply was called
 				verify(commandInteractionMock.reply(anything())).atLeast(atLeast);
 				clearInterval(interval);
 				resolve();
-			})
-				.catch((e) => {
+			} catch (replyError) {
+				try {
+					// If reply wasn't called, check if editReply was called
 					verify(commandInteractionMock.editReply(anything())).atLeast(atLeast);
 					clearInterval(interval);
-					resolve(e);
-				})
-				.catch((e) => {
+					resolve();
+				} catch (editReplyError) {
+					// If neither was called, check if we've timed out
 					if (Date.now() - startTime > timeout) {
 						clearInterval(interval);
 						reject(new Error("Timeout: Method was not called within the time limit."));
 					}
-				});
+					// Otherwise, continue waiting
+				}
+			}
 		}, 100);
 	});
 };

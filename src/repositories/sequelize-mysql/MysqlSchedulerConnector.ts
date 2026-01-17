@@ -1,4 +1,4 @@
-import { GetEnvDBConfig } from "@/src/entities/config/DatabaseConfig";
+import { DatabaseConfig } from "@/src/entities/config/DatabaseConfig";
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import type { IDataBaseConnector } from "@/src/logics/Interfaces/repositories/database/IDataBaseConnector";
 import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
@@ -23,7 +23,7 @@ export class MysqlSchedulerConnector
 	readonly instance: Sequelize;
 
 	constructor() {
-		const dbConfig = GetEnvDBConfig();
+		const dbConfig = DatabaseConfig;
 		this.instance = new Sequelize(
 			dbConfig.database,
 			dbConfig.username,

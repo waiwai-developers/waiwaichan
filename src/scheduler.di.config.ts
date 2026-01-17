@@ -10,6 +10,8 @@ import type { IDataDeletionCircular } from "@/src/logics/Interfaces/repositories
 import type { IReminderSchedulerRepository } from "@/src/logics/Interfaces/repositories/database/IReminderSchedulerRepository";
 import type { IUserRepository } from "@/src/logics/Interfaces/repositories/database/IUserRepository";
 import { UserLogic } from "@/src/logics/UserLogic";
+import type { ITransaction } from "@/src/logics/Interfaces/repositories/database/ITransaction";
+import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 import { PinoSchedulerLogger } from "@/src/repositories/logger/PinoSchedulerLogger";
 import { CommunityRepositoryImpl, ReminderSchedulerRepositoryImpl, UserRepositoryImpl } from "@/src/repositories/sequelize-mysql";
 import { DataDeletionCircularImpl } from "@/src/repositories/sequelize-mysql/DataDeletionCircularImpl";
@@ -17,8 +19,6 @@ import { MysqlSchedulerConnector } from "@/src/repositories/sequelize-mysql/Mysq
 import { SequelizeTransaction } from "@/src/repositories/sequelize-mysql/SequelizeTransaction";
 import { Container } from "inversify";
 import type { Sequelize } from "sequelize-typescript";
-import type { ITransaction } from "./logics/Interfaces/repositories/database/ITransaction";
-import type { ILogger } from "./logics/Interfaces/repositories/logger/ILogger";
 
 const schedulerContainer = new Container();
 

@@ -1,9 +1,31 @@
-FROM node:22.5.1-alpine
+############################
+# build stage
+############################
+FROM node:24-bookworm-slim AS builder
+ENV NODE_ENV=development
 WORKDIR /app
+RUN npm install -g corepack@latest && corepack enable
+RUN corepack prepare pnpm@latest --activate
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
 COPY . .
-RUN apk update && apk add mysql-client logrotate
-RUN npm i -g pnpm
-RUN pnpm install
-RUN cp environment/development/logrotate.conf /etc/logrotate.d/waiwaichan.conf
-RUN cp -f /etc/periodic/daily/logrotate /etc/periodic/15min
-CMD ["pnpm", "run", "dev"]
+RUN pnpm run build
+RUN mkdir -p logs
+
+############################
+# runtime stage
+############################
+FROM node:24-bookworm-slim AS runtime
+ENV NODE_ENV=development
+WORKDIR /app
+RUN npm install -g pnpm
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/pnpm-lock.yaml ./pnpm-lock.yaml
+COPY --from=builder /app/tsconfig.json ./tsconfig.json
+COPY --from=builder /app/src ./src
+COPY --from=builder /app/migrator ./migrator
+COPY --from=builder /app/tests ./tests
+COPY --from=builder --chown=node:node /app/logs ./logs
+CMD ["pnpm", "dev:backend:"]
