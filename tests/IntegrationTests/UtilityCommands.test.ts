@@ -1,8 +1,31 @@
 import { InternalErrorMessage } from "@/src/entities/DiscordErrorMessages";
+import { DiceContextDto } from "@/src/entities/dto/DiceContextDto";
+import type { DiceResultDto } from "@/src/entities/dto/DiceResultDto";
+import { DiceIsSecret } from "@/src/entities/vo/DiceIsSecret";
+import { DiceShowDetails } from "@/src/entities/vo/DiceShowDetails";
+import { DiceSource } from "@/src/entities/vo/DiceSource";
+import { DiceLogic } from "@/src/logics/DiceLogic";
 import { mockSlashCommand, waitUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { TestDiscordServer } from "@/tests/fixtures/discord.js/TestDiscordServer";
 import { expect } from "chai";
 import { anything, instance, verify, when } from "ts-mockito";
+
+const evaluateDice = async (
+	source: string,
+	showDetails = true,
+): Promise<DiceResultDto> => {
+	const logic = new DiceLogic();
+	const ctx = new DiceContextDto(
+		new DiceSource(source),
+		new DiceIsSecret(false),
+		new DiceShowDetails(showDetails),
+	);
+	return logic.dice(ctx);
+};
+
+const getDescriptionLines = (result: DiceResultDto): string[] => {
+	return result.description.getValue().split("\n");
+};
 
 describe("Test UtilityCommand", () => {
 	/**
@@ -319,163 +342,239 @@ describe("Test UtilityCommand", () => {
 	 * DiceCommandHandlerのテスト
 	 */
 	describe("Test /dice command", () => {
+		const extractEmbedData = (options: any): { title: string; description: string } => {
+			const embed = options?.embeds?.[0];
+			const data = embed?.data ?? embed;
+			return {
+				title: data?.title ?? "",
+				description: data?.description ?? "",
+			};
+		};
+		const parseEmbedValue = (description: string): number => {
+			const match = description.match(/→\s*(-?\d+)/);
+			return match ? Number(match[1]) : Number.NaN;
+		};
+
 		/**
-		 * [ランダム値] parameter:randomでランダムな面数のダイスが正しく動作する
-		 * - 10回のランダム試行で結果が1以上、指定面数以下であることを検証
-		 * - 内部エラーが発生しないことを検証
+		 * [ランダム値] source:1d100で1〜100の範囲で返される
 		 */
-		it("Test /dice parameter:random", async () => {
+		it("Test /dice source:1d100", async () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
-			let value = 0;
-			for (let i = 0; i < 10; i++) {
-				const sides = Math.round(Math.random() * Number.MAX_SAFE_INTEGER);
-				const commandMock = mockSlashCommand("dice", {
-					parameter: sides,
-				});
-
-				when(commandMock.reply(anything())).thenCall((args) => {
-					value = args;
-				});
-
-				TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-				await waitUntilReply(commandMock);
-				verify(commandMock.reply(anything())).once();
-				verify(commandMock.reply(InternalErrorMessage)).never();
-				expect(Number(value)).to.lte(sides);
-				expect(Number(value)).to.gte(1);
-			}
-		}).timeout(20_000);
-
-		/**
-		 * [最小値] parameter:1で1面ダイスが常に1を返す
-		 * - 1面ダイスの場合、常に1が返されることを検証
-		 * - 内部エラーが発生しないことを検証
-		 */
-		it("Test /dice parameter:1 (minimum value)", async () => {
+			let replyOptions: any;
 			const commandMock = mockSlashCommand("dice", {
-				parameter: 1,
+				source: "1d100",
+				details: true,
 			});
-			const TEST_CLIENT = await TestDiscordServer.getClient();
-			let value = "";
 			when(commandMock.reply(anything())).thenCall((args) => {
-				value = args;
+				replyOptions = args;
 			});
 
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 			await waitUntilReply(commandMock);
 			verify(commandMock.reply(anything())).once();
-			verify(commandMock.reply(InternalErrorMessage)).never();
-			// When dice has only 1 side, it should always return 1
-			expect(value).to.equal("1");
+
+			const { description } = extractEmbedData(replyOptions);
+			const value = parseEmbedValue(description);
+			expect(value).to.be.within(1, 100);
 		});
 
 		/**
-		 * [標準ダイス] parameter:6で6面ダイスが1〜6の範囲で返される
-		 * - 6面ダイスの結果が1〜6の範囲内であることを検証
-		 * - 内部エラーが発生しないことを検証
+		 * [最小値] source:1d1で常に1を返す
 		 */
-		it("Test /dice parameter:6 (standard dice)", async () => {
+		it("Test /dice source:1d1 (minimum value)", async () => {
 			const commandMock = mockSlashCommand("dice", {
-				parameter: 6,
+				source: "1d1",
+				details: true,
 			});
 			const TEST_CLIENT = await TestDiscordServer.getClient();
-			let value = "";
+			let replyOptions: any;
 			when(commandMock.reply(anything())).thenCall((args) => {
-				value = args;
+				replyOptions = args;
 			});
 
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 			await waitUntilReply(commandMock);
 			verify(commandMock.reply(anything())).once();
-			verify(commandMock.reply(InternalErrorMessage)).never();
-			expect(Number(value)).to.be.within(1, 6);
+
+			const { description } = extractEmbedData(replyOptions);
+			const value = parseEmbedValue(description);
+			expect(value).to.equal(1);
 		});
 
 		/**
-		 * [100面ダイス] parameter:100で100面ダイスが1〜100の範囲で返される
-		 * - 100面ダイスの結果が1〜100の範囲内であることを検証
-		 * - 内部エラーが発生しないことを検証
+		 * [標準ダイス] source:1d6で1〜6の範囲で返される
 		 */
-		it("Test /dice parameter:100", async () => {
+		it("Test /dice source:1d6 (standard dice)", async () => {
 			const commandMock = mockSlashCommand("dice", {
-				parameter: 100,
+				source: "1d6",
+				details: true,
 			});
 			const TEST_CLIENT = await TestDiscordServer.getClient();
-			let value = "";
+			let replyOptions: any;
 			when(commandMock.reply(anything())).thenCall((args) => {
-				value = args;
+				replyOptions = args;
 			});
 
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 			await waitUntilReply(commandMock);
 			verify(commandMock.reply(anything())).once();
-			verify(commandMock.reply(InternalErrorMessage)).never();
-			expect(Number(value)).to.be.within(1, 100);
+
+			const { description } = extractEmbedData(replyOptions);
+			const value = parseEmbedValue(description);
+			expect(value).to.be.within(1, 6);
 		});
 
 		/**
-		 * [パラメータなし] parameter:nullで内部エラーが発生する
-		 * - パラメータが指定されていない場合に内部エラーメッセージが返されることを検証
+		 * [必須パラメータなし] source:nullで内部エラーが発生する
 		 */
-		it("Test /dice parameter:null", async () => {
+		it("Test /dice source:null", async () => {
 			const commandMock = mockSlashCommand("dice", {
-				parameter: null,
+				source: null,
 			});
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 			await waitUntilReply(commandMock);
 			verify(commandMock.reply(anything())).once();
-			verify(commandMock.reply("")).never();
 			verify(commandMock.reply(InternalErrorMessage)).once();
 		});
 
 		/**
-		 * [小数値エラー] parameter:3.14159265で整数でないエラーメッセージが返される
-		 * - 小数値を指定した場合に「パラメーターが整数じゃないよ！っ」が返されることを検証
+		 * [構文エラー] source:1.5でパースエラーが返される
 		 */
-		it("Test /dice parameter:3.14159265 (non-integer)", async () => {
+		it("Test /dice source:1.5 (invalid source)", async () => {
 			const commandMock = mockSlashCommand("dice", {
-				parameter: Math.PI,
+				source: "1.5",
+				details: true,
 			});
 			const TEST_CLIENT = await TestDiscordServer.getClient();
+			let replyOptions: any;
+			when(commandMock.reply(anything())).thenCall((args) => {
+				replyOptions = args;
+			});
 
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 			await waitUntilReply(commandMock);
 			verify(commandMock.reply(anything())).once();
-			verify(commandMock.reply("パラメーターが整数じゃないよ！っ")).once();
+
+			const { title, description } = extractEmbedData(replyOptions);
+			expect(title).to.include("エラー:");
+			expect(description).to.include("入力に誤り");
+		});
+	});
+
+	/**
+	 * DiceLogic式評価のテスト
+	 */
+	describe("DiceLogic expression tests", () => {
+		const getLastLine = (result: DiceResultDto): string => {
+			const lines = getDescriptionLines(result);
+			return lines[lines.length - 1] || "";
+		};
+
+		const expectSuccess = (result: DiceResultDto): void => {
+			expect(result.ok.getValue()).to.equal(true);
+		};
+
+		const expectFailure = (result: DiceResultDto): void => {
+			expect(result.ok.getValue()).to.equal(false);
+		};
+
+		it("not binds tighter than and/or", async () => {
+			const result = await evaluateDice("not1=1and1=1");
+			expectSuccess(result);
+			expect(getLastLine(result)).to.include("→ false ❌");
 		});
 
-		/**
-		 * [負数エラー] parameter:-1で0以下のエラーメッセージが返される
-		 * - 負の数を指定した場合に「パラメーターが0以下の数だよ！っ」が返されることを検証
-		 */
-		it("Test /dice parameter:-1 (negative number)", async () => {
-			const commandMock = mockSlashCommand("dice", {
-				parameter: -1,
-			});
-			const TEST_CLIENT = await TestDiscordServer.getClient();
-
-			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-			await waitUntilReply(commandMock);
-			verify(commandMock.reply(anything())).once();
-			verify(commandMock.reply("パラメーターが0以下の数だよ！っ")).once();
+		it("supports multiple not operators", async () => {
+			const result = await evaluateDice("notnot1=1");
+			expectSuccess(result);
+			expect(getLastLine(result)).to.include("→ true ✅");
 		});
 
-		/**
-		 * [ゼロエラー] parameter:0で0以下のエラーメッセージが返される
-		 * - 0を指定した場合に「パラメーターが0以下の数だよ！っ」が返されることを検証
-		 */
-		it("Test /dice parameter:0 (zero)", async () => {
-			const commandMock = mockSlashCommand("dice", {
-				parameter: 0,
-			});
-			const TEST_CLIENT = await TestDiscordServer.getClient();
+		it("and/or are left-associative with same precedence", async () => {
+			const result = await evaluateDice("1=1or1=2and1=2");
+			expectSuccess(result);
+			expect(getLastLine(result)).to.include("→ false ❌");
+		});
 
-			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-			await waitUntilReply(commandMock);
-			verify(commandMock.reply(anything())).once();
-			verify(commandMock.reply("パラメーターが0以下の数だよ！っ")).once();
+		it("respects arithmetic precedence", async () => {
+			const result = await evaluateDice("1+2*3=7");
+			expectSuccess(result);
+			expect(getLastLine(result)).to.include("→ true ✅");
+		});
+
+		it("parentheses override precedence", async () => {
+			const result = await evaluateDice("(1+2)*3=9");
+			expectSuccess(result);
+			expect(getLastLine(result)).to.include("→ true ✅");
+		});
+
+		it("+ and - share the same precedence", async () => {
+			const result = await evaluateDice("5-2+1=4");
+			expectSuccess(result);
+			expect(getLastLine(result)).to.include("→ true ✅");
+		});
+
+		it("* / // share the same precedence", async () => {
+			const result = await evaluateDice("5//2*2=4");
+			expectSuccess(result);
+			expect(getLastLine(result)).to.include("→ true ✅");
+		});
+
+		it("throws error when not operand is not boolean", async () => {
+			const result = await evaluateDice("not1");
+			expectFailure(result);
+			expect(result.description.getValue()).to.include("真偽値");
+		});
+
+		it("throws error when and/or operands are not boolean", async () => {
+			const result = await evaluateDice("1and2");
+			expectFailure(result);
+			expect(result.description.getValue()).to.include("真偽値と真偽値");
+		});
+
+		it("reports extra input errors", async () => {
+			const result = await evaluateDice("1a");
+			expectFailure(result);
+			expect(result.description.getValue()).to.include("余計な入力");
+		});
+
+		it("supports chained comparisons", async () => {
+			const result = await evaluateDice("1<2<3");
+			expectSuccess(result);
+			const lastLine = getLastLine(result);
+			expect(lastLine === "✅" || lastLine.includes("→ true ✅")).to.equal(true);
+		});
+
+		it("combines not with comparisons", async () => {
+			const result = await evaluateDice("not1<2");
+			expectSuccess(result);
+			expect(getLastLine(result)).to.include("→ false ❌");
+		});
+
+		it("combines dice results with logic", async () => {
+			const result = await evaluateDice("1d1>0andnot(2d1<2)");
+			expectSuccess(result);
+			expect(getLastLine(result)).to.include("→ true ✅");
+		});
+
+		it("works with arrays, keep, and access", async () => {
+			const result = await evaluateDice("3b1kh2[0]=1and3b1kl1[0]=1");
+			expectSuccess(result);
+			expect(getLastLine(result)).to.include("→ true ✅");
+		});
+
+		it("accepts not with parentheses and no space", async () => {
+			const result = await evaluateDice("not(1=1)");
+			expectSuccess(result);
+			expect(getLastLine(result)).to.include("→ false ❌");
+		});
+
+		it("does not treat note as not keyword", async () => {
+			const result = await evaluateDice("note");
+			expectFailure(result);
+			expect(result.description.getValue()).to.include("数値");
 		});
 	});
 

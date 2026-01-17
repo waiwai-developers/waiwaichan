@@ -1,6 +1,5 @@
 import { CommandsConfig } from "@/src/entities/config/CommandsConfig";
 import type { ChoiceContent } from "@/src/entities/vo/ChoiceContent";
-import type { DiceSides } from "@/src/entities/vo/DiceSides";
 import type { HelpCategory } from "@/src/entities/vo/HelpCategory";
 import type { ParrotMessage } from "@/src/entities/vo/ParrotMessage";
 import type { IUtilityLogic } from "@/src/logics/Interfaces/logics/IUtilityLogic";
@@ -33,14 +32,6 @@ export class UtilityLogic implements IUtilityLogic {
 		if (items.length <= 0) return "パラメーターがないよ！っ";
 
 		return items[Math.floor(Math.random() * Number(items.length))]?.getValue();
-	}
-	async dice(sides: DiceSides): Promise<string> {
-		if (sides == null) return "パラメーターがないよ！っ";
-		if (!Number.isInteger(sides.getValue()))
-			return "パラメーターが整数じゃないよ！っ";
-		if (sides.getValue() <= 0) return "パラメーターが0以下の数だよ！っ";
-
-		return Math.floor(Math.random() * sides.getValue() + 1).toString(10);
 	}
 	async parrot(msg: ParrotMessage): Promise<string> {
 		if (!msg) return "パラメーターがないよ！っ";

@@ -119,6 +119,8 @@ import { VoiceChannelEventRouter } from "@/src/routes/discordjs/events/VoiceChan
 import type { Message } from "discord.js";
 import { Container } from "inversify";
 import type { Sequelize } from "sequelize";
+import type { IDiceLogic } from "./logics/Interfaces/logics/IDiceLogic";
+import { DiceLogic } from "./logics/DiceLogic";
 const appContainer = new Container();
 
 // Repositories
@@ -161,6 +163,7 @@ appContainer.bind<ICrownLogic>(LogicTypes.CrownLogic).to(CrownLogic);
 appContainer.bind<IReminderLogic>(LogicTypes.ReminderLogic).to(ReminderLogic);
 appContainer.bind<IPullRequestLogic>(LogicTypes.PullRequestLogic).to(PullRequestLogic);
 appContainer.bind<ITranslatorLogic>(LogicTypes.TranslatorLogic).to(TranslatorLogic);
+appContainer.bind<IDiceLogic>(LogicTypes.DiceLogic).to(DiceLogic);
 appContainer.bind<IStickyLogic>(LogicTypes.StickyLogic).to(StickyLogic);
 appContainer.bind<IRoomAddChannelLogic>(LogicTypes.RoomAddChannelLogic).to(RoomAddChannelLogic);
 appContainer.bind<IRoomChannelLogic>(LogicTypes.RoomChannelLogic).to(RoomChannelLogic);
