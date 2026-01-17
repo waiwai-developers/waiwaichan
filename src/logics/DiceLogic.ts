@@ -62,8 +62,8 @@ interface BinaryOp {
 
 type ArithmeticOp = "+" | "-" | "*" | "//" | "/";
 type KeepOp = "kh" | "kl";
-type CompareOp = "!=" | "=" | ">=" | "<=" | ">" | "<";
-type LogicalOp = "and" | "or" | "not";
+type CompareOp = "==" | ">=" | "<=" | ">" | "<";
+type LogicalOp = "&&" | "||" | "!";
 
 type Expr =
 	| { type: "Integer"; value: number; span: Span } // 定数
@@ -608,14 +608,14 @@ const additive: Parser<Expr> = binary(
 
 const compare: Parser<Expr> = binary(
 	additive,
-	alt(tag("!="), tag("="), tag("<="), tag(">="), tag("<"), tag(">")),
+	alt(tag("=="), tag("<="), tag(">="), tag("<"), tag(">")),
 	"Compare",
 	"比較する項",
 );
 
 const logicalNot: Parser<Expr> = (input) => {
 	const notResult = pair(
-		spaceDelimited(tag("not")),
+		spaceDelimited(tag("!")),
 		withErrorContext(logicalNot, "比較する項"),
 	)(input);
 	if (notResult.ok) {
@@ -643,7 +643,7 @@ const logicalNot: Parser<Expr> = (input) => {
 
 const logical: Parser<Expr> = binary(
 	logicalNot,
-	spaceDelimited(alt(tag("and"), tag("or"))),
+	spaceDelimited(alt(tag("&&"), tag("||"))),
 	"Logical",
 	"比較する項",
 );
@@ -874,7 +874,7 @@ class Interpreter {
 					const lhs = expr.lhs;
 					expr.lhs = {
 						type: "Logical",
-						op: "and",
+						op: "&&",
 						lhs: {
 							type: "Compare",
 							op: lhs.op,
@@ -906,8 +906,7 @@ class Interpreter {
 					});
 				}
 				const compareOps = {
-					"!=": (a: number, b: number) => a !== b,
-					"=": (a: number, b: number) => a === b,
+					"==": (a: number, b: number) => a === b,
 					"<": (a: number, b: number) => a < b,
 					"<=": (a: number, b: number) => a <= b,
 					">": (a: number, b: number) => a > b,
@@ -969,7 +968,7 @@ class Interpreter {
 					ok: true,
 					value: resultValue,
 					span: expr.span,
-					formatedData: `not ${value.value} → ${resultValue ? "true ✅" : "false ❌"}`,
+					formatedData: `!${value.value} → ${resultValue ? "true ✅" : "false ❌"}`,
 				});
 			}
 			case "Logical": {
@@ -990,7 +989,7 @@ class Interpreter {
 					};
 				}
 				const resultValue =
-					expr.op === "and" ? lhs.value && rhs.value : lhs.value || rhs.value;
+					expr.op === "&&" ? lhs.value && rhs.value : lhs.value || rhs.value;
 				return this.addHistory({
 					ok: true,
 					value: resultValue,
