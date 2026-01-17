@@ -1,8 +1,31 @@
 import { InternalErrorMessage } from "@/src/entities/DiscordErrorMessages";
+import { DiceContextDto } from "@/src/entities/dto/DiceContextDto";
+import type { DiceResultDto } from "@/src/entities/dto/DiceResultDto";
+import { DiceIsSecret } from "@/src/entities/vo/DiceIsSecret";
+import { DiceShowDetails } from "@/src/entities/vo/DiceShowDetails";
+import { DiceSource } from "@/src/entities/vo/DiceSource";
+import { DiceLogic } from "@/src/logics/DiceLogic";
 import { mockSlashCommand, waitUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { TestDiscordServer } from "@/tests/fixtures/discord.js/TestDiscordServer";
 import { expect } from "chai";
 import { anything, instance, verify, when } from "ts-mockito";
+
+const evaluateDice = async (
+	source: string,
+	showDetails = true,
+): Promise<DiceResultDto> => {
+	const logic = new DiceLogic();
+	const ctx = new DiceContextDto(
+		new DiceSource(source),
+		new DiceIsSecret(false),
+		new DiceShowDetails(showDetails),
+	);
+	return logic.dice(ctx);
+};
+
+const getDescriptionLines = (result: DiceResultDto): string[] => {
+	return result.description.getValue().split("\n");
+};
 
 describe("Test UtilityCommand", () => {
 	/**
@@ -476,6 +499,120 @@ describe("Test UtilityCommand", () => {
 			await waitUntilReply(commandMock);
 			verify(commandMock.reply(anything())).once();
 			verify(commandMock.reply("パラメーターが0以下の数だよ！っ")).once();
+		});
+	});
+
+	/**
+	 * DiceLogic式評価のテスト
+	 */
+	describe("DiceLogic expression tests", () => {
+		const getLastLine = (result: DiceResultDto): string => {
+			const lines = getDescriptionLines(result);
+			return lines[lines.length - 1] || "";
+		};
+
+		const expectSuccess = (result: DiceResultDto): void => {
+			expect(result.ok.getValue()).to.equal(true);
+		};
+
+		const expectFailure = (result: DiceResultDto): void => {
+			expect(result.ok.getValue()).to.equal(false);
+		};
+
+		it("not binds tighter than and/or", async () => {
+			const result = await evaluateDice("not 1 = 1 and 1 = 1");
+			expectSuccess(result);
+			expect(getLastLine(result)).to.include("→ ❌");
+		});
+
+		it("supports multiple not operators", async () => {
+			const result = await evaluateDice("not not 1 = 1");
+			expectSuccess(result);
+			expect(getLastLine(result)).to.include("→ ✅");
+		});
+
+		it("and/or are left-associative with same precedence", async () => {
+			const result = await evaluateDice("1 = 1 or 1 = 2 and 1 = 2");
+			expectSuccess(result);
+			expect(getLastLine(result)).to.include("→ ❌");
+		});
+
+		it("respects arithmetic precedence", async () => {
+			const result = await evaluateDice("1 + 2 * 3 = 7");
+			expectSuccess(result);
+			expect(getLastLine(result)).to.include("→ ✅");
+		});
+
+		it("parentheses override precedence", async () => {
+			const result = await evaluateDice("(1 + 2) * 3 = 9");
+			expectSuccess(result);
+			expect(getLastLine(result)).to.include("→ ✅");
+		});
+
+		it("+ and - share the same precedence", async () => {
+			const result = await evaluateDice("5 - 2 + 1 = 4");
+			expectSuccess(result);
+			expect(getLastLine(result)).to.include("→ ✅");
+		});
+
+		it("* / // share the same precedence", async () => {
+			const result = await evaluateDice("5 // 2 * 2 = 4");
+			expectSuccess(result);
+			expect(getLastLine(result)).to.include("→ ✅");
+		});
+
+		it("throws error when not operand is not boolean", async () => {
+			const result = await evaluateDice("not 1");
+			expectFailure(result);
+			expect(result.description.getValue()).to.include("真偽値");
+		});
+
+		it("throws error when and/or operands are not boolean", async () => {
+			const result = await evaluateDice("1 and 2");
+			expectFailure(result);
+			expect(result.description.getValue()).to.include("真偽値と真偽値");
+		});
+
+		it("reports extra input errors", async () => {
+			const result = await evaluateDice("1 1");
+			expectFailure(result);
+			expect(result.description.getValue()).to.include("余計な入力");
+		});
+
+		it("supports chained comparisons", async () => {
+			const result = await evaluateDice("1 < 2 < 3");
+			expectSuccess(result);
+			expect(getLastLine(result)).to.include("→ ✅");
+		});
+
+		it("combines not with comparisons", async () => {
+			const result = await evaluateDice("not 1 < 2");
+			expectSuccess(result);
+			expect(getLastLine(result)).to.include("→ ❌");
+		});
+
+		it("combines dice results with logic", async () => {
+			const result = await evaluateDice("1d1 > 0 and not (2d1 < 2)");
+			expectSuccess(result);
+			expect(getLastLine(result)).to.include("→ ✅");
+		});
+
+		it("works with arrays, keep, and access", async () => {
+			const result = await evaluateDice("3b1kh2[0] = 1 and 3b1kl1[0] = 1");
+			expectSuccess(result);
+			expect(getLastLine(result)).to.include("→ ✅");
+		});
+
+		it("accepts not with parentheses and no space", async () => {
+			const result = await evaluateDice("not(1=1)");
+			expectSuccess(result);
+			expect(getLastLine(result)).to.include("→ ❌");
+		});
+
+		it("does not treat note as not keyword", async () => {
+			const result = await evaluateDice("note");
+			expectFailure(result);
+			expect(result.description.getValue()).to.include("数値");
 		});
 	});
 
