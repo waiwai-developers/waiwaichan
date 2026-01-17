@@ -15,6 +15,9 @@ export const RepoTypes = {
 	TranslateRepository: Symbol.for("TranslateRepository"),
 	PullRequestRepository: Symbol.for("PullRequestRepository"),
 	StickyRepository: Symbol.for("StickyRepository"),
+	CommunityRepository: Symbol.for("CommunityRepository"),
+	UserRepository: Symbol.for("UserRepository"),
+	DataDeletionCircular: Symbol.for("DataDeletionCircular"),
 	RoomAddChannelRepository: Symbol.for("RoomAddChannelRepository"),
 	RoomNotificationChannelRepository: Symbol.for(
 		"RoomNotificationChannelRepository",
@@ -36,7 +39,10 @@ export const LogicTypes = {
 	DiceLogic: Symbol.for("DiceLogic"),
 	StickyLogic: Symbol.for("StickyLogic"),
 	UtilityLogic: Symbol.for("UtilityLogic"),
+	CommunityLogic: Symbol.for("CommunityLogic"),
+	UserLogic: Symbol.for("UserLogic"),
 	CrownLogic: Symbol.for("CrownLogic"),
+	dataDeletionCircularLogic: Symbol.for("dataDeletionCircularLogic"),
 	RoomAddChannelLogic: Symbol.for("RoomAddChannelLogic"),
 	RoomNotificationChannelLogic: Symbol.for("RoomNotificationChannelLogic"),
 	RoomChannelLogic: Symbol.for("RoomChannelLogic"),
@@ -47,6 +53,10 @@ export const RouteTypes = {
 	MessageReplyRoute: Symbol.for("MessageReplyRoute"),
 	ReadyStateRoute: Symbol.for("ReadyStateRoute"),
 	ReactionRoute: Symbol.for("ReactionRoute"),
+	ActionAddBotRoute: Symbol.for("ActionAddBotRoute"),
+	ActionRemoveBotRoute: Symbol.for("ActionRemoveBotRoute"),
+	ActionAddUserRoute: Symbol.for("ActionAddUserRoute"),
+	ActionRemoveUserRoute: Symbol.for("ActionRemoveUserRoute"),
 	VoiceChannelEventRoute: Symbol.for("VoiceChannelEventRoute"),
 };
 
@@ -58,5 +68,9 @@ export const HandlerTypes = {
 	SlashCommandHandler: Symbol.for("SlashCommandHandler"),
 	ReactionHandler: Symbol.for("ReactionHandler"),
 	MessageHandler: Symbol.for("MessageHandler"),
+	ActionAddBotHandler: Symbol.for("ActionAddBotHandler"),
+	ActionRemoveBotHandler: Symbol.for("ActionRemoveBotHandler"),
+	ActionAddUserHandler: Symbol.for("ActionAddUserHandler"),
+	ActionRemoveUserHandler: Symbol.for("ActionRemoveUserHandler"),
 	VoiceChannelEventHandler: Symbol.for("VoiceChannelEventHandler"),
 };

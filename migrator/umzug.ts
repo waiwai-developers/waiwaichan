@@ -5,6 +5,8 @@ import { DatafixContextModel } from "@/migrator/datafixies/models/DatafixContext
 import { DatafixPersonalityContextModel } from "@/migrator/datafixies/models/DatafixPersonalityContextModel";
 import { DatafixPersonalityModel } from "@/migrator/datafixies/models/DatafixPersonalityModel";
 import { DatafixReminderModel } from "@/migrator/datafixies/models/DatafixReminderModel";
+import { DatafixCommunityModel } from "@/migrator/datafixies/models/DatafixCommunityModel";
+import { DatafixUserModel } from "@/migrator/datafixies/models/DatafixUserModel";
 import { DatafixThreadModel } from "@/migrator/datafixies/models/DatafixThreadModel";
 import { DatafixUserItemModel } from "@/migrator/datafixies/models/DatafixUserItemModel";
 import {
@@ -140,6 +142,8 @@ export const datafixer = (
 				DatafixCandyModel,
 				DatafixThreadModel,
 				DatafixReminderModel,
+				DatafixCommunityModel,
+				DatafixUserModel,
 				DatafixPersonalityModel,
 				DatafixContextModel,
 				DatafixPersonalityContextModel,

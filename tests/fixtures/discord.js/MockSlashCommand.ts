@@ -123,7 +123,10 @@ export const mockSlashCommand = (
 		Object.setPrototypeOf(mockedChannel, TextChannel.prototype);
 		when(commandInteractionMock.channel).thenReturn(mockedChannel);
 	} else {
-		when(commandInteractionMock.channel).thenReturn(null);
+		const fallbackChannel = mock(TextChannel);
+		const mockedChannel = instance(fallbackChannel);
+		Object.setPrototypeOf(mockedChannel, TextChannel.prototype);
+		when(commandInteractionMock.channel).thenReturn(mockedChannel);
 	}
 
 	// Setup reply to return replyMessage if provided
