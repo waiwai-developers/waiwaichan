@@ -215,11 +215,9 @@ function whitespace(): Parser<string> {
 	return (input) => {
 		const whitespace = input.text.match(/^[\s\n]+/);
 		if (whitespace) {
-			const matched = whitespace[0];
 			return {
-				ok: true,
-				value: matched,
-				remaining: updatePos(input, matched),
+				ok: false,
+				error: createParseError(input, "<空白は使用できません>"),
 			};
 		}
 		return {
@@ -645,7 +643,7 @@ const logicalNot: Parser<Expr> = (input) => {
 
 const logical: Parser<Expr> = binary(
 	logicalNot,
-	alt(keyword("and"), keyword("or")),
+	spaceDelimited(alt(tag("and"), tag("or"))),
 	"Logical",
 	"比較する項",
 );
@@ -904,7 +902,7 @@ class Interpreter {
 						ok: true,
 						value: lhs.value,
 						span: expr.span,
-						formatedData: `${lhs.value ? "✅" : "❌"}`,
+						formatedData: `→ ${lhs.value ? "true ✅" : "false ❌"}`,
 					});
 				}
 				const compareOps = {
@@ -954,7 +952,7 @@ class Interpreter {
 					ok: true,
 					value,
 					span: expr.span,
-					formatedData: `${lhs.value} ${expr.op} ${rhs.value} → ${value ? "✅" : "❌"}`,
+					formatedData: `${lhs.value} ${expr.op} ${rhs.value} → ${value ? "true ✅" : "false ❌"}`,
 				});
 			}
 			case "LogicalNot": {
@@ -971,7 +969,7 @@ class Interpreter {
 					ok: true,
 					value: resultValue,
 					span: expr.span,
-					formatedData: `not ${value.value} → ${resultValue ? "✅" : "❌"}`,
+					formatedData: `not ${value.value} → ${resultValue ? "true ✅" : "false ❌"}`,
 				});
 			}
 			case "Logical": {
@@ -997,7 +995,7 @@ class Interpreter {
 					ok: true,
 					value: resultValue,
 					span: expr.span,
-					formatedData: `${lhs.value} ${expr.op} ${rhs.value} → ${resultValue ? "✅" : "❌"}`,
+					formatedData: `${lhs.value} ${expr.op} ${rhs.value} → ${resultValue ? "true ✅" : "false ❌"}`,
 				});
 			}
 		}
