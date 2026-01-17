@@ -63,7 +63,7 @@ interface BinaryOp {
 type ArithmeticOp = "+" | "-" | "*" | "//" | "/";
 type KeepOp = "kh" | "kl";
 type CompareOp = "!=" | "=" | ">=" | "<=" | ">" | "<";
-type LogicalOp = "and" | "or";
+type LogicalOp = "and" | "or" | "not";
 
 type Expr =
 	| { type: "Integer"; value: number; span: Span } // 定数
