@@ -260,6 +260,21 @@ function tag(token: string): Parser<string> {
 	};
 }
 
+/** キーワードを認識する(直後に英数字が続く場合は除外) */
+function keyword(token: string): Parser<string> {
+	const regex = new RegExp(`^${token}(?![A-Za-z0-9_])`);
+	return (input) => {
+		const match = input.text.match(regex);
+		if (match) {
+			return { ok: true, value: token, remaining: updatePos(input, match[0]) };
+		}
+		return {
+			ok: false,
+			error: createParseError(input, `'${token}'`),
+		};
+	};
+}
+
 /** パーサのリストを１つずつテストし成功するまで繰り返す */
 function alt<T>(...parsers: Parser<T>[]): Parser<T> {
 	return (input) => {
@@ -602,7 +617,7 @@ const compare: Parser<Expr> = binary(
 
 const logicalNot: Parser<Expr> = (input) => {
 	const notResult = pair(
-		spaceDelimited(tag("not")),
+		spaceDelimited(keyword("not")),
 		withErrorContext(logicalNot, "比較する項"),
 	)(input);
 	if (notResult.ok) {
@@ -630,7 +645,7 @@ const logicalNot: Parser<Expr> = (input) => {
 
 const logical: Parser<Expr> = binary(
 	logicalNot,
-	alt(tag("and"), tag("or")),
+	alt(keyword("and"), keyword("or")),
 	"Logical",
 	"比較する項",
 );
