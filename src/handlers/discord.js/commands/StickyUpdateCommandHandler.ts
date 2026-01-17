@@ -44,7 +44,7 @@ export class StickyUpdateCommandHandler implements SlashCommandHandler {
 
 		const sticky = await this.stickyLogic.find(
 			new DiscordGuildId(interaction.guildId),
-			new DiscordMessageId(interaction.options.getString("channelid", true)),
+			new DiscordChannelId(interaction.options.getString("channelid", true)),
 		);
 		if (sticky === undefined) {
 			await interaction.reply("スティッキーが登録されていなかったよ！っ");
