@@ -36,6 +36,12 @@ export class MysqlConnector implements IDataBaseConnector<Sequelize, "mysql"> {
 		StickyRepositoryImpl,
 		CommunityRepositoryImpl,
 		UserRepositoryImpl,
+		PersonalityRepositoryImpl,
+		PersonalityContextRepositoryImpl,
+		ContextRepositoryImpl,
+		RoomAddChannelRepositoryImpl,
+		RoomChannelRepositoryImpl,
+		RoomNotificationChannelRepositoryImpl,
 	];
 	readonly instance: Sequelize;
 
