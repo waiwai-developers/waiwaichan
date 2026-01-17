@@ -9,7 +9,7 @@ export const up: Datafix = async () => {
         {
 			id: 1,
 			categoryType: CommunityCategoryType.Discord.getValue(),
-			clientId: AppConfig.discord.guildId,
+			clientId: AppConfig.discord.clientId,
 			batchStatus: CommunityBatchStatus.Yet.getValue()
 		}
 	);
