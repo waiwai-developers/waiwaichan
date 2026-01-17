@@ -37,7 +37,7 @@ services:
     <<: *base-service
     container_name: waiwai-backend
     restart: always
-    command: ["dist/app.js"]
+    command: ["dist/src/app.js"]
     depends_on:
       datafix:
         condition: service_completed_successfully
@@ -45,7 +45,7 @@ services:
     <<: *base-service
     container_name: waiwai-scheduler
     restart: always
-    command: ["dist/scheduler.js"]
+    command: ["dist/src/scheduler.js"]
     depends_on:
       datafix:
         condition: service_completed_successfully
