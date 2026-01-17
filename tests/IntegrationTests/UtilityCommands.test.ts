@@ -481,55 +481,55 @@ describe("Test UtilityCommand", () => {
 		};
 
 		it("not binds tighter than and/or", async () => {
-			const result = await evaluateDice("not1=1and1=1");
+			const result = await evaluateDice("!1==1&&1==1");
 			expectSuccess(result);
 			expect(getLastLine(result)).to.include("→ false ❌");
 		});
 
 		it("supports multiple not operators", async () => {
-			const result = await evaluateDice("notnot1=1");
+			const result = await evaluateDice("!!1==1");
 			expectSuccess(result);
 			expect(getLastLine(result)).to.include("→ true ✅");
 		});
 
 		it("and/or are left-associative with same precedence", async () => {
-			const result = await evaluateDice("1=1or1=2and1=2");
+			const result = await evaluateDice("1==1||1==2&&1==2");
 			expectSuccess(result);
 			expect(getLastLine(result)).to.include("→ false ❌");
 		});
 
 		it("respects arithmetic precedence", async () => {
-			const result = await evaluateDice("1+2*3=7");
+			const result = await evaluateDice("1+2*3==7");
 			expectSuccess(result);
 			expect(getLastLine(result)).to.include("→ true ✅");
 		});
 
 		it("parentheses override precedence", async () => {
-			const result = await evaluateDice("(1+2)*3=9");
+			const result = await evaluateDice("(1+2)*3==9");
 			expectSuccess(result);
 			expect(getLastLine(result)).to.include("→ true ✅");
 		});
 
 		it("+ and - share the same precedence", async () => {
-			const result = await evaluateDice("5-2+1=4");
+			const result = await evaluateDice("5-2+1==4");
 			expectSuccess(result);
 			expect(getLastLine(result)).to.include("→ true ✅");
 		});
 
 		it("* / // share the same precedence", async () => {
-			const result = await evaluateDice("5//2*2=4");
+			const result = await evaluateDice("5//2*2==4");
 			expectSuccess(result);
 			expect(getLastLine(result)).to.include("→ true ✅");
 		});
 
 		it("throws error when not operand is not boolean", async () => {
-			const result = await evaluateDice("not1");
+			const result = await evaluateDice("!1");
 			expectFailure(result);
 			expect(result.description.getValue()).to.include("真偽値");
 		});
 
 		it("throws error when and/or operands are not boolean", async () => {
-			const result = await evaluateDice("1and2");
+			const result = await evaluateDice("1&&2");
 			expectFailure(result);
 			expect(result.description.getValue()).to.include("真偽値と真偽値");
 		});
@@ -548,25 +548,25 @@ describe("Test UtilityCommand", () => {
 		});
 
 		it("combines not with comparisons", async () => {
-			const result = await evaluateDice("not1<2");
+			const result = await evaluateDice("!1<2");
 			expectSuccess(result);
 			expect(getLastLine(result)).to.include("→ false ❌");
 		});
 
 		it("combines dice results with logic", async () => {
-			const result = await evaluateDice("1d1>0andnot(2d1<2)");
+			const result = await evaluateDice("1d1>0&&!(2d1<2)");
 			expectSuccess(result);
 			expect(getLastLine(result)).to.include("→ true ✅");
 		});
 
 		it("works with arrays, keep, and access", async () => {
-			const result = await evaluateDice("3b1kh2[0]=1and3b1kl1[0]=1");
+			const result = await evaluateDice("3b1kh2[0]==1&&3b1kl1[0]==1");
 			expectSuccess(result);
 			expect(getLastLine(result)).to.include("→ true ✅");
 		});
 
 		it("accepts not with parentheses and no space", async () => {
-			const result = await evaluateDice("not(1=1)");
+			const result = await evaluateDice("!(1==1)");
 			expectSuccess(result);
 			expect(getLastLine(result)).to.include("→ false ❌");
 		});
