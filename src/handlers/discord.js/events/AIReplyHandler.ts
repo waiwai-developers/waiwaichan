@@ -54,15 +54,12 @@ export class AIReplyHandler implements DiscordEventHandler<Message> {
 							new ChatAIContent(message.content),
 						),
 				)
+				.filter(
+					(message) =>
+						message.content.getValue().charAt(0) !== Thread_Exclude_Prefix,
+				)
 				.reverse(),
 			)
-			.then((messages) =>
-				messages
-					.filter(
-						(message) =>
-							message.content.getValue().charAt(0) !== Thread_Exclude_Prefix,
-					)
-			);
 
 		try {
 			const results = await this.chatAILogic
