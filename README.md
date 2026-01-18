@@ -20,6 +20,11 @@ How to execute test in the environment
 docker compose -f environment/development/docker-compose.yml exec -T backend sh -c 'pnpm test'
 ```
 
+How to execute specific test in the environment
+```
+pnpm test tests/IntegrationTests/TalkCommands.test.ts -- --grep "test name"
+```
+
 How to execute the QA with Coverage
 ```
 docker compose -f environment/development/docker-compose.yml exec -T backend sh -c 'pnpm test:coverage'
