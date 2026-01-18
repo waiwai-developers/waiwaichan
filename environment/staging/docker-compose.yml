@@ -68,7 +68,7 @@ services:
     depends_on:
       database:
         condition: service_healthy
-      migrate:
+      datafix:
         condition: service_completed_successfully
   scheduler:
     <<: *base-service
@@ -78,7 +78,7 @@ services:
     depends_on:
       database:
         condition: service_healthy
-      migrate:
+      datafix:
         condition: service_completed_successfully
 networks:
   server-network:
