@@ -1,34 +1,71 @@
 steps:
+  # --------------------------------------------------
+  # 1. Docker image build（1回だけ）
+  # --------------------------------------------------
   - name: 'gcr.io/cloud-builders/docker'
-    id: 'image build add commit id tag'
-    args: ['build', '-f', './environment/production/Dockerfile', '-t', 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/waiwaichan/image:$SHORT_SHA', '.']
+    id: 'image build'
+    args:
+      [
+        'build',
+        '-f', './environment/production/Dockerfile',
+        '-t', 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/waiwaichan/image:$SHORT_SHA',
+        '-t', 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/waiwaichan/image:latest',
+        '.'
+      ]
+  # --------------------------------------------------
+  # 2. Push（SHA tag）
+  # --------------------------------------------------
   - name: 'gcr.io/cloud-builders/docker'
-    id: 'image build add latest tag'
-    args: ['build', '-f', './environment/production/Dockerfile', '-t', 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/waiwaichan/image:latest', '.']
+    id: 'image push sha'
+    args:
+      [
+        'push',
+        'asia-northeast1-docker.pkg.dev/$PROJECT_ID/waiwaichan/image:$SHORT_SHA'
+      ]
+  # --------------------------------------------------
+  # 3. Push（latest tag）
+  # --------------------------------------------------
   - name: 'gcr.io/cloud-builders/docker'
-    id: 'image push add commit id tag'
-    args: ['push', 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/waiwaichan/image:$SHORT_SHA']
-  - name: 'gcr.io/cloud-builders/docker'
-    id: 'image push add latest tag'
-    args: ['push', 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/waiwaichan/image:latest']
+    id: 'image push latest'
+    args:
+      [
+        'push',
+        'asia-northeast1-docker.pkg.dev/$PROJECT_ID/waiwaichan/image:latest'
+      ]
+  # --------------------------------------------------
+  # 4. Deploy（pull & compose up）
+  # --------------------------------------------------
   - name: 'google/cloud-sdk'
-    id: 'instance deploy'
+    id: 'deploy to prd vm'
     entrypoint: 'bash'
     args:
       - '-c'
       - |
-        gcloud compute ssh waiwaichan-server --zone=asia-northeast1-a --ssh-key-expire-after=10m --command="
-          cd /app/waiwaichan
-          sudo docker compose -f ./environment/production/docker-compose.yml down
-          git config --global --add safe.directory /app/waiwaichan
-          sudo git pull origin main
-          sudo docker rm $(sudo docker ps -aq)
-          sudo docker rmi $(sudo docker images -q)
-          gcloud auth activate-service-account --key-file=config/key.json
-          cat config/key.json | docker login -u _json_key --password-stdin asia-northeast1-docker.pkg.dev
-          sudo docker pull asia-northeast1-docker.pkg.dev/waiwai-406106/waiwaichan/image:latest
-          sudo docker compose -f ./environment/production/docker-compose.yml up -d
-        "
-timeout: 500s
+        set -e
+        gcloud compute ssh waiwaichan-server \
+          --zone=asia-northeast1-a \
+          --ssh-key-expire-after=10m \
+          --command="
+            set -e
+            cd /app/waiwaichan
+            # Artifact Registry login
+            gcloud auth activate-service-account --key-file=config/key.json
+            cat config/key.json | docker login -u _json_key --password-stdin asia-northeast1-docker.pkg.dev
+
+            # pull & restart
+            docker compose \
+              --env-file .env \
+              -f environment/production/docker-compose.yml \
+              pull
+            docker compose \
+              --env-file .env \
+              -f environment/production/docker-compose.yml \
+              down
+            docker compose \
+              --env-file .env \
+              -f environment/production/docker-compose.yml \
+              up -d
+          "
+timeout: 600s
 options:
   defaultLogsBucketBehavior: REGIONAL_USER_OWNED_BUCKET
