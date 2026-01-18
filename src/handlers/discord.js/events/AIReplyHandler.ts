@@ -40,10 +40,12 @@ export class AIReplyHandler implements DiscordEventHandler<Message> {
 		)
 			return;
 
-		message.channel.sendTyping();
+		await message.channel.sendTyping();
 
 		const chatAIContexts = await message.channel.messages
-			.fetch()
+			.fetch({
+				limit: Thread_Fetch_Nom,
+			})
 			.then((messages) =>
 				messages.map(
 					(message) =>
@@ -51,7 +53,8 @@ export class AIReplyHandler implements DiscordEventHandler<Message> {
 							message.author.bot ? ChatAIRole.ASSISTANT : ChatAIRole.USER,
 							new ChatAIContent(message.content),
 						),
-				),
+				)
+				.reverse(),
 			)
 			.then((messages) =>
 				messages
@@ -59,8 +62,6 @@ export class AIReplyHandler implements DiscordEventHandler<Message> {
 						(message) =>
 							message.content.getValue().charAt(0) !== Thread_Exclude_Prefix,
 					)
-					.slice(0, Thread_Fetch_Nom)
-					.reverse(),
 			);
 
 		try {
