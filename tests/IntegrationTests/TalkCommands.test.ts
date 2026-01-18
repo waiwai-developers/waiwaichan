@@ -1,6 +1,6 @@
 import { InternalErrorMessage } from "@/src/entities/DiscordErrorMessages";
 import { AppConfig } from "@/src/entities/config/AppConfig";
-import { Thread_Exclude_Prefix } from "@/src/entities/constants/Thread";
+import { Thread_Exclude_Prefix, Thread_Fetch_Nom } from "@/src/entities/constants/Thread";
 import type { ChatAIMessageDto } from "@/src/entities/dto/ChatAIMessageDto";
 import { ThreadDto } from "@/src/entities/dto/ThreadDto";
 import { PersonalityId } from "@/src/entities/vo/PersonalityId";
@@ -11,7 +11,7 @@ import { ThreadMetadata } from "@/src/entities/vo/ThreadMetadata";
 import { TalkCommandHandler } from "@/src/handlers/discord.js/commands/TalkCommandHandler";
 import { AIReplyHandler } from "@/src/handlers/discord.js/events/AIReplyHandler";
 import type { IChatAILogic } from "@/src/logics/Interfaces/logics/IChatAILogic";
-import { ThreadLogic } from "@/src/logics/ThreadLogic";
+import type { ThreadLogic } from "@/src/logics/ThreadLogic";
 import { DiscordTextPresenter } from "@/src/presenter/DiscordTextPresenter";
 import { ContextRepositoryImpl } from "@/src/repositories/sequelize-mysql/ContextRepositoryImpl";
 import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnector";
@@ -1282,7 +1282,9 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		when(channelMock.messages).thenReturn({
 			fetch: (options: any) => {
 				// fetch呼び出し時のオプションを検証
-				expect(options).to.deep.equal({ limit: 21 });
+				expect(options).to.deep.equal({
+					limit: Thread_Fetch_Nom,
+				});
 				return Promise.resolve(messageCollection);
 			},
 		});
@@ -2695,6 +2697,159 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 
 		// 長文メッセージでも応答が返されることを確認
 		verify(longMessageMock.reply(anything())).atLeast(1); // 長文応答は複数のメッセージに分割される可能性があるため、at.least(1)を使用
+		verify(chatAILogicMock.replyTalk(anything(), anything())).once();
+	});
+
+	it("should ignore messages starting with exclude prefix in talk threads", async function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		const testGuildId = "12345";
+		const testThreadId = "67890";
+		const testUserId = "98765";
+		const testBotId = AppConfig.discord.clientId;
+
+		await ThreadRepositoryImpl.create({
+			guildId: testGuildId,
+			messageId: testThreadId,
+			categoryType: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
+			metadata: {
+				persona_role: "テスト役割",
+				speaking_style_rules: "テストスタイル",
+				response_directives: "テスト指示",
+				emotion_model: "テスト感情",
+				notes: "テスト注釈",
+				input_scope: "テスト範囲",
+			},
+		});
+
+		const aiReplyHandler = new AIReplyHandler();
+
+		const threadLogicMock = mock<ThreadLogic>();
+		// @ts-ignore - privateフィールドにアクセスするため
+		aiReplyHandler.threadLogic = instance(threadLogicMock);
+		when(threadLogicMock.find(anything(), anything())).thenCall(async (guildId, messageId) => {
+			return await ThreadRepositoryImpl.findOne({
+				where: {
+					guildId: guildId.getValue(),
+					messageId: messageId.getValue(),
+				},
+			}).then((res) => (res ? res.toDto() : undefined));
+		});
+
+		const chatAILogicMock = mock<IChatAILogic>();
+		// @ts-ignore - privateフィールドにアクセスするため
+		aiReplyHandler.chatAILogic = instance(chatAILogicMock);
+
+		const messageMock = mockMessage(testUserId);
+		when(messageMock.content).thenReturn(`${Thread_Exclude_Prefix}除外メッセージ`);
+
+		const channelMock = mock<any>();
+		when(channelMock.isThread()).thenReturn(true);
+		when(channelMock.guildId).thenReturn(testGuildId);
+		when(channelMock.id).thenReturn(testThreadId);
+		when(channelMock.ownerId).thenReturn(testBotId);
+		when(channelMock.sendTyping()).thenResolve();
+		when(channelMock.messages).thenReturn({
+			fetch: () =>
+				Promise.resolve({
+					reverse: () => [],
+					map: () => [],
+				}),
+		});
+
+		when(messageMock.channel).thenReturn(instance(channelMock));
+		when(messageMock.reply(anything())).thenResolve();
+
+		await aiReplyHandler.handle(instance(messageMock));
+
+		verify(chatAILogicMock.replyTalk(anything(), anything())).never();
+		verify(messageMock.reply(anything())).never();
+		verify(channelMock.sendTyping()).never();
+	});
+
+	it("should exclude prefixed messages from talk history context", async function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		const testGuildId = "12345";
+		const testThreadId = "67890";
+		const testUserId = "98765";
+		const testBotId = AppConfig.discord.clientId;
+
+		await ThreadRepositoryImpl.create({
+			guildId: testGuildId,
+			messageId: testThreadId,
+			categoryType: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
+			metadata: {
+				persona_role: "テスト役割",
+				speaking_style_rules: "テストスタイル",
+				response_directives: "テスト指示",
+				emotion_model: "テスト感情",
+				notes: "テスト注釈",
+				input_scope: "テスト範囲",
+			},
+		});
+
+		const aiReplyHandler = new AIReplyHandler();
+
+		const threadLogicMock = mock<ThreadLogic>();
+		// @ts-ignore - privateフィールドにアクセスするため
+		aiReplyHandler.threadLogic = instance(threadLogicMock);
+		when(threadLogicMock.find(anything(), anything())).thenCall(async (guildId, messageId) => {
+			return await ThreadRepositoryImpl.findOne({
+				where: {
+					guildId: guildId.getValue(),
+					messageId: messageId.getValue(),
+				},
+			}).then((res) => (res ? res.toDto() : undefined));
+		});
+
+		const chatAILogicMock = mock<IChatAILogic>();
+		// @ts-ignore - privateフィールドにアクセスするため
+		aiReplyHandler.chatAILogic = instance(chatAILogicMock);
+
+		const testMessageHistory = [
+			{ id: "msg1", author: { bot: false, id: testUserId }, content: "ユーザーメッセージ1" },
+			{ id: "msg2", author: { bot: false, id: testUserId }, content: `${Thread_Exclude_Prefix}除外メッセージ` },
+			{ id: "msg3", author: { bot: true, id: testBotId }, content: "ボットメッセージ" },
+		];
+
+		const messageCollection = {
+			reverse: () => testMessageHistory,
+			map: function (callback: any) {
+				return this.reverse().map(callback);
+			},
+		};
+
+		const messageMock = mockMessage(testUserId);
+		when(messageMock.content).thenReturn("通常メッセージ");
+
+		const channelMock = mock<any>();
+		when(channelMock.isThread()).thenReturn(true);
+		when(channelMock.guildId).thenReturn(testGuildId);
+		when(channelMock.id).thenReturn(testThreadId);
+		when(channelMock.ownerId).thenReturn(testBotId);
+		when(channelMock.sendTyping()).thenResolve();
+		when(channelMock.messages).thenReturn({
+			fetch: (options: any) => {
+				expect(options).to.deep.equal({
+					limit: Thread_Fetch_Nom,
+				});
+				return Promise.resolve(messageCollection);
+			},
+		});
+
+		when(messageMock.channel).thenReturn(instance(channelMock));
+		when(messageMock.reply(anything())).thenResolve();
+
+		when(chatAILogicMock.replyTalk(anything(), anything())).thenCall((prompt, context) => {
+			expect(context).to.be.an("array").with.lengthOf(2);
+			expect(context[0].content.getValue()).to.equal("ユーザーメッセージ1");
+			expect(context[1].content.getValue()).to.equal("ボットメッセージ");
+			return Promise.resolve("テスト応答");
+		});
+
+		await aiReplyHandler.handle(instance(messageMock));
+
 		verify(chatAILogicMock.replyTalk(anything(), anything())).once();
 	});
 });
