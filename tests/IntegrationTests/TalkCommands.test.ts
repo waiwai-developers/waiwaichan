@@ -1166,7 +1166,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		when(channelMock.messages).thenReturn({
 			fetch: (options: any) => {
 				// fetch呼び出し時のオプションを検証
-				expect(options).to.be.undefined;
+				expect(options).to.deep.equal({ limit: 21 });
 				return Promise.resolve(messageCollection);
 			},
 		});
@@ -1282,7 +1282,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		when(channelMock.messages).thenReturn({
 			fetch: (options: any) => {
 				// fetch呼び出し時のオプションを検証
-				expect(options).to.be.undefined;
+				expect(options).to.deep.equal({ limit: 21 });
 				return Promise.resolve(messageCollection);
 			},
 		});
@@ -1348,7 +1348,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		verify(chatAILogicMock.replyTalk(anything(), anything())).once();
 
 		// メッセージ応答が行われたことを確認
-		verify(messageMock.reply(anything())).once();
+		verify(messageMock.reply("テスト応答")).once();
 
 		// 処理の順序を検証
 		// 1. ThreadLogic.findが呼ばれる
@@ -1429,7 +1429,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		when(channelMock.messages).thenReturn({
 			fetch: (options: any) => {
 				// fetch呼び出し時のオプションを検証
-				expect(options).to.be.undefined;
+				expect(options).to.deep.equal({ limit: 21 });
 				return Promise.resolve(messageCollection);
 			},
 		});
@@ -1972,7 +1972,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		await aiReplyHandler.handle(instance(firstMessageMock));
 
 		// 1回目の応答の検証
-		verify(firstMessageMock.reply(anything())).once();
+		verify(firstMessageMock.reply(firstResponse)).once();
 
 		// 2回目のユーザーメッセージと応答の準備
 		// 会話履歴に1回目の応答を追加
@@ -2043,7 +2043,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		await aiReplyHandler.handle(instance(secondMessageMock));
 
 		// 2回目の応答の検証
-		verify(secondMessageMock.reply(anything())).once();
+		verify(secondMessageMock.reply(secondResponse)).once();
 
 		// 3回目のユーザーメッセージと応答の準備（長文応答のテスト）
 		// 会話履歴に2回目の応答を追加
@@ -2239,7 +2239,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		await aiReplyHandler.handle(instance(firstMessageMock));
 
 		// 1回目の応答の検証
-		verify(firstMessageMock.reply(anything())).once();
+		verify(firstMessageMock.reply(firstResponse)).once();
 
 		// 2回目の会話: ユーザーが「名前は何ですか？」と質問
 		const secondMessageHistory = [
@@ -2300,7 +2300,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		await aiReplyHandler.handle(instance(secondMessageMock));
 
 		// 2回目の応答の検証
-		verify(secondMessageMock.reply(anything())).once();
+		verify(secondMessageMock.reply(secondResponse)).once();
 
 		// 3回目の会話: ユーザーが前の会話を参照する質問をする
 		const thirdMessageHistory = [
@@ -2369,7 +2369,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		await aiReplyHandler.handle(instance(thirdMessageMock));
 
 		// 3回目の応答の検証
-		verify(thirdMessageMock.reply(anything())).once();
+		verify(thirdMessageMock.reply(thirdResponse)).once();
 
 		// コンテキストの累積を検証
 		expect(capturedContext.length).to.equal(5);
