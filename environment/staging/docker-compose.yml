@@ -43,7 +43,7 @@ services:
     command: ["dist/migrator/migrator.js", "up"]
     depends_on:
       database:
-        condition: service_completed_successfully
+        condition: service_healthy
   seed:
     <<: *base-service
     container_name: waiwai-seed
