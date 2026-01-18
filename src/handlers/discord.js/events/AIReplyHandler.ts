@@ -1,6 +1,9 @@
 import { AppConfig } from "@/src/entities/config/AppConfig";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
-import { Thread_Fetch_Nom } from "@/src/entities/constants/Thread";
+import {
+	Thread_Exclude_Prefix,
+	Thread_Fetch_Nom,
+} from "@/src/entities/constants/Thread";
 import { ChatAIMessageDto } from "@/src/entities/dto/ChatAIMessageDto";
 import { ChatAIContent } from "@/src/entities/vo/ChatAIContent";
 import { ChatAIPrompt } from "@/src/entities/vo/ChatAIPrompt";
@@ -25,6 +28,7 @@ export class AIReplyHandler implements DiscordEventHandler<Message> {
 		if (message.author.bot) return;
 		if (!message.channel.isThread()) return;
 		if (!(message.channel.ownerId === AppConfig.discord.clientId)) return;
+		if (message.content.charAt(0) === Thread_Exclude_Prefix) return;
 
 		const thread = await this.threadLogic.find(
 			new ThreadGuildId(message.channel.guildId),
@@ -36,9 +40,9 @@ export class AIReplyHandler implements DiscordEventHandler<Message> {
 		)
 			return;
 
-		message.channel.sendTyping();
+		await message.channel.sendTyping();
 
-		const chatAIContext = await message.channel.messages
+		const chatAIContexts = await message.channel.messages
 			.fetch({
 				limit: Thread_Fetch_Nom,
 			})
@@ -51,12 +55,16 @@ export class AIReplyHandler implements DiscordEventHandler<Message> {
 								message.author.bot ? ChatAIRole.ASSISTANT : ChatAIRole.USER,
 								new ChatAIContent(message.content),
 							),
+					)
+					.filter(
+						(message) =>
+							message.content.getValue().charAt(0) !== Thread_Exclude_Prefix,
 					),
 			);
 
 		try {
 			const results = await this.chatAILogic
-				.replyTalk(new ChatAIPrompt(thread.metadata.getValue()), chatAIContext)
+				.replyTalk(new ChatAIPrompt(thread.metadata.getValue()), chatAIContexts)
 				.then(DiscordTextPresenter);
 
 			await Promise.all(
