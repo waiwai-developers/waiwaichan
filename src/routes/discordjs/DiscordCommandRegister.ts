@@ -40,18 +40,14 @@ export class DiscordCommandRegister {
 				.setName("dice")
 				.setDescription("dice string")
 				.addStringOption((option) =>
-					option
-						.setName("source")
-						.setDescription("string")
-						.setRequired(true))
+					option.setName("source").setDescription("string").setRequired(true),
+				)
 				.addBooleanOption((option) =>
-					option
-						.setName("secret")
-						.setDescription("boolean"))
+					option.setName("secret").setDescription("boolean"),
+				)
 				.addBooleanOption((option) =>
-					option
-						.setName("details")
-						.setDescription("boolean")),
+					option.setName("details").setDescription("boolean"),
+				),
 			new SlashCommandBuilder()
 				.setName("choice")
 				.setDescription("choice [string]")

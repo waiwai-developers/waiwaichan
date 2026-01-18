@@ -119,8 +119,8 @@ import { VoiceChannelEventRouter } from "@/src/routes/discordjs/events/VoiceChan
 import type { Message } from "discord.js";
 import { Container } from "inversify";
 import type { Sequelize } from "sequelize";
-import type { IDiceLogic } from "./logics/Interfaces/logics/IDiceLogic";
 import { DiceLogic } from "./logics/DiceLogic";
+import type { IDiceLogic } from "./logics/Interfaces/logics/IDiceLogic";
 const appContainer = new Container();
 
 // Repositories

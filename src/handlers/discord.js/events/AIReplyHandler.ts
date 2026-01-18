@@ -47,19 +47,20 @@ export class AIReplyHandler implements DiscordEventHandler<Message> {
 				limit: Thread_Fetch_Nom,
 			})
 			.then((messages) =>
-				messages.map(
-					(message) =>
-						new ChatAIMessageDto(
-							message.author.bot ? ChatAIRole.ASSISTANT : ChatAIRole.USER,
-							new ChatAIContent(message.content),
-						),
-				)
-				.filter(
-					(message) =>
-						message.content.getValue().charAt(0) !== Thread_Exclude_Prefix,
-				)
-				.reverse(),
-			)
+				messages
+					.reverse()
+					.map(
+						(message) =>
+							new ChatAIMessageDto(
+								message.author.bot ? ChatAIRole.ASSISTANT : ChatAIRole.USER,
+								new ChatAIContent(message.content),
+							),
+					)
+					.filter(
+						(message) =>
+							message.content.getValue().charAt(0) !== Thread_Exclude_Prefix,
+					),
+			);
 
 		try {
 			const results = await this.chatAILogic
