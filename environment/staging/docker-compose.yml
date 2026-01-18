@@ -1,18 +1,18 @@
 x-base-service: &base-service
   build:
     context: ../../.
-    dockerfile: environment/development/Dockerfile
-  image: waiwai-app:development
+    dockerfile: environment/staging/Dockerfile
+  image: waiwai-app:staging
   networks:
     - server-network
   environment:
-    NODE_ENV: development
+    CI: "true"
+    GOOGLE_APPLICATION_CREDENTIALS: /app/config/key.json
+    NODE_ENV: staging
   volumes:
-    - ../../src:/app/src
-    - ../../migrator:/app/migrator
-    - ../../tests:/app/tests
-    - ../../tsconfig.json:/app/tsconfig.json
-    - ../../config:/app/config
+    - type: bind
+      source: ../../config
+      target: /app/config
 services:
   database:
     container_name: waiwai-database
@@ -40,29 +40,45 @@ services:
     <<: *base-service
     container_name: waiwai-migrate
     restart: "no"
-    command: ["pnpm", "migrateAll:up"]
+    command: ["dist/migrator/migrator.js", "up"]
     depends_on:
       database:
         condition: service_healthy
+  seed:
+    <<: *base-service
+    container_name: waiwai-seed
+    restart: "no"
+    command: ["dist/migrator/seeder.js", "up"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+  datafix:
+    <<: *base-service
+    container_name: waiwai-datafix
+    restart: "no"
+    command: ["dist/migrator/datafixer.js", "up"]
+    depends_on:
+      seed:
+        condition: service_completed_successfully
   backend:
     <<: *base-service
     container_name: waiwai-backend
     restart: always
-    command: ["pnpm", "dev:backend"]
+    command: ["dist/src/app.js"]
     depends_on:
       database:
         condition: service_healthy
-      migrate:
+      datafix:
         condition: service_completed_successfully
   scheduler:
     <<: *base-service
     container_name: waiwai-scheduler
     restart: always
-    command: ["pnpm", "dev:scheduler"]
+    command: ["dist/src/scheduler.js"]
     depends_on:
       database:
         condition: service_healthy
-      migrate:
+      datafix:
         condition: service_completed_successfully
 networks:
   server-network:
