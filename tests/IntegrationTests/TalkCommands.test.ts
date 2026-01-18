@@ -7,6 +7,7 @@ import { ThreadCategoryType } from "@/src/entities/vo/ThreadCategoryType";
 import { ThreadGuildId } from "@/src/entities/vo/ThreadGuildId";
 import { ThreadMessageId } from "@/src/entities/vo/ThreadMessageId";
 import { ThreadMetadata } from "@/src/entities/vo/ThreadMetadata";
+import { Thread_Exclude_Prefix } from "@/src/entities/constants/Thread";
 import { TalkCommandHandler } from "@/src/handlers/discord.js/commands/TalkCommandHandler";
 import { AIReplyHandler } from "@/src/handlers/discord.js/events/AIReplyHandler";
 import type { IChatAILogic } from "@/src/logics/Interfaces/logics/IChatAILogic";
@@ -658,6 +659,174 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 	});
 
 	/**
+	 * [ThreadExcludePrefix] 除外プレフィックスの検証
+	 * - ';' を付けたメッセージには反応しないか
+	 */
+	it("test semicolon-prefixed messages are ignored", async function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		const testGuildId = "12345";
+		const testThreadId = "67890";
+		const testUserId = "98765";
+		const testBotId = AppConfig.discord.clientId;
+
+		await ThreadRepositoryImpl.create({
+			guildId: testGuildId,
+			messageId: testThreadId,
+			categoryType: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
+			metadata: {
+				persona_role: "テスト役割",
+				speaking_style_rules: "テストスタイル",
+				response_directives: "テスト指示",
+				emotion_model: "テスト感情",
+				notes: "テスト注釈",
+				input_scope: "テスト範囲",
+			},
+		});
+
+		const aiReplyHandler = new AIReplyHandler();
+
+		const threadLogicMock = mock<ThreadLogic>();
+		// @ts-ignore - privateフィールドにアクセスするため
+		aiReplyHandler.threadLogic = instance(threadLogicMock);
+
+		const chatAILogicMock = mock<IChatAILogic>();
+		// @ts-ignore - privateフィールドにアクセスするため
+		aiReplyHandler.chatAILogic = instance(chatAILogicMock);
+
+		when(threadLogicMock.find(anything(), anything())).thenResolve(
+			new ThreadDto(
+				new ThreadGuildId(testGuildId),
+				new ThreadMessageId(testThreadId),
+				ThreadCategoryType.CATEGORY_TYPE_CHATGPT,
+				new ThreadMetadata({
+					persona_role: "テスト役割",
+					speaking_style_rules: "テストスタイル",
+					response_directives: "テスト指示",
+					emotion_model: "テスト感情",
+					notes: "テスト注釈",
+					input_scope: "テスト範囲",
+				} as unknown as JSON),
+			),
+		);
+
+		const messageMock = mockMessage(testUserId);
+		when(messageMock.content).thenReturn(`${Thread_Exclude_Prefix}無視してほしいメッセージ`);
+
+		const channelMock = mock<any>();
+		when(channelMock.isThread()).thenReturn(true);
+		when(channelMock.guildId).thenReturn(testGuildId);
+		when(channelMock.id).thenReturn(testThreadId);
+		when(channelMock.ownerId).thenReturn(testBotId);
+		when(channelMock.sendTyping()).thenResolve();
+		when(channelMock.messages).thenReturn({
+			fetch: () => Promise.resolve([]),
+		});
+
+		when(messageMock.channel).thenReturn(instance(channelMock));
+		when(messageMock.reply(anything())).thenResolve();
+
+		await aiReplyHandler.handle(instance(messageMock));
+
+		verify(chatAILogicMock.replyTalk(anything(), anything())).never();
+		verify(messageMock.reply(anything())).never();
+	});
+
+	/**
+	 * [ThreadExcludePrefix] 除外プレフィックスの検証
+	 * - 履歴取得時に ';' 付きメッセージがコンテキストに含まれないか
+	 */
+	it("test semicolon-prefixed messages are excluded from context history", async function (this: Mocha.Context) {
+		this.timeout(10_000);
+
+		const testGuildId = "12345";
+		const testThreadId = "67890";
+		const testUserId = "98765";
+		const testBotId = AppConfig.discord.clientId;
+
+		await ThreadRepositoryImpl.create({
+			guildId: testGuildId,
+			messageId: testThreadId,
+			categoryType: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
+			metadata: {
+				persona_role: "テスト役割",
+				speaking_style_rules: "テストスタイル",
+				response_directives: "テスト指示",
+				emotion_model: "テスト感情",
+				notes: "テスト注釈",
+				input_scope: "テスト範囲",
+			},
+		});
+
+		const aiReplyHandler = new AIReplyHandler();
+
+		const threadLogicMock = mock<ThreadLogic>();
+		// @ts-ignore - privateフィールドにアクセスするため
+		aiReplyHandler.threadLogic = instance(threadLogicMock);
+
+		const chatAILogicMock = mock<IChatAILogic>();
+		// @ts-ignore - privateフィールドにアクセスするため
+		aiReplyHandler.chatAILogic = instance(chatAILogicMock);
+
+		when(threadLogicMock.find(anything(), anything())).thenResolve(
+			new ThreadDto(
+				new ThreadGuildId(testGuildId),
+				new ThreadMessageId(testThreadId),
+				ThreadCategoryType.CATEGORY_TYPE_CHATGPT,
+				new ThreadMetadata({
+					persona_role: "テスト役割",
+					speaking_style_rules: "テストスタイル",
+					response_directives: "テスト指示",
+					emotion_model: "テスト感情",
+					notes: "テスト注釈",
+					input_scope: "テスト範囲",
+				} as unknown as JSON),
+			),
+		);
+
+		const messageHistory = [
+			{ id: "msg1", author: { bot: false, id: testUserId }, content: `こんにちは` },
+			{ id: "msg2", author: { bot: false, id: testUserId }, content: `${Thread_Exclude_Prefix}除外メッセージ` },
+			{ id: "msg3", author: { bot: true, id: testBotId }, content: "前回の応答" },
+			{ id: "msg4", author: { bot: false, id: testUserId }, content: "質問です" },
+		];
+
+		const messageCollection = {
+			reverse: () => messageHistory,
+			map: function (callback: any) {
+				return this.reverse().map(callback);
+			},
+		};
+
+		const messageMock = mockMessage(testUserId);
+		when(messageMock.content).thenReturn("質問です");
+
+		const channelMock = mock<any>();
+		when(channelMock.isThread()).thenReturn(true);
+		when(channelMock.guildId).thenReturn(testGuildId);
+		when(channelMock.id).thenReturn(testThreadId);
+		when(channelMock.ownerId).thenReturn(testBotId);
+		when(channelMock.sendTyping()).thenResolve();
+		when(channelMock.messages).thenReturn({
+			fetch: () => Promise.resolve(messageCollection),
+		});
+
+		when(messageMock.channel).thenReturn(instance(channelMock));
+		when(messageMock.reply(anything())).thenResolve();
+
+		when(chatAILogicMock.replyTalk(anything(), anything())).thenCall((prompt, context) => {
+			const contents = context.map((entry: ChatAIMessageDto) => entry.content.getValue());
+			expect(contents).to.deep.equal(["こんにちは", "前回の応答", "質問です"]);
+			return Promise.resolve("テスト応答");
+		});
+
+		await aiReplyHandler.handle(instance(messageMock));
+
+		verify(chatAILogicMock.replyTalk(anything(), anything())).once();
+		verify(messageMock.reply("テスト応答")).once();
+	});
+
+	/**
 	 * [ThreadSearch] スレッド検索機能の検証
 	 * - ThreadLogic.find が適切な引数で呼ばれるか
 	 * - ThreadGuildId および ThreadMessageId が正しい形式で生成されるか
@@ -997,7 +1166,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		when(channelMock.messages).thenReturn({
 			fetch: (options: any) => {
 				// fetch呼び出し時のオプションを検証
-				expect(options).to.deep.equal({ limit: 21 });
+				expect(options).to.be.undefined;
 				return Promise.resolve(messageCollection);
 			},
 		});
@@ -1113,7 +1282,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		when(channelMock.messages).thenReturn({
 			fetch: (options: any) => {
 				// fetch呼び出し時のオプションを検証
-				expect(options).to.deep.equal({ limit: 21 });
+				expect(options).to.be.undefined;
 				return Promise.resolve(messageCollection);
 			},
 		});
@@ -1260,7 +1429,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		when(channelMock.messages).thenReturn({
 			fetch: (options: any) => {
 				// fetch呼び出し時のオプションを検証
-				expect(options).to.deep.equal({ limit: 21 });
+				expect(options).to.be.undefined;
 				return Promise.resolve(messageCollection);
 			},
 		});
