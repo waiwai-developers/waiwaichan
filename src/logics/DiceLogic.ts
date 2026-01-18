@@ -1,10 +1,10 @@
-import { injectable } from "inversify";
 import type { DiceContextDto } from "@/src/entities/dto/DiceContextDto";
 import { DiceResultDto } from "@/src/entities/dto/DiceResultDto";
 import { DiceResultDescription } from "@/src/entities/vo/DiceResultDescription";
 import { DiceResultOk } from "@/src/entities/vo/DiceResultOk";
 import { DiceResultTitle } from "@/src/entities/vo/DiceResultTitle";
 import type { IDiceLogic } from "@/src/logics/Interfaces/logics/IDiceLogic";
+import { injectable } from "inversify";
 
 @injectable()
 export class DiceLogic implements IDiceLogic {
@@ -124,9 +124,10 @@ type ExecuteResult =
 	| { ok: false; error: string };
 
 function createParseError(input: LocatedInput, expected: string): DiceError {
-	const pointerLine = `${" ".repeat(input.span.column - 1) +
+	const pointerLine = `${
+		" ".repeat(input.span.column - 1) +
 		"^".repeat(Math.max(1, input.span.length))
-		}🤔`;
+	}🤔`;
 	return {
 		span: input.span,
 		expected,
@@ -554,7 +555,7 @@ const spreadRoll: Parser<Expr> = binary(
 	standardRoll,
 	alt(tag("b"), tag("B")),
 	"SpreadRoll",
-	"ダイスの面(数値)"
+	"ダイスの面(数値)",
 );
 
 const keep: Parser<Expr> = binary(
@@ -730,7 +731,7 @@ class Interpreter {
 						(value as number) <= (threshold.value as number)
 							? "🎯"
 							: (value as number) >=
-								(sides.value as number) - (threshold.value as number)
+									(sides.value as number) - (threshold.value as number)
 								? "💀"
 								: "";
 				}

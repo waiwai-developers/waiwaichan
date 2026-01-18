@@ -1,3 +1,3 @@
 import { ValueObject } from "./ValueObject";
 
-export class DiscordUserDisplayName extends ValueObject<string> { }
+export class DiscordUserDisplayName extends ValueObject<string> {}
