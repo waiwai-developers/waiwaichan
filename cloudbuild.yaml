@@ -51,7 +51,6 @@ steps:
             # Artifact Registry login
             gcloud auth activate-service-account --key-file=config/key.json
             cat config/key.json | docker login -u _json_key --password-stdin asia-northeast1-docker.pkg.dev
-
             # pull & restart
             docker compose \
               --env-file .env \
