@@ -41,6 +41,9 @@ services:
     container_name: waiwai-migrate
     restart: "no"
     command: ["dist/migrator/migrator.js", "up"]
+    depends_on:
+      database:
+        condition: service_completed_successfully
   seed:
     <<: *base-service
     container_name: waiwai-seed
