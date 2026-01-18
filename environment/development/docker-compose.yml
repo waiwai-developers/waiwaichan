@@ -6,13 +6,13 @@ x-base-service: &base-service
   networks:
     - server-network
   environment:
-    CI: "true"
-    GOOGLE_APPLICATION_CREDENTIALS: /app/config/key.json
     NODE_ENV: development
   volumes:
-    - type: bind
-      source: ../../config
-      target: /app/config
+    - ../../src:/app/src
+    - ../../migrator:/app/migrator
+    - ../../tests:/app/tests
+    - ../../tsconfig.json:/app/tsconfig.json
+    - ../../config:/app/config
 services:
   database:
     container_name: waiwai-database
