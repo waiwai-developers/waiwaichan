@@ -1,6 +1,6 @@
 import { AppConfig } from "@/src/entities/config/AppConfig";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
-import { Thread_Fetch_Nom } from "@/src/entities/constants/Thread";
+import { Thread_Fetch_Nom, Thread_Exclude_Prefix } from "@/src/entities/constants/Thread";
 import { ChatAIMessageDto } from "@/src/entities/dto/ChatAIMessageDto";
 import { ChatAIContent } from "@/src/entities/vo/ChatAIContent";
 import { ChatAIPrompt } from "@/src/entities/vo/ChatAIPrompt";
@@ -25,6 +25,7 @@ export class AIReplyHandler implements DiscordEventHandler<Message> {
 		if (message.author.bot) return;
 		if (!message.channel.isThread()) return;
 		if (!(message.channel.ownerId === AppConfig.discord.clientId)) return;
+		if(message.content.charAt(0) === Thread_Exclude_Prefix) return;
 
 		const thread = await this.threadLogic.find(
 			new ThreadGuildId(message.channel.guildId),
@@ -44,14 +45,16 @@ export class AIReplyHandler implements DiscordEventHandler<Message> {
 			})
 			.then((messages) =>
 				messages
-					.reverse()
+					.filter((message)=> message.content.charAt(0) !== Thread_Exclude_Prefix )
 					.map(
 						(message) =>
 							new ChatAIMessageDto(
 								message.author.bot ? ChatAIRole.ASSISTANT : ChatAIRole.USER,
 								new ChatAIContent(message.content),
 							),
-					),
+					)
+					.reverse(),
+					
 			);
 
 		try {
