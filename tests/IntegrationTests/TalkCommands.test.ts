@@ -11,7 +11,7 @@ import { ThreadMetadata } from "@/src/entities/vo/ThreadMetadata";
 import { TalkCommandHandler } from "@/src/handlers/discord.js/commands/TalkCommandHandler";
 import { AIReplyHandler } from "@/src/handlers/discord.js/events/AIReplyHandler";
 import type { IChatAILogic } from "@/src/logics/Interfaces/logics/IChatAILogic";
-import type { ThreadLogic } from "@/src/logics/ThreadLogic";
+import { ThreadLogic } from "@/src/logics/ThreadLogic";
 import { DiscordTextPresenter } from "@/src/presenter/DiscordTextPresenter";
 import { ContextRepositoryImpl } from "@/src/repositories/sequelize-mysql/ContextRepositoryImpl";
 import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnector";
