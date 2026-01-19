@@ -12,14 +12,16 @@ import { MysqlSchedulerConnector } from "./MysqlSchedulerConnector";
 @injectable()
 class DataDeletionCircularImpl implements IDataDeletionCircular {
 	async deleteRecordInRelatedTable(
-		columnNames: ColumnName[],
-		ids: Array<CommunityId | CommunityClientId | UserId | UserClientId>,
+		...columnAndIds: Array<[
+			ColumnName,
+			CommunityId | CommunityClientId | UserId | UserClientId,
+		]>
 	): Promise<boolean> {
 		try {
-			const columnValues = columnNames.map((columnName) =>
+			const columnValues = columnAndIds.map(([columnName]) =>
 				columnName.getValue(),
 			);
-			const idValues = ids.map((id) => id.getValue());
+			const idValues = columnAndIds.map(([, id]) => id.getValue());
 			const relatedModels = this.getRelatedModels(columnValues);
 
 			if (relatedModels.length === 0) {

@@ -6,7 +6,9 @@ import type { UserId } from "@/src/entities/vo/UserId";
 
 export interface IDataDeletionCircular {
 	deleteRecordInRelatedTable(
-		columnNames: ColumnName[],
-		ids: Array<CommunityId | CommunityClientId | UserId | UserClientId>,
+		...columnAndIds: Array<[
+			ColumnName,
+			CommunityId | CommunityClientId | UserId | UserClientId,
+		]>
 	): Promise<boolean>;
 }
