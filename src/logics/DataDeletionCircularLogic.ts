@@ -1,35 +1,49 @@
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
+import { ColumnName } from "@/src/entities/vo/ColumnName";
+import type { CommunityId } from "@/src/entities/vo/CommunityId";
+import type { UserId } from "@/src/entities/vo/UserId";
 import type { IDataDeletionCircularLogic } from "@/src/logics/Interfaces/logics/IDataDeletionCircularLogic";
+import type { ICommunityRepository } from "@/src/logics/Interfaces/repositories/database/ICommunityRepository";
+import type { IDataDeletionCircular } from "@/src/logics/Interfaces/repositories/database/IDataDeletionCircular";
 import type { ITransaction } from "@/src/logics/Interfaces/repositories/database/ITransaction";
+import type { IUserRepository } from "@/src/logics/Interfaces/repositories/database/IUserRepository";
 import { inject, injectable } from "inversify";
-import type { CommunityId } from "../entities/vo/CommunityId";
-import type { UserId } from "../entities/vo/UserId";
-import { DataDeletionCircularImpl } from "../repositories/sequelize-mysql/DataDeletionCircularImpl";
-import type { IDataDeletionCircular } from "./Interfaces/repositories/database/IDataDeletionCircular";
 
 @injectable()
 export class DataDeletionCircularLogic implements IDataDeletionCircularLogic {
-	@inject(RepoTypes.DataDeletionCircular)
-	private readonly DataDeletionCircular!: IDataDeletionCircular;
+	@inject(RepoTypes.CommunityRepository)
+	private readonly communityRepository!: ICommunityRepository;
+
+	@inject(RepoTypes.UserRepository)
+	private readonly userRepository!: IUserRepository;
 
 	@inject(RepoTypes.Transaction)
 	private readonly transaction!: ITransaction;
+
+	@inject(RepoTypes.DataDeletionCircular)
+	private readonly dataDeletionCircular!: IDataDeletionCircular;
 
 	async deleteRecordInRelatedTableCommunityId(
 		id: CommunityId,
 	): Promise<boolean> {
 		return this.transaction.startTransaction(async () => {
-			return await this.DataDeletionCircular.deleteRecordInRelatedTableCommunityId(
-				id,
-			);
+			const deleted =
+				await this.dataDeletionCircular.deleteRecordInRelatedTable(
+					new ColumnName("communityId"),
+					id,
+				);
+			return deleted ? this.communityRepository.updatebatchStatus(id) : false;
 		});
 	}
 
 	async deleteRecordInRelatedTableUserId(id: UserId): Promise<boolean> {
 		return this.transaction.startTransaction(async () => {
-			return await this.DataDeletionCircular.deleteRecordInRelatedTableUserId(
-				id,
-			);
+			const deleted =
+				await this.dataDeletionCircular.deleteRecordInRelatedTable(
+					new ColumnName("userId"),
+					id,
+				);
+			return deleted ? this.userRepository.updatebatchStatus(id) : false;
 		});
 	}
 }
