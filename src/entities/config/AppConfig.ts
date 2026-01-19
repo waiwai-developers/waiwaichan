@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from "node:fs";
 interface DiscordConfig {
 	token: string;
 	clientId: string;
+	guildId: string;
 }
 interface DeepLConfig {
 	deeplApiKey: string;

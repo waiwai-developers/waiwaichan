@@ -8,7 +8,7 @@ export const up: Datafix = async () => {
 	await DatafixCommunityModel.create({
 		id: 1,
 		categoryType: CommunityCategoryType.Discord.getValue(),
-		clientId: AppConfig.discord.clientId,
+		clientId: AppConfig.discord.guildId,
 		batchStatus: CommunityBatchStatus.Yet.getValue(),
 	});
 };
