@@ -1,79 +1,32 @@
-import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
+import type { ColumnName } from "@/src/entities/vo/ColumnName";
 import type { CommunityId } from "@/src/entities/vo/CommunityId";
 import type { UserId } from "@/src/entities/vo/UserId";
-import type { ICommunityRepository } from "@/src/logics/Interfaces/repositories/database/ICommunityRepository";
 import type { IDataDeletionCircular } from "@/src/logics/Interfaces/repositories/database/IDataDeletionCircular";
-import type { ITransaction } from "@/src/logics/Interfaces/repositories/database/ITransaction";
-import type { IUserRepository } from "@/src/logics/Interfaces/repositories/database/IUserRepository";
-import { inject, injectable } from "inversify";
+import { injectable } from "inversify";
 import type { Model, ModelStatic } from "sequelize";
+import { MysqlConnector } from "./MysqlConnector";
 import { MysqlSchedulerConnector } from "./MysqlSchedulerConnector";
 
 @injectable()
 class DataDeletionCircularImpl implements IDataDeletionCircular {
-	@inject(RepoTypes.CommunityRepository)
-	private readonly CommunityRepository!: ICommunityRepository;
-
-	@inject(RepoTypes.UserRepository)
-	private readonly UserRepository!: IUserRepository;
-
-	@inject(RepoTypes.Transaction)
-	private readonly transaction!: ITransaction;
-
-	async deleteRecordInRelatedTableCommunityId(
-		id: CommunityId,
-	): Promise<boolean> {
-		return this.deleteRecordInRelatedTable("communityId", id.getValue()).then(
-			(res) => {
-				return res ? this.CommunityRepository.updatebatchStatus(id) : false;
-			},
-		);
-	}
-
-	async deleteRecordInRelatedTableUserId(id: UserId): Promise<boolean> {
-		return this.deleteRecordInRelatedTable("userId", id.getValue()).then(
-			(res) => {
-				return res ? this.UserRepository.updatebatchStatus(id) : false;
-			},
-		);
-	}
-
-	private async deleteRecordInRelatedTable(
-		columnName: string,
-		id: number,
+	async deleteRecordInRelatedTable(
+		columnName: ColumnName,
+		id: CommunityId | UserId,
 	): Promise<boolean> {
 		try {
-			// スケジューラーコネクタのモデルのみを使用
-			const mysqlSchedulerConnectorModels =
-				MysqlSchedulerConnector.models as Array<ModelStatic<Model>>;
-			const mysqlConnectorModels = MysqlSchedulerConnector.models as Array<
-				ModelStatic<Model>
-			>;
-			const models = [
-				...mysqlSchedulerConnectorModels,
-				...mysqlConnectorModels,
-			];
+			const columnValue = columnName.getValue();
+			const idValue = id.getValue();
+			const relatedModels = this.getRelatedModels(columnValue);
 
-			const relatedModels = models.filter((m) => {
-				try {
-					return Object.keys(m.getAttributes()).includes(columnName);
-				} catch (error) {
-					// モデルが初期化されていない場合はスキップ
-					return false;
-				}
-			});
-
-			// 関連するモデルがない場合は成功として返す
 			if (relatedModels.length === 0) {
 				return true;
 			}
 
-			// 関連するレコードを削除
 			return await Promise.all(
 				relatedModels.map((m) =>
 					m.destroy({
 						where: {
-							[columnName]: id,
+							[columnValue]: idValue,
 						},
 					}),
 				),
@@ -85,6 +38,23 @@ class DataDeletionCircularImpl implements IDataDeletionCircular {
 			console.error(`Error in deleteRecordInRelatedTable: ${error}`);
 			return false;
 		}
+	}
+
+	private getRelatedModels(columnName: string): Array<ModelStatic<Model>> {
+		const mysqlSchedulerConnectorModels =
+			MysqlSchedulerConnector.models as Array<ModelStatic<Model>>;
+		const mysqlConnectorModels = MysqlConnector.models as Array<
+			ModelStatic<Model>
+		>;
+		const models = [...mysqlSchedulerConnectorModels, ...mysqlConnectorModels];
+
+		return models.filter((m) => {
+			try {
+				return Object.keys(m.getAttributes()).includes(columnName);
+			} catch (error) {
+				return false;
+			}
+		});
 	}
 }
 export { DataDeletionCircularImpl };
