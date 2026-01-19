@@ -1,5 +1,7 @@
 import type { ColumnName } from "@/src/entities/vo/ColumnName";
+import type { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
 import type { CommunityId } from "@/src/entities/vo/CommunityId";
+import type { UserClientId } from "@/src/entities/vo/UserClientId";
 import type { UserId } from "@/src/entities/vo/UserId";
 import type { IDataDeletionCircular } from "@/src/logics/Interfaces/repositories/database/IDataDeletionCircular";
 import { injectable } from "inversify";
@@ -10,29 +12,46 @@ import { MysqlSchedulerConnector } from "./MysqlSchedulerConnector";
 @injectable()
 class DataDeletionCircularImpl implements IDataDeletionCircular {
 	async deleteRecordInRelatedTable(
-		columnName: ColumnName,
-		id: CommunityId | UserId,
+		columnNames: ColumnName[],
+		ids: Array<CommunityId | CommunityClientId | UserId | UserClientId>,
 	): Promise<boolean> {
 		try {
-			const columnValue = columnName.getValue();
-			const idValue = id.getValue();
-			const relatedModels = this.getRelatedModels(columnValue);
+			const columnValues = columnNames.map((columnName) =>
+				columnName.getValue(),
+			);
+			const idValues = ids.map((id) => id.getValue());
+			const relatedModels = this.getRelatedModels(columnValues);
 
 			if (relatedModels.length === 0) {
 				return true;
 			}
 
 			return await Promise.all(
-				relatedModels.map((m) =>
-					m.destroy({
-						where: {
-							[columnValue]: idValue,
-						},
-					}),
-				),
-			).then(
-				(res) =>
-					!!res.map((r) => r >= 0).reduce((acc, curr) => acc && curr, true),
+				relatedModels.map((model) => {
+					const attributes = Object.keys(model.getAttributes());
+					const deletions = columnValues
+						.map((columnValue, index) => ({
+							columnValue,
+							idValue: idValues[index],
+						}))
+						.filter(({ columnValue }) => attributes.includes(columnValue))
+						.map(({ columnValue, idValue }) =>
+							model.destroy({
+								where: {
+									[columnValue]: idValue,
+								},
+							}),
+						);
+
+					return deletions.length > 0
+						? Promise.all(deletions)
+						: Promise.resolve([0]);
+				}),
+			).then((results) =>
+				results
+					.flat()
+					.map((res) => res >= 0)
+					.reduce((acc, curr) => acc && curr, true),
 			);
 		} catch (error) {
 			console.error(`Error in deleteRecordInRelatedTable: ${error}`);
@@ -40,7 +59,7 @@ class DataDeletionCircularImpl implements IDataDeletionCircular {
 		}
 	}
 
-	private getRelatedModels(columnName: string): Array<ModelStatic<Model>> {
+	private getRelatedModels(columnNames: string[]): Array<ModelStatic<Model>> {
 		const mysqlSchedulerConnectorModels =
 			MysqlSchedulerConnector.models as Array<ModelStatic<Model>>;
 		const mysqlConnectorModels = MysqlConnector.models as Array<
@@ -48,9 +67,10 @@ class DataDeletionCircularImpl implements IDataDeletionCircular {
 		>;
 		const models = [...mysqlSchedulerConnectorModels, ...mysqlConnectorModels];
 
-		return models.filter((m) => {
+		return models.filter((model) => {
 			try {
-				return Object.keys(m.getAttributes()).includes(columnName);
+				const attributes = Object.keys(model.getAttributes());
+				return columnNames.some((columnName) => attributes.includes(columnName));
 			} catch (error) {
 				return false;
 			}

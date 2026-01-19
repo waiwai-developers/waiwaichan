@@ -1,3 +1,4 @@
+import { DeletedUserTargetDto } from "@/src/entities/dto/DeletedUserTargetDto";
 import { UserDto } from "@/src/entities/dto/UserDto";
 import { UserBatchStatus } from "@/src/entities/vo/UserBatchStatus";
 import { UserCategoryType } from "@/src/entities/vo/UserCategoryType";
@@ -102,6 +103,24 @@ class UserRepositoryImpl extends Model implements IUserRepository {
 			},
 			paranoid: false,
 		}).then((res) => (res.length > 0 ? res.map((r) => new UserId(r.id)) : []));
+	}
+
+	async findDeletionTargetsByBatchStatusAndDeletedAt(): Promise<
+		DeletedUserTargetDto[]
+	> {
+		return UserRepositoryImpl.findAll({
+			attributes: ["id", "clientId"],
+			where: {
+				batchStatus: UserBatchStatus.Yet.getValue(),
+				deletedAt: { [Op.not]: null },
+			},
+			paranoid: false,
+		}).then((res) =>
+			res.map((r) => ({
+				id: new UserId(r.id),
+				clientId: new UserClientId(r.clientId),
+			})),
+		);
 	}
 
 	async updatebatchStatus(id: UserId): Promise<boolean> {
