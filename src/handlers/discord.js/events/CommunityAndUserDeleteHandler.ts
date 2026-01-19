@@ -10,7 +10,6 @@ import { UserCommunityId } from "@/src/entities/vo/UserCommunityId";
 import type { DataDeletionCircularLogic } from "@/src/logics/DataDeletionCircularLogic";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { IUserLogic } from "@/src/logics/Interfaces/logics/IUserLogic";
-import type { IDataDeletionCircular } from "@/src/logics/Interfaces/repositories/database/IDataDeletionCircular";
 import type { ITransaction } from "@/src/logics/Interfaces/repositories/database/ITransaction";
 import { schedulerContainer } from "@/src/scheduler.di.config";
 import type { Client } from "discord.js";
