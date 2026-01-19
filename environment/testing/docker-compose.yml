@@ -1,8 +1,8 @@
+x-build: &build
+  context: ../../.
+  dockerfile: environment/testing/Dockerfile
 x-base-service: &base-service
-  build:
-    context: ../../.
-    dockerfile: environment/testing/Dockerfile
-  image: waiwai-app:testing
+  build: *build
   networks:
     - server-network
   environment:
@@ -39,6 +39,7 @@ services:
   migrate:
     <<: *base-service
     container_name: waiwai-migrate
+    image: waiwai-app:testing-migrate
     restart: "no"
     command: ["pnpm", "migrateAll:up"]
     depends_on:
@@ -47,6 +48,7 @@ services:
   backend:
     <<: *base-service
     container_name: waiwai-backend
+    image: waiwai-app:testing-backend
     restart: "no"
     command: ["sleep", "infinity"]
     depends_on:

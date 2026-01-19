@@ -1,5 +1,8 @@
+x-build: &build
+  context: ../../.
+  dockerfile: environment/production/Dockerfile
 x-base-service: &base-service
-  image: ${APP_IMAGE}:${APP_IMAGE_TAG}
+  build: *build
   networks:
     - server-network
   environment:
@@ -12,11 +15,13 @@ services:
   migrate:
     <<: *base-service
     container_name: waiwai-migrate
+    image: waiwai-app:production-migrate
     restart: "no"
     command: ["dist/migrator/migrator.js", "up"]
   seed:
     <<: *base-service
     container_name: waiwai-seed
+    image: waiwai-app:production-seed
     restart: "no"
     command: ["dist/migrator/seeder.js", "up"]
     depends_on:
@@ -25,6 +30,7 @@ services:
   datafix:
     <<: *base-service
     container_name: waiwai-datafix
+    image: waiwai-app:production-datafix
     restart: "no"
     command: ["dist/migrator/datafixer.js", "up"]
     depends_on:
@@ -33,6 +39,7 @@ services:
   backend:
     <<: *base-service
     container_name: waiwai-backend
+    image: waiwai-app:production-backend
     restart: always
     command: ["dist/src/app.js"]
     depends_on:
@@ -41,6 +48,7 @@ services:
   scheduler:
     <<: *base-service
     container_name: waiwai-scheduler
+    image: waiwai-app:production-scheduler
     restart: always
     command: ["dist/src/scheduler.js"]
     depends_on:
