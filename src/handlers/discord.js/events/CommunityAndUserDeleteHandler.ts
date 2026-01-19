@@ -85,15 +85,23 @@ export const CommunityAndUserDeleteHandler = async (c: Client<boolean>) => {
 		}
 
 		//削除されたUserに関連するデータの削除
-		const userIds = await userLogic.findByBatchStatusAndDeletedAt();
-		for (const u of userIds) {
-			await dataDeletionCircularLogic.deleteRecordInRelatedTableUserId(u);
+		const userTargets =
+			await userLogic.findDeletionTargetsByBatchStatusAndDeletedAt();
+		for (const target of userTargets) {
+			await dataDeletionCircularLogic.deleteRecordInRelatedTableUserId(
+				target.id,
+				target.clientId,
+			);
 		}
 
 		//削除されたにCommunity関連するデータの削除
-		const communityIds = await communityLogic.findByBatchStatusAndDeletedAt();
-		for (const c of communityIds) {
-			await dataDeletionCircularLogic.deleteRecordInRelatedTableCommunityId(c);
+		const communityTargets =
+			await communityLogic.findDeletionTargetsByBatchStatusAndDeletedAt();
+		for (const target of communityTargets) {
+			await dataDeletionCircularLogic.deleteRecordInRelatedTableCommunityId(
+				target.id,
+				target.clientId,
+			);
 		}
 	});
 };
