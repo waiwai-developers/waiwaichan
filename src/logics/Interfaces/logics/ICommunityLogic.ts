@@ -1,4 +1,5 @@
 import type { CommunityDto } from "@/src/entities/dto/CommunityDto";
+import type { DeletedCommunityTargetDto } from "@/src/entities/dto/DeletedCommunityTargetDto";
 import type { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
 import type { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
 import type { CommunityId } from "@/src/entities/vo/CommunityId";
@@ -12,5 +13,8 @@ export interface ICommunityLogic {
 		clientIds: CommunityClientId[],
 	): Promise<CommunityClientId[]>;
 	findByBatchStatusAndDeletedAt(): Promise<CommunityId[]>;
+	findDeletionTargetsByBatchStatusAndDeletedAt(): Promise<
+		DeletedCommunityTargetDto[]
+	>;
 	updatebatchStatus(id: CommunityId): Promise<boolean>;
 }

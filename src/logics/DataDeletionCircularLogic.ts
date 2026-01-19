@@ -1,6 +1,8 @@
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import { ColumnName } from "@/src/entities/vo/ColumnName";
+import type { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
 import type { CommunityId } from "@/src/entities/vo/CommunityId";
+import type { UserClientId } from "@/src/entities/vo/UserClientId";
 import type { UserId } from "@/src/entities/vo/UserId";
 import type { IDataDeletionCircularLogic } from "@/src/logics/Interfaces/logics/IDataDeletionCircularLogic";
 import type { ICommunityRepository } from "@/src/logics/Interfaces/repositories/database/ICommunityRepository";
@@ -25,24 +27,30 @@ export class DataDeletionCircularLogic implements IDataDeletionCircularLogic {
 
 	async deleteRecordInRelatedTableCommunityId(
 		id: CommunityId,
+		clientId: CommunityClientId,
 	): Promise<boolean> {
 		return this.transaction.startTransaction(async () => {
-			const deleted =
-				await this.dataDeletionCircular.deleteRecordInRelatedTable(
-					new ColumnName("communityId"),
-					id,
-				);
+			const deleted = await this.dataDeletionCircular.deleteRecordInRelatedTable(
+				[new ColumnName("communityId"), new ColumnName("guildId")],
+				[id, clientId],
+			);
 			return deleted ? this.communityRepository.updatebatchStatus(id) : false;
 		});
 	}
 
-	async deleteRecordInRelatedTableUserId(id: UserId): Promise<boolean> {
+	async deleteRecordInRelatedTableUserId(
+		id: UserId,
+		clientId: UserClientId,
+	): Promise<boolean> {
 		return this.transaction.startTransaction(async () => {
-			const deleted =
-				await this.dataDeletionCircular.deleteRecordInRelatedTable(
+			const deleted = await this.dataDeletionCircular.deleteRecordInRelatedTable(
+				[
 					new ColumnName("userId"),
-					id,
-				);
+					new ColumnName("receiveUserId"),
+					new ColumnName("giveUserId"),
+				],
+				[clientId, clientId, clientId],
+			);
 			return deleted ? this.userRepository.updatebatchStatus(id) : false;
 		});
 	}
