@@ -6,15 +6,13 @@ import type { IDataDeletionCircularLogic } from "@/src/logics/Interfaces/logics/
 import type { IUserLogic } from "@/src/logics/Interfaces/logics/IUserLogic";
 import type { ICommunityRepository } from "@/src/logics/Interfaces/repositories/database/ICommunityRepository";
 import type { IDataBaseConnector } from "@/src/logics/Interfaces/repositories/database/IDataBaseConnector";
-import type { IDataDeletionCircular } from "@/src/logics/Interfaces/repositories/database/IDataDeletionCircular";
 import type { IReminderSchedulerRepository } from "@/src/logics/Interfaces/repositories/database/IReminderSchedulerRepository";
 import type { ITransaction } from "@/src/logics/Interfaces/repositories/database/ITransaction";
 import type { IUserRepository } from "@/src/logics/Interfaces/repositories/database/IUserRepository";
 import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 import { UserLogic } from "@/src/logics/UserLogic";
 import { PinoSchedulerLogger } from "@/src/repositories/logger/PinoSchedulerLogger";
-import { CommunityRepositoryImpl, ReminderSchedulerRepositoryImpl, UserRepositoryImpl } from "@/src/repositories/sequelize-mysql";
-import { DataDeletionCircularImpl } from "@/src/repositories/sequelize-mysql/DataDeletionCircularImpl";
+import { CommunityRepositoryImpl, DataDeletionCircularImpl, ReminderSchedulerRepositoryImpl, UserRepositoryImpl } from "@/src/repositories/sequelize-mysql";
 import { MysqlSchedulerConnector } from "@/src/repositories/sequelize-mysql/MysqlSchedulerConnector";
 import { SequelizeTransaction } from "@/src/repositories/sequelize-mysql/SequelizeTransaction";
 import { Container } from "inversify";
@@ -29,9 +27,9 @@ schedulerContainer.bind<ILogger>(RepoTypes.Logger).to(PinoSchedulerLogger);
 schedulerContainer.bind<IDataBaseConnector<Sequelize, "mysql">>(RepoTypes.DatabaseConnector).to(MysqlSchedulerConnector).inSingletonScope();
 schedulerContainer.bind<ITransaction>(RepoTypes.Transaction).to(SequelizeTransaction);
 schedulerContainer.bind<IReminderSchedulerRepository>(SchedulerRepoTypes.ReminderSchedulerRepository).to(ReminderSchedulerRepositoryImpl);
-schedulerContainer.bind<IDataDeletionCircular>(RepoTypes.DataDeletionCircular).to(DataDeletionCircularImpl);
 schedulerContainer.bind<ICommunityRepository>(RepoTypes.CommunityRepository).to(CommunityRepositoryImpl);
 schedulerContainer.bind<IUserRepository>(RepoTypes.UserRepository).to(UserRepositoryImpl);
+schedulerContainer.bind(RepoTypes.DataDeletionCircular).to(DataDeletionCircularImpl);
 
 // Logics
 schedulerContainer.bind<ICommunityLogic>(LogicTypes.CommunityLogic).to(CommunityLogic);
