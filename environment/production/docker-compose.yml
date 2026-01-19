@@ -1,8 +1,5 @@
 x-base-service: &base-service
-  build:
-    context: ../../.
-    dockerfile: environment/production/Dockerfile
-  image: waiwai-app:production
+  image: ${APP_IMAGE}:${APP_IMAGE_TAG}
   networks:
     - server-network
   environment:

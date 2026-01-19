@@ -6,8 +6,6 @@
 	"type": "module",
 	"scripts": {
 		"build": "tsc && tsc-alias",
-		"prd:backend": "node dist/app.js",
-		"prd:scheduler": "node dist/scheduler.js",
         "dev:backend": "tsx watch src/app.ts",
         "dev:scheduler": "tsx watch src/scheduler.ts",
         "migrate:up": "node dist/migrator/migrator.js up",

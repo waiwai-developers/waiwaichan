@@ -10,16 +10,9 @@ import { TestDiscordServer } from "@/tests/fixtures/discord.js/TestDiscordServer
 import { expect } from "chai";
 import { anything, instance, verify, when } from "ts-mockito";
 
-const evaluateDice = async (
-	source: string,
-	showDetails = true,
-): Promise<DiceResultDto> => {
+const evaluateDice = async (source: string, showDetails = true): Promise<DiceResultDto> => {
 	const logic = new DiceLogic();
-	const ctx = new DiceContextDto(
-		new DiceSource(source),
-		new DiceIsSecret(false),
-		new DiceShowDetails(showDetails),
-	);
+	const ctx = new DiceContextDto(new DiceSource(source), new DiceIsSecret(false), new DiceShowDetails(showDetails));
 	return logic.dice(ctx);
 };
 
