@@ -71,6 +71,7 @@ import type { ICommunityRepository } from "@/src/logics/Interfaces/repositories/
 import type { IContextRepository } from "@/src/logics/Interfaces/repositories/database/IContextRepository";
 import type { ICrownRepository } from "@/src/logics/Interfaces/repositories/database/ICrownRepository";
 import type { IDataBaseConnector } from "@/src/logics/Interfaces/repositories/database/IDataBaseConnector";
+import type { IDataDeletionCircular } from "@/src/logics/Interfaces/repositories/database/IDataDeletionCircular";
 import type { IPersonalityContextRepository } from "@/src/logics/Interfaces/repositories/database/IPersonalityContextRepository";
 import type { IPersonalityRepository } from "@/src/logics/Interfaces/repositories/database/IPersonalityRepository";
 import type { IReminderRepository } from "@/src/logics/Interfaces/repositories/database/IReminderRepository";
@@ -109,6 +110,7 @@ import {
 	CommunityRepositoryImpl,
 	ContextRepositoryImpl,
 	CrownRepositoryImpl,
+	DataDeletionCircularImpl,
 	PersonalityContextRepositoryImpl,
 	PersonalityRepositoryImpl,
 	ReminderRepositoryImpl,
@@ -161,6 +163,7 @@ appContainer.bind<IRoomNotificationChannelRepository>(RepoTypes.RoomNotification
 appContainer.bind<IStickyRepository>(RepoTypes.StickyRepository).to(StickyRepositoryImpl);
 appContainer.bind<ICommunityRepository>(RepoTypes.CommunityRepository).to(CommunityRepositoryImpl);
 appContainer.bind<IUserRepository>(RepoTypes.UserRepository).to(UserRepositoryImpl);
+appContainer.bind<IDataDeletionCircular>(RepoTypes.DataDeletionCircular).to(DataDeletionCircularImpl);
 // ChatGPT
 appContainer.bind<IChatAIRepository>(RepoTypes.ChatAIRepository).to(ChatGPTRepositoryImpl);
 // DeepL
