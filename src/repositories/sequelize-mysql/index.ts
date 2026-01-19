@@ -5,6 +5,7 @@ import { CandyItemRepositoryImpl } from "./CandyItemRepositoryImpl";
 import { CandyRepositoryImpl } from "./CandyRepositoryImpl";
 import { ContextRepositoryImpl } from "./ContextRepositoryImpl";
 import { CrownRepositoryImpl } from "./CrownRepositoryImpl";
+import { DataDeletionCircularImpl } from "./DataDeletionCircularImpl";
 import { PersonalityContextRepositoryImpl } from "./PersonalityContextRepositoryImpl";
 import { PersonalityRepositoryImpl } from "./PersonalityRepositoryImpl";
 import { RoomAddChannelRepositoryImpl } from "./RoomAddChannelRepositoryImpl";
@@ -32,4 +33,5 @@ export {
 	RoomChannelRepositoryImpl,
 	RoomNotificationChannelRepositoryImpl,
 	StickyRepositoryImpl,
+	DataDeletionCircularImpl,
 };
