@@ -1,14 +1,14 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { DatafixCandyModel } from "@/migrator/datafixies/models/DatafixCandyModel";
+import { DatafixCommunityModel } from "@/migrator/datafixies/models/DatafixCommunityModel";
 import { DatafixContextModel } from "@/migrator/datafixies/models/DatafixContextModel";
 import { DatafixPersonalityContextModel } from "@/migrator/datafixies/models/DatafixPersonalityContextModel";
 import { DatafixPersonalityModel } from "@/migrator/datafixies/models/DatafixPersonalityModel";
 import { DatafixReminderModel } from "@/migrator/datafixies/models/DatafixReminderModel";
-import { DatafixCommunityModel } from "@/migrator/datafixies/models/DatafixCommunityModel";
-import { DatafixUserModel } from "@/migrator/datafixies/models/DatafixUserModel";
 import { DatafixThreadModel } from "@/migrator/datafixies/models/DatafixThreadModel";
 import { DatafixUserItemModel } from "@/migrator/datafixies/models/DatafixUserItemModel";
+import { DatafixUserModel } from "@/migrator/datafixies/models/DatafixUserModel";
 import {
 	type DatabaseConfigType,
 	GetEnvDatabaseConfig,

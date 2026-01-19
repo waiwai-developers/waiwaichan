@@ -8,10 +8,10 @@ import type { ICommunityRepository } from "@/src/logics/Interfaces/repositories/
 import type { IDataBaseConnector } from "@/src/logics/Interfaces/repositories/database/IDataBaseConnector";
 import type { IDataDeletionCircular } from "@/src/logics/Interfaces/repositories/database/IDataDeletionCircular";
 import type { IReminderSchedulerRepository } from "@/src/logics/Interfaces/repositories/database/IReminderSchedulerRepository";
-import type { IUserRepository } from "@/src/logics/Interfaces/repositories/database/IUserRepository";
-import { UserLogic } from "@/src/logics/UserLogic";
 import type { ITransaction } from "@/src/logics/Interfaces/repositories/database/ITransaction";
+import type { IUserRepository } from "@/src/logics/Interfaces/repositories/database/IUserRepository";
 import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
+import { UserLogic } from "@/src/logics/UserLogic";
 import { PinoSchedulerLogger } from "@/src/repositories/logger/PinoSchedulerLogger";
 import { CommunityRepositoryImpl, ReminderSchedulerRepositoryImpl, UserRepositoryImpl } from "@/src/repositories/sequelize-mysql";
 import { DataDeletionCircularImpl } from "@/src/repositories/sequelize-mysql/DataDeletionCircularImpl";

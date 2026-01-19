@@ -37,7 +37,7 @@ export const up: Migration = async ({ context: sequelize }) => {
 			allowNull: false,
 			type: DataTypes.DATE,
 		},
-	})
+	});
 };
 export const down: Migration = async ({ context: sequelize }) => {
 	await sequelize.getQueryInterface().dropTable(TABLE_NAME);

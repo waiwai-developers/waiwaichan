@@ -1,10 +1,10 @@
 import type { Datafix } from "@/migrator/umzug";
-import { DatafixUserModel } from "./models/DatafixUserModel";
-import { DatafixCommunityModel } from "./models/DatafixCommunityModel";
 import { AppConfig } from "@/src/entities/config/AppConfig";
-import { UserCategoryType } from "@/src/entities/vo/UserCategoryType";
 import { UserBatchStatus } from "@/src/entities/vo/UserBatchStatus";
-import { Client, GatewayIntentBits } from 'discord.js';
+import { UserCategoryType } from "@/src/entities/vo/UserCategoryType";
+import { Client, GatewayIntentBits } from "discord.js";
+import { DatafixCommunityModel } from "./models/DatafixCommunityModel";
+import { DatafixUserModel } from "./models/DatafixUserModel";
 
 export const up: Datafix = async () => {
 	if (process.env.CI === "true" || process.env.NODE_ENV === "testing") {
@@ -13,10 +13,7 @@ export const up: Datafix = async () => {
 	}
 
 	const client = new Client({
-		intents: [
-			GatewayIntentBits.Guilds,
-			GatewayIntentBits.GuildMembers,
-		],
+		intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers],
 	});
 	await client.login(AppConfig.discord.token);
 
@@ -33,17 +30,22 @@ export const up: Datafix = async () => {
 						categoryType: UserCategoryType.Discord.getValue(),
 						clientId: BigInt(m.id),
 						communityId: community.id,
-						batchStatus: UserBatchStatus.Yet.getValue()
-					}))
+						batchStatus: UserBatchStatus.Yet.getValue(),
+					})),
 				);
-				console.log(`successfully created ${members.size} users for community guildId: ${community.clientId}`);
-			} catch (error: any) {
-				console.error(`error processing community guildId: ${community.clientId}: ${error.message}`);
-				continue;
+				console.log(
+					`successfully created ${members.size} users for community guildId: ${community.clientId}`,
+				);
+			} catch (error: unknown) {
+				const message = error instanceof Error ? error.message : String(error);
+				console.error(
+					`error processing community guildId: ${community.clientId}: ${message}`,
+				);
 			}
 		}
-	} catch (error: any) {
-		console.error(`migration failed: ${error.message}`);
+	} catch (error: unknown) {
+		const message = error instanceof Error ? error.message : String(error);
+		console.error(`migration failed: ${message}`);
 		throw error;
 	}
 };
@@ -51,6 +53,6 @@ export const up: Datafix = async () => {
 export const down: Datafix = async () => {
 	await DatafixUserModel.destroy({
 		where: {},
-		truncate: true
+		truncate: true,
 	});
 };
