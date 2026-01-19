@@ -18,6 +18,10 @@ export const up: Migration = async ({ context: sequelize }) => {
 			allowNull: false,
 			type: DataTypes.BIGINT,
 		},
+		userType: {
+			allowNull: false,
+			type: DataTypes.INTEGER,
+		},
 		communityId: {
 			allowNull: false,
 			type: DataTypes.INTEGER,

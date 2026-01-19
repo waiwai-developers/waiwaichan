@@ -2,6 +2,7 @@ import type { Datafix } from "@/migrator/umzug";
 import { AppConfig } from "@/src/entities/config/AppConfig";
 import { UserBatchStatus } from "@/src/entities/vo/UserBatchStatus";
 import { UserCategoryType } from "@/src/entities/vo/UserCategoryType";
+import { UserType } from "@/src/entities/vo/UserType";
 import { Client, GatewayIntentBits } from "discord.js";
 import { DatafixCommunityModel } from "./models/DatafixCommunityModel";
 import { DatafixUserModel } from "./models/DatafixUserModel";
@@ -29,6 +30,7 @@ export const up: Datafix = async () => {
 					members.map((m) => ({
 						categoryType: UserCategoryType.Discord.getValue(),
 						clientId: BigInt(m.id),
+						userType: m.user.bot ? UserType.bot.getValue() : UserType.user.getValue(),
 						communityId: community.id,
 						batchStatus: UserBatchStatus.Yet.getValue(),
 					})),
