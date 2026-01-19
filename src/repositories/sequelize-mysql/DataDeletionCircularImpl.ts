@@ -70,7 +70,9 @@ class DataDeletionCircularImpl implements IDataDeletionCircular {
 		return models.filter((model) => {
 			try {
 				const attributes = Object.keys(model.getAttributes());
-				return columnNames.some((columnName) => attributes.includes(columnName));
+				return columnNames.some((columnName) =>
+					attributes.includes(columnName),
+				);
 			} catch (error) {
 				return false;
 			}

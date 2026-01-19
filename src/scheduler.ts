@@ -5,8 +5,8 @@ import { CommunityAndUserDeleteHandler } from "@/src/handlers/discord.js/events/
 import { ReminderNotifyHandler } from "@/src/handlers/discord.js/events/ReminderNotifyHandler";
 import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 import type { MysqlSchedulerConnector } from "@/src/repositories/sequelize-mysql/MysqlSchedulerConnector";
-import { schedulerContainer } from "@/src/scheduler.di.config";
 import { sequelizeNamespace } from "@/src/repositories/sequelize-mysql/SequelizeClsNamespace";
+import { schedulerContainer } from "@/src/scheduler.di.config";
 import { Client, GatewayIntentBits } from "discord.js";
 import cron from "node-cron";
 

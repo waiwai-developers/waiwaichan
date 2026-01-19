@@ -1,4 +1,4 @@
-import { DeletedUserTargetDto } from "@/src/entities/dto/DeletedUserTargetDto";
+import type { DeletedUserTargetDto } from "@/src/entities/dto/DeletedUserTargetDto";
 import { UserDto } from "@/src/entities/dto/UserDto";
 import { UserBatchStatus } from "@/src/entities/vo/UserBatchStatus";
 import { UserCategoryType } from "@/src/entities/vo/UserCategoryType";

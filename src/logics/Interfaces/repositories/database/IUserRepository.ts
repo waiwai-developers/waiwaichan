@@ -17,6 +17,8 @@ export interface IUserRepository {
 	): Promise<boolean>;
 	getId(data: UserDto): Promise<UserId | undefined>;
 	findByBatchStatusAndDeletedAt(): Promise<UserId[]>;
-	findDeletionTargetsByBatchStatusAndDeletedAt(): Promise<DeletedUserTargetDto[]>;
+	findDeletionTargetsByBatchStatusAndDeletedAt(): Promise<
+		DeletedUserTargetDto[]
+	>;
 	updatebatchStatus(id: UserId): Promise<boolean>;
 }

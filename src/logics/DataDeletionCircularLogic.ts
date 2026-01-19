@@ -32,7 +32,7 @@ export class DataDeletionCircularLogic implements IDataDeletionCircularLogic {
 		return this.transaction.startTransaction(async () => {
 			const deleted = await this.dataDeletionCircular.deleteRecordInRelatedTable(
 				[new ColumnName("communityId"), new ColumnName("guildId")],
-				[id, clientId],
+				[clientId, clientId],
 			);
 			return deleted ? this.communityRepository.updatebatchStatus(id) : false;
 		});
@@ -48,7 +48,7 @@ export class DataDeletionCircularLogic implements IDataDeletionCircularLogic {
 					new ColumnName("userId"),
 					new ColumnName("receiveUserId"),
 				],
-				[clientId, clientId, clientId],
+				[clientId, clientId],
 			);
 			return deleted ? this.userRepository.updatebatchStatus(id) : false;
 		});

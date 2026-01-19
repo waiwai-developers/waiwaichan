@@ -30,7 +30,9 @@ export const up: Datafix = async () => {
 					members.map((m) => ({
 						categoryType: UserCategoryType.Discord.getValue(),
 						clientId: BigInt(m.id),
-						userType: m.user.bot ? UserType.bot.getValue() : UserType.user.getValue(),
+						userType: m.user.bot
+							? UserType.bot.getValue()
+							: UserType.user.getValue(),
 						communityId: community.id,
 						batchStatus: UserBatchStatus.Yet.getValue(),
 					})),

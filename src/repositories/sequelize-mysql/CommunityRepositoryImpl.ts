@@ -1,5 +1,5 @@
 import { CommunityDto } from "@/src/entities/dto/CommunityDto";
-import { DeletedCommunityTargetDto } from "@/src/entities/dto/DeletedCommunityTargetDto";
+import type { DeletedCommunityTargetDto } from "@/src/entities/dto/DeletedCommunityTargetDto";
 import { CommunityBatchStatus } from "@/src/entities/vo/CommunityBatchStatus";
 import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
 import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
