@@ -6,12 +6,10 @@ import { ReminderNotifyHandler } from "@/src/handlers/discord.js/events/Reminder
 import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 import type { MysqlSchedulerConnector } from "@/src/repositories/sequelize-mysql/MysqlSchedulerConnector";
 import { schedulerContainer } from "@/src/scheduler.di.config";
-import { createNamespace } from "cls-hooked";
+import { sequelizeNamespace } from "@/src/repositories/sequelize-mysql/SequelizeClsNamespace";
 import { Client, GatewayIntentBits } from "discord.js";
 import cron from "node-cron";
 
-// cls-hookedの名前空間を作成
-const namespace = createNamespace("sequelize-transaction-namespace");
 schedulerContainer.get<MysqlSchedulerConnector>(RepoTypes.DatabaseConnector);
 const logger = schedulerContainer.get<ILogger>(RepoTypes.Logger);
 
@@ -31,7 +29,7 @@ const runInNamespace = async (taskName: string, task: () => Promise<void>) => {
 		logger.info(`Running ${taskName} task`);
 
 		// cls-hooked名前空間内でタスクを実行
-		namespace.run(async () => {
+		sequelizeNamespace.run(async () => {
 			try {
 				await task();
 				logger.info(`${taskName} task completed`);
@@ -100,6 +98,3 @@ client.on("ready", (c: Client) => {
 		logger.info(`login: ${c.user.tag}`);
 	}
 });
-
-cron.schedule("* * * * *", () => ReminderNotifyHandler(client));
-await client.login(AppConfig.discord.token);
