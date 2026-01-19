@@ -47,7 +47,6 @@ export class DataDeletionCircularLogic implements IDataDeletionCircularLogic {
 				[
 					new ColumnName("userId"),
 					new ColumnName("receiveUserId"),
-					new ColumnName("giveUserId"),
 				],
 				[clientId, clientId, clientId],
 			);
