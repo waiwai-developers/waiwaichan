@@ -20,9 +20,9 @@ import type {
 	DiscordEventHandler,
 	ReactionInteraction,
 } from "@/src/handlers/discord.js/events/DiscordEventHandler";
-import { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
+import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { ICrownLogic } from "@/src/logics/Interfaces/logics/ICrownLogic";
-import { IUserLogic } from "@/src/logics/Interfaces/logics/IUserLogic";
+import type { IUserLogic } from "@/src/logics/Interfaces/logics/IUserLogic";
 import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 import { TextChannel } from "discord.js";
 import { inject, injectable } from "inversify";
