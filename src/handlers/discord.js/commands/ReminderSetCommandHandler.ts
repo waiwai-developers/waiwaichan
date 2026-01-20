@@ -8,6 +8,7 @@ import { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
 import { UserCategoryType } from "@/src/entities/vo/UserCategoryType";
 import { UserClientId } from "@/src/entities/vo/UserClientId";
 import { UserCommunityId } from "@/src/entities/vo/UserCommunityId";
+import { UserType } from "@/src/entities/vo/UserType";
 import { ReceiveDiscordUserName } from "@/src/entities/vo/ReceiveDiscordUserName";
 import { RemindTime } from "@/src/entities/vo/RemindTime";
 import { ReminderMessage } from "@/src/entities/vo/ReminderMessage";
@@ -54,6 +55,7 @@ export class ReminderSetCommandHandler implements SlashCommandHandler {
 			new UserDto(
 				UserCategoryType.Discord,
 				new UserClientId(BigInt(interaction.user.id)),
+				UserType.user,
 				new UserCommunityId(communityId.getValue())
 			)
 		)
