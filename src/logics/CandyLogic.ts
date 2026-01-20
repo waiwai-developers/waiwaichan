@@ -268,9 +268,9 @@ export class CandyLogic implements ICandyLogic {
 		messageLink: DiscordMessageLink,
 		candyCategoryType: CandyCategoryType,
 	): Promise<string | undefined> {
-		// if (receiver.getValue() === giver.getValue()) {
-		// 	return;
-		// }
+		if (receiver.getValue() === giver.getValue()) {
+			return;
+		}
 		return this.mutex.useMutex("GiveCandy", async () =>
 			this.transaction.startTransaction(async () => {
 				const {
@@ -359,9 +359,9 @@ export class CandyLogic implements ICandyLogic {
 
 				// reaction limit
 				// todo reaction limit to constant
-				// if (countByPeriod.getValue() >= countBylimit) {
-				// 	return "今はスタンプを押してもキャンディをあげられないよ！っ";
-				// }
+				if (countByPeriod.getValue() >= countBylimit) {
+					return "今はスタンプを押してもキャンディをあげられないよ！っ";
+				}
 
 				const candies = await this.candyRepository.findByGiverAndMessageId(
 					communityId,
