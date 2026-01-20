@@ -4,7 +4,7 @@ import { AppConfig } from "@/src/entities/config/AppConfig";
 import { SUPER_CANDY_AMOUNT } from "@/src/entities/constants/Candies";
 import { ID_HIT, ID_JACKPOT, PITY_COUNT } from "@/src/entities/constants/Items";
 import { CandyCategoryType } from "@/src/entities/vo/CandyCategoryType";
-import { CandyRepositoryImpl, UserCandyItemRepositoryImpl } from "@/src/repositories/sequelize-mysql";
+import { CandyRepositoryImpl, CommunityRepositoryImpl, UserCandyItemRepositoryImpl, UserRepositoryImpl } from "@/src/repositories/sequelize-mysql";
 import { MysqlConnector } from "@/tests/fixtures/database/MysqlConnector";
 import { waitUntilMessageReply } from "@/tests/fixtures/discord.js/MockMessage";
 import { mockReaction } from "@/tests/fixtures/discord.js/MockReaction";
@@ -16,12 +16,85 @@ import type { MessageReactionEventDetails } from "discord.js";
 import type Mocha from "mocha";
 import { anything, instance, mock, verify, when } from "ts-mockito";
 
+// テスト用の定数
+const TEST_GUILD_ID = "1234567890"; // communityのclientId
+const TEST_USER_ID = "1234"; // userのclientId (candy受領者)
+const TEST_GIVE_USER_ID = "12345"; // candy付与者のclientId
+const TEST_RECEIVER_ID = "5678"; // reaction受領者のclientId
+
+// Helper function to create community and user for tests
+async function createCommunityAndUser(): Promise<{
+	communityId: number;
+	userId: number;
+	giveUserId: number;
+	receiverUserId: number;
+}> {
+	// Create community
+	const community = await CommunityRepositoryImpl.create({
+		categoryType: 1, // Discord
+		clientId: BigInt(TEST_GUILD_ID),
+		batchStatus: 0,
+	});
+
+	// Create user (candy受領者/コマンド実行者)
+	const user = await UserRepositoryImpl.create({
+		categoryType: 1, // Discord
+		clientId: BigInt(TEST_USER_ID),
+		userType: 1, // user
+		communityId: community.id,
+		batchStatus: 0,
+	});
+
+	// Create give user (candy付与者)
+	const giveUser = await UserRepositoryImpl.create({
+		categoryType: 1, // Discord
+		clientId: BigInt(TEST_GIVE_USER_ID),
+		userType: 1, // user
+		communityId: community.id,
+		batchStatus: 0,
+	});
+
+	// Create receiver user (reaction受領者)
+	const receiverUser = await UserRepositoryImpl.create({
+		categoryType: 1, // Discord
+		clientId: BigInt(TEST_RECEIVER_ID),
+		userType: 1, // user
+		communityId: community.id,
+		batchStatus: 0,
+	});
+
+	return {
+		communityId: community.id,
+		userId: user.id,
+		giveUserId: giveUser.id,
+		receiverUserId: receiverUser.id,
+	};
+}
+
 describe("Test Candy Commands", () => {
+	// テスト用のコミュニティとユーザーのID（autoincrement）
+	let testCommunityId: number;
+	let testUserId: number;
+	let testGiveUserId: number;
+	let testReceiverUserId: number;
+
 	/**
 	 * テスト実行前に毎回実行される共通のセットアップ
 	 */
-	beforeEach(() => {
+	beforeEach(async () => {
+		// Initialize database connection first
 		new MysqlConnector();
+		// Clean up existing records
+		await CandyRepositoryImpl.destroy({ truncate: true, force: true });
+		await UserCandyItemRepositoryImpl.destroy({ truncate: true, force: true });
+		await UserRepositoryImpl.destroy({ truncate: true, force: true });
+		await CommunityRepositoryImpl.destroy({ truncate: true, force: true });
+		// Create community and user for each test
+		const { communityId, userId, giveUserId, receiverUserId } = await createCommunityAndUser();
+		testCommunityId = communityId;
+		testUserId = userId;
+		testGiveUserId = giveUserId;
+		testReceiverUserId = receiverUserId;
 	});
 
 	afterEach(async () => {
@@ -30,6 +103,14 @@ describe("Test Candy Commands", () => {
 			force: true,
 		});
 		await UserCandyItemRepositoryImpl.destroy({
+			truncate: true,
+			force: true,
+		});
+		await UserRepositoryImpl.destroy({
+			truncate: true,
+			force: true,
+		});
+		await CommunityRepositoryImpl.destroy({
 			truncate: true,
 			force: true,
 		});
@@ -46,14 +127,14 @@ describe("Test Candy Commands", () => {
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("candycheck");
 
-			// テストデータの作成
+			// テストデータの作成 - use dynamic IDs from beforeEach
 			const insertData = {
-				receiveUserId: "1234",
-				giveUserId: "12345",
+				userId: testUserId,
+				giveUserId: testGiveUserId,
 				messageId: "5678",
 				expiredAt: "2999/12/31 23:59:59",
 				deletedAt: null,
-				guildId: "1234567890",
+				communityId: testCommunityId,
 				categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
 			};
 			await CandyRepositoryImpl.create(insertData);
@@ -65,8 +146,8 @@ describe("Test Candy Commands", () => {
 				console.log("Reply received:", args);
 			});
 
-			// guildIdの設定
-			when(commandMock.guildId).thenReturn("1234567890");
+			// guildIdの設定 - use TEST_GUILD_ID constant
+			when(commandMock.guildId).thenReturn(TEST_GUILD_ID);
 
 			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
@@ -136,12 +217,12 @@ describe("Test Candy Commands", () => {
 
 			// テストデータの作成
 			const insertData = Array.from({ length: candyAmount }, () => ({
-				receiveUserId: "1234",
+				userId: "1234",
 				giveUserId: "12345",
 				messageId: "5678",
 				expiredAt: "2999/12/31 23:59:59",
 				deletedAt: null,
-				guildId: "1234567890",
+				communityId: "1234567890",
 				categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
 			}));
 			await CandyRepositoryImpl.bulkCreate(insertData);
@@ -201,14 +282,14 @@ describe("Test Candy Commands", () => {
 				const date = new Date();
 				date.setDate(date.getDate() - (candyAmount - i));
 				insertData.push({
-					receiveUserId: "1234",
+					userId: "1234",
 					giveUserId: "12345",
 					messageId: String(10_000 + i),
 					expiredAt: "2999/12/31 23:59:59",
 					deletedAt: i < 149 ? date.toISOString() : null, // 149個目までは使用済み
 					createdAt: date.toISOString(),
 					updatedAt: date.toISOString(),
-					guildId: "1234567890",
+					communityId: "1234567890",
 					categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
 				});
 			}
@@ -250,12 +331,12 @@ describe("Test Candy Commands", () => {
 			// テストデータの作成（複数回のドローに必要な十分なキャンディ）
 			const candyAmount = 30;
 			const insertData = Array.from({ length: candyAmount }, () => ({
-				receiveUserId: "1234",
+				userId: "1234",
 				giveUserId: "12345",
 				messageId: "5678",
 				expiredAt: "2999/12/31 23:59:59",
 				deletedAt: null,
-				guildId: "1234567890",
+				communityId: "1234567890",
 				categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
 			}));
 			await CandyRepositoryImpl.bulkCreate(insertData);
@@ -298,12 +379,12 @@ describe("Test Candy Commands", () => {
 			// テストデータの作成
 			const candyAmount = 10;
 			const insertData = Array.from({ length: candyAmount }, () => ({
-				receiveUserId: "1234",
+				userId: "1234",
 				giveUserId: "12345",
 				messageId: "5678",
 				expiredAt: "2999/12/31 23:59:59",
 				deletedAt: null,
-				guildId: "1234567890",
+				communityId: "1234567890",
 				categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
 			}));
 			await CandyRepositoryImpl.bulkCreate(insertData);
@@ -353,14 +434,14 @@ describe("Test Candy Commands", () => {
 				const date = new Date();
 				date.setDate(date.getDate() - (candyAmount - i));
 				insertData.push({
-					receiveUserId: "1234",
+					userId: "1234",
 					giveUserId: "12345",
 					messageId: String(10_000 + i),
 					expiredAt: "2999/12/31 23:59:59",
 					deletedAt: i < 146 ? date.toISOString() : null, // 146個目までは使用済み
 					createdAt: date.toISOString(),
 					updatedAt: date.toISOString(),
-					guildId: "1234567890",
+					communityId: "1234567890",
 					categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
 				});
 			}
@@ -408,12 +489,12 @@ describe("Test Candy Commands", () => {
 			// 連続ドローに必要な数より少ないキャンディを用意（10個必要だが9個しか用意しない）
 			const candyAmount = 9;
 			const insertData = Array.from({ length: candyAmount }, () => ({
-				receiveUserId: "1234",
+				userId: "1234",
 				giveUserId: "12345",
 				messageId: "5678",
 				expiredAt: "2999/12/31 23:59:59",
 				deletedAt: null,
-				guildId: "1234567890",
+				communityId: "1234567890",
 				categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
 			}));
 			await CandyRepositoryImpl.bulkCreate(insertData);
@@ -465,35 +546,35 @@ describe("Test Candy Commands", () => {
 					itemId: ID_HIT,
 					expiredAt: "2999/12/31 23:59:59",
 					deletedAt: null, // 有効なアイテム
-					guildId: "1234567890",
+					communityId: "1234567890",
 				},
 				{
 					userId: 1234,
 					itemId: ID_HIT,
 					expiredAt: "2999/12/31 23:59:59",
 					deletedAt: null, // 有効なアイテム
-					guildId: "1234567890",
+					communityId: "1234567890",
 				},
 				{
 					userId: 1234,
 					itemId: ID_JACKPOT,
 					expiredAt: "2999/12/31 23:59:59",
 					deletedAt: "1970/01/01 00:00:00", // 削除済みアイテム
-					guildId: "1234567890",
+					communityId: "1234567890",
 				},
 				{
 					userId: 1234,
 					itemId: ID_JACKPOT,
 					expiredAt: "2999/12/31 23:59:59",
 					deletedAt: "1970/01/01 00:00:00", // 削除済みアイテム
-					guildId: "1234567890",
+					communityId: "1234567890",
 				},
 				{
 					userId: 1234,
 					itemId: ID_JACKPOT,
 					expiredAt: "2999/12/31 23:59:59",
 					deletedAt: null, // 有効なアイテム
-					guildId: "1234567890",
+					communityId: "1234567890",
 				},
 			];
 			const inserted = await UserCandyItemRepositoryImpl.bulkCreate(insertData);
@@ -575,7 +656,7 @@ describe("Test Candy Commands", () => {
 				itemId: ID_HIT,
 				candyId: 1,
 				expiredAt: "2999/12/31 23:59:59",
-				guildId: "1234567890",
+				communityId: "1234567890",
 			});
 
 			let value = "";
@@ -693,7 +774,7 @@ describe("Test Candy Commands", () => {
 				itemId: itemId,
 				candyId: 1,
 				expiredAt: "2999/12/31 23:59:59",
-				guildId: "1234567890",
+				communityId: "1234567890",
 			});
 
 			let value = "";
@@ -747,7 +828,7 @@ describe("Test Candy Commands", () => {
 			expect(res.length).to.eq(1);
 
 			expect(String(res[0].giveUserId)).to.eq(giverId);
-			expect(String(res[0].receiveUserId)).to.eq(receiverId);
+			expect(String(res[0].userId)).to.eq(receiverId);
 
 			const finishedDate = dayjs().add(1, "month").hour(0).minute(0).second(0).millisecond(0).add(1, "day").add(1, "second");
 
@@ -773,14 +854,14 @@ describe("Test Candy Commands", () => {
 			const today = new Date();
 			for (let i = 0; i < 3; i++) {
 				await CandyRepositoryImpl.create({
-					receiveUserId: receiverId,
+					userId: receiverId,
 					giveUserId: giverId,
 					messageId: String(i),
 					expiredAt: dayjs().add(1, "month").hour(0).minute(0).second(0).millisecond(0).add(1, "day").toDate(),
 					deletedAt: null,
 					createdAt: today,
 					updatedAt: today,
-					guildId: "1234567890",
+					communityId: "1234567890",
 					categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
 				});
 			}
@@ -905,7 +986,7 @@ describe("Test Candy Commands", () => {
 			// 各キャンディのプロパティを確認
 			for (const candy of res) {
 				expect(String(candy.giveUserId)).to.eq(giverId);
-				expect(String(candy.receiveUserId)).to.eq(receiverId);
+				expect(String(candy.userId)).to.eq(receiverId);
 				expect(candy.categoryType).to.eq(CandyCategoryType.CATEGORY_TYPE_SUPER.getValue());
 
 				const finishedDate = dayjs().add(1, "month").hour(0).minute(0).second(0).millisecond(0).add(1, "day").add(1, "second");
@@ -955,7 +1036,7 @@ describe("Test Candy Commands", () => {
 			for (const candy of candies) {
 				expect(candy.categoryType).to.eq(CandyCategoryType.CATEGORY_TYPE_SUPER.getValue());
 				expect(String(candy.giveUserId)).to.eq(giverId);
-				expect(String(candy.receiveUserId)).to.eq(receiverId);
+				expect(String(candy.userId)).to.eq(receiverId);
 			}
 		})();
 	});
@@ -1126,7 +1207,7 @@ describe("Test Candy Commands", () => {
 				itemId: ID_JACKPOT,
 				candyId: 1,
 				expiredAt: "2999/12/31 23:59:59",
-				guildId: "1234567890",
+				communityId: "1234567890",
 				createdAt: thisYearStart,
 				updatedAt: thisYearStart,
 			});
@@ -1141,14 +1222,14 @@ describe("Test Candy Commands", () => {
 				const date = new Date();
 				date.setDate(date.getDate() - (candyAmount - i));
 				insertData.push({
-					receiveUserId: "1234",
+					userId: "1234",
 					giveUserId: "12345",
 					messageId: String(10_000 + i),
 					expiredAt: "2999/12/31 23:59:59",
 					deletedAt: i < candyAmount - 1 ? date.toISOString() : null,
 					createdAt: date.toISOString(),
 					updatedAt: date.toISOString(),
-					guildId: "1234567890",
+					communityId: "1234567890",
 					categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
 				});
 			}
@@ -1198,7 +1279,7 @@ describe("Test Candy Commands", () => {
 				itemId: ID_JACKPOT,
 				candyId: 1,
 				expiredAt: "2999/12/31 23:59:59",
-				guildId: "1234567890",
+				communityId: "1234567890",
 				createdAt: thisYearStart,
 				updatedAt: thisYearStart,
 			});
@@ -1213,14 +1294,14 @@ describe("Test Candy Commands", () => {
 				const date = new Date();
 				date.setDate(date.getDate() - (candyAmount - i));
 				insertData.push({
-					receiveUserId: "1234",
+					userId: "1234",
 					giveUserId: "12345",
 					messageId: String(10_000 + i),
 					expiredAt: "2999/12/31 23:59:59",
 					deletedAt: i < 146 ? date.toISOString() : null,
 					createdAt: date.toISOString(),
 					updatedAt: date.toISOString(),
-					guildId: "1234567890",
+					communityId: "1234567890",
 					categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
 				});
 			}
@@ -1274,7 +1355,7 @@ describe("Test Candy Commands", () => {
 				itemId: ID_JACKPOT,
 				candyId: 1,
 				expiredAt: "2999/12/31 23:59:59",
-				guildId: "1234567890",
+				communityId: "1234567890",
 				createdAt: lastYearEnd,
 				updatedAt: lastYearEnd,
 			});
@@ -1289,14 +1370,14 @@ describe("Test Candy Commands", () => {
 				const date = new Date();
 				date.setDate(date.getDate() - (candyAmount - i));
 				insertData.push({
-					receiveUserId: "1234",
+					userId: "1234",
 					giveUserId: "12345",
 					messageId: String(10_000 + i),
 					expiredAt: "2999/12/31 23:59:59",
 					deletedAt: i < candyAmount - 1 ? date.toISOString() : null,
 					createdAt: date.toISOString(),
 					updatedAt: date.toISOString(),
-					guildId: "1234567890",
+					communityId: "1234567890",
 					categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
 				});
 			}
@@ -1341,14 +1422,14 @@ describe("Test Candy Commands", () => {
 				const date = new Date();
 				date.setDate(date.getDate() - (candyAmount - i));
 				insertData.push({
-					receiveUserId: "1234",
+					userId: "1234",
 					giveUserId: "12345",
 					messageId: String(10_000 + i),
 					expiredAt: "2999/12/31 23:59:59",
 					deletedAt: i < 146 ? date.toISOString() : null, // 146個目までは使用済み
 					createdAt: date.toISOString(),
 					updatedAt: date.toISOString(),
-					guildId: "1234567890",
+					communityId: "1234567890",
 					categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
 				});
 			}
@@ -1396,12 +1477,12 @@ describe("Test Candy Commands", () => {
 			// 十分な数のキャンディを用意（天井に到達しない数）
 			const candyAmount = 50;
 			const insertData = Array.from({ length: candyAmount }, () => ({
-				receiveUserId: "1234",
+				userId: "1234",
 				giveUserId: "12345",
 				messageId: "5678",
 				expiredAt: "2999/12/31 23:59:59",
 				deletedAt: null,
-				guildId: "1234567890",
+				communityId: "1234567890",
 				categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
 			}));
 			await CandyRepositoryImpl.bulkCreate(insertData);
@@ -1439,14 +1520,14 @@ describe("Test Candy Commands", () => {
 				const date = new Date();
 				date.setDate(date.getDate() - (candyAmount - i));
 				insertData.push({
-					receiveUserId: "1234",
+					userId: "1234",
 					giveUserId: "12345",
 					messageId: String(10_000 + i),
 					expiredAt: "2999/12/31 23:59:59",
 					deletedAt: i < PITY_COUNT - 1 ? date.toISOString() : null,
 					createdAt: date.toISOString(),
 					updatedAt: date.toISOString(),
-					guildId: "1234567890",
+					communityId: "1234567890",
 					categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
 				});
 			}
@@ -1486,12 +1567,12 @@ describe("Test Candy Commands", () => {
 			// 十分な数のキャンディを用意（天井に到達しない数）
 			const candyAmount = 50;
 			const insertData = Array.from({ length: candyAmount }, () => ({
-				receiveUserId: "1234",
+				userId: "1234",
 				giveUserId: "12345",
 				messageId: "5678",
 				expiredAt: "2999/12/31 23:59:59",
 				deletedAt: null,
-				guildId: "1234567890",
+				communityId: "1234567890",
 				categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
 			}));
 			await CandyRepositoryImpl.bulkCreate(insertData);
@@ -1534,14 +1615,14 @@ describe("Test Candy Commands", () => {
 				const date = new Date();
 				date.setDate(date.getDate() - (candyAmount - i));
 				insertData.push({
-					receiveUserId: "1234",
+					userId: "1234",
 					giveUserId: "12345",
 					messageId: String(10_000 + i),
 					expiredAt: "2999/12/31 23:59:59",
 					deletedAt: i < 146 ? date.toISOString() : null,
 					createdAt: date.toISOString(),
 					updatedAt: date.toISOString(),
-					guildId: "1234567890",
+					communityId: "1234567890",
 					categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
 				});
 			}
@@ -1588,7 +1669,7 @@ describe("Test Candy Commands", () => {
 				itemId: ID_JACKPOT,
 				candyId: 1,
 				expiredAt: "2999/12/31 23:59:59",
-				guildId: "1234567890",
+				communityId: "1234567890",
 				createdAt: lastYearEnd,
 				updatedAt: lastYearEnd,
 			});
@@ -1599,12 +1680,12 @@ describe("Test Candy Commands", () => {
 			// 十分な数のキャンディを用意（天井に到達しない数）
 			const candyAmount = 50;
 			const insertData = Array.from({ length: candyAmount }, () => ({
-				receiveUserId: "1234",
+				userId: "1234",
 				giveUserId: "12345",
 				messageId: "5678",
 				expiredAt: "2999/12/31 23:59:59",
 				deletedAt: null,
-				guildId: "1234567890",
+				communityId: "1234567890",
 				categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
 			}));
 			await CandyRepositoryImpl.bulkCreate(insertData);
@@ -1638,7 +1719,7 @@ describe("Test Candy Commands", () => {
 				itemId: ID_JACKPOT,
 				candyId: 1,
 				expiredAt: "2999/12/31 23:59:59",
-				guildId: "1234567890",
+				communityId: "1234567890",
 				createdAt: lastYearEnd,
 				updatedAt: lastYearEnd,
 			});
@@ -1654,14 +1735,14 @@ describe("Test Candy Commands", () => {
 				const date = new Date();
 				date.setDate(date.getDate() - (candyAmount - i));
 				insertData.push({
-					receiveUserId: "1234",
+					userId: "1234",
 					giveUserId: "12345",
 					messageId: String(10_000 + i),
 					expiredAt: "2999/12/31 23:59:59",
 					deletedAt: i < PITY_COUNT - 1 ? date.toISOString() : null,
 					createdAt: date.toISOString(),
 					updatedAt: date.toISOString(),
-					guildId: "1234567890",
+					communityId: "1234567890",
 					categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
 				});
 			}
@@ -1713,7 +1794,7 @@ describe("Test Candy Commands", () => {
 				itemId: ID_JACKPOT,
 				candyId: 1,
 				expiredAt: "2999/12/31 23:59:59",
-				guildId: "1234567890",
+				communityId: "1234567890",
 				createdAt: lastYearEnd,
 				updatedAt: lastYearEnd,
 			});
@@ -1724,12 +1805,12 @@ describe("Test Candy Commands", () => {
 			// 十分な数のキャンディを用意（天井に到達しない数）
 			const candyAmount = 50;
 			const insertData = Array.from({ length: candyAmount }, () => ({
-				receiveUserId: "1234",
+				userId: "1234",
 				giveUserId: "12345",
 				messageId: "5678",
 				expiredAt: "2999/12/31 23:59:59",
 				deletedAt: null,
-				guildId: "1234567890",
+				communityId: "1234567890",
 				categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
 			}));
 			await CandyRepositoryImpl.bulkCreate(insertData);
@@ -1763,7 +1844,7 @@ describe("Test Candy Commands", () => {
 				itemId: ID_JACKPOT,
 				candyId: 1,
 				expiredAt: "2999/12/31 23:59:59",
-				guildId: "1234567890",
+				communityId: "1234567890",
 				createdAt: lastYearEnd,
 				updatedAt: lastYearEnd,
 			});
@@ -1779,14 +1860,14 @@ describe("Test Candy Commands", () => {
 				const date = new Date();
 				date.setDate(date.getDate() - (candyAmount - i));
 				insertData.push({
-					receiveUserId: "1234",
+					userId: "1234",
 					giveUserId: "12345",
 					messageId: String(10_000 + i),
 					expiredAt: "2999/12/31 23:59:59",
 					deletedAt: i < 146 ? date.toISOString() : null,
 					createdAt: date.toISOString(),
 					updatedAt: date.toISOString(),
-					guildId: "1234567890",
+					communityId: "1234567890",
 					categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
 				});
 			}
@@ -1833,7 +1914,7 @@ describe("Test Candy Commands", () => {
 				itemId: ID_JACKPOT,
 				candyId: 1,
 				expiredAt: "2999/12/31 23:59:59",
-				guildId: "1234567890",
+				communityId: "1234567890",
 				createdAt: thisYearStart,
 				updatedAt: thisYearStart,
 			});
@@ -1844,12 +1925,12 @@ describe("Test Candy Commands", () => {
 			// 十分な数のキャンディを用意（天井に到達しない数）
 			const candyAmount = 50;
 			const insertData = Array.from({ length: candyAmount }, () => ({
-				receiveUserId: "1234",
+				userId: "1234",
 				giveUserId: "12345",
 				messageId: "5678",
 				expiredAt: "2999/12/31 23:59:59",
 				deletedAt: null,
-				guildId: "1234567890",
+				communityId: "1234567890",
 				categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
 			}));
 			await CandyRepositoryImpl.bulkCreate(insertData);
@@ -1892,7 +1973,7 @@ describe("Test Candy Commands", () => {
 				itemId: ID_JACKPOT,
 				candyId: 1,
 				expiredAt: "2999/12/31 23:59:59",
-				guildId: "1234567890",
+				communityId: "1234567890",
 				createdAt: thisYearStart,
 				updatedAt: thisYearStart,
 			});
@@ -1908,14 +1989,14 @@ describe("Test Candy Commands", () => {
 				const date = new Date();
 				date.setDate(date.getDate() - (candyAmount - i));
 				insertData.push({
-					receiveUserId: "1234",
+					userId: "1234",
 					giveUserId: "12345",
 					messageId: String(10_000 + i),
 					expiredAt: "2999/12/31 23:59:59",
 					deletedAt: i < PITY_COUNT - 1 ? date.toISOString() : null,
 					createdAt: date.toISOString(),
 					updatedAt: date.toISOString(),
-					guildId: "1234567890",
+					communityId: "1234567890",
 					categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
 				});
 			}
@@ -1964,7 +2045,7 @@ describe("Test Candy Commands", () => {
 				itemId: ID_JACKPOT,
 				candyId: 1,
 				expiredAt: "2999/12/31 23:59:59",
-				guildId: "1234567890",
+				communityId: "1234567890",
 				createdAt: thisYearStart,
 				updatedAt: thisYearStart,
 			});
@@ -1975,12 +2056,12 @@ describe("Test Candy Commands", () => {
 			// 十分な数のキャンディを用意（天井に到達しない数）
 			const candyAmount = 50;
 			const insertData = Array.from({ length: candyAmount }, () => ({
-				receiveUserId: "1234",
+				userId: "1234",
 				giveUserId: "12345",
 				messageId: "5678",
 				expiredAt: "2999/12/31 23:59:59",
 				deletedAt: null,
-				guildId: "1234567890",
+				communityId: "1234567890",
 				categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
 			}));
 			await CandyRepositoryImpl.bulkCreate(insertData);
@@ -2026,7 +2107,7 @@ describe("Test Candy Commands", () => {
 				itemId: ID_JACKPOT,
 				candyId: 1,
 				expiredAt: "2999/12/31 23:59:59",
-				guildId: "1234567890",
+				communityId: "1234567890",
 				createdAt: thisYearStart,
 				updatedAt: thisYearStart,
 			});
@@ -2042,14 +2123,14 @@ describe("Test Candy Commands", () => {
 				const date = new Date();
 				date.setDate(date.getDate() - (candyAmount - i));
 				insertData.push({
-					receiveUserId: "1234",
+					userId: "1234",
 					giveUserId: "12345",
 					messageId: String(10_000 + i),
 					expiredAt: "2999/12/31 23:59:59",
 					deletedAt: i < 146 ? date.toISOString() : null,
 					createdAt: date.toISOString(),
 					updatedAt: date.toISOString(),
-					guildId: "1234567890",
+					communityId: "1234567890",
 					categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
 				});
 			}
@@ -2103,7 +2184,7 @@ describe("Test Candy Commands", () => {
 				itemId: ID_JACKPOT,
 				candyId: 1,
 				expiredAt: "2999/12/31 23:59:59",
-				guildId: "1234567890",
+				communityId: "1234567890",
 				createdAt: lastYearEnd,
 				updatedAt: lastYearEnd,
 			});
@@ -2114,7 +2195,7 @@ describe("Test Candy Commands", () => {
 				itemId: ID_JACKPOT,
 				candyId: 2,
 				expiredAt: "2999/12/31 23:59:59",
-				guildId: "1234567890",
+				communityId: "1234567890",
 				createdAt: thisYearStart,
 				updatedAt: thisYearStart,
 			});
@@ -2125,12 +2206,12 @@ describe("Test Candy Commands", () => {
 			// 十分な数のキャンディを用意（天井に到達しない数）
 			const candyAmount = 50;
 			const insertData = Array.from({ length: candyAmount }, () => ({
-				receiveUserId: "1234",
+				userId: "1234",
 				giveUserId: "12345",
 				messageId: "5678",
 				expiredAt: "2999/12/31 23:59:59",
 				deletedAt: null,
-				guildId: "1234567890",
+				communityId: "1234567890",
 				categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
 			}));
 			await CandyRepositoryImpl.bulkCreate(insertData);
@@ -2173,7 +2254,7 @@ describe("Test Candy Commands", () => {
 				itemId: ID_JACKPOT,
 				candyId: 1,
 				expiredAt: "2999/12/31 23:59:59",
-				guildId: "1234567890",
+				communityId: "1234567890",
 				createdAt: lastYearEnd,
 				updatedAt: lastYearEnd,
 			});
@@ -2184,7 +2265,7 @@ describe("Test Candy Commands", () => {
 				itemId: ID_JACKPOT,
 				candyId: 2,
 				expiredAt: "2999/12/31 23:59:59",
-				guildId: "1234567890",
+				communityId: "1234567890",
 				createdAt: thisYearStart,
 				updatedAt: thisYearStart,
 			});
@@ -2200,14 +2281,14 @@ describe("Test Candy Commands", () => {
 				const date = new Date();
 				date.setDate(date.getDate() - (candyAmount - i));
 				insertData.push({
-					receiveUserId: "1234",
+					userId: "1234",
 					giveUserId: "12345",
 					messageId: String(10_000 + i),
 					expiredAt: "2999/12/31 23:59:59",
 					deletedAt: i < PITY_COUNT - 1 ? date.toISOString() : null,
 					createdAt: date.toISOString(),
 					updatedAt: date.toISOString(),
-					guildId: "1234567890",
+					communityId: "1234567890",
 					categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
 				});
 			}
@@ -2256,7 +2337,7 @@ describe("Test Candy Commands", () => {
 				itemId: ID_JACKPOT,
 				candyId: 1,
 				expiredAt: "2999/12/31 23:59:59",
-				guildId: "1234567890",
+				communityId: "1234567890",
 				createdAt: lastYearEnd,
 				updatedAt: lastYearEnd,
 			});
@@ -2267,7 +2348,7 @@ describe("Test Candy Commands", () => {
 				itemId: ID_JACKPOT,
 				candyId: 2,
 				expiredAt: "2999/12/31 23:59:59",
-				guildId: "1234567890",
+				communityId: "1234567890",
 				createdAt: thisYearStart,
 				updatedAt: thisYearStart,
 			});
@@ -2278,12 +2359,12 @@ describe("Test Candy Commands", () => {
 			// 十分な数のキャンディを用意（天井に到達しない数）
 			const candyAmount = 50;
 			const insertData = Array.from({ length: candyAmount }, () => ({
-				receiveUserId: "1234",
+				userId: "1234",
 				giveUserId: "12345",
 				messageId: "5678",
 				expiredAt: "2999/12/31 23:59:59",
 				deletedAt: null,
-				guildId: "1234567890",
+				communityId: "1234567890",
 				categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
 			}));
 			await CandyRepositoryImpl.bulkCreate(insertData);
@@ -2329,7 +2410,7 @@ describe("Test Candy Commands", () => {
 				itemId: ID_JACKPOT,
 				candyId: 1,
 				expiredAt: "2999/12/31 23:59:59",
-				guildId: "1234567890",
+				communityId: "1234567890",
 				createdAt: lastYearEnd,
 				updatedAt: lastYearEnd,
 			});
@@ -2340,7 +2421,7 @@ describe("Test Candy Commands", () => {
 				itemId: ID_JACKPOT,
 				candyId: 2,
 				expiredAt: "2999/12/31 23:59:59",
-				guildId: "1234567890",
+				communityId: "1234567890",
 				createdAt: thisYearStart,
 				updatedAt: thisYearStart,
 			});
@@ -2356,14 +2437,14 @@ describe("Test Candy Commands", () => {
 				const date = new Date();
 				date.setDate(date.getDate() - (candyAmount - i));
 				insertData.push({
-					receiveUserId: "1234",
+					userId: "1234",
 					giveUserId: "12345",
 					messageId: String(10_000 + i),
 					expiredAt: "2999/12/31 23:59:59",
 					deletedAt: i < 146 ? date.toISOString() : null,
 					createdAt: date.toISOString(),
 					updatedAt: date.toISOString(),
-					guildId: "1234567890",
+					communityId: "1234567890",
 					categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
 				});
 			}
