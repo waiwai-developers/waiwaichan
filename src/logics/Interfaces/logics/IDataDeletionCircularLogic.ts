@@ -5,7 +5,5 @@ export interface IDataDeletionCircularLogic {
 	deleteRecordInRelatedTableCommunityId(
 		communityId: CommunityId,
 	): Promise<boolean>;
-	deleteRecordInRelatedTableUserId(
-		userId: UserId,
-	): Promise<boolean>;
+	deleteRecordInRelatedTableUserId(userId: UserId): Promise<boolean>;
 }

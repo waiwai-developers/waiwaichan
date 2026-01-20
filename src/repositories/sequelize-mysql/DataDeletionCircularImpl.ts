@@ -1,15 +1,13 @@
+import type { ColumnDto } from "@/src/entities/dto/Column";
 import type { IDataDeletionCircular } from "@/src/logics/Interfaces/repositories/database/IDataDeletionCircular";
 import { injectable } from "inversify";
 import type { Model, ModelStatic } from "sequelize";
 import { MysqlConnector } from "./MysqlConnector";
 import { MysqlSchedulerConnector } from "./MysqlSchedulerConnector";
-import type { ColumnDto } from "@/src/entities/dto/Column";
 
 @injectable()
 class DataDeletionCircularImpl implements IDataDeletionCircular {
-	async deleteRecordInRelatedTable(
-		data: ColumnDto
-	): Promise<boolean> {
+	async deleteRecordInRelatedTable(data: ColumnDto): Promise<boolean> {
 		try {
 			const columnName = data.columnName.getValue();
 			const columnId = data.columnId.getValue();

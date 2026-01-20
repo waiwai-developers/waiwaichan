@@ -1,9 +1,7 @@
 import type { UserId } from "@/src/entities/vo/UserId";
 
 export class ColumnUserDto {
-	readonly columnName: "user" = "user";
+	readonly columnName = "user" as const;
 
-	constructor(
-		public readonly userId: UserId,
-	) {}
+	constructor(public readonly userId: UserId) {}
 }

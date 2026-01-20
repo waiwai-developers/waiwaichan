@@ -1,28 +1,28 @@
-import { expect } from "chai";
-import { CommunityAndUserDeleteHandler } from "@/src/handlers/discord.js/events/CommunityAndUserDeleteHandler";
-import { schedulerContainer } from "@/src/scheduler.di.config";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
+import { ColumnDto } from "@/src/entities/dto/Column";
+import { ColumnId } from "@/src/entities/vo/ColumnId";
+import { ColumnName } from "@/src/entities/vo/ColumnName";
+import { CommunityBatchStatus } from "@/src/entities/vo/CommunityBatchStatus";
+import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
+import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
+import { CommunityId } from "@/src/entities/vo/CommunityId";
+import { UserBatchStatus } from "@/src/entities/vo/UserBatchStatus";
+import { UserClientId } from "@/src/entities/vo/UserClientId";
+import { UserCommunityId } from "@/src/entities/vo/UserCommunityId";
+import { UserId } from "@/src/entities/vo/UserId";
+import { CommunityAndUserDeleteHandler } from "@/src/handlers/discord.js/events/CommunityAndUserDeleteHandler";
+import type { DataDeletionCircularLogic } from "@/src/logics/DataDeletionCircularLogic";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { IUserLogic } from "@/src/logics/Interfaces/logics/IUserLogic";
-import { DataDeletionCircularLogic } from "@/src/logics/DataDeletionCircularLogic";
-import { CommunityId } from "@/src/entities/vo/CommunityId";
-import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
-import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
-import { UserCommunityId } from "@/src/entities/vo/UserCommunityId";
-import { UserClientId } from "@/src/entities/vo/UserClientId";
-import { UserId } from "@/src/entities/vo/UserId";
 import { CommunityRepositoryImpl } from "@/src/repositories/sequelize-mysql/CommunityRepositoryImpl";
-import { UserRepositoryImpl } from "@/src/repositories/sequelize-mysql/UserRepositoryImpl";
-import { CommunityBatchStatus } from "@/src/entities/vo/CommunityBatchStatus";
-import { UserBatchStatus } from "@/src/entities/vo/UserBatchStatus";
 import { DataDeletionCircularImpl } from "@/src/repositories/sequelize-mysql/DataDeletionCircularImpl";
-import { ColumnDto } from "@/src/entities/dto/Column";
-import { ColumnName } from "@/src/entities/vo/ColumnName";
-import { ColumnId } from "@/src/entities/vo/ColumnId";
 import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnector";
 import { MysqlSchedulerConnector } from "@/src/repositories/sequelize-mysql/MysqlSchedulerConnector";
+import { UserRepositoryImpl } from "@/src/repositories/sequelize-mysql/UserRepositoryImpl";
+import { schedulerContainer } from "@/src/scheduler.di.config";
+import { expect } from "chai";
 import { Op } from "sequelize";
-import { mock, instance, when, verify, anything } from "ts-mockito";
+import { anything, instance, mock, verify, when } from "ts-mockito";
 
 const createMembers = (ids: string[]) => {
 	const members = new Map<string, { user: { id: string } }>();
@@ -78,9 +78,7 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 			}
 			return originalGet(token);
 		};
-		when((communityLogicMock as any).getNotExistClientId(anything(), anything()) as any).thenReturn(
-			Promise.resolve([] as CommunityClientId[]),
-		);
+		when((communityLogicMock as any).getNotExistClientId(anything(), anything()) as any).thenReturn(Promise.resolve([] as CommunityClientId[]));
 		when((userLogicMock as any).findDeletionTargetsByBatchStatusAndDeletedAt()).thenResolve([] as any);
 		when((communityLogicMock as any).findDeletionTargetsByBatchStatusAndDeletedAt()).thenResolve([] as any);
 	});
@@ -98,17 +96,10 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 		 * - deleteNotBelongByCommunityIdAndClientIdsが呼ばれないことを検証
 		 */
 		it("Communityが存在しない場合は削除をスキップする", async () => {
-			(when((communityLogicMock as any).getId(anything())) as any).thenResolve(
-				undefined,
-			);
+			(when((communityLogicMock as any).getId(anything())) as any).thenResolve(undefined);
 			const client = createFakeClient([{ id: "100", memberIds: ["200"] }]);
 			await CommunityAndUserDeleteHandler(client as any);
-			verify(
-				(userLogicMock as any).deleteNotBelongByCommunityIdAndClientIds(
-					anything(),
-					anything(),
-				),
-			).never();
+			verify((userLogicMock as any).deleteNotBelongByCommunityIdAndClientIds(anything(), anything())).never();
 		});
 
 		/**
@@ -116,17 +107,10 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 		 * - deleteNotBelongByCommunityIdAndClientIdsが呼ばれないことを検証
 		 */
 		it("メンバー一覧が空の場合は削除をスキップする", async () => {
-			(when((communityLogicMock as any).getId(anything())) as any).thenResolve(
-				new CommunityId(1),
-			);
+			(when((communityLogicMock as any).getId(anything())) as any).thenResolve(new CommunityId(1));
 			const client = createFakeClient([{ id: "100", memberIds: [] }]);
 			await CommunityAndUserDeleteHandler(client as any);
-			verify(
-				(userLogicMock as any).deleteNotBelongByCommunityIdAndClientIds(
-					anything(),
-					anything(),
-				),
-			).never();
+			verify((userLogicMock as any).deleteNotBelongByCommunityIdAndClientIds(anything(), anything())).never();
 		});
 
 		/**
@@ -137,38 +121,21 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 			const communityId = new CommunityId(10);
 			let capturedCommunityId: UserCommunityId | null = null;
 			let capturedClientIds: UserClientId[] = [];
-			(when((communityLogicMock as any).getId(anything())) as any).thenResolve(
-				communityId,
+			(when((communityLogicMock as any).getId(anything())) as any).thenResolve(communityId);
+			(when((userLogicMock as any).deleteNotBelongByCommunityIdAndClientIds(anything(), anything())) as any).thenCall(
+				(cid: UserCommunityId, ids: UserClientId[]) => {
+					capturedCommunityId = cid;
+					capturedClientIds = ids;
+					return Promise.resolve(true);
+				},
 			);
-			(when(
-				(userLogicMock as any).deleteNotBelongByCommunityIdAndClientIds(
-					anything(),
-					anything(),
-				),
-			) as any).thenCall((cid: UserCommunityId, ids: UserClientId[]) => {
-				capturedCommunityId = cid;
-				capturedClientIds = ids;
-				return Promise.resolve(true);
-			});
 
-			const client = createFakeClient([
-				{ id: "100", memberIds: ["200", "201"] },
-			]);
+			const client = createFakeClient([{ id: "100", memberIds: ["200", "201"] }]);
 			await CommunityAndUserDeleteHandler(client as any);
 
-			expect((capturedCommunityId as UserCommunityId | null)?.getValue()).to.equal(
-				communityId.getValue(),
-			);
-			expect(capturedClientIds.map((c) => c.getValue())).to.deep.equal([
-				BigInt("200"),
-				BigInt("201"),
-			]);
-			verify(
-				(userLogicMock as any).deleteNotBelongByCommunityIdAndClientIds(
-					anything(),
-					anything(),
-				),
-			).once();
+			expect((capturedCommunityId as UserCommunityId | null)?.getValue()).to.equal(communityId.getValue());
+			expect(capturedClientIds.map((c) => c.getValue())).to.deep.equal([BigInt("200"), BigInt("201")]);
+			verify((userLogicMock as any).deleteNotBelongByCommunityIdAndClientIds(anything(), anything())).once();
 		});
 
 		/**
@@ -184,16 +151,10 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 			};
 
 			const repo = new UserRepositoryImpl();
-			await repo.deleteNotBelongByCommunityIdAndClientIds(
-				new UserCommunityId(12),
-				[new UserClientId(BigInt(99)), new UserClientId(BigInt(100))],
-			);
+			await repo.deleteNotBelongByCommunityIdAndClientIds(new UserCommunityId(12), [new UserClientId(BigInt(99)), new UserClientId(BigInt(100))]);
 
 			expect(receivedWhere.communityId).to.equal(12);
-			expect(receivedWhere.clientId[Op.notIn]).to.deep.equal([
-				BigInt(99),
-				BigInt(100),
-			]);
+			expect(receivedWhere.clientId[Op.notIn]).to.deep.equal([BigInt(99), BigInt(100)]);
 
 			(UserRepositoryImpl as any).destroy = originalDestroy;
 		});
@@ -209,12 +170,8 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 		 */
 		it("User削除→Community削除の順で実行される", async () => {
 			const callOrder: string[] = [];
-			(when(
-				(communityLogicMock as any).getNotExistClientId(anything(), anything()),
-			) as any).thenResolve([new CommunityClientId(BigInt("200"))]);
-			(when((communityLogicMock as any).getId(anything())) as any).thenResolve(
-				new CommunityId(30),
-			);
+			(when((communityLogicMock as any).getNotExistClientId(anything(), anything())) as any).thenResolve([new CommunityClientId(BigInt("200"))]);
+			(when((communityLogicMock as any).getId(anything())) as any).thenResolve(new CommunityId(30));
 			when((userLogicMock as any).deletebyCommunityId(anything())).thenCall(() => {
 				callOrder.push("deleteUsers");
 				return Promise.resolve(true);
@@ -235,12 +192,8 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 		 * - deletebyCommunityId / deleteが呼ばれないことを検証
 		 */
 		it("CommunityIdが取得できない場合は削除をスキップする", async () => {
-			(when(
-				(communityLogicMock as any).getNotExistClientId(anything(), anything()),
-			) as any).thenResolve([new CommunityClientId(BigInt("200"))]);
-			(when((communityLogicMock as any).getId(anything())) as any).thenResolve(
-				undefined,
-			);
+			(when((communityLogicMock as any).getNotExistClientId(anything(), anything())) as any).thenResolve([new CommunityClientId(BigInt("200"))]);
+			(when((communityLogicMock as any).getId(anything())) as any).thenResolve(undefined);
 
 			const client = createFakeClient([]);
 			await CommunityAndUserDeleteHandler(client as any);
@@ -261,17 +214,9 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 				return Promise.resolve([]);
 			};
 			const repo = new CommunityRepositoryImpl();
-			await repo.getNotExistClientId(CommunityCategoryType.Discord, [
-				new CommunityClientId(BigInt(1)),
-				new CommunityClientId(BigInt(2)),
-			]);
-			expect(receivedWhere.categoryType).to.equal(
-				CommunityCategoryType.Discord.getValue(),
-			);
-			expect(receivedWhere.clientId[Op.notIn]).to.deep.equal([
-				BigInt(1),
-				BigInt(2),
-			]);
+			await repo.getNotExistClientId(CommunityCategoryType.Discord, [new CommunityClientId(BigInt(1)), new CommunityClientId(BigInt(2))]);
+			expect(receivedWhere.categoryType).to.equal(CommunityCategoryType.Discord.getValue());
+			expect(receivedWhere.clientId[Op.notIn]).to.deep.equal([BigInt(1), BigInt(2)]);
 			(CommunityRepositoryImpl as any).findAll = originalFindAll;
 		});
 	});
@@ -311,9 +256,7 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 			};
 			const repo = new CommunityRepositoryImpl();
 			await repo.findDeletionTargetsByBatchStatusAndDeletedAt();
-			expect(receivedWhere.batchStatus).to.equal(
-				CommunityBatchStatus.Yet.getValue(),
-			);
+			expect(receivedWhere.batchStatus).to.equal(CommunityBatchStatus.Yet.getValue());
 			expect(receivedWhere.deletedAt[Op.not]).to.equal(null);
 			(CommunityRepositoryImpl as any).findAll = originalFindAll;
 		});
@@ -343,9 +286,7 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 			(MysqlSchedulerConnector as any).models = [];
 
 			const repo = new DataDeletionCircularImpl();
-			const result = await repo.deleteRecordInRelatedTable(
-				new ColumnDto(ColumnName.user, new ColumnId(1)),
-			);
+			const result = await repo.deleteRecordInRelatedTable(new ColumnDto(ColumnName.user, new ColumnId(1)));
 
 			expect(result).to.equal(true);
 			expect(destroyCalls.length).to.equal(1);
@@ -371,9 +312,7 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 			(MysqlSchedulerConnector as any).models = [];
 
 			const repo = new DataDeletionCircularImpl();
-			const result = await repo.deleteRecordInRelatedTable(
-				new ColumnDto(ColumnName.community, new ColumnId(2)),
-			);
+			const result = await repo.deleteRecordInRelatedTable(new ColumnDto(ColumnName.community, new ColumnId(2)));
 			expect(result).to.equal(true);
 
 			(MysqlConnector as any).models = originalConnectorModels;
@@ -404,9 +343,7 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 			};
 
 			const repo = new DataDeletionCircularImpl();
-			const result = await repo.deleteRecordInRelatedTable(
-				new ColumnDto(ColumnName.user, new ColumnId(3)),
-			);
+			const result = await repo.deleteRecordInRelatedTable(new ColumnDto(ColumnName.user, new ColumnId(3)));
 
 			expect(result).to.equal(false);
 			expect(capturedError).to.include("Error in deleteRecordInRelatedTable");
@@ -440,10 +377,7 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 			let communityUpdateOptions: any = null;
 			let userUpdateOptions: any = null;
 
-			(CommunityRepositoryImpl as any).update = (
-				values: any,
-				options: any,
-			) => {
+			(CommunityRepositoryImpl as any).update = (values: any, options: any) => {
 				communityUpdateOptions = options;
 				return Promise.resolve([1]);
 			};
@@ -458,13 +392,9 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 			await userRepo.updatebatchStatus(new UserId(2));
 
 			expect(communityUpdateOptions.paranoid).to.equal(false);
-			expect(communityUpdateOptions.where.batchStatus).to.equal(
-				CommunityBatchStatus.Yet.getValue(),
-			);
+			expect(communityUpdateOptions.where.batchStatus).to.equal(CommunityBatchStatus.Yet.getValue());
 			expect(userUpdateOptions.paranoid).to.equal(false);
-			expect(userUpdateOptions.where.batchStatus).to.equal(
-				UserBatchStatus.Yet.getValue(),
-			);
+			expect(userUpdateOptions.where.batchStatus).to.equal(UserBatchStatus.Yet.getValue());
 
 			(CommunityRepositoryImpl as any).update = originalCommunityUpdate;
 			(UserRepositoryImpl as any).update = originalUserUpdate;
