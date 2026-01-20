@@ -3,17 +3,13 @@ import { AppConfig } from "@/src/entities/config/AppConfig";
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import { CommunityAndUserDeleteHandler } from "@/src/handlers/discord.js/events/CommunityAndUserDeleteHandler";
 import { ReminderNotifyHandler } from "@/src/handlers/discord.js/events/ReminderNotifyHandler";
+import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 import type { MysqlSchedulerConnector } from "@/src/repositories/sequelize-mysql/MysqlSchedulerConnector";
+import { sequelizeNamespace } from "@/src/repositories/sequelize-mysql/SequelizeClsNamespace";
 import { schedulerContainer } from "@/src/scheduler.di.config";
-import { createNamespace } from "cls-hooked";
 import { Client, GatewayIntentBits } from "discord.js";
 import cron from "node-cron";
-import type { ILogger } from "./logics/Interfaces/repositories/logger/ILogger";
 
-// cls-hookedの名前空間を作成
-const namespace = createNamespace("sequelize-transaction-namespace");
-
-// データベース接続を初期化
 schedulerContainer.get<MysqlSchedulerConnector>(RepoTypes.DatabaseConnector);
 const logger = schedulerContainer.get<ILogger>(RepoTypes.Logger);
 
@@ -33,7 +29,7 @@ const runInNamespace = async (taskName: string, task: () => Promise<void>) => {
 		logger.info(`Running ${taskName} task`);
 
 		// cls-hooked名前空間内でタスクを実行
-		namespace.run(async () => {
+		sequelizeNamespace.run(async () => {
 			try {
 				await task();
 				logger.info(`${taskName} task completed`);
@@ -97,3 +93,8 @@ process.on("unhandledRejection", (reason) => {
 });
 
 logger.info("Scheduler initialized successfully");
+client.on("ready", (c: Client) => {
+	if (c.isReady()) {
+		logger.info(`login: ${c.user.tag}`);
+	}
+});

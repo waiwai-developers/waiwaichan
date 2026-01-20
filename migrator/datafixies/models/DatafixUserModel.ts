@@ -20,6 +20,8 @@ class DatafixUserModel extends Model {
 	@Column(DataType.BIGINT)
 	declare clientId: bigint;
 	@Column(DataType.INTEGER)
+	declare userType: number;
+	@Column(DataType.INTEGER)
 	declare communityId: number;
 	@Column(DataType.INTEGER)
 	declare batchStatus: number;

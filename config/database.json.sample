@@ -7,14 +7,6 @@
 		"port": 0,
 		"dialect": ""
 	},
-	"test": {
-		"username": "",
-		"password": "",
-		"database": "",
-		"host": "",
-		"port": 0,
-		"dialect": ""
-	},
 	"production": {
 		"username": "",
 		"password": "",
