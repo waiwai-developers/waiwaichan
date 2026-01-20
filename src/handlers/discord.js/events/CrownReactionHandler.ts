@@ -4,17 +4,25 @@ import {
 	LogicTypes,
 	RepoTypes,
 } from "@/src/entities/constants/DIContainerTypes";
+import { CommunityDto } from "@/src/entities/dto/CommunityDto";
+import { UserDto } from "@/src/entities/dto/UserDto";
+import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
+import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
 import { CrownMessage } from "@/src/entities/vo/CrownMessage";
 import { CrownMessageLink } from "@/src/entities/vo/CrownMessageLink";
-import { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
 import { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
-import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
+import { UserCategoryType } from "@/src/entities/vo/UserCategoryType";
+import { UserClientId } from "@/src/entities/vo/UserClientId";
+import { UserCommunityId } from "@/src/entities/vo/UserCommunityId";
+import { UserType } from "@/src/entities/vo/UserType";
 
 import type {
 	DiscordEventHandler,
 	ReactionInteraction,
 } from "@/src/handlers/discord.js/events/DiscordEventHandler";
+import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { ICrownLogic } from "@/src/logics/Interfaces/logics/ICrownLogic";
+import type { IUserLogic } from "@/src/logics/Interfaces/logics/IUserLogic";
 import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 import { TextChannel } from "discord.js";
 import { inject, injectable } from "inversify";
@@ -25,6 +33,12 @@ export class CrownReactionHandler
 {
 	@inject(LogicTypes.CrownLogic)
 	private crownLogic!: ICrownLogic;
+
+	@inject(LogicTypes.CommunityLogic)
+	private CommunityLogic!: ICommunityLogic;
+
+	@inject(LogicTypes.UserLogic)
+	private UserLogic!: IUserLogic;
 
 	@inject(RepoTypes.Logger)
 	private readonly logger!: ILogger;
@@ -77,9 +91,30 @@ export class CrownReactionHandler
 			return;
 		}
 
+		const communityId = await this.CommunityLogic.getId(
+			new CommunityDto(
+				CommunityCategoryType.Discord,
+				new CommunityClientId(BigInt(reaction.message.guildId))
+			)
+		)
+		if (communityId == null) {
+			return;
+		}
+
+		const userId = await this.UserLogic.getId(
+			new UserDto(
+				UserCategoryType.Discord,
+				new UserClientId(BigInt(reaction.message.author.id)),
+				UserType.user,
+				new UserCommunityId(communityId.getValue())
+			)
+		)
+		if (userId == null) {
+			return;
+		}
+
 		const res = await this.crownLogic.createCrownIfNotExists(
-			new DiscordGuildId(reaction.message.guildId),
-			new DiscordUserId(reaction.message.author.id),
+			communityId,
 			new DiscordMessageId(reaction.message.id),
 			new CrownMessage(reaction.message.content),
 			new CrownMessageLink(reaction.message.url),
@@ -96,6 +131,6 @@ export class CrownReactionHandler
 		if (!(channel instanceof TextChannel)) {
 			return;
 		}
-		await channel.send(res);
+		await channel.send(`<@${reaction.message.author.id}>さん${res}`);
 	}
 }
