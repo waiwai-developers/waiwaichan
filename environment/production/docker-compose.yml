@@ -1,60 +1,59 @@
+x-build: &build
+  context: ../../.
+  dockerfile: environment/production/Dockerfile
 x-base-service: &base-service
-  build:
-    context: ../../.
-    dockerfile: environment/production/Dockerfile
-  depends_on:
-    database:
-      condition: service_healthy
+  build: *build
   networks:
     - server-network
   environment:
-    GOOGLE_APPLICATION_CREDENTIALS: config/key.json
+    NODE_ENV: production
   volumes:
     - type: bind
       source: ../../config
       target: /app/config
 services:
-  backend:
-    <<: *base-service
-    container_name: waiwai-backend
-    restart: always
-    tty: true
-    volumes:
-      - type: bind
-        source: ../../config
-        target: /app/config
-      - type: volume
-        source: backend_node_modules
-        target: /app/node_modules
-    command: sh -c "npm i && pnpm run dev"
-  scheduler:
-    <<: *base-service
-    container_name: waiwai-scheduler
-    restart: "always"
-    volumes:
-      - type: bind
-        source: ../../config
-        target: /app/config
-      - type: volume
-        source: scheduler_node_modules
-        target: /app/node_modules
-    command: sh -c "npm i && pnpm run dev:scheduler"
   migrate:
     <<: *base-service
     container_name: waiwai-migrate
+    image: waiwai-app:production-migrate
     restart: "no"
-    volumes:
-      - type: bind
-        source: ../../config
-        target: /app/config
-      - type: volume
-        source: migrate_node_modules
-        target: /app/node_modules
-    command: sh -c "npm i && pnpm run migrate up && pnpm run seed up && pnpm run datafix up"
+    command: ["dist/migrator/migrator.js", "up"]
+  seed:
+    <<: *base-service
+    container_name: waiwai-seed
+    image: waiwai-app:production-seed
+    restart: "no"
+    command: ["dist/migrator/seeder.js", "up"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+  datafix:
+    <<: *base-service
+    container_name: waiwai-datafix
+    image: waiwai-app:production-datafix
+    restart: "no"
+    command: ["dist/migrator/datafixer.js", "up"]
+    depends_on:
+      seed:
+        condition: service_completed_successfully
+  backend:
+    <<: *base-service
+    container_name: waiwai-backend
+    image: waiwai-app:production-backend
+    restart: always
+    command: ["dist/src/app.js"]
+    depends_on:
+      datafix:
+        condition: service_completed_successfully
+  scheduler:
+    <<: *base-service
+    container_name: waiwai-scheduler
+    image: waiwai-app:production-scheduler
+    restart: always
+    command: ["dist/src/scheduler.js"]
+    depends_on:
+      datafix:
+        condition: service_completed_successfully
 networks:
   server-network:
     driver: bridge
-volumes:
-  backend_node_modules:
-  scheduler_node_modules:
-  migrate_node_modules:

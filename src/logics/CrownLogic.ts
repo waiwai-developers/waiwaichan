@@ -2,14 +2,14 @@ import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import { CrownDto } from "@/src/entities/dto/CrownDto";
 import type { CrownMessage } from "@/src/entities/vo/CrownMessage";
 import type { CrownMessageLink } from "@/src/entities/vo/CrownMessageLink";
-import type { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
 import type { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
-import type { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
 import type { ICrownLogic } from "@/src/logics/Interfaces/logics/ICrownLogic";
 import type { ICrownRepository } from "@/src/logics/Interfaces/repositories/database/ICrownRepository";
 import type { ITransaction } from "@/src/logics/Interfaces/repositories/database/ITransaction";
 import type { IMutex } from "@/src/logics/Interfaces/repositories/mutex/IMutex";
 import { inject, injectable } from "inversify";
+import { UserId } from "../entities/vo/UserId";
+import { CommunityId } from "../entities/vo/CommunityId";
 
 @injectable()
 export class CrownLogic implements ICrownLogic {
@@ -23,19 +23,17 @@ export class CrownLogic implements ICrownLogic {
 	private readonly mutex!: IMutex;
 
 	async createCrownIfNotExists(
-		guildId: DiscordGuildId,
-		userId: DiscordUserId,
+		communityId: CommunityId,
 		messageId: DiscordMessageId,
 		crownMessage: CrownMessage,
 		crownMessageLink: CrownMessageLink,
 	): Promise<string | undefined> {
-		return await this.find(new CrownDto(guildId, messageId)).then((c) => {
+		return await this.find(new CrownDto(communityId, messageId)).then((c) => {
 			if (c != null) {
 				return undefined;
 			}
 			return this.create(
-				guildId,
-				userId,
+				communityId,
 				messageId,
 				crownMessage,
 				crownMessageLink,
@@ -50,8 +48,7 @@ export class CrownLogic implements ICrownLogic {
 	}
 
 	private async create(
-		guildId: DiscordGuildId,
-		userId: DiscordUserId,
+		communityId: CommunityId,
 		messageId: DiscordMessageId,
 		crownMessage: CrownMessage,
 		crownMessageLink: CrownMessageLink,
@@ -59,14 +56,14 @@ export class CrownLogic implements ICrownLogic {
 		return this.transaction
 			.startTransaction(async () => {
 				return await this.crownRepository
-					.create(new CrownDto(guildId, messageId))
+					.create(new CrownDto(communityId, messageId))
 					.then((res) => {
 						if (!res) {
 							throw new Error("crown registration failed");
 						}
-						return `<@${userId.getValue()}>さんが殿堂入り 👑 したよ！っ\n- 投稿内容\n  - メッセージ: ${crownMessage.getValue()}\n  - リンク: ${crownMessageLink.getValue()}`;
+						return `が殿堂入り 👑 したよ！っ\n- 投稿内容\n  - メッセージ: ${crownMessage.getValue()}\n  - リンク: ${crownMessageLink.getValue()}`;
 					});
 			})
-			.catch((_err) => "クラウンを登録出来なかったよ！っ");
+			.catch((_err) => "にクラウンを登録出来なかったよ！っ");
 	}
 }

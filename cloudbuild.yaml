@@ -17,13 +17,13 @@ steps:
     args:
       - '-c'
       - |
-        gcloud compute ssh waiwaichan-server --zone=asia-northeast1-a --ssh-key-expire-after=10m --command="
+        gcloud compute ssh waiwaichan-server --force-key-file-overwrite --zone=asia-northeast1-a --ssh-key-expire-after=10m --command="
           cd /app/waiwaichan
           sudo docker compose -f ./environment/production/docker-compose.yml down
           git config --global --add safe.directory /app/waiwaichan
           sudo git pull origin main
-          sudo docker rm $(docker ps -aq)
-          sudo docker rmi $(docker images -q)
+          sudo docker rm $(sudo docker ps -aq)
+          sudo docker rmi $(sudo docker images -q)
           gcloud auth activate-service-account --key-file=config/key.json
           cat config/key.json | docker login -u _json_key --password-stdin asia-northeast1-docker.pkg.dev
           sudo docker pull asia-northeast1-docker.pkg.dev/waiwai-406106/waiwaichan/image:latest

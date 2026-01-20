@@ -1,4 +1,5 @@
 import { CommunityDto } from "@/src/entities/dto/CommunityDto";
+import type { DeletedCommunityTargetDto } from "@/src/entities/dto/DeletedCommunityTargetDto";
 import { CommunityBatchStatus } from "@/src/entities/vo/CommunityBatchStatus";
 import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
 import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
@@ -80,6 +81,24 @@ class CommunityRepositoryImpl extends Model implements ICommunityRepository {
 			paranoid: false,
 		}).then((res) =>
 			res.length > 0 ? res.map((r) => new CommunityId(r.id)) : [],
+		);
+	}
+
+	async findDeletionTargetsByBatchStatusAndDeletedAt(): Promise<
+		DeletedCommunityTargetDto[]
+	> {
+		return CommunityRepositoryImpl.findAll({
+			attributes: ["id", "clientId"],
+			where: {
+				batchStatus: CommunityBatchStatus.Yet.getValue(),
+				deletedAt: { [Op.not]: null },
+			},
+			paranoid: false,
+		}).then((res) =>
+			res.map((r) => ({
+				id: new CommunityId(r.id),
+				clientId: new CommunityClientId(r.clientId),
+			})),
 		);
 	}
 

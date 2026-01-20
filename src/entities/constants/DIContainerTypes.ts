@@ -8,31 +8,44 @@ export const RepoTypes = {
 	UserCandyItemRepository: Symbol.for("UserCandyItemRepository"),
 	ReminderRepository: Symbol.for("ReminderRepository"),
 	ThreadRepository: Symbol.for("ThreadRepository"),
+	PersonalityRepository: Symbol.for("PersonalityRepository"),
+	ContextRepository: Symbol.for("ContextRepository"),
+	PersonalityContextRepository: Symbol.for("PersonalityContextRepository"),
 	ChatAIRepository: Symbol.for("ChatAIRepository"),
 	TranslateRepository: Symbol.for("TranslateRepository"),
-	VMInstanceRepository: Symbol.for("VMInstanceRepository"),
 	PullRequestRepository: Symbol.for("PullRequestRepository"),
 	StickyRepository: Symbol.for("StickyRepository"),
 	CommunityRepository: Symbol.for("CommunityRepository"),
 	UserRepository: Symbol.for("UserRepository"),
 	DataDeletionCircular: Symbol.for("DataDeletionCircular"),
+	RoomAddChannelRepository: Symbol.for("RoomAddChannelRepository"),
+	RoomNotificationChannelRepository: Symbol.for(
+		"RoomNotificationChannelRepository",
+	),
+	RoomChannelRepository: Symbol.for("RoomChannelRepository"),
 	SequelizeModels: Symbol.for("SequelizeModels"),
 	Logger: Symbol.for("Logger"),
 };
 export const LogicTypes = {
 	ThreadLogic: Symbol.for("ThreadLogic"),
+	PersonalityLogic: Symbol.for("PersonalityLogic"),
+	ContextLogic: Symbol.for("ContextLogic"),
+	PersonalityContextLogic: Symbol.for("PersonalityContextLogic"),
 	ChatAILogic: Symbol.for("ChatAILogic"),
-	MinecraftServerLogic: Symbol.for("MinecraftServerLogic"),
 	CandyLogic: Symbol.for("CandyLogic"),
 	ReminderLogic: Symbol.for("ReminderLogic"),
 	PullRequestLogic: Symbol.for("PullRequestLogic"),
 	TranslatorLogic: Symbol.for("TranslateLogic"),
+	DiceLogic: Symbol.for("DiceLogic"),
 	StickyLogic: Symbol.for("StickyLogic"),
 	UtilityLogic: Symbol.for("UtilityLogic"),
 	CommunityLogic: Symbol.for("CommunityLogic"),
 	UserLogic: Symbol.for("UserLogic"),
 	CrownLogic: Symbol.for("CrownLogic"),
 	dataDeletionCircularLogic: Symbol.for("dataDeletionCircularLogic"),
+	RoomAddChannelLogic: Symbol.for("RoomAddChannelLogic"),
+	RoomNotificationChannelLogic: Symbol.for("RoomNotificationChannelLogic"),
+	RoomChannelLogic: Symbol.for("RoomChannelLogic"),
 };
 
 export const RouteTypes = {
@@ -44,6 +57,7 @@ export const RouteTypes = {
 	ActionRemoveBotRoute: Symbol.for("ActionRemoveBotRoute"),
 	ActionAddUserRoute: Symbol.for("ActionAddUserRoute"),
 	ActionRemoveUserRoute: Symbol.for("ActionRemoveUserRoute"),
+	VoiceChannelEventRoute: Symbol.for("VoiceChannelEventRoute"),
 };
 
 export const SchedulerRepoTypes = {
@@ -58,4 +72,5 @@ export const HandlerTypes = {
 	ActionRemoveBotHandler: Symbol.for("ActionRemoveBotHandler"),
 	ActionAddUserHandler: Symbol.for("ActionAddUserHandler"),
 	ActionRemoveUserHandler: Symbol.for("ActionRemoveUserHandler"),
+	VoiceChannelEventHandler: Symbol.for("VoiceChannelEventHandler"),
 };

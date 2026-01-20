@@ -7,12 +7,12 @@ const COLUMN_NAME = "categoryType";
 export const up: Migration = async ({ context: sequelize }) => {
 	await sequelize.getQueryInterface().changeColumn(TABLE_NAME, COLUMN_NAME, {
 		type: DataTypes.INTEGER,
-		allowNull: false
+		allowNull: false,
 	});
 };
 export const down: Migration = async ({ context: sequelize }) => {
 	await sequelize.getQueryInterface().changeColumn(TABLE_NAME, COLUMN_NAME, {
 		type: DataTypes.INTEGER,
-		allowNull: true
+		allowNull: true,
 	});
 };

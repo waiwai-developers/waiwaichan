@@ -1,5 +1,6 @@
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import type { CommunityDto } from "@/src/entities/dto/CommunityDto";
+import type { DeletedCommunityTargetDto } from "@/src/entities/dto/DeletedCommunityTargetDto";
 import type { CommunityId } from "@/src/entities/vo/CommunityId";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { ICommunityRepository } from "@/src/logics/Interfaces/repositories/database/ICommunityRepository";
@@ -49,6 +50,14 @@ export class CommunityLogic implements ICommunityLogic {
 	async findByBatchStatusAndDeletedAt(): Promise<CommunityId[]> {
 		return this.transaction.startTransaction(async () => {
 			return await this.CommunityRepository.findByBatchStatusAndDeletedAt();
+		});
+	}
+
+	async findDeletionTargetsByBatchStatusAndDeletedAt(): Promise<
+		DeletedCommunityTargetDto[]
+	> {
+		return this.transaction.startTransaction(async () => {
+			return await this.CommunityRepository.findDeletionTargetsByBatchStatusAndDeletedAt();
 		});
 	}
 
