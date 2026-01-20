@@ -13,8 +13,9 @@ export const up: Datafix = async () => {
 				},
 			},
 		);
-	} catch (error: any) {
-		console.error(`migration failed: ${error.message}`);
+	} catch (error) {
+		const message = error instanceof Error ? error.message : String(error);
+		console.error(`migration failed: ${message}`);
 		throw error;
 	}
 };
@@ -31,8 +32,9 @@ export const down: Datafix = async () => {
 				},
 			},
 		);
-	} catch (error: any) {
-		console.error(`migration failed: ${error.message}`);
+	} catch (error) {
+		const message = error instanceof Error ? error.message : String(error);
+		console.error(`migration failed: ${message}`);
 		throw error;
 	}
 };
