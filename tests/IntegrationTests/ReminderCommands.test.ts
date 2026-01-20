@@ -1,8 +1,8 @@
 import { clearInterval } from "node:timers";
 import { InternalErrorMessage } from "@/src/entities/DiscordErrorMessages";
 import { ReminderNotifyHandler } from "@/src/handlers/discord.js/events/ReminderNotifyHandler";
-import { ReminderRepositoryImpl } from "@/src/repositories/sequelize-mysql";
-import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnector";
+import { CommunityRepositoryImpl, ReminderRepositoryImpl, UserRepositoryImpl } from "@/src/repositories/sequelize-mysql";
+import { MysqlConnector } from "@/tests/fixtures/database/MysqlConnector";
 import { mockSlashCommand, waitUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { TestDiscordServer } from "@/tests/fixtures/discord.js/TestDiscordServer";
 import { expect } from "chai";
@@ -10,7 +10,57 @@ import dayjs from "dayjs";
 import { type Channel, type ChannelManager, type Client, type Collection, type Snowflake, TextChannel } from "discord.js";
 import { anything, instance, mock, verify, when } from "ts-mockito";
 
+// テスト用の定数
+const TEST_GUILD_ID = "9999"; // communityのclientId
+const TEST_USER_ID = "1234"; // userのclientId
+
+// Helper function to create community and user for tests
+async function createCommunityAndUser(): Promise<{
+	communityId: number;
+	userId: number;
+}> {
+	// Create community
+	const community = await CommunityRepositoryImpl.create({
+		categoryType: 0, // Discord
+		clientId: BigInt(TEST_GUILD_ID),
+		batchStatus: 0,
+	});
+
+	// Create user
+	const user = await UserRepositoryImpl.create({
+		categoryType: 0, // Discord
+		clientId: BigInt(TEST_USER_ID),
+		userType: 0, // user
+		communityId: community.id,
+		batchStatus: 0,
+	});
+
+	return {
+		communityId: community.id,
+		userId: user.id,
+	};
+}
+
 describe("Test Reminder Commands", () => {
+	// テスト用のコミュニティとユーザーのID（autoincrement）
+	let testCommunityId: number;
+	let testUserId: number;
+
+	/**
+	 * テスト実行前に毎回実行される共通のセットアップ
+	 */
+	beforeEach(async () => {
+		// Initialize database connection first
+		new MysqlConnector();
+		// Clean up existing records
+		await ReminderRepositoryImpl.destroy({ truncate: true, force: true });
+		await UserRepositoryImpl.destroy({ truncate: true, force: true });
+		await CommunityRepositoryImpl.destroy({ truncate: true, force: true });
+		// Create community and user for each test
+		const { communityId, userId } = await createCommunityAndUser();
+		testCommunityId = communityId;
+		testUserId = userId;
+	});
 	/**
 	 * ReminderSetCommandHandlerのテスト
 	 */
@@ -36,8 +86,8 @@ describe("Test Reminder Commands", () => {
 		expect(res.length).to.eq(1);
 
 		expect(res[0].id).to.eq(1);
-		expect(res[0].guildId).to.eq(9999);
-		expect(res[0].userId).to.eq(1234);
+		expect(res[0].communityId).to.eq(testCommunityId);
+		expect(res[0].userId).to.eq(testUserId);
 		expect(res[0].channelId).to.eq(5678);
 		expect(res[0].message).to.eq("test reminder");
 	});
@@ -142,19 +192,18 @@ describe("Test Reminder Commands", () => {
 	 * - ID、日時、メッセージが正しく表示されることを検証
 	 */
 	it("test /reminderlist when remind contain", async () => {
-		new MysqlConnector();
 		await ReminderRepositoryImpl.bulkCreate([
 			{
-				guildId: 9999,
-				userId: 1234,
+				communityId: testCommunityId,
+				userId: testUserId,
 				channelId: 5678,
 				receiveUserName: "username",
 				message: "reminderlist test 1",
 				remindAt: "2999/12/31 23:59:59",
 			},
 			{
-				guildId: 9999,
-				userId: 1234,
+				communityId: testCommunityId,
+				userId: testUserId,
 				channelId: 5678,
 				receiveUserName: "username",
 				message: "reminderlist test 2",
@@ -189,26 +238,25 @@ describe("Test Reminder Commands", () => {
 	 * - 他のリマインダーは削除されないことを検証
 	 */
 	it("test /reminderdelete when id exist", async () => {
-		new MysqlConnector();
 		const [forDeleteObj, forNotDeleteObjSameUserId, forNotDeleteObjDifferentUserId] = await ReminderRepositoryImpl.bulkCreate([
 			{
-				guildId: 9999,
-				userId: 1234,
+				communityId: testCommunityId,
+				userId: testUserId,
 				channelId: 5678,
 				receiveUserName: "username",
 				message: "reminderlist test 1",
 				remindAt: "2999/12/31 23:59:59",
 			},
 			{
-				guildId: 9999,
-				userId: 1234,
+				communityId: testCommunityId,
+				userId: testUserId,
 				channelId: 5678,
 				receiveUserName: "username",
 				message: "reminderlist test 2",
 				remindAt: "2999/12/31 23:59:59",
 			},
 			{
-				guildId: 9999,
+				communityId: testCommunityId,
 				userId: 9012,
 				channelId: 3456,
 				receiveUserName: "username",
@@ -247,27 +295,26 @@ describe("Test Reminder Commands", () => {
 	 * - リマインダーが削除されないことを検証
 	 */
 	it("test /reminderdelete when different user id", async () => {
-		new MysqlConnector();
 		const [inserted0, inserted1, inserted2] = await ReminderRepositoryImpl.bulkCreate([
 			{
-				guildId: 9999,
-				userId: 9012,
+				communityId: testCommunityId,
+				userId: 9012, // Different user - cannot delete
 				channelId: 5678,
 				receiveUserName: "username",
 				message: "reminderlist test 1",
 				remindAt: "2999/12/31 23:59:59",
 			},
 			{
-				guildId: 9999,
-				userId: 1234,
+				communityId: testCommunityId,
+				userId: testUserId,
 				channelId: 5678,
 				receiveUserName: "username",
 				message: "reminderlist test 2",
 				remindAt: "2999/12/31 23:59:59",
 			},
 			{
-				guildId: 9999,
-				userId: 9012,
+				communityId: testCommunityId,
+				userId: 9012, // Different user
 				channelId: 3456,
 				receiveUserName: "username",
 				message: "reminderlist test 3",
@@ -348,10 +395,9 @@ describe("Test Reminder Commands", () => {
 	 * - 未来のリマインダーは削除されないことを検証
 	 */
 	it("test reminder", async () => {
-		new MysqlConnector();
 		const [inserted0, inserted1, inserted2] = await ReminderRepositoryImpl.bulkCreate([
 			{
-				guildId: 9999,
+				communityId: testCommunityId,
 				userId: 9012,
 				channelId: 5678,
 				receiveUserName: "username",
@@ -359,15 +405,15 @@ describe("Test Reminder Commands", () => {
 				remindAt: dayjs().subtract(1, "second"),
 			},
 			{
-				guildId: 9999,
-				userId: 1234,
+				communityId: testCommunityId,
+				userId: testUserId,
 				channelId: 5678,
 				receiveUserName: "username",
 				message: "reminderlist test 2",
 				remindAt: "2999/12/31 23:59:59",
 			},
 			{
-				guildId: 9999,
+				communityId: testCommunityId,
 				userId: 9012,
 				channelId: 3456,
 				receiveUserName: "username",
@@ -463,10 +509,9 @@ describe("Test Reminder Commands", () => {
 	 * - トランザクションのロールバックが正しく行われることを検証
 	 */
 	it("test reminder on error", async () => {
-		new MysqlConnector();
 		const [inserted0, inserted1, inserted2] = await ReminderRepositoryImpl.bulkCreate([
 			{
-				guildId: 9999,
+				communityId: testCommunityId,
 				userId: 9012,
 				channelId: 5678,
 				receiveUserName: "username",
@@ -474,15 +519,15 @@ describe("Test Reminder Commands", () => {
 				remindAt: dayjs().subtract(1, "second"),
 			},
 			{
-				guildId: 9999,
-				userId: 1234,
+				communityId: testCommunityId,
+				userId: testUserId,
 				channelId: 5678,
 				receiveUserName: "username",
 				message: "reminderlist test 2",
 				remindAt: "2999/12/31 23:59:59",
 			},
 			{
-				guildId: 9999,
+				communityId: testCommunityId,
 				userId: 9012,
 				channelId: 3456,
 				receiveUserName: "username",
@@ -532,8 +577,15 @@ describe("Test Reminder Commands", () => {
 	});
 
 	afterEach(async () => {
-		new MysqlConnector();
 		await ReminderRepositoryImpl.destroy({
+			truncate: true,
+			force: true,
+		});
+		await UserRepositoryImpl.destroy({
+			truncate: true,
+			force: true,
+		});
+		await CommunityRepositoryImpl.destroy({
 			truncate: true,
 			force: true,
 		});
