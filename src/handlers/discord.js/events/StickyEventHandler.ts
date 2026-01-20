@@ -1,13 +1,11 @@
-import { AppConfig } from "@/src/entities/config/AppConfig";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
 import { CommunityDto } from "@/src/entities/dto/CommunityDto";
 import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
 import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
-import { CommunityId } from "@/src/entities/vo/CommunityId";
 import { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
 import { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
 import type { DiscordEventHandler } from "@/src/handlers/discord.js/events/DiscordEventHandler";
-import { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
+import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { IStickyLogic } from "@/src/logics/Interfaces/logics/IStickyLogic";
 import type { Message } from "discord.js";
 import { TextChannel } from "discord.js";

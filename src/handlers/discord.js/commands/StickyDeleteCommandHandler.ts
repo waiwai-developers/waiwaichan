@@ -5,7 +5,7 @@ import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
 import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
 import { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
-import { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
+import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { IStickyLogic } from "@/src/logics/Interfaces/logics/IStickyLogic";
 import type { CacheType, ChatInputCommandInteraction } from "discord.js";
 import { TextChannel } from "discord.js";
