@@ -13,9 +13,9 @@ import { ReceiveDiscordUserName } from "@/src/entities/vo/ReceiveDiscordUserName
 import { RemindTime } from "@/src/entities/vo/RemindTime";
 import { ReminderMessage } from "@/src/entities/vo/ReminderMessage";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
-import { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
+import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { IReminderLogic } from "@/src/logics/Interfaces/logics/IReminderLogic";
-import { IUserLogic } from "@/src/logics/Interfaces/logics/IUserLogic";
+import type { IUserLogic } from "@/src/logics/Interfaces/logics/IUserLogic";
 import dayjs from "dayjs";
 import type { CacheType, ChatInputCommandInteraction } from "discord.js";
 import { inject, injectable } from "inversify";
