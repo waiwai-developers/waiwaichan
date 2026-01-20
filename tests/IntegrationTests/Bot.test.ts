@@ -35,8 +35,7 @@ describe("Bot event integration tests", () => {
 	};
 
 	const createMemberCollection = (items: { id: string; user: { bot: boolean } }[]) => ({
-		map: (mapper: (member: { id: string; user: { bot: boolean } }) => any) =>
-			items.map(mapper),
+		map: (mapper: (member: { id: string; user: { bot: boolean } }) => any) => items.map(mapper),
 	});
 
 	/**
@@ -104,11 +103,7 @@ describe("Bot event integration tests", () => {
 			}
 			await (registeredCallback as (payload: any) => Promise<void>)(guild);
 
-			verify(
-				loggerMock.info(
-					`Bot is added to new server for guildIs: ${guild.id}.`,
-				),
-			).once();
+			verify(loggerMock.info(`Bot is added to new server for guildIs: ${guild.id}.`)).once();
 		});
 
 		/**
@@ -123,15 +118,11 @@ describe("Bot event integration tests", () => {
 			const userLogicMock = mock<IUserLogic>();
 			const communityId = new CommunityId(12);
 
-			(when(communityLogicMock.create(anything()) as any) as any).thenCall(
-				(dto: CommunityDto) => {
-					expect(dto.categoryType.getValue()).to.equal(
-						CommunityCategoryType.Discord.getValue(),
-					);
-					expect(dto.clientId.getValue()).to.equal(BigInt("200"));
-					return Promise.resolve(communityId);
-				},
-			);
+			(when(communityLogicMock.create(anything()) as any) as any).thenCall((dto: CommunityDto) => {
+				expect(dto.categoryType.getValue()).to.equal(CommunityCategoryType.Discord.getValue());
+				expect(dto.clientId.getValue()).to.equal(BigInt("200"));
+				return Promise.resolve(communityId);
+			});
 			when(userLogicMock.bulkCreate(anything() as any)).thenResolve(true);
 
 			(handler as any).logger = instance(loggerMock);
@@ -157,10 +148,7 @@ describe("Bot event integration tests", () => {
 			};
 			const result = await CommunityRepositoryImpl.prototype.create.call(
 				{} as CommunityRepositoryImpl,
-				new CommunityDto(
-					CommunityCategoryType.Discord,
-					new CommunityClientId(BigInt("300")),
-				),
+				new CommunityDto(CommunityCategoryType.Discord, new CommunityClientId(BigInt("300"))),
 			);
 
 			expect(result.getValue()).to.equal(99);
@@ -215,12 +203,10 @@ describe("Bot event integration tests", () => {
 			when(communityLogicMock.create(anything() as any)).thenResolve(communityId);
 
 			let receivedUsers: UserDto[] = [];
-			when(userLogicMock.bulkCreate(anything() as any)).thenCall(
-				(users: UserDto[]) => {
-					receivedUsers = users;
-					return Promise.resolve(true);
-				},
-			);
+			when(userLogicMock.bulkCreate(anything() as any)).thenCall((users: UserDto[]) => {
+				receivedUsers = users;
+				return Promise.resolve(true);
+			});
 
 			(handler as any).logger = instance(loggerMock);
 			(handler as any).CommunityLogic = instance(communityLogicMock);
@@ -240,10 +226,7 @@ describe("Bot event integration tests", () => {
 			await handler.handle(guild);
 
 			expect(receivedUsers).to.have.length(2);
-			expect(receivedUsers.map((u) => u.clientId.getValue())).to.deep.equal([
-				BigInt("10"),
-				BigInt("11"),
-			]);
+			expect(receivedUsers.map((u) => u.clientId.getValue())).to.deep.equal([BigInt("10"), BigInt("11")]);
 		});
 
 		/**
@@ -260,12 +243,10 @@ describe("Bot event integration tests", () => {
 
 			when(communityLogicMock.create(anything() as any)).thenResolve(communityId);
 			let receivedUsers: UserDto[] = [];
-			when(userLogicMock.bulkCreate(anything() as any)).thenCall(
-				(users: UserDto[]) => {
-					receivedUsers = users;
-					return Promise.resolve(true);
-				},
-			);
+			when(userLogicMock.bulkCreate(anything() as any)).thenCall((users: UserDto[]) => {
+				receivedUsers = users;
+				return Promise.resolve(true);
+			});
 
 			(handler as any).logger = instance(loggerMock);
 			(handler as any).CommunityLogic = instance(communityLogicMock);
@@ -284,12 +265,8 @@ describe("Bot event integration tests", () => {
 
 			await handler.handle(guild);
 
-			expect(receivedUsers[0]?.userType.getValue()).to.equal(
-				UserType.user.getValue(),
-			);
-			expect(receivedUsers[1]?.userType.getValue()).to.equal(
-				UserType.bot.getValue(),
-			);
+			expect(receivedUsers[0]?.userType.getValue()).to.equal(UserType.user.getValue());
+			expect(receivedUsers[1]?.userType.getValue()).to.equal(UserType.bot.getValue());
 		});
 
 		/**
@@ -331,31 +308,14 @@ describe("Bot event integration tests", () => {
 				return Promise.resolve(rows);
 			};
 
-			await UserRepositoryImpl.prototype.bulkCreate.call(
-				{} as UserRepositoryImpl,
-				[
-					new UserDto(
-						UserCategoryType.Discord,
-						new UserClientId(BigInt("40")),
-						UserType.user,
-						new UserCommunityId(communityId.getValue()),
-					),
-					new UserDto(
-						UserCategoryType.Discord,
-						new UserClientId(BigInt("41")),
-						UserType.bot,
-						new UserCommunityId(communityId.getValue()),
-					),
-				],
-			);
+			await UserRepositoryImpl.prototype.bulkCreate.call({} as UserRepositoryImpl, [
+				new UserDto(UserCategoryType.Discord, new UserClientId(BigInt("40")), UserType.user, new UserCommunityId(communityId.getValue())),
+				new UserDto(UserCategoryType.Discord, new UserClientId(BigInt("41")), UserType.bot, new UserCommunityId(communityId.getValue())),
+			]);
 
 			expect(receivedRows).to.have.length(2);
-			expect(receivedRows[0].batchStatus).to.equal(
-				UserBatchStatus.Yet.getValue(),
-			);
-			expect(receivedRows[1].batchStatus).to.equal(
-				UserBatchStatus.Yet.getValue(),
-			);
+			expect(receivedRows[0].batchStatus).to.equal(UserBatchStatus.Yet.getValue());
+			expect(receivedRows[1].batchStatus).to.equal(UserBatchStatus.Yet.getValue());
 
 			(UserRepositoryImpl as any).bulkCreate = originalBulkCreate;
 		});
@@ -427,9 +387,7 @@ describe("Bot event integration tests", () => {
 			const communityLogicMock = mock<ICommunityLogic>();
 			const userLogicMock = mock<IUserLogic>();
 
-			(when(communityLogicMock.getId(anything()) as any) as any).thenResolve(
-				undefined,
-			);
+			(when(communityLogicMock.getId(anything()) as any) as any).thenResolve(undefined);
 
 			(handler as any).logger = instance(loggerMock);
 			(handler as any).CommunityLogic = instance(communityLogicMock);
@@ -456,16 +414,12 @@ describe("Bot event integration tests", () => {
 			const userLogicMock = mock<IUserLogic>();
 			const communityId = new CommunityId(99);
 
-			(when(communityLogicMock.getId(anything()) as any) as any).thenResolve(
-				communityId,
-			);
+			(when(communityLogicMock.getId(anything()) as any) as any).thenResolve(communityId);
 			let receivedUsers: UserDto[] = [];
-			when(userLogicMock.bulkCreate(anything() as any)).thenCall(
-				(users: UserDto[]) => {
-					receivedUsers = users;
-					return Promise.resolve(true);
-				},
-			);
+			when(userLogicMock.bulkCreate(anything() as any)).thenCall((users: UserDto[]) => {
+				receivedUsers = users;
+				return Promise.resolve(true);
+			});
 
 			(handler as any).logger = instance(loggerMock);
 			(handler as any).CommunityLogic = instance(communityLogicMock);
@@ -492,16 +446,12 @@ describe("Bot event integration tests", () => {
 			const userLogicMock = mock<IUserLogic>();
 			const communityId = new CommunityId(77);
 
-			(when(communityLogicMock.getId(anything()) as any) as any).thenResolve(
-				communityId,
-			);
+			(when(communityLogicMock.getId(anything()) as any) as any).thenResolve(communityId);
 			let receivedUsers: UserDto[] = [];
-			when(userLogicMock.bulkCreate(anything() as any)).thenCall(
-				(users: UserDto[]) => {
-					receivedUsers = users;
-					return Promise.resolve(true);
-				},
-			);
+			when(userLogicMock.bulkCreate(anything() as any)).thenCall((users: UserDto[]) => {
+				receivedUsers = users;
+				return Promise.resolve(true);
+			});
 
 			(handler as any).logger = instance(loggerMock);
 			(handler as any).CommunityLogic = instance(communityLogicMock);
@@ -515,9 +465,7 @@ describe("Bot event integration tests", () => {
 			await handler.handle(member);
 
 			const user = receivedUsers[0];
-			expect(user.categoryType.getValue()).to.equal(
-				UserCategoryType.Discord.getValue(),
-			);
+			expect(user.categoryType.getValue()).to.equal(UserCategoryType.Discord.getValue());
 			expect(user.clientId.getValue()).to.equal(BigInt("2001"));
 			expect(user.communityId.getValue()).to.equal(communityId.getValue());
 		});
@@ -532,9 +480,7 @@ describe("Bot event integration tests", () => {
 			const userLogicMock = mock<IUserLogic>();
 			const communityId = new CommunityId(55);
 
-			(when(communityLogicMock.getId(anything()) as any) as any).thenResolve(
-				communityId,
-			);
+			(when(communityLogicMock.getId(anything()) as any) as any).thenResolve(communityId);
 			when(userLogicMock.bulkCreate(anything() as any)).thenResolve(false);
 
 			(handler as any).logger = instance(loggerMock);
@@ -595,9 +541,7 @@ describe("Bot event integration tests", () => {
 			const communityLogicMock = mock<ICommunityLogic>();
 			const userLogicMock = mock<IUserLogic>();
 
-			(when(communityLogicMock.getId(anything()) as any) as any).thenResolve(
-				undefined,
-			);
+			(when(communityLogicMock.getId(anything()) as any) as any).thenResolve(undefined);
 
 			(handler as any).logger = instance(loggerMock);
 			(handler as any).CommunityLogic = instance(communityLogicMock);
@@ -621,9 +565,7 @@ describe("Bot event integration tests", () => {
 			const communityId = new CommunityId(66);
 			const callOrder: string[] = [];
 
-			(when(communityLogicMock.getId(anything()) as any) as any).thenResolve(
-				communityId,
-			);
+			(when(communityLogicMock.getId(anything()) as any) as any).thenResolve(communityId);
 			when(communityLogicMock.delete(anything() as any)).thenCall(() => {
 				callOrder.push("communityDelete");
 				return Promise.resolve(true);
@@ -653,9 +595,7 @@ describe("Bot event integration tests", () => {
 			const userLogicMock = mock<IUserLogic>();
 			const communityId = new CommunityId(66);
 
-			(when(communityLogicMock.getId(anything()) as any) as any).thenResolve(
-				communityId,
-			);
+			(when(communityLogicMock.getId(anything()) as any) as any).thenResolve(communityId);
 			when(communityLogicMock.delete(anything() as any)).thenResolve(false);
 
 			(handler as any).logger = instance(loggerMock);
@@ -678,9 +618,7 @@ describe("Bot event integration tests", () => {
 			const communityLogicMock = mock<ICommunityLogic>();
 			const userLogicMock = mock<IUserLogic>();
 			const communityId = new CommunityId(77);
-			(when(communityLogicMock.getId(anything()) as any) as any).thenResolve(
-				communityId,
-			);
+			(when(communityLogicMock.getId(anything()) as any) as any).thenResolve(communityId);
 			when(communityLogicMock.delete(anything() as any)).thenResolve(true);
 			when(userLogicMock.deletebyCommunityId(anything() as any)).thenResolve(true);
 
@@ -700,10 +638,7 @@ describe("Bot event integration tests", () => {
 				return Promise.resolve(1);
 			};
 
-			await UserRepositoryImpl.prototype.deletebyCommunityId.call(
-				{} as UserRepositoryImpl,
-				new UserCommunityId(communityId.getValue()),
-			);
+			await UserRepositoryImpl.prototype.deletebyCommunityId.call({} as UserRepositoryImpl, new UserCommunityId(communityId.getValue()));
 			expect(receivedWhere).to.deep.equal({
 				communityId: communityId.getValue(),
 			});
@@ -722,9 +657,7 @@ describe("Bot event integration tests", () => {
 			const communityId = new CommunityId(45);
 			const callOrder: string[] = [];
 
-			(when(communityLogicMock.getId(anything()) as any) as any).thenResolve(
-				communityId,
-			);
+			(when(communityLogicMock.getId(anything()) as any) as any).thenResolve(communityId);
 			when(communityLogicMock.delete(anything() as any)).thenCall(() => {
 				callOrder.push("communityDelete");
 				return Promise.resolve(true);
@@ -812,9 +745,7 @@ describe("Bot event integration tests", () => {
 			const communityLogicMock = mock<ICommunityLogic>();
 			const userLogicMock = mock<IUserLogic>();
 
-			(when(communityLogicMock.getId(anything()) as any) as any).thenResolve(
-				undefined,
-			);
+			(when(communityLogicMock.getId(anything()) as any) as any).thenResolve(undefined);
 
 			(handler as any).logger = instance(loggerMock);
 			(handler as any).CommunityLogic = instance(communityLogicMock);
@@ -836,9 +767,7 @@ describe("Bot event integration tests", () => {
 			const userLogicMock = mock<IUserLogic>();
 			const communityId = new CommunityId(101);
 
-			(when(communityLogicMock.getId(anything()) as any) as any).thenResolve(
-				communityId,
-			);
+			(when(communityLogicMock.getId(anything()) as any) as any).thenResolve(communityId);
 			when(userLogicMock.deleteByCommunityIdAndClientId(anything() as any, anything() as any)).thenResolve(true);
 
 			(handler as any).logger = instance(loggerMock);
@@ -923,22 +852,10 @@ describe("Bot event integration tests", () => {
 				return Promise.resolve({ id: 1 });
 			};
 
-			const dto = new CommunityDto(
-				CommunityCategoryType.Discord,
-				new CommunityClientId(BigInt(777)),
-			);
-			await CommunityRepositoryImpl.prototype.create.call(
-				{} as CommunityRepositoryImpl,
-				dto,
-			);
-			await CommunityRepositoryImpl.prototype.delete.call(
-				{} as CommunityRepositoryImpl,
-				dto,
-			);
-			await CommunityRepositoryImpl.prototype.getId.call(
-				{} as CommunityRepositoryImpl,
-				dto,
-			);
+			const dto = new CommunityDto(CommunityCategoryType.Discord, new CommunityClientId(BigInt(777)));
+			await CommunityRepositoryImpl.prototype.create.call({} as CommunityRepositoryImpl, dto);
+			await CommunityRepositoryImpl.prototype.delete.call({} as CommunityRepositoryImpl, dto);
+			await CommunityRepositoryImpl.prototype.getId.call({} as CommunityRepositoryImpl, dto);
 
 			expect(deleteWhere).to.deep.equal({
 				categoryType: dto.categoryType.getValue(),
@@ -964,21 +881,11 @@ describe("Bot event integration tests", () => {
 				return Promise.resolve(rows);
 			};
 
-			await UserRepositoryImpl.prototype.bulkCreate.call(
-				{} as UserRepositoryImpl,
-				[
-					new UserDto(
-						UserCategoryType.Discord,
-						new UserClientId(BigInt(10)),
-						UserType.user,
-						new UserCommunityId(20),
-					),
-				],
-			);
+			await UserRepositoryImpl.prototype.bulkCreate.call({} as UserRepositoryImpl, [
+				new UserDto(UserCategoryType.Discord, new UserClientId(BigInt(10)), UserType.user, new UserCommunityId(20)),
+			]);
 
-			expect(receivedRows[0].batchStatus).to.equal(
-				UserBatchStatus.Yet.getValue(),
-			);
+			expect(receivedRows[0].batchStatus).to.equal(UserBatchStatus.Yet.getValue());
 			(UserRepositoryImpl as any).bulkCreate = originalBulkCreate;
 		});
 
@@ -1041,9 +948,7 @@ describe("Bot event integration tests", () => {
 			const handlerLogger = createLoggerMock();
 			const communityLogicMock = mock<ICommunityLogic>();
 			const userLogicMock = mock<IUserLogic>();
-			when(communityLogicMock.getId(anything() as any)).thenThrow(
-				new Error("handler error"),
-			);
+			when(communityLogicMock.getId(anything() as any)).thenThrow(new Error("handler error"));
 
 			(handler as any).logger = instance(handlerLogger);
 			(handler as any).CommunityLogic = instance(communityLogicMock);
@@ -1055,11 +960,7 @@ describe("Bot event integration tests", () => {
 			} as any;
 			await handler.handle(member);
 
-			verify(
-				handlerLogger.error(
-					`ActionAddUserHandler error: Error: handler error`,
-				),
-			).once();
+			verify(handlerLogger.error("ActionAddUserHandler error: Error: handler error")).once();
 		});
 
 		/**
@@ -1080,18 +981,9 @@ describe("Bot event integration tests", () => {
 				return Promise.resolve(1);
 			};
 
-			const dto = new CommunityDto(
-				CommunityCategoryType.Discord,
-				new CommunityClientId(BigInt(99)),
-			);
-			await CommunityRepositoryImpl.prototype.getId.call(
-				{} as CommunityRepositoryImpl,
-				dto,
-			);
-			await CommunityRepositoryImpl.prototype.delete.call(
-				{} as CommunityRepositoryImpl,
-				dto,
-			);
+			const dto = new CommunityDto(CommunityCategoryType.Discord, new CommunityClientId(BigInt(99)));
+			await CommunityRepositoryImpl.prototype.getId.call({} as CommunityRepositoryImpl, dto);
+			await CommunityRepositoryImpl.prototype.delete.call({} as CommunityRepositoryImpl, dto);
 
 			expect(findWhere).to.deep.equal({
 				categoryType: dto.categoryType.getValue(),
@@ -1136,17 +1028,13 @@ describe("Bot event integration tests", () => {
 				return Promise.resolve(1);
 			};
 
-			await UserRepositoryImpl.prototype.deleteNotBelongByCommunityIdAndClientIds.call(
-				{} as UserRepositoryImpl,
-				new UserCommunityId(9),
-				[new UserClientId(BigInt(10)), new UserClientId(BigInt(11))],
-			);
+			await UserRepositoryImpl.prototype.deleteNotBelongByCommunityIdAndClientIds.call({} as UserRepositoryImpl, new UserCommunityId(9), [
+				new UserClientId(BigInt(10)),
+				new UserClientId(BigInt(11)),
+			]);
 
 			expect(receivedWhere.communityId).to.equal(9);
-			expect(receivedWhere.clientId[Op.notIn]).to.deep.equal([
-				BigInt(10),
-				BigInt(11),
-			]);
+			expect(receivedWhere.clientId[Op.notIn]).to.deep.equal([BigInt(10), BigInt(11)]);
 
 			(UserRepositoryImpl as any).destroy = originalDestroy;
 		});
