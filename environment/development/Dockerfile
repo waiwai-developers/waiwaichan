@@ -1,9 +1,13 @@
-FROM node:22.5.1-alpine
+FROM node:24-bookworm-slim
+ENV NODE_ENV=development
 WORKDIR /app
-COPY . .
-RUN apk update && apk add mysql-client logrotate
-RUN npm i -g pnpm
-RUN pnpm install
-RUN cp environment/development/logrotate.conf /etc/logrotate.d/waiwaichan.conf
-RUN cp -f /etc/periodic/daily/logrotate /etc/periodic/15min
-CMD ["pnpm", "run", "dev"]
+RUN npm install -g corepack@latest && corepack enable \
+ && corepack prepare pnpm@latest --activate
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
+COPY tsconfig.json ./
+COPY src ./src
+COPY migrator ./migrator
+COPY config ./config
+RUN pnpm build
+CMD ["pnpm", "dev:backend"]

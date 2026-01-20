@@ -1,4 +1,5 @@
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
+import type { DeletedUserTargetDto } from "@/src/entities/dto/DeletedUserTargetDto";
 import type { UserDto } from "@/src/entities/dto/UserDto";
 import type { IUserLogic } from "@/src/logics/Interfaces/logics/IUserLogic";
 import type { ITransaction } from "@/src/logics/Interfaces/repositories/database/ITransaction";
@@ -74,6 +75,14 @@ export class UserLogic implements IUserLogic {
 	async findByBatchStatusAndDeletedAt(): Promise<UserId[]> {
 		return this.transaction.startTransaction(async () => {
 			return await this.UserRepository.findByBatchStatusAndDeletedAt();
+		});
+	}
+
+	async findDeletionTargetsByBatchStatusAndDeletedAt(): Promise<
+		DeletedUserTargetDto[]
+	> {
+		return this.transaction.startTransaction(async () => {
+			return await this.UserRepository.findDeletionTargetsByBatchStatusAndDeletedAt();
 		});
 	}
 

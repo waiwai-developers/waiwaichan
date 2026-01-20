@@ -7,6 +7,7 @@ import type { IStickyLogic } from "@/src/logics/Interfaces/logics/IStickyLogic";
 import type { IStickyRepository } from "@/src/logics/Interfaces/repositories/database/IStickyRepository";
 import type { ITransaction } from "@/src/logics/Interfaces/repositories/database/ITransaction";
 import { inject, injectable } from "inversify";
+import type { StickyMessage } from "../entities/vo/StickyMessage";
 
 @injectable()
 export class StickyLogic implements IStickyLogic {
@@ -32,6 +33,12 @@ export class StickyLogic implements IStickyLogic {
 		});
 	}
 
+	findByCommunityId(communityId: CommunityId): Promise<StickyDto[]> {
+		return this.transaction.startTransaction(async () => {
+			return await this.StickyRepository.findByCommunityId(communityId);
+		});
+	}
+
 	async delete(
 		communityId: CommunityId,
 		channelId: DiscordChannelId,
@@ -41,7 +48,8 @@ export class StickyLogic implements IStickyLogic {
 			return "スティッキーを削除したよ！っ";
 		});
 	}
-	async update(
+
+	async updateMessageId(
 		communityId: CommunityId,
 		channelId: DiscordChannelId,
 		messageId: DiscordMessageId,
@@ -52,6 +60,16 @@ export class StickyLogic implements IStickyLogic {
 				channelId,
 				messageId,
 			);
+			return "スティッキーを更新したよ！っ";
+		});
+	}
+	async updateMessage(
+		communityId: CommunityId,
+		channelId: DiscordChannelId,
+		message: StickyMessage,
+	): Promise<string> {
+		return this.transaction.startTransaction(async () => {
+			await this.StickyRepository.updateForMessage(communityId, channelId, message);
 			return "スティッキーを更新したよ！っ";
 		});
 	}

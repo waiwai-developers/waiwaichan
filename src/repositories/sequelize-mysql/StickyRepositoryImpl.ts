@@ -75,6 +75,21 @@ class StickyRepositoryImpl extends Model implements IStickyRepository {
 			.then((res) => !!res);
 	}
 
+	async updateForMessage(
+		guildId: DiscordGuildId,
+		channelId: DiscordChannelId,
+		message: StickyMessage,
+	): Promise<boolean> {
+		return StickyRepositoryImpl.findOne({
+			where: {
+				guildId: guildId.getValue(),
+				channelId: channelId.getValue(),
+			},
+		})
+			.then((res) => res?.update({ message: message.getValue() }))
+			.then((res) => !!res);
+	}
+
 	async findOne(
 		communityId: CommunityId,
 		channelId: DiscordChannelId,
@@ -85,6 +100,14 @@ class StickyRepositoryImpl extends Model implements IStickyRepository {
 				channelId: channelId.getValue(),
 			},
 		}).then((res) => (res ? res.toDto() : undefined));
+	}
+
+	async findByCommunityId(guildId: DiscordGuildId): Promise<StickyDto[]> {
+		return StickyRepositoryImpl.findAll({
+			where: {
+				guildId: guildId.getValue(),
+			},
+		}).then((res) => res.map((r) => r.toDto()));
 	}
 
 	toDto(): StickyDto {

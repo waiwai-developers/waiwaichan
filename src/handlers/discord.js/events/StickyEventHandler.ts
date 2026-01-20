@@ -22,8 +22,10 @@ export class StickyEventHandler implements DiscordEventHandler<Message> {
 	private readonly CommunityLogic!: ICommunityLogic;
 
 	async handle(message: Message) {
-		if (message.author.bot && message.author.id !== AppConfig.discord.clientId)
+		if (!message.guildId) {
 			return;
+		}
+		if (message.author.bot) return;
 		if (message.channel.isThread()) return;
 
 		if (!message.guildId) return;
@@ -45,7 +47,7 @@ export class StickyEventHandler implements DiscordEventHandler<Message> {
 		const channel = message.guild?.channels.cache.get(
 			sticky.channelId.getValue(),
 		);
-		if (channel === undefined) return;
+		if (channel == null) return;
 		if (!(channel instanceof TextChannel)) return;
 
 		const stickyOldMessage = await channel.messages.fetch(
@@ -67,8 +69,8 @@ export class StickyEventHandler implements DiscordEventHandler<Message> {
 		)
 		if (newCommunityId == null) return;
 
-		await this.stickyLogic.update(
-			newCommunityId,
+		await this.stickyLogic.updateMessageId(
+			communityId,
 			new DiscordChannelId(stickyNewMessage.channelId),
 			new DiscordMessageId(stickyNewMessage.id),
 		);

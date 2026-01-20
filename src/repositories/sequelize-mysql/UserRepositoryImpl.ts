@@ -1,9 +1,11 @@
+import type { DeletedUserTargetDto } from "@/src/entities/dto/DeletedUserTargetDto";
 import { UserDto } from "@/src/entities/dto/UserDto";
 import { UserBatchStatus } from "@/src/entities/vo/UserBatchStatus";
 import { UserCategoryType } from "@/src/entities/vo/UserCategoryType";
 import { UserClientId } from "@/src/entities/vo/UserClientId";
 import { UserCommunityId } from "@/src/entities/vo/UserCommunityId";
 import { UserId } from "@/src/entities/vo/UserId";
+import { UserType } from "@/src/entities/vo/UserType";
 import type { IUserRepository } from "@/src/logics/Interfaces/repositories/database/IUserRepository";
 import { injectable } from "inversify";
 import { Op } from "sequelize";
@@ -32,6 +34,8 @@ class UserRepositoryImpl extends Model implements IUserRepository {
 	@Column(DataType.BIGINT)
 	declare clientId: bigint;
 	@Column(DataType.INTEGER)
+	declare userType: number;
+	@Column(DataType.INTEGER)
 	declare communityId: number;
 	@Column(DataType.INTEGER)
 	declare batchStatus: number;
@@ -41,6 +45,7 @@ class UserRepositoryImpl extends Model implements IUserRepository {
 			data.map((d) => ({
 				categoryType: d.categoryType.getValue(),
 				clientId: d.clientId.getValue(),
+				userType: d.userType.getValue(),
 				communityId: d.communityId.getValue(),
 				batchStatus: UserBatchStatus.Yet.getValue(),
 			})),
@@ -84,6 +89,7 @@ class UserRepositoryImpl extends Model implements IUserRepository {
 			where: {
 				categoryType: data.categoryType.getValue(),
 				clientId: data.clientId.getValue(),
+				userType: data.userType.getValue(),
 				communityId: data.communityId.getValue(),
 			},
 		}).then((res) => (res ? new UserId(res.id) : undefined));
@@ -97,6 +103,24 @@ class UserRepositoryImpl extends Model implements IUserRepository {
 			},
 			paranoid: false,
 		}).then((res) => (res.length > 0 ? res.map((r) => new UserId(r.id)) : []));
+	}
+
+	async findDeletionTargetsByBatchStatusAndDeletedAt(): Promise<
+		DeletedUserTargetDto[]
+	> {
+		return UserRepositoryImpl.findAll({
+			attributes: ["id", "clientId"],
+			where: {
+				batchStatus: UserBatchStatus.Yet.getValue(),
+				deletedAt: { [Op.not]: null },
+			},
+			paranoid: false,
+		}).then((res) =>
+			res.map((r) => ({
+				id: new UserId(r.id),
+				clientId: new UserClientId(r.clientId),
+			})),
+		);
 	}
 
 	async updatebatchStatus(id: UserId): Promise<boolean> {
@@ -118,6 +142,7 @@ class UserRepositoryImpl extends Model implements IUserRepository {
 		return new UserDto(
 			new UserCategoryType(this.categoryType),
 			new UserClientId(this.clientId),
+			new UserType(this.userType),
 			new UserCommunityId(this.communityId),
 		);
 	}

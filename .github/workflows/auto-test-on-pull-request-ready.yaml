@@ -1,0 +1,49 @@
+name: auto test on pull request ready
+on:
+  pull_request:
+    types:
+      - opened
+      - ready_for_review
+      - reopened
+jobs:
+  auto-test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v4
+      - name: set up docker buildx
+        uses: docker/setup-buildx-action@v3
+      - name: copy config files for testing
+        run: |
+          cp .envtest .env
+          cp config/accountstest.json config/accounts.json
+          cp config/configtest.json config/config.json
+          cp config/databasetest.json config/database.json
+          cp config/roletest.json config/role.json
+      - name: docker compose up
+        run: |
+          docker compose \
+            -f environment/testing/docker-compose.yml \
+            up -d --wait --build
+      - name: run test into backend container
+        run: |
+          docker compose \
+            -f environment/testing/docker-compose.yml \
+            exec -T backend sh -c "pnpm test"
+      - name: show logs on failure
+        if: failure()
+        run: |
+          echo "=== All container logs ==="
+          docker compose \
+            -f environment/testing/docker-compose.yml \
+            logs --no-color
+          echo "=== Migrate container logs ==="
+          docker logs waiwai-migrate 2>&1 || true
+      - name: docker compose down
+        if: always()
+        run: |
+          docker compose \
+            -f environment/testing/docker-compose.yml \
+            down -v

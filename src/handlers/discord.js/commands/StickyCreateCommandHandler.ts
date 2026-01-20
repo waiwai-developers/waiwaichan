@@ -11,11 +11,13 @@ import { StickyMessage } from "@/src/entities/vo/StickyMessage";
 import { UserCategoryType } from "@/src/entities/vo/UserCategoryType";
 import { UserClientId } from "@/src/entities/vo/UserClientId";
 import { UserCommunityId } from "@/src/entities/vo/UserCommunityId";
+import { UserType } from "@/src/entities/vo/UserType";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
 import { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { IStickyLogic } from "@/src/logics/Interfaces/logics/IStickyLogic";
 import { IUserLogic } from "@/src/logics/Interfaces/logics/IUserLogic";
 import type { CacheType, ChatInputCommandInteraction } from "discord.js";
+
 import {
 	ActionRowBuilder,
 	ModalBuilder,
@@ -43,9 +45,13 @@ export class StickyCreateCommandHandler implements SlashCommandHandler {
 	async handle(
 		interaction: ChatInputCommandInteraction<CacheType>,
 	): Promise<void> {
+		if (!interaction.guildId) {
+			return;
+		}
 		if (interaction.channel == null) {
 			return;
 		}
+		// NOTE: todo CommunityとUserの追加を行ったあとにrbacを実現する
 		if (
 			RoleConfig.users.find((u) => u.discordId === interaction.user.id)
 				?.role !== "admin"
@@ -71,6 +77,7 @@ export class StickyCreateCommandHandler implements SlashCommandHandler {
 			new UserDto(
 				UserCategoryType.Discord,
 				new UserClientId(BigInt(interaction.user.id)),
+				UserType.user,
 				new UserCommunityId(communityId.getValue())
 			)
 		)
@@ -114,9 +121,12 @@ export class StickyCreateCommandHandler implements SlashCommandHandler {
 		await interaction
 			.awaitModalSubmit({ time: 60000 })
 			.then(async (t) => {
+				if (!interaction.guildId) {
+					return;
+				}
 				const modalInputText = t.fields.getTextInputValue("stickyInput");
 				if (!modalInputText) {
-					t.reply("スティッキーに登録するメッセージがないよ！っ");
+					await t.reply("スティッキーに登録するメッセージがないよ！っ");
 					return;
 				}
 				const message = await channel.send(modalInputText);
@@ -124,6 +134,7 @@ export class StickyCreateCommandHandler implements SlashCommandHandler {
 					await t.reply("スティッキーの投稿に失敗したよ！っ");
 					return;
 				}
+
 				await t.reply(
 					await this.stickyLogic.create(
 						new StickyDto(

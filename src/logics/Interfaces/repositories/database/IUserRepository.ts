@@ -1,3 +1,4 @@
+import type { DeletedUserTargetDto } from "@/src/entities/dto/DeletedUserTargetDto";
 import type { UserDto } from "@/src/entities/dto/UserDto";
 import type { UserClientId } from "@/src/entities/vo/UserClientId";
 import type { UserCommunityId } from "@/src/entities/vo/UserCommunityId";
@@ -16,5 +17,8 @@ export interface IUserRepository {
 	): Promise<boolean>;
 	getId(data: UserDto): Promise<UserId | undefined>;
 	findByBatchStatusAndDeletedAt(): Promise<UserId[]>;
+	findDeletionTargetsByBatchStatusAndDeletedAt(): Promise<
+		DeletedUserTargetDto[]
+	>;
 	updatebatchStatus(id: UserId): Promise<boolean>;
 }

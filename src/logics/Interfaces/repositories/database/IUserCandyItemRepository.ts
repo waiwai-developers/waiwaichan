@@ -2,24 +2,28 @@ import type { UserCandyItemDto } from "@/src/entities/dto/UserCandyItemDto";
 import type { UserCandyItemWithItemGroupByDto } from "@/src/entities/dto/UserCandyItemWithItemGroupByDto";
 import type { CandyId } from "@/src/entities/vo/CandyId";
 import type { CandyItemId } from "@/src/entities/vo/CandyItemId";
-import type { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
-import type { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
+import type { CommunityId } from "@/src/entities/vo/CommunityId";
 import type { UserCandyItemCount } from "@/src/entities/vo/UserCandyItemCount";
 import type { UserCandyItemId } from "@/src/entities/vo/UserCandyItemId";
+import type { UserId } from "@/src/entities/vo/UserId";
 
 export interface IUserCandyItemRepository {
 	bulkCreate(data: UserCandyItemDto[]): Promise<UserCandyItemId[]>;
 	findByNotUsed(
-		guildId: DiscordGuildId,
-		userId: DiscordUserId,
+		communityId: CommunityId,
+		userId: UserId,
 	): Promise<UserCandyItemWithItemGroupByDto[]>;
 	lastJackpodCandyId(
-		guildId: DiscordGuildId,
-		userId: DiscordUserId,
+		communityId: CommunityId,
+		userId: UserId,
 	): Promise<CandyId | undefined>;
+	hasJackpotInCurrentYear(
+		communityId: CommunityId,
+		userId: UserId,
+	): Promise<boolean>;
 	exchangeByTypeAndAmount(
-		guildId: DiscordGuildId,
-		userId: DiscordUserId,
+		communityId: CommunityId,
+		userId: UserId,
 		type: CandyItemId,
 		amount: UserCandyItemCount,
 	): Promise<number>;
