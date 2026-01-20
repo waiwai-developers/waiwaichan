@@ -1,17 +1,25 @@
 import { RoleConfig } from "@/src/entities/config/RoleConfig";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
-import { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
-import { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
+import { CommunityDto } from "@/src/entities/dto/CommunityDto";
+import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
+import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
+import { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
+import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { IStickyLogic } from "@/src/logics/Interfaces/logics/IStickyLogic";
 import type { CacheType, ChatInputCommandInteraction } from "discord.js";
 import { TextChannel } from "discord.js";
+
+
 import { inject, injectable } from "inversify";
 
 @injectable()
 export class StickyDeleteCommandHandler implements SlashCommandHandler {
 	@inject(LogicTypes.StickyLogic)
 	private stickyLogic!: IStickyLogic;
+
+	@inject(LogicTypes.CommunityLogic)
+	private CommunityLogic!: ICommunityLogic;
 	isHandle(commandName: string): boolean {
 		return commandName === "stickydelete";
 	}
@@ -34,9 +42,23 @@ export class StickyDeleteCommandHandler implements SlashCommandHandler {
 			return;
 		}
 
+		if (!interaction.guildId) {
+			return;
+		}
+
+		const communityId = await this.CommunityLogic.getId(
+			new CommunityDto(
+				CommunityCategoryType.Discord,
+				new CommunityClientId(BigInt(interaction.guildId))
+			)
+		)
+		if (communityId == null) {
+			return;
+		}
+
 		const sticky = await this.stickyLogic.find(
-			new DiscordGuildId(interaction.guildId),
-			new DiscordMessageId(interaction.options.getString("channelid", true)),
+			communityId,
+			new DiscordChannelId(interaction.options.getString("channelid", true)),
 		);
 		if (sticky === undefined) {
 			await interaction.reply("スティッキーが登録されていなかったよ！っ");
@@ -66,8 +88,8 @@ export class StickyDeleteCommandHandler implements SlashCommandHandler {
 		await interaction.deferReply();
 		await interaction.editReply(
 			await this.stickyLogic.delete(
-				new DiscordGuildId(interaction.guildId),
-				new DiscordMessageId(interaction.options.getString("channelid", true)),
+				communityId,
+				new DiscordChannelId(interaction.options.getString("channelid", true)),
 			),
 		);
 	}

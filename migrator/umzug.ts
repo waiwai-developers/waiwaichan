@@ -17,6 +17,7 @@ import {
 import { Sequelize } from "sequelize-typescript";
 import { SequelizeStorage, Umzug } from "umzug";
 import type { MigrationParams } from "umzug/lib/types";
+import { DatafixStickyModel } from "./datafixies/models/DatafixStickyModel";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -145,6 +146,7 @@ export const datafixer = (
 				DatafixReminderModel,
 				DatafixCommunityModel,
 				DatafixUserModel,
+				DatafixStickyModel,
 				DatafixCrownModel,
 				DatafixPersonalityModel,
 				DatafixContextModel,
