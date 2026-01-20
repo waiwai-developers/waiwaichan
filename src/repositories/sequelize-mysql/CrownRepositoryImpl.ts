@@ -4,6 +4,7 @@ import { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
 import type { ICrownRepository } from "@/src/logics/Interfaces/repositories/database/ICrownRepository";
 import { injectable } from "inversify";
 import {
+	AllowNull,
 	Column,
 	DataType,
 	Model,
@@ -18,10 +19,12 @@ import {
 })
 class CrownRepositoryImpl extends Model implements ICrownRepository {
 	@PrimaryKey
-	@Column(DataType.STRING)
+	@AllowNull(false)
+	@Column(DataType.INTEGER)
 	declare communityId: number;
 	@PrimaryKey
-	@Column(DataType.STRING)
+	@AllowNull(false)
+	@Column(DataType.BIGINT)
 	declare messageId: string;
 
 	async findOne(data: CrownDto): Promise<CrownDto | undefined> {

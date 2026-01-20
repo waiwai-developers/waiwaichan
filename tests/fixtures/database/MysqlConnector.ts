@@ -2,6 +2,8 @@ import { DatabaseConfig } from "@/src/entities/config/DatabaseConfig";
 import type { IDataBaseConnector } from "@/src/logics/Interfaces/repositories/database/IDataBaseConnector";
 import { CandyItemRepositoryImpl } from "@/src/repositories/sequelize-mysql/CandyItemRepositoryImpl";
 import { CandyRepositoryImpl } from "@/src/repositories/sequelize-mysql/CandyRepositoryImpl";
+import { CommunityRepositoryImpl } from "@/src/repositories/sequelize-mysql/CommunityRepositoryImpl";
+import { CrownRepositoryImpl } from "@/src/repositories/sequelize-mysql/CrownRepositoryImpl";
 import { ReminderRepositoryImpl } from "@/src/repositories/sequelize-mysql/ReminderRepositoryImpl";
 import { RoomAddChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/RoomAddChannelRepositoryImpl";
 import { RoomChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/RoomChannelRepositoryImpl";
@@ -10,6 +12,7 @@ import { SequelizeLogger } from "@/src/repositories/sequelize-mysql/SequelizeLog
 import { StickyRepositoryImpl } from "@/src/repositories/sequelize-mysql/StickyRepositoryImpl";
 import { ThreadRepositoryImpl } from "@/src/repositories/sequelize-mysql/ThreadRepositoryImpl";
 import { UserCandyItemRepositoryImpl } from "@/src/repositories/sequelize-mysql/UserCandyItemRepositoryImpl";
+import { UserRepositoryImpl } from "@/src/repositories/sequelize-mysql/UserRepositoryImpl";
 import type { Dialect } from "sequelize";
 import { Sequelize } from "sequelize-typescript";
 
@@ -26,10 +29,13 @@ export class MysqlConnector implements IDataBaseConnector<Sequelize, "mysql"> {
 			models: [
 				CandyRepositoryImpl,
 				CandyItemRepositoryImpl,
+				CrownRepositoryImpl,
 				UserCandyItemRepositoryImpl,
 				ReminderRepositoryImpl,
 				ThreadRepositoryImpl,
 				StickyRepositoryImpl,
+				CommunityRepositoryImpl,
+				UserRepositoryImpl,
 				RoomAddChannelRepositoryImpl,
 				RoomChannelRepositoryImpl,
 				RoomNotificationChannelRepositoryImpl,
