@@ -8,6 +8,7 @@ import { GithubPullRequestTitle } from "@/src/entities/vo/GithubPullRequestTitle
 import { GithubPullRequestUrl } from "@/src/entities/vo/GithubPullRequestUrl";
 import { GithubPullRequestStatus } from "@/src/entities/vo/GtihubPullRequestStatus";
 import type { IPullRequestRepository } from "@/src/logics/Interfaces/repositories/githubapi/IPullRequestRepository";
+import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 import { App } from "@octokit/app";
 import { Octokit } from "@octokit/core";
 import { inject, injectable, postConstruct } from "inversify";

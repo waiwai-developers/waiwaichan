@@ -9,6 +9,7 @@ const Logger = pino({
 				target: "pino/file",
 				options: {
 					destination: "logs/waiwaichan.log",
+					mkdir: true,
 				},
 			},
 			{

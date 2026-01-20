@@ -1,15 +1,15 @@
 {
 	"discord": {
 		"token": "",
-		"clientId": ""
+		"clientId": "",
+		"guildId": ""
 	},
 	"deepl": {
 		"deeplApiKey": ""
 	},
 	"openai": {
 		"openaiApiKey": "",
-		"gptModel": "",
-		"gptPrompt": ""
+		"gptModel": ""
 	},
 	"github": {
 		"appId": "",

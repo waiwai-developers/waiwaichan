@@ -128,6 +128,7 @@ declare giveUserId: number;
 			where: {
 				communityId: communityId.getValue(),
 				userId: userId.getValue(),
+				expiredAt: { [Op.gt]: dayjs().toDate() },
 			},
 			limit: candyCount.getValue(),
 		}).then((cs) => {

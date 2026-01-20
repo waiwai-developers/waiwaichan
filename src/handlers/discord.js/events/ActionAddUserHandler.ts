@@ -8,6 +8,7 @@ import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
 import { UserCategoryType } from "@/src/entities/vo/UserCategoryType";
 import { UserClientId } from "@/src/entities/vo/UserClientId";
 import { UserCommunityId } from "@/src/entities/vo/UserCommunityId";
+import { UserType } from "@/src/entities/vo/UserType";
 import type { DiscordEventHandler } from "@/src/handlers/discord.js/events/DiscordEventHandler";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { IUserLogic } from "@/src/logics/Interfaces/logics/IUserLogic";
@@ -48,6 +49,7 @@ export class ActionAddUserHandler implements DiscordEventHandler<GuildMember> {
 				new UserDto(
 					UserCategoryType.Discord,
 					new UserClientId(BigInt(member.id)),
+					UserType.user,
 					new UserCommunityId(communityId.getValue()),
 				),
 			]);

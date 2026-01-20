@@ -124,6 +124,21 @@ class UserCandyItemRepositoryImpl
 		}).then((i) => (i ? new CandyId(i.candyId) : undefined));
 	}
 
+	async hasJackpotInCurrentYear(
+		guildId: DiscordGuildId,
+		userId: DiscordUserId,
+	): Promise<boolean> {
+		return UserCandyItemRepositoryImpl.findOne({
+			attributes: ["id"],
+			where: {
+				guildId: guildId.getValue(),
+				userId: userId.getValue(),
+				itemId: ID_JACKPOT,
+				createdAt: { [Op.gte]: dayjs().startOf("year").toDate() },
+			},
+		}).then((i) => i !== null);
+	}
+
 	/**
 	 *
 	 * @param userId the Discord user id that created with Vo

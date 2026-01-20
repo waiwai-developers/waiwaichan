@@ -1,9 +1,12 @@
-import * as fs from "node:fs";
 import { AppConfig } from "@/src/entities/config/AppConfig";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
-import { MAX_REPLY_CHARACTERS } from "@/src/entities/constants/Discord";
+import {
+	Thread_Exclude_Prefix,
+	Thread_Fetch_Nom,
+} from "@/src/entities/constants/Thread";
 import { ChatAIMessageDto } from "@/src/entities/dto/ChatAIMessageDto";
 import { ChatAIContent } from "@/src/entities/vo/ChatAIContent";
+import { ChatAIPrompt } from "@/src/entities/vo/ChatAIPrompt";
 import { ChatAIRole } from "@/src/entities/vo/ChatAIRole";
 import { ThreadCategoryType } from "@/src/entities/vo/ThreadCategoryType";
 import { ThreadGuildId } from "@/src/entities/vo/ThreadGuildId";
@@ -25,22 +28,23 @@ export class AIReplyHandler implements DiscordEventHandler<Message> {
 		if (message.author.bot) return;
 		if (!message.channel.isThread()) return;
 		if (!(message.channel.ownerId === AppConfig.discord.clientId)) return;
+		if (message.content.charAt(0) === Thread_Exclude_Prefix) return;
+
+		const thread = await this.threadLogic.find(
+			new ThreadGuildId(message.channel.guildId),
+			new ThreadMessageId(message.channel.id),
+		);
 		if (
-			(
-				await this.threadLogic.find(
-					new ThreadGuildId(message.channel.guildId),
-					new ThreadMessageId(message.channel.id),
-				)
-			)?.categoryType.getValue() !==
+			thread?.categoryType.getValue() !==
 			ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue()
 		)
 			return;
 
-		message.channel.sendTyping();
+		await message.channel.sendTyping();
 
-		const chatAIContext = await message.channel.messages
+		const chatAIContexts = await message.channel.messages
 			.fetch({
-				limit: 11,
+				limit: Thread_Fetch_Nom,
 			})
 			.then((messages) =>
 				messages
@@ -51,17 +55,39 @@ export class AIReplyHandler implements DiscordEventHandler<Message> {
 								message.author.bot ? ChatAIRole.ASSISTANT : ChatAIRole.USER,
 								new ChatAIContent(message.content),
 							),
+					)
+					.filter(
+						(message) =>
+							message.content.getValue().charAt(0) !== Thread_Exclude_Prefix,
 					),
 			);
 
-		const results = await this.chatAILogic
-			.replyTalk(chatAIContext)
-			.then(DiscordTextPresenter);
+		try {
+			const results = await this.chatAILogic
+				.replyTalk(new ChatAIPrompt(thread.metadata.getValue()), chatAIContexts)
+				.then(DiscordTextPresenter);
 
-		await Promise.all(
-			results.map(async (t) => {
-				await message.reply(t);
-			}),
-		);
+			await Promise.all(
+				results.map(async (t) => {
+					try {
+						await message.reply(t);
+					} catch (error) {
+						// メッセージ送信エラーを捕捉して処理を続行
+						console.error("メッセージ送信エラー:", error);
+					}
+				}),
+			);
+		} catch (error) {
+			// ChatAI応答生成エラーを捕捉して処理を続行
+			console.error("ChatAI応答生成エラー:", error);
+			try {
+				await message.reply(
+					"ごめんね！っ、応答の生成中にエラーが発生したよ！！っ。",
+				);
+			} catch (replyError) {
+				// エラーメッセージの送信に失敗した場合も処理を続行
+				console.error("エラーメッセージ送信エラー:", replyError);
+			}
+		}
 	}
 }
