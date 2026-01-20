@@ -3,6 +3,7 @@ import type { IDataBaseConnector } from "@/src/logics/Interfaces/repositories/da
 import { CandyItemRepositoryImpl } from "@/src/repositories/sequelize-mysql/CandyItemRepositoryImpl";
 import { CandyRepositoryImpl } from "@/src/repositories/sequelize-mysql/CandyRepositoryImpl";
 import { CommunityRepositoryImpl } from "@/src/repositories/sequelize-mysql/CommunityRepositoryImpl";
+import { CrownRepositoryImpl } from "@/src/repositories/sequelize-mysql/CrownRepositoryImpl";
 import { ReminderRepositoryImpl } from "@/src/repositories/sequelize-mysql/ReminderRepositoryImpl";
 import { RoomAddChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/RoomAddChannelRepositoryImpl";
 import { RoomChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/RoomChannelRepositoryImpl";
@@ -30,10 +31,13 @@ export class MysqlConnector implements IDataBaseConnector<Sequelize, "mysql"> {
 				UserRepositoryImpl,
 				CandyRepositoryImpl,
 				CandyItemRepositoryImpl,
+				CrownRepositoryImpl,
 				UserCandyItemRepositoryImpl,
 				ReminderRepositoryImpl,
 				ThreadRepositoryImpl,
 				StickyRepositoryImpl,
+				CommunityRepositoryImpl,
+				UserRepositoryImpl,
 				RoomAddChannelRepositoryImpl,
 				RoomChannelRepositoryImpl,
 				RoomNotificationChannelRepositoryImpl,

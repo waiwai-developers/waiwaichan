@@ -9,6 +9,7 @@ import { DatafixReminderModel } from "@/migrator/datafixies/models/DatafixRemind
 import { DatafixThreadModel } from "@/migrator/datafixies/models/DatafixThreadModel";
 import { DatafixUserItemModel } from "@/migrator/datafixies/models/DatafixUserItemModel";
 import { DatafixUserModel } from "@/migrator/datafixies/models/DatafixUserModel";
+import { DatafixCrownModel } from "@/migrator/datafixies/models/DatafixCrownModel";
 import {
 	type DatabaseConfigType,
 	GetEnvDatabaseConfig,
@@ -144,6 +145,7 @@ export const datafixer = (
 				DatafixReminderModel,
 				DatafixCommunityModel,
 				DatafixUserModel,
+				DatafixCrownModel,
 				DatafixPersonalityModel,
 				DatafixContextModel,
 				DatafixPersonalityContextModel,
