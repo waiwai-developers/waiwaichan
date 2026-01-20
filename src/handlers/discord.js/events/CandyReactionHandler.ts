@@ -18,8 +18,8 @@ import type {
 	ReactionInteraction,
 } from "@/src/handlers/discord.js/events/DiscordEventHandler";
 import type { ICandyLogic } from "@/src/logics/Interfaces/logics/ICandyLogic";
-import { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
-import { IUserLogic } from "@/src/logics/Interfaces/logics/IUserLogic";
+import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
+import type { IUserLogic } from "@/src/logics/Interfaces/logics/IUserLogic";
 import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 import { TextChannel } from "discord.js";
 import { inject, injectable } from "inversify";
@@ -90,9 +90,9 @@ export class CandyReactionHandler
 		const communityId = await this.CommunityLogic.getId(
 			new CommunityDto(
 				CommunityCategoryType.Discord,
-				new CommunityClientId(BigInt(reaction.message.guildId))
-			)
-		)
+				new CommunityClientId(BigInt(reaction.message.guildId)),
+			),
+		);
 		if (communityId == null) {
 			return;
 		}
@@ -101,9 +101,9 @@ export class CandyReactionHandler
 			new UserDto(
 				UserCategoryType.Discord,
 				new UserClientId(BigInt(reaction.message.author.id)),
-				new UserCommunityId(communityId.getValue())
-			)
-		)
+				new UserCommunityId(communityId.getValue()),
+			),
+		);
 		if (receiverUserId == null) {
 			return;
 		}
@@ -112,9 +112,9 @@ export class CandyReactionHandler
 			new UserDto(
 				UserCategoryType.Discord,
 				new UserClientId(BigInt(user.id)),
-				new UserCommunityId(communityId.getValue())
-			)
-		)
+				new UserCommunityId(communityId.getValue()),
+			),
+		);
 		if (giveUserId == null) {
 			return;
 		}
@@ -137,6 +137,8 @@ export class CandyReactionHandler
 		if (!(channel instanceof TextChannel)) {
 			return;
 		}
-		await channel.send(`<@${reaction.message.author.id}>さんが<@${user.id}>さんに${res}`);
+		await channel.send(
+			`<@${reaction.message.author.id}>さんが<@${user.id}>さんに${res}`,
+		);
 	}
 }

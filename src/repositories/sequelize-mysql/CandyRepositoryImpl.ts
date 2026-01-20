@@ -4,8 +4,8 @@ import { CandyCount } from "@/src/entities/vo/CandyCount";
 import type { CandyCreatedAt } from "@/src/entities/vo/CandyCreatedAt";
 import { CandyExpire } from "@/src/entities/vo/CandyExpire";
 import { CandyId } from "@/src/entities/vo/CandyId";
-import type { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
 import { CommunityId } from "@/src/entities/vo/CommunityId";
+import type { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
 import { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
 import { UserId } from "@/src/entities/vo/UserId";
 import type { ICandyRepository } from "@/src/logics/Interfaces/repositories/database/ICandyRepository";
@@ -32,12 +32,12 @@ class CandyRepositoryImpl extends Model implements ICandyRepository {
 	@AutoIncrement
 	@Column(DataType.INTEGER)
 	declare id: number;
-@Column(DataType.INTEGER)
-declare communityId: number;
-@Column(DataType.BIGINT)
-declare userId: number;
-@Column(DataType.BIGINT)
-declare giveUserId: number;
+	@Column(DataType.INTEGER)
+	declare communityId: number;
+	@Column(DataType.BIGINT)
+	declare userId: number;
+	@Column(DataType.BIGINT)
+	declare giveUserId: number;
 	@Column(DataType.STRING)
 	declare messageId: string;
 	@Column(DataType.INTEGER)

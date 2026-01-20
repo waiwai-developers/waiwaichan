@@ -4,8 +4,8 @@ import type { CandyItemId } from "@/src/entities/vo/CandyItemId";
 import type { CommunityId } from "@/src/entities/vo/CommunityId";
 import type { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
 import type { DiscordMessageLink } from "@/src/entities/vo/DiscordMessageLink";
-import type { UserId } from "@/src/entities/vo/UserId";
 import type { UserCandyItemCount } from "@/src/entities/vo/UserCandyItemCount";
+import type { UserId } from "@/src/entities/vo/UserId";
 
 export interface ICandyLogic {
 	check(communityId: CommunityId, userId: UserId): Promise<string>;

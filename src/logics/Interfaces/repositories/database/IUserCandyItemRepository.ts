@@ -3,9 +3,9 @@ import type { UserCandyItemWithItemGroupByDto } from "@/src/entities/dto/UserCan
 import type { CandyId } from "@/src/entities/vo/CandyId";
 import type { CandyItemId } from "@/src/entities/vo/CandyItemId";
 import type { CommunityId } from "@/src/entities/vo/CommunityId";
-import type { UserId } from "@/src/entities/vo/UserId";
 import type { UserCandyItemCount } from "@/src/entities/vo/UserCandyItemCount";
 import type { UserCandyItemId } from "@/src/entities/vo/UserCandyItemId";
+import type { UserId } from "@/src/entities/vo/UserId";
 
 export interface IUserCandyItemRepository {
 	bulkCreate(data: UserCandyItemDto[]): Promise<UserCandyItemId[]>;

@@ -1,8 +1,8 @@
 import type { CandyCategoryType } from "@/src/entities/vo/CandyCategoryType";
 import type { CandyExpire } from "@/src/entities/vo/CandyExpire";
 import type { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
-import { CommunityId } from "../vo/CommunityId";
-import { UserId } from "../vo/UserId";
+import type { CommunityId } from "../vo/CommunityId";
+import type { UserId } from "../vo/UserId";
 
 export class CandyDto {
 	constructor(

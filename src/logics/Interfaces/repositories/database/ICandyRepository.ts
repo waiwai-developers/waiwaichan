@@ -4,17 +4,14 @@ import type { CandyCount } from "@/src/entities/vo/CandyCount";
 import type { CandyCreatedAt } from "@/src/entities/vo/CandyCreatedAt";
 import type { CandyExpire } from "@/src/entities/vo/CandyExpire";
 import type { CandyId } from "@/src/entities/vo/CandyId";
-import type { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
 import type { CommunityId } from "@/src/entities/vo/CommunityId";
+import type { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
 import type { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
 import type { UserId } from "@/src/entities/vo/UserId";
 
 export interface ICandyRepository {
 	bulkCreateCandy(data: CandyDto[]): Promise<boolean>;
-	candyCount(
-		communityId: CommunityId,
-		userId: UserId,
-	): Promise<CandyCount>;
+	candyCount(communityId: CommunityId, userId: UserId): Promise<CandyCount>;
 	candyExpire(
 		communityId: CommunityId,
 		userId: UserId,

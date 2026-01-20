@@ -25,10 +25,10 @@ import { CandyItemId } from "@/src/entities/vo/CandyItemId";
 import type { CommunityId } from "@/src/entities/vo/CommunityId";
 import type { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
 import type { DiscordMessageLink } from "@/src/entities/vo/DiscordMessageLink";
-import type { UserId } from "@/src/entities/vo/UserId";
 import type { UserCandyItemCount } from "@/src/entities/vo/UserCandyItemCount";
 import { UserCandyItemExpire } from "@/src/entities/vo/UserCandyItemExpire";
 import { UserCandyItemId } from "@/src/entities/vo/UserCandyItemId";
+import type { UserId } from "@/src/entities/vo/UserId";
 import type { ICandyLogic } from "@/src/logics/Interfaces/logics/ICandyLogic";
 import type { ICandyItemRepository } from "@/src/logics/Interfaces/repositories/database/ICandyItemRepository";
 import type { ICandyRepository } from "@/src/logics/Interfaces/repositories/database/ICandyRepository";
@@ -241,10 +241,7 @@ export class CandyLogic implements ICandyLogic {
 			.catch((_err: Error) => "キャンディの数が足りないよ！っ");
 	}
 
-	async getItems(
-		communityId: CommunityId,
-		userId: UserId,
-	): Promise<string> {
+	async getItems(communityId: CommunityId, userId: UserId): Promise<string> {
 		return this.transaction.startTransaction(async () => {
 			const userCandyItems = await this.userCandyItemRepository.findByNotUsed(
 				communityId,

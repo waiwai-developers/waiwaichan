@@ -9,8 +9,8 @@ import { UserClientId } from "@/src/entities/vo/UserClientId";
 import { UserCommunityId } from "@/src/entities/vo/UserCommunityId";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
 import type { ICandyLogic } from "@/src/logics/Interfaces/logics/ICandyLogic";
-import { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
-import { IUserLogic } from "@/src/logics/Interfaces/logics/IUserLogic";
+import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
+import type { IUserLogic } from "@/src/logics/Interfaces/logics/IUserLogic";
 import type { CacheType, ChatInputCommandInteraction } from "discord.js";
 import { inject, injectable } from "inversify";
 
@@ -23,8 +23,7 @@ export class CandyDrawCommandHandler implements SlashCommandHandler {
 	private CommunityLogic!: ICommunityLogic;
 
 	@inject(LogicTypes.UserLogic)
-	private UserLogic!: IUserLogic
-	;
+	private UserLogic!: IUserLogic;
 
 	isHandle(commandName: string): boolean {
 		return commandName === "candydraw";
@@ -40,9 +39,9 @@ export class CandyDrawCommandHandler implements SlashCommandHandler {
 		const communityId = await this.CommunityLogic.getId(
 			new CommunityDto(
 				CommunityCategoryType.Discord,
-				new CommunityClientId(BigInt(interaction.guildId))
-			)
-		)
+				new CommunityClientId(BigInt(interaction.guildId)),
+			),
+		);
 		if (communityId == null) {
 			return;
 		}
@@ -51,19 +50,15 @@ export class CandyDrawCommandHandler implements SlashCommandHandler {
 			new UserDto(
 				UserCategoryType.Discord,
 				new UserClientId(BigInt(interaction.user.id)),
-				new UserCommunityId(communityId.getValue())
-			)
-		)
+				new UserCommunityId(communityId.getValue()),
+			),
+		);
 		if (userId == null) {
 			return;
 		}
 
 		await interaction.reply(
-			await this.candyLogic.drawItems(
-				communityId,
-				userId,
-				new CandyCount(1),
-			),
+			await this.candyLogic.drawItems(communityId, userId, new CandyCount(1)),
 		);
 	}
 }
