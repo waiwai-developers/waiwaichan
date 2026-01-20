@@ -125,13 +125,13 @@ class UserCandyItemRepositoryImpl
 	}
 
 	async hasJackpotInCurrentYear(
-		guildId: DiscordGuildId,
-		userId: DiscordUserId,
+		communityId: CommunityId,
+		userId: UserId,
 	): Promise<boolean> {
 		return UserCandyItemRepositoryImpl.findOne({
 			attributes: ["id"],
 			where: {
-				guildId: guildId.getValue(),
+				communityId: communityId.getValue(),
 				userId: userId.getValue(),
 				itemId: ID_JACKPOT,
 				createdAt: { [Op.gte]: dayjs().startOf("year").toDate() },

@@ -13,6 +13,7 @@ import { DiscordMessageLink } from "@/src/entities/vo/DiscordMessageLink";
 import { UserCategoryType } from "@/src/entities/vo/UserCategoryType";
 import { UserClientId } from "@/src/entities/vo/UserClientId";
 import { UserCommunityId } from "@/src/entities/vo/UserCommunityId";
+import { UserType } from "@/src/entities/vo/UserType";
 import type {
 	DiscordEventHandler,
 	ReactionInteraction,
@@ -101,6 +102,7 @@ export class CandyReactionHandler
 			new UserDto(
 				UserCategoryType.Discord,
 				new UserClientId(BigInt(reaction.message.author.id)),
+				UserType.user,
 				new UserCommunityId(communityId.getValue()),
 			),
 		);
@@ -112,6 +114,7 @@ export class CandyReactionHandler
 			new UserDto(
 				UserCategoryType.Discord,
 				new UserClientId(BigInt(user.id)),
+				UserType.user,
 				new UserCommunityId(communityId.getValue()),
 			),
 		);

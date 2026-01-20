@@ -5,11 +5,10 @@ import { UserDto } from "@/src/entities/dto/UserDto";
 import { CandyCount } from "@/src/entities/vo/CandyCount";
 import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
 import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
-import { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
-import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
 import { UserCategoryType } from "@/src/entities/vo/UserCategoryType";
 import { UserClientId } from "@/src/entities/vo/UserClientId";
 import { UserCommunityId } from "@/src/entities/vo/UserCommunityId";
+import { UserType } from "@/src/entities/vo/UserType";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
 import type { ICandyLogic } from "@/src/logics/Interfaces/logics/ICandyLogic";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
@@ -53,6 +52,7 @@ export class CandyBoxDrawCommandHandler implements SlashCommandHandler {
 			new UserDto(
 				UserCategoryType.Discord,
 				new UserClientId(BigInt(interaction.user.id)),
+				UserType.user,
 				new UserCommunityId(communityId.getValue()),
 			),
 		);

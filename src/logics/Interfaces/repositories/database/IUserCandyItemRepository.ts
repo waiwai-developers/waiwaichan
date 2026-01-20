@@ -18,8 +18,8 @@ export interface IUserCandyItemRepository {
 		userId: UserId,
 	): Promise<CandyId | undefined>;
 	hasJackpotInCurrentYear(
-		guildId: DiscordGuildId,
-		userId: DiscordUserId,
+		communityId: CommunityId,
+		userId: UserId,
 	): Promise<boolean>;
 	exchangeByTypeAndAmount(
 		communityId: CommunityId,

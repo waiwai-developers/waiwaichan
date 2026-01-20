@@ -8,6 +8,7 @@ import { UserCandyItemCount } from "@/src/entities/vo/UserCandyItemCount";
 import { UserCategoryType } from "@/src/entities/vo/UserCategoryType";
 import { UserClientId } from "@/src/entities/vo/UserClientId";
 import { UserCommunityId } from "@/src/entities/vo/UserCommunityId";
+import { UserType } from "@/src/entities/vo/UserType";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
 import type { ICandyLogic } from "@/src/logics/Interfaces/logics/ICandyLogic";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
@@ -50,6 +51,7 @@ export class CandyExchangeCommandHandler implements SlashCommandHandler {
 			new UserDto(
 				UserCategoryType.Discord,
 				new UserClientId(BigInt(interaction.user.id)),
+				UserType.user,
 				new UserCommunityId(communityId.getValue()),
 			),
 		);
