@@ -34,7 +34,7 @@ class ChannelRepositoryImpl extends Model implements IChannelRepository {
 	@Column(DataType.BIGINT)
 	declare clientId: bigint;
 	@Column(DataType.INTEGER)
-	declare ChannelType: number;
+	declare channelType: number;
 	@Column(DataType.INTEGER)
 	declare communityId: number;
 	@Column(DataType.INTEGER)
@@ -144,7 +144,7 @@ class ChannelRepositoryImpl extends Model implements IChannelRepository {
 		return new ChannelDto(
 			new ChannelCategoryType(this.categoryType),
 			new ChannelClientId(this.clientId),
-			new ChannelType(this.ChannelType),
+			new ChannelType(this.channelType),
 			new ChannelCommunityId(this.communityId),
 		);
 	}
