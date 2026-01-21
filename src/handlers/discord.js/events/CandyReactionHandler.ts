@@ -141,7 +141,7 @@ export class CandyReactionHandler
 			return;
 		}
 		await channel.send(
-			`<@${reaction.message.author.id}>さんが<@${user.id}>さんに${res}`,
+			`<@${user.id}$>さんが<@${reaction.message.author.id}>さんに${res}`,
 		);
 	}
 }
