@@ -35,7 +35,6 @@ export class ReminderListCommandHandler implements SlashCommandHandler {
 		if (!interaction.guildId) {
 			return;
 		}
-
 		const communityId = await this.CommunityLogic.getId(
 			new CommunityDto(
 				CommunityCategoryType.Discord,
