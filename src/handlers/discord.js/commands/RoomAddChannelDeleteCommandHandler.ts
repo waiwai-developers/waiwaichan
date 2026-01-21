@@ -44,8 +44,8 @@ export class RoomAddChannelDeleteCommandHandler implements SlashCommandHandler {
 		const communityId = await this.CommunityLogic.getId(
 			new CommunityDto(
 				CommunityCategoryType.Discord,
-				new CommunityClientId(BigInt(interaction.guildId))
-			)
+				new CommunityClientId(BigInt(interaction.guildId)),
+			),
 		);
 		if (communityId == null) {
 			return;
@@ -57,8 +57,6 @@ export class RoomAddChannelDeleteCommandHandler implements SlashCommandHandler {
 			return;
 		}
 
-		await interaction.reply(
-			await this.roomAddChannelLogic.delete(communityId),
-		);
+		await interaction.reply(await this.roomAddChannelLogic.delete(communityId));
 	}
 }

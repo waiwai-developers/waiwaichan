@@ -1,4 +1,14 @@
-import { Collection, type Guild, GuildEmoji, type GuildTextBasedChannel, type Message, MessageReaction, type PartialMessage, TextChannel, User } from "discord.js";
+import {
+	Collection,
+	type Guild,
+	GuildEmoji,
+	type GuildTextBasedChannel,
+	type Message,
+	MessageReaction,
+	type PartialMessage,
+	TextChannel,
+	User,
+} from "discord.js";
 import { anything, instance, mock, verify, when } from "ts-mockito";
 
 export interface MockReactionOptions {
@@ -55,12 +65,7 @@ export const mockReaction = (
 /**
  * Create a mock reaction for crown testing with additional options
  */
-export const mockCrownReaction = (
-	reactionEmoji: string,
-	giverId: string,
-	receiverId: string,
-	options: MockReactionOptions = {},
-) => {
+export const mockCrownReaction = (reactionEmoji: string, giverId: string, receiverId: string, options: MockReactionOptions = {}) => {
 	const {
 		isPartial = false,
 		isBotReacted = false,

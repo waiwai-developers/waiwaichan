@@ -31,9 +31,9 @@ export class StickyEventHandler implements DiscordEventHandler<Message> {
 		const communityId = await this.CommunityLogic.getId(
 			new CommunityDto(
 				CommunityCategoryType.Discord,
-				new CommunityClientId(BigInt(message.guildId))
-			)
-		)
+				new CommunityClientId(BigInt(message.guildId)),
+			),
+		);
 		if (communityId == null) return;
 
 		const sticky = await this.stickyLogic.find(
@@ -62,9 +62,9 @@ export class StickyEventHandler implements DiscordEventHandler<Message> {
 		const newCommunityId = await this.CommunityLogic.getId(
 			new CommunityDto(
 				CommunityCategoryType.Discord,
-				new CommunityClientId(BigInt(stickyNewMessage.guildId))
-			)
-		)
+				new CommunityClientId(BigInt(stickyNewMessage.guildId)),
+			),
+		);
 		if (newCommunityId == null) return;
 
 		await this.stickyLogic.updateMessageId(

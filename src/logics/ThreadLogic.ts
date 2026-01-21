@@ -25,7 +25,10 @@ export class ThreadLogic implements IThreadLogic {
 		messageId: ThreadMessageId,
 	): Promise<ThreadDto | undefined> {
 		return this.transaction.startTransaction(async () => {
-			return await this.threadRepository.findByMessageId(communityId, messageId);
+			return await this.threadRepository.findByMessageId(
+				communityId,
+				messageId,
+			);
 		});
 	}
 }

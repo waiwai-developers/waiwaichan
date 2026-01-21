@@ -8,8 +8,8 @@ import type { ICrownRepository } from "@/src/logics/Interfaces/repositories/data
 import type { ITransaction } from "@/src/logics/Interfaces/repositories/database/ITransaction";
 import type { IMutex } from "@/src/logics/Interfaces/repositories/mutex/IMutex";
 import { inject, injectable } from "inversify";
+import type { CommunityId } from "../entities/vo/CommunityId";
 import { UserId } from "../entities/vo/UserId";
-import { CommunityId } from "../entities/vo/CommunityId";
 
 @injectable()
 export class CrownLogic implements ICrownLogic {

@@ -4,11 +4,11 @@ import { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
 import type { IRoomNotificationChannelRepository } from "@/src/logics/Interfaces/repositories/database/IRoomNotificationChannelRepository";
 import { injectable } from "inversify";
 import {
+	AutoIncrement,
 	Column,
 	DataType,
-	PrimaryKey,
-	AutoIncrement,
 	Model,
+	PrimaryKey,
 	Table,
 } from "sequelize-typescript";
 

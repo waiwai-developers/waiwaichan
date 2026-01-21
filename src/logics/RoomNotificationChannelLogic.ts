@@ -27,9 +27,7 @@ export class RoomNotificationChannelLogic
 		communityId: CommunityId,
 	): Promise<RoomNotificationChannelDto | undefined> {
 		return this.transaction.startTransaction(async () => {
-			return await this.RoomNotificationChannelRepository.findOne(
-				communityId,
-			);
+			return await this.RoomNotificationChannelRepository.findOne(communityId);
 		});
 	}
 

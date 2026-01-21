@@ -3,16 +3,16 @@ import { fileURLToPath } from "node:url";
 import { DatafixCandyModel } from "@/migrator/datafixies/models/DatafixCandyModel";
 import { DatafixCommunityModel } from "@/migrator/datafixies/models/DatafixCommunityModel";
 import { DatafixContextModel } from "@/migrator/datafixies/models/DatafixContextModel";
+import { DatafixCrownModel } from "@/migrator/datafixies/models/DatafixCrownModel";
 import { DatafixPersonalityContextModel } from "@/migrator/datafixies/models/DatafixPersonalityContextModel";
 import { DatafixPersonalityModel } from "@/migrator/datafixies/models/DatafixPersonalityModel";
 import { DatafixReminderModel } from "@/migrator/datafixies/models/DatafixReminderModel";
-import { DatafixThreadModel } from "@/migrator/datafixies/models/DatafixThreadModel";
-import { DatafixUserItemModel } from "@/migrator/datafixies/models/DatafixUserItemModel";
-import { DatafixUserModel } from "@/migrator/datafixies/models/DatafixUserModel";
-import { DatafixCrownModel } from "@/migrator/datafixies/models/DatafixCrownModel";
 import { DatafixRoomAddChannelsModel } from "@/migrator/datafixies/models/DatafixRoomAddChannelsModel";
 import { DatafixRoomChannelsModel } from "@/migrator/datafixies/models/DatafixRoomChannelsModel";
 import { DatafixRoomNotificationChannelsModel } from "@/migrator/datafixies/models/DatafixRoomNotificationChannelsModel";
+import { DatafixThreadModel } from "@/migrator/datafixies/models/DatafixThreadModel";
+import { DatafixUserItemModel } from "@/migrator/datafixies/models/DatafixUserItemModel";
+import { DatafixUserModel } from "@/migrator/datafixies/models/DatafixUserModel";
 import {
 	type DatabaseConfigType,
 	GetEnvDatabaseConfig,

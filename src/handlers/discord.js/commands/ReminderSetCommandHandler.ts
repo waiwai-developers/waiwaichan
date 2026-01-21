@@ -5,13 +5,13 @@ import { UserDto } from "@/src/entities/dto/UserDto";
 import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
 import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
 import { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
+import { ReceiveDiscordUserName } from "@/src/entities/vo/ReceiveDiscordUserName";
+import { RemindTime } from "@/src/entities/vo/RemindTime";
+import { ReminderMessage } from "@/src/entities/vo/ReminderMessage";
 import { UserCategoryType } from "@/src/entities/vo/UserCategoryType";
 import { UserClientId } from "@/src/entities/vo/UserClientId";
 import { UserCommunityId } from "@/src/entities/vo/UserCommunityId";
 import { UserType } from "@/src/entities/vo/UserType";
-import { ReceiveDiscordUserName } from "@/src/entities/vo/ReceiveDiscordUserName";
-import { RemindTime } from "@/src/entities/vo/RemindTime";
-import { ReminderMessage } from "@/src/entities/vo/ReminderMessage";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { IReminderLogic } from "@/src/logics/Interfaces/logics/IReminderLogic";
@@ -44,9 +44,9 @@ export class ReminderSetCommandHandler implements SlashCommandHandler {
 		const communityId = await this.CommunityLogic.getId(
 			new CommunityDto(
 				CommunityCategoryType.Discord,
-				new CommunityClientId(BigInt(interaction.guildId))
-			)
-		)
+				new CommunityClientId(BigInt(interaction.guildId)),
+			),
+		);
 		if (communityId == null) {
 			return;
 		}
@@ -56,9 +56,9 @@ export class ReminderSetCommandHandler implements SlashCommandHandler {
 				UserCategoryType.Discord,
 				new UserClientId(BigInt(interaction.user.id)),
 				UserType.user,
-				new UserCommunityId(communityId.getValue())
-			)
-		)
+				new UserCommunityId(communityId.getValue()),
+			),
+		);
 		if (userId == null) {
 			return;
 		}

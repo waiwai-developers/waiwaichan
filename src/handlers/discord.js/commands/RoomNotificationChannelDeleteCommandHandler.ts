@@ -44,8 +44,8 @@ export class RoomNotificationChannelDeleteCommandHandler
 		const communityId = await this.CommunityLogic.getId(
 			new CommunityDto(
 				CommunityCategoryType.Discord,
-				new CommunityClientId(BigInt(interaction.guildId))
-			)
+				new CommunityClientId(BigInt(interaction.guildId)),
+			),
 		);
 		if (communityId == null) {
 			return;
@@ -54,9 +54,7 @@ export class RoomNotificationChannelDeleteCommandHandler
 		const roomNotificationChannel =
 			await this.roomNotificationChannelLogic.find(communityId);
 		if (roomNotificationChannel === undefined) {
-			await interaction.reply(
-				"部屋通知チャンネルが登録されていなかったよ！っ",
-			);
+			await interaction.reply("部屋通知チャンネルが登録されていなかったよ！っ");
 			return;
 		}
 

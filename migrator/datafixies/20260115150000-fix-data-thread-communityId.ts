@@ -12,7 +12,7 @@ export const up: Datafix = async () => {
 					communityId: null,
 				},
 			},
-		)
+		);
 	} catch (error: any) {
 		console.error(`migration failed: ${error.message}`);
 		throw error;

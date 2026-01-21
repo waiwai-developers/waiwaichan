@@ -223,12 +223,7 @@ describe("Test Crown Commands", () => {
 				const crownMessage = new CrownMessage("テストメッセージの内容");
 				const crownMessageLink = new CrownMessageLink("https://discord.com/channels/123/456/789");
 
-				const result = await crownLogic.createCrownIfNotExists(
-					communityId,
-					messageId,
-					crownMessage,
-					crownMessageLink,
-				);
+				const result = await crownLogic.createCrownIfNotExists(communityId, messageId, crownMessage, crownMessageLink);
 
 				// 成功メッセージが返されることを確認
 				expect(result).to.not.be.undefined;
@@ -257,21 +252,11 @@ describe("Test Crown Commands", () => {
 				const crownMessageLink = new CrownMessageLink("https://discord.com/channels/123/456/789");
 
 				// 1回目の作成
-				const result1 = await crownLogic.createCrownIfNotExists(
-					communityId,
-					messageId,
-					crownMessage,
-					crownMessageLink,
-				);
+				const result1 = await crownLogic.createCrownIfNotExists(communityId, messageId, crownMessage, crownMessageLink);
 				expect(result1).to.not.be.undefined;
 
 				// 2回目の作成（既存）
-				const result2 = await crownLogic.createCrownIfNotExists(
-					communityId,
-					messageId,
-					crownMessage,
-					crownMessageLink,
-				);
+				const result2 = await crownLogic.createCrownIfNotExists(communityId, messageId, crownMessage, crownMessageLink);
 				expect(result2).to.be.undefined;
 
 				// DBにクラウンが1つだけ存在することを確認
@@ -294,12 +279,7 @@ describe("Test Crown Commands", () => {
 				const crownMessage = new CrownMessage("成功メッセージテスト");
 				const crownMessageLink = new CrownMessageLink("https://example.com/link");
 
-				const result = await crownLogic.createCrownIfNotExists(
-					communityId,
-					messageId,
-					crownMessage,
-					crownMessageLink,
-				);
+				const result = await crownLogic.createCrownIfNotExists(communityId, messageId, crownMessage, crownMessageLink);
 
 				expect(result).to.include("殿堂入り 👑 したよ！");
 			})();
@@ -320,12 +300,7 @@ describe("Test Crown Commands", () => {
 				const crownMessage = new CrownMessage(messageContent);
 				const crownMessageLink = new CrownMessageLink("https://example.com/msg");
 
-				const result = await crownLogic.createCrownIfNotExists(
-					communityId,
-					messageId,
-					crownMessage,
-					crownMessageLink,
-				);
+				const result = await crownLogic.createCrownIfNotExists(communityId, messageId, crownMessage, crownMessageLink);
 
 				expect(result).to.include(messageContent);
 			})();
@@ -346,12 +321,7 @@ describe("Test Crown Commands", () => {
 				const crownMessage = new CrownMessage("テスト");
 				const crownMessageLink = new CrownMessageLink(messageLink);
 
-				const result = await crownLogic.createCrownIfNotExists(
-					communityId,
-					messageId,
-					crownMessage,
-					crownMessageLink,
-				);
+				const result = await crownLogic.createCrownIfNotExists(communityId, messageId, crownMessage, crownMessageLink);
 
 				expect(result).to.include(messageLink);
 			})();
@@ -377,10 +347,7 @@ describe("Test Crown Commands", () => {
 				});
 
 				const repo = new CrownRepositoryImpl();
-				const dto = new CrownDto(
-					new CommunityId(1),
-					new DiscordMessageId("123456789012345683"),
-				);
+				const dto = new CrownDto(new CommunityId(1), new DiscordMessageId("123456789012345683"));
 
 				const result = await repo.findOne(dto);
 
@@ -399,10 +366,7 @@ describe("Test Crown Commands", () => {
 
 			return (async () => {
 				const repo = new CrownRepositoryImpl();
-				const dto = new CrownDto(
-					new CommunityId(999),
-					new DiscordMessageId("999999999999999999"),
-				);
+				const dto = new CrownDto(new CommunityId(999), new DiscordMessageId("999999999999999999"));
 
 				const result = await repo.findOne(dto);
 
@@ -419,10 +383,7 @@ describe("Test Crown Commands", () => {
 
 			return (async () => {
 				const repo = new CrownRepositoryImpl();
-				const dto = new CrownDto(
-					new CommunityId(5),
-					new DiscordMessageId("123456789012345684"),
-				);
+				const dto = new CrownDto(new CommunityId(5), new DiscordMessageId("123456789012345684"));
 
 				const result = await repo.create(dto);
 
@@ -455,7 +416,7 @@ describe("Test Crown Commands", () => {
 
 				expect(model).to.not.be.null;
 
-				const dto = model!.toDto();
+				const dto = model?.toDto();
 
 				expect(dto).to.be.instanceOf(CrownDto);
 				expect(dto.communityId.getValue()).to.eq(10);
@@ -540,21 +501,11 @@ describe("Test Crown Commands", () => {
 				const crownMessageLink = new CrownMessageLink("https://example.com/dup");
 
 				// 1回目
-				const result1 = await crownLogic.createCrownIfNotExists(
-					communityId,
-					messageId,
-					crownMessage,
-					crownMessageLink,
-				);
+				const result1 = await crownLogic.createCrownIfNotExists(communityId, messageId, crownMessage, crownMessageLink);
 				expect(result1).to.not.be.undefined;
 
 				// 2回目（重複）
-				const result2 = await crownLogic.createCrownIfNotExists(
-					communityId,
-					messageId,
-					crownMessage,
-					crownMessageLink,
-				);
+				const result2 = await crownLogic.createCrownIfNotExists(communityId, messageId, crownMessage, crownMessageLink);
 				expect(result2).to.be.undefined;
 
 				// DBに1件のみ存在
@@ -633,22 +584,12 @@ describe("Test Crown Commands", () => {
 
 				// Guild A
 				const communityIdA = new CommunityId(200);
-				const resultA = await crownLogic.createCrownIfNotExists(
-					communityIdA,
-					messageId,
-					crownMessage,
-					crownMessageLink,
-				);
+				const resultA = await crownLogic.createCrownIfNotExists(communityIdA, messageId, crownMessage, crownMessageLink);
 				expect(resultA).to.not.be.undefined;
 
 				// Guild B（同じメッセージIDでも別のコミュニティ）
 				const communityIdB = new CommunityId(201);
-				const resultB = await crownLogic.createCrownIfNotExists(
-					communityIdB,
-					messageId,
-					crownMessage,
-					crownMessageLink,
-				);
+				const resultB = await crownLogic.createCrownIfNotExists(communityIdB, messageId, crownMessage, crownMessageLink);
 				expect(resultB).to.not.be.undefined;
 
 				// 両方のコミュニティでクラウンが作成されている

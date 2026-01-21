@@ -1,5 +1,10 @@
 import { RoleConfig } from "@/src/entities/config/RoleConfig";
-import { CommunityRepositoryImpl, RoomAddChannelRepositoryImpl, RoomChannelRepositoryImpl, RoomNotificationChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql";
+import {
+	CommunityRepositoryImpl,
+	RoomAddChannelRepositoryImpl,
+	RoomChannelRepositoryImpl,
+	RoomNotificationChannelRepositoryImpl,
+} from "@/src/repositories/sequelize-mysql";
 import { MysqlConnector } from "@/tests/fixtures/database/MysqlConnector";
 import { mockSlashCommand, waitUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { expect } from "chai";

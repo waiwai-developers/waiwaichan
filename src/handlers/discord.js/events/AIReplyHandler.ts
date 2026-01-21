@@ -42,8 +42,8 @@ export class AIReplyHandler implements DiscordEventHandler<Message> {
 		const communityId = await this.CommunityLogic.getId(
 			new CommunityDto(
 				CommunityCategoryType.Discord,
-				new CommunityClientId(BigInt(guildId))
-			)
+				new CommunityClientId(BigInt(guildId)),
+			),
 		);
 		if (communityId == null) return;
 

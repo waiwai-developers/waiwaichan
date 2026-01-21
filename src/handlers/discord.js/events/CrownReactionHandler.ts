@@ -94,9 +94,9 @@ export class CrownReactionHandler
 		const communityId = await this.CommunityLogic.getId(
 			new CommunityDto(
 				CommunityCategoryType.Discord,
-				new CommunityClientId(BigInt(reaction.message.guildId))
-			)
-		)
+				new CommunityClientId(BigInt(reaction.message.guildId)),
+			),
+		);
 		if (communityId == null) {
 			return;
 		}
@@ -106,9 +106,9 @@ export class CrownReactionHandler
 				UserCategoryType.Discord,
 				new UserClientId(BigInt(reaction.message.author.id)),
 				UserType.user,
-				new UserCommunityId(communityId.getValue())
-			)
-		)
+				new UserCommunityId(communityId.getValue()),
+			),
+		);
 		if (userId == null) {
 			return;
 		}

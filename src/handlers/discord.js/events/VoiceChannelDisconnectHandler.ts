@@ -47,8 +47,8 @@ export class VoiceChannelDisconnectHandler
 		const communityId = await this.CommunityLogic.getId(
 			new CommunityDto(
 				CommunityCategoryType.Discord,
-				new CommunityClientId(BigInt(oldState.guild.id))
-			)
+				new CommunityClientId(BigInt(oldState.guild.id)),
+			),
 		);
 		if (communityId == null) {
 			this.logger.info("not exist community");
@@ -57,10 +57,7 @@ export class VoiceChannelDisconnectHandler
 
 		//過去に部屋追加チャンネルによって立てた部屋かチェック
 		const roomChannel = await this.roomChannelLogic.find(
-			new RoomChannelDto(
-				communityId,
-				new DiscordChannelId(oldState.channelId),
-			),
+			new RoomChannelDto(communityId, new DiscordChannelId(oldState.channelId)),
 		);
 		if (roomChannel === undefined) {
 			this.logger.info("no add channel create room");
@@ -94,10 +91,7 @@ export class VoiceChannelDisconnectHandler
 
 		//立てた部屋データと部屋を削除
 		await this.roomChannelLogic.delete(
-			new RoomChannelDto(
-				communityId,
-				new DiscordChannelId(oldState.channelId),
-			),
+			new RoomChannelDto(communityId, new DiscordChannelId(oldState.channelId)),
 		);
 		await oldState.guild.channels.delete(oldState.channelId);
 

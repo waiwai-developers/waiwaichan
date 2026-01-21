@@ -40,7 +40,7 @@ class StickyRepositoryImpl extends Model implements IStickyRepository {
 
 	async create(data: StickyDto): Promise<boolean> {
 		return StickyRepositoryImpl.create({
-			communityId : data.communityId.getValue(),
+			communityId: data.communityId.getValue(),
 			channelId: data.channelId.getValue(),
 			userId: data.userId.getValue(),
 			messageId: data.messageId.getValue(),
@@ -54,7 +54,7 @@ class StickyRepositoryImpl extends Model implements IStickyRepository {
 	): Promise<boolean> {
 		return StickyRepositoryImpl.destroy({
 			where: {
-				communityId : communityId.getValue(),
+				communityId: communityId.getValue(),
 				channelId: channelId.getValue(),
 			},
 		}).then((res) => res > 0);

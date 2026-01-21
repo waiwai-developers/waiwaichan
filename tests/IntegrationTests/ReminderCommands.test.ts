@@ -28,10 +28,7 @@ const FUTURE_DATETIME_FORMATTED = "3000-01-01 08:59:59"; // UTC+9で表示
 /**
  * スラッシュコマンドを実行してリプライを待機する
  */
-async function executeCommand<T extends Record<string, unknown>>(
-	commandName: string,
-	options?: T,
-): Promise<ReturnType<typeof mockSlashCommand>> {
+async function executeCommand<T extends Record<string, unknown>>(commandName: string, options?: T): Promise<ReturnType<typeof mockSlashCommand>> {
 	const commandMock = mockSlashCommand(commandName, options);
 	const client = await TestDiscordServer.getClient();
 	client.emit("interactionCreate", instance(commandMock));
@@ -57,9 +54,7 @@ function verifyReminderData(
 /**
  * ReminderNotifyHandler用のDiscord Clientモックを作成する
  */
-function createClientMockForNotifyHandler(
-	channelMock: TextChannel,
-): Client {
+function createClientMockForNotifyHandler(channelMock: TextChannel): Client {
 	const mockedChannel = channelMock;
 	Object.setPrototypeOf(mockedChannel, TextChannel.prototype);
 
@@ -78,11 +73,7 @@ function createClientMockForNotifyHandler(
 /**
  * 指定時間内にメソッドが呼ばれるまでポーリングして待機する
  */
-async function waitForMethodCall(
-	verifyFn: () => void,
-	timeoutMs = 500,
-	intervalMs = 100,
-): Promise<void> {
+async function waitForMethodCall(verifyFn: () => void, timeoutMs = 500, intervalMs = 100): Promise<void> {
 	return new Promise((resolve, reject) => {
 		const startTime = Date.now();
 		const timer = setInterval(() => {
@@ -291,8 +282,7 @@ describe("Test Reminder Commands", () => {
 			verify(commandMock.reply(InternalErrorMessage)).never();
 
 			const expectedOutput =
-				`- id: 1\n  - ${FUTURE_DATETIME_FORMATTED}\n  - reminderlist test 1\n` +
-				`- id: 2\n  - ${FUTURE_DATETIME_FORMATTED}\n  - reminderlist test 2`;
+				`- id: 1\n  - ${FUTURE_DATETIME_FORMATTED}\n  - reminderlist test 1\n` + `- id: 2\n  - ${FUTURE_DATETIME_FORMATTED}\n  - reminderlist test 2`;
 			expect(capturedReply).to.eq(expectedOutput);
 		});
 	});

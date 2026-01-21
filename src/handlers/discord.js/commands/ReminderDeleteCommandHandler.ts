@@ -20,11 +20,11 @@ export class ReminderDeleteCommandHandler implements SlashCommandHandler {
 	@inject(LogicTypes.ReminderLogic)
 	private reminderLogic!: IReminderLogic;
 
-@inject(LogicTypes.CommunityLogic)
-private CommunityLogic!: ICommunityLogic;
+	@inject(LogicTypes.CommunityLogic)
+	private CommunityLogic!: ICommunityLogic;
 
-@inject(LogicTypes.UserLogic)
-private UserLogic!: IUserLogic;
+	@inject(LogicTypes.UserLogic)
+	private UserLogic!: IUserLogic;
 
 	isHandle(commandName: string): boolean {
 		return commandName === "reminderdelete";
@@ -39,9 +39,9 @@ private UserLogic!: IUserLogic;
 		const communityId = await this.CommunityLogic.getId(
 			new CommunityDto(
 				CommunityCategoryType.Discord,
-				new CommunityClientId(BigInt(interaction.guildId))
-			)
-		)
+				new CommunityClientId(BigInt(interaction.guildId)),
+			),
+		);
 		if (communityId == null) {
 			return;
 		}
@@ -51,9 +51,9 @@ private UserLogic!: IUserLogic;
 				UserCategoryType.Discord,
 				new UserClientId(BigInt(interaction.user.id)),
 				UserType.user,
-				new UserCommunityId(communityId.getValue())
-			)
-		)
+				new UserCommunityId(communityId.getValue()),
+			),
+		);
 		if (userId == null) {
 			return;
 		}

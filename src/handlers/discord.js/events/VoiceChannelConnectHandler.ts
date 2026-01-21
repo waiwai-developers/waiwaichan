@@ -50,8 +50,8 @@ export class VoiceChannelConnectHandler
 		const communityId = await this.CommunityLogic.getId(
 			new CommunityDto(
 				CommunityCategoryType.Discord,
-				new CommunityClientId(BigInt(newState.guild.id))
-			)
+				new CommunityClientId(BigInt(newState.guild.id)),
+			),
 		);
 		if (communityId == null) {
 			this.logger.info("not exist community");
@@ -78,10 +78,7 @@ export class VoiceChannelConnectHandler
 			type: ChannelType.GuildVoice,
 		});
 		await this.roomChannelLogic.create(
-			new RoomChannelDto(
-				communityId,
-				new DiscordChannelId(newChannel.id),
-			),
+			new RoomChannelDto(communityId, new DiscordChannelId(newChannel.id)),
 		);
 		await newState.member.voice.setChannel(newChannel);
 

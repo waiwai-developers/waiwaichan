@@ -62,9 +62,9 @@ export class TalkCommandHandler implements SlashCommandHandler {
 		const communityId = await this.CommunityLogic.getId(
 			new CommunityDto(
 				CommunityCategoryType.Discord,
-				new CommunityClientId(BigInt(interaction.guildId))
-			)
-		)
+				new CommunityClientId(BigInt(interaction.guildId)),
+			),
+		);
 		if (communityId == null) {
 			return;
 		}

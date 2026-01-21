@@ -10,7 +10,6 @@ import type { IStickyLogic } from "@/src/logics/Interfaces/logics/IStickyLogic";
 import type { CacheType, ChatInputCommandInteraction } from "discord.js";
 import { TextChannel } from "discord.js";
 
-
 import { inject, injectable } from "inversify";
 
 @injectable()
@@ -49,9 +48,9 @@ export class StickyDeleteCommandHandler implements SlashCommandHandler {
 		const communityId = await this.CommunityLogic.getId(
 			new CommunityDto(
 				CommunityCategoryType.Discord,
-				new CommunityClientId(BigInt(interaction.guildId))
-			)
-		)
+				new CommunityClientId(BigInt(interaction.guildId)),
+			),
+		);
 		if (communityId == null) {
 			return;
 		}

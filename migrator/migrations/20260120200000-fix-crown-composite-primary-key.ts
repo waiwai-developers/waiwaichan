@@ -13,7 +13,9 @@ export const up: Migration = async ({ context: sequelize }) => {
 	if (!tableDescription.communityId || tableDescription.communityId.allowNull) {
 		// First, handle existing data - set default communityId to 0 for any null values
 		if (tableDescription.communityId) {
-			await sequelize.query(`UPDATE ${TABLE_NAME} SET communityId = 0 WHERE communityId IS NULL`);
+			await sequelize.query(
+				`UPDATE ${TABLE_NAME} SET communityId = 0 WHERE communityId IS NULL`,
+			);
 		}
 
 		// Remove current primary key

@@ -1,6 +1,6 @@
+import type { CommunityId } from "@/src/entities/vo/CommunityId";
 import type { CrownMessage } from "@/src/entities/vo/CrownMessage";
 import type { CrownMessageLink } from "@/src/entities/vo/CrownMessageLink";
-import type { CommunityId } from "@/src/entities/vo/CommunityId";
 import type { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
 import type { UserId } from "@/src/entities/vo/UserId";
 

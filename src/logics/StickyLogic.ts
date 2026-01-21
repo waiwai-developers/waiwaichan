@@ -1,6 +1,6 @@
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import type { StickyDto } from "@/src/entities/dto/StickyDto";
-import { CommunityId } from "@/src/entities/vo/CommunityId";
+import type { CommunityId } from "@/src/entities/vo/CommunityId";
 import type { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
 import type { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
 import type { IStickyLogic } from "@/src/logics/Interfaces/logics/IStickyLogic";
@@ -69,7 +69,11 @@ export class StickyLogic implements IStickyLogic {
 		message: StickyMessage,
 	): Promise<string> {
 		return this.transaction.startTransaction(async () => {
-			await this.StickyRepository.updateForMessage(communityId, channelId, message);
+			await this.StickyRepository.updateForMessage(
+				communityId,
+				channelId,
+				message,
+			);
 			return "スティッキーを更新したよ！っ";
 		});
 	}

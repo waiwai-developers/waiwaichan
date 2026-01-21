@@ -3,8 +3,8 @@ import { AppConfig } from "@/src/entities/config/AppConfig";
 import { Thread_Exclude_Prefix, Thread_Fetch_Nom } from "@/src/entities/constants/Thread";
 import type { ChatAIMessageDto } from "@/src/entities/dto/ChatAIMessageDto";
 import { ThreadDto } from "@/src/entities/dto/ThreadDto";
-import { CommunityId } from "@/src/entities/vo/CommunityId";
 import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
+import { CommunityId } from "@/src/entities/vo/CommunityId";
 import { PersonalityId } from "@/src/entities/vo/PersonalityId";
 import { ThreadCategoryType } from "@/src/entities/vo/ThreadCategoryType";
 import { ThreadMessageId } from "@/src/entities/vo/ThreadMessageId";
@@ -175,10 +175,14 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		const expectedThreadTitle = `テストコンテキスト: ${testTitle}`;
 
 		// モックの設定（guildIdを正しく設定）
-		const commandMock = mockSlashCommand("talk", {
-			title: testTitle,
-			type: testContextType,
-		}, { guildId: testGuildId });
+		const commandMock = mockSlashCommand(
+			"talk",
+			{
+				title: testTitle,
+				type: testContextType,
+			},
+			{ guildId: testGuildId },
+		);
 
 		// モックのチャンネル設定
 		const channelMock = mock<TextChannel>();

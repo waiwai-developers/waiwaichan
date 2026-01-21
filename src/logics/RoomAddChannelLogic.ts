@@ -21,9 +21,7 @@ export class RoomAddChannelLogic implements IRoomAddChannelLogic {
 		});
 	}
 
-	async find(
-		communityId: CommunityId,
-	): Promise<RoomAddChannelDto | undefined> {
+	async find(communityId: CommunityId): Promise<RoomAddChannelDto | undefined> {
 		return this.transaction.startTransaction(async () => {
 			return await this.RoomAddChannelRepository.findOne(communityId);
 		});
