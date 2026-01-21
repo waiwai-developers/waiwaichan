@@ -1,9 +1,9 @@
 import type { Datafix } from "@/migrator/umzug";
-import { DatafixThreadModel } from "./models/DatafixThreadModel";
+import { DatafixRoomNotificationChannelsModel } from "./models/DatafixRoomNotificationChannelsModel";
 
 export const up: Datafix = async () => {
 	try {
-		await DatafixThreadModel.update(
+		await DatafixRoomNotificationChannelsModel.update(
 			{
 				communityId: 1,
 			},
@@ -21,7 +21,7 @@ export const up: Datafix = async () => {
 
 export const down: Datafix = async () => {
 	try {
-		await DatafixThreadModel.update(
+		await DatafixRoomNotificationChannelsModel.update(
 			{
 				communityId: null,
 			},
