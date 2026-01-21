@@ -15,8 +15,8 @@ import type { IChannelLogic } from "@/src/logics/Interfaces/logics/IChannelLogic
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 import {
-	type GuildChannel,
 	ChannelType as DiscordChannelType,
+	type GuildChannel,
 } from "discord.js";
 import { inject, injectable } from "inversify";
 
@@ -25,7 +25,9 @@ import { inject, injectable } from "inversify";
  * @param discordChannelType discord.jsのChannelType
  * @returns アプリケーションのChannelType（0: その他、1: テキストチャンネル、2: ボイスチャンネル）
  */
-const getChannelType = (discordChannelType: DiscordChannelType): ChannelType => {
+const getChannelType = (
+	discordChannelType: DiscordChannelType,
+): ChannelType => {
 	// テキストチャンネル（GuildText = 0）
 	if (discordChannelType === DiscordChannelType.GuildText) {
 		return ChannelType.Text;

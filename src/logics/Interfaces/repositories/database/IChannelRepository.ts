@@ -1,5 +1,5 @@
-import type { DeletedChannelTargetDto } from "@/src/entities/dto/DeletedChannelTargetDto";
 import type { ChannelDto } from "@/src/entities/dto/ChannelDto";
+import type { DeletedChannelTargetDto } from "@/src/entities/dto/DeletedChannelTargetDto";
 import type { ChannelClientId } from "@/src/entities/vo/ChannelClientId";
 import type { ChannelCommunityId } from "@/src/entities/vo/ChannelCommunityId";
 import type { ChannelId } from "@/src/entities/vo/ChannelId";

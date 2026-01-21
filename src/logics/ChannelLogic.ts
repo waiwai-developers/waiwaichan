@@ -1,9 +1,9 @@
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
-import type { DeletedChannelTargetDto } from "@/src/entities/dto/DeletedChannelTargetDto";
 import type { ChannelDto } from "@/src/entities/dto/ChannelDto";
+import type { DeletedChannelTargetDto } from "@/src/entities/dto/DeletedChannelTargetDto";
 import type { IChannelLogic } from "@/src/logics/Interfaces/logics/IChannelLogic";
-import type { ITransaction } from "@/src/logics/Interfaces/repositories/database/ITransaction";
 import type { IChannelRepository } from "@/src/logics/Interfaces/repositories/database/IChannelRepository";
+import type { ITransaction } from "@/src/logics/Interfaces/repositories/database/ITransaction";
 import { inject, injectable } from "inversify";
 
 import type { ChannelClientId } from "@/src/entities/vo/ChannelClientId";

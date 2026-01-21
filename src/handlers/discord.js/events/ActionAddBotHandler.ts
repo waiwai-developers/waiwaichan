@@ -26,7 +26,9 @@ import { inject, injectable } from "inversify";
  * @param discordChannelType discord.jsのChannelType
  * @returns アプリケーションのChannelType（0: その他、1: テキストチャンネル、2: ボイスチャンネル）
  */
-const getChannelType = (discordChannelType: DiscordChannelType): ChannelType => {
+const getChannelType = (
+	discordChannelType: DiscordChannelType,
+): ChannelType => {
 	// テキストチャンネル（GuildText = 0）
 	if (discordChannelType === DiscordChannelType.GuildText) {
 		return ChannelType.Text;
@@ -85,10 +87,10 @@ export class ActionAddBotHandler implements DiscordEventHandler<Guild> {
 			const channelDtos = channels
 				.filter((c) => c !== null)
 				.map((c) => {
-					const channelType = getChannelType(c!.type);
+					const channelType = getChannelType(c?.type);
 					return new ChannelDto(
 						ChannelCategoryType.Discord,
-						new ChannelClientId(BigInt(c!.id)),
+						new ChannelClientId(BigInt(c?.id)),
 						channelType,
 						new ChannelCommunityId(communityId.getValue()),
 					);

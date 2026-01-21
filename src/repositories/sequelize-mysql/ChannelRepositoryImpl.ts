@@ -1,5 +1,5 @@
-import type { DeletedChannelTargetDto } from "@/src/entities/dto/DeletedChannelTargetDto";
 import { ChannelDto } from "@/src/entities/dto/ChannelDto";
+import type { DeletedChannelTargetDto } from "@/src/entities/dto/DeletedChannelTargetDto";
 import { ChannelBatchStatus } from "@/src/entities/vo/ChannelBatchStatus";
 import { ChannelCategoryType } from "@/src/entities/vo/ChannelCategoryType";
 import { ChannelClientId } from "@/src/entities/vo/ChannelClientId";
@@ -102,7 +102,9 @@ class ChannelRepositoryImpl extends Model implements IChannelRepository {
 				deletedAt: { [Op.not]: null },
 			},
 			paranoid: false,
-		}).then((res) => (res.length > 0 ? res.map((r) => new ChannelId(r.id)) : []));
+		}).then((res) =>
+			res.length > 0 ? res.map((r) => new ChannelId(r.id)) : [],
+		);
 	}
 
 	async findDeletionTargetsByBatchStatusAndDeletedAt(): Promise<
