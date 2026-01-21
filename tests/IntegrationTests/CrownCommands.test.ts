@@ -419,8 +419,8 @@ describe("Test Crown Commands", () => {
 				const dto = model?.toDto();
 
 				expect(dto).to.be.instanceOf(CrownDto);
-				expect(dto.communityId.getValue()).to.eq(10);
-				expect(dto.messageId.getValue()).to.eq("123456789012345685");
+				expect(dto?.communityId.getValue()).to.eq(10);
+				expect(dto?.messageId.getValue()).to.eq("123456789012345685");
 			})();
 		});
 
