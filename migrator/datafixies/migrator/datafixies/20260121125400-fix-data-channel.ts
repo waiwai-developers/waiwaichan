@@ -43,7 +43,6 @@ export const up: Datafix = async () => {
                 console.log(`processing community guild: ${community.clientId}`);
                 const guild = await client.guilds.fetch(community.clientId);
                 const channels = await guild.channels.fetch();
-
                 const channelData = channels
                     .filter((channel) => channel !== null)
                     .map((channel) => {
@@ -56,7 +55,6 @@ export const up: Datafix = async () => {
                             batchStatus: ChannelBatchStatus.Yet.getValue(),
                         };
                     });
-
                 if (channelData.length > 0) {
                     await DatafixChannelModel.bulkCreate(channelData);
                 }
