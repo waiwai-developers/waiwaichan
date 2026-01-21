@@ -8,9 +8,9 @@ import {
 } from "sequelize-typescript";
 
 @Table({
-	tableName: "Reminders",
+	tableName: "RoomNotificationChannels",
 })
-class DatafixReminderModel extends Model {
+class DatafixRoomNotificationChannelsModel extends Model {
 	@PrimaryKey
 	@AutoIncrement
 	@Column(DataType.INTEGER)
@@ -20,4 +20,4 @@ class DatafixReminderModel extends Model {
 	@Column(DataType.STRING)
 	declare channelId: string;
 }
-export { DatafixReminderModel };
+export { DatafixRoomNotificationChannelsModel };
