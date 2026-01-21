@@ -27,11 +27,7 @@ export class ReminderLogic implements IReminderLogic {
 			return "リマインドの投稿を予約したよ！っ";
 		});
 	}
-<<<<<<< Updated upstream
 	list(communityId: CommunityId, userId: UserId): Promise<string> {
-=======
-	list(communityId: CommunityId, userId: DiscordUserId): Promise<string> {
->>>>>>> Stashed changes
 		return this.transaction.startTransaction(async () => {
 			const reminders = await this.reminderRepository.findByUserId(
 				communityId,
@@ -52,11 +48,7 @@ export class ReminderLogic implements IReminderLogic {
 	delete(
 		id: ReminderId,
 		communityId: CommunityId,
-<<<<<<< Updated upstream
 		userId: UserId,
-=======
-		userId: DiscordUserId,
->>>>>>> Stashed changes
 	): Promise<string> {
 		return this.transaction.startTransaction(async () => {
 			const success = await this.reminderRepository.deleteReminder(
