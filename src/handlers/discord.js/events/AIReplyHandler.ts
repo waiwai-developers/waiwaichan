@@ -5,14 +5,17 @@ import {
 	Thread_Fetch_Nom,
 } from "@/src/entities/constants/Thread";
 import { ChatAIMessageDto } from "@/src/entities/dto/ChatAIMessageDto";
+import { CommunityDto } from "@/src/entities/dto/CommunityDto";
 import { ChatAIContent } from "@/src/entities/vo/ChatAIContent";
 import { ChatAIPrompt } from "@/src/entities/vo/ChatAIPrompt";
 import { ChatAIRole } from "@/src/entities/vo/ChatAIRole";
+import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
+import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
 import { ThreadCategoryType } from "@/src/entities/vo/ThreadCategoryType";
-import { ThreadGuildId } from "@/src/entities/vo/ThreadGuildId";
 import { ThreadMessageId } from "@/src/entities/vo/ThreadMessageId";
 import type { DiscordEventHandler } from "@/src/handlers/discord.js/events/DiscordEventHandler";
 import type { IChatAILogic } from "@/src/logics/Interfaces/logics/IChatAILogic";
+import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { IThreadLogic } from "@/src/logics/Interfaces/logics/IThreadLogic";
 import { DiscordTextPresenter } from "@/src/presenter/DiscordTextPresenter";
 import type { Message } from "discord.js";
@@ -24,14 +27,28 @@ export class AIReplyHandler implements DiscordEventHandler<Message> {
 	private readonly chatAILogic!: IChatAILogic;
 	@inject(LogicTypes.ThreadLogic)
 	private readonly threadLogic!: IThreadLogic;
+	@inject(LogicTypes.CommunityLogic)
+	private CommunityLogic!: ICommunityLogic;
+
 	async handle(message: Message) {
 		if (message.author.bot) return;
 		if (!message.channel.isThread()) return;
 		if (!(message.channel.ownerId === AppConfig.discord.clientId)) return;
 		if (message.content.charAt(0) === Thread_Exclude_Prefix) return;
 
+		const guildId = message.channel.guildId;
+		if (!guildId) return;
+
+		const communityId = await this.CommunityLogic.getId(
+			new CommunityDto(
+				CommunityCategoryType.Discord,
+				new CommunityClientId(BigInt(guildId)),
+			),
+		);
+		if (communityId == null) return;
+
 		const thread = await this.threadLogic.find(
-			new ThreadGuildId(message.channel.guildId),
+			communityId,
 			new ThreadMessageId(message.channel.id),
 		);
 		if (

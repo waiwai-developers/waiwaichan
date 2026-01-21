@@ -1,10 +1,13 @@
 import { RoleConfig } from "@/src/entities/config/RoleConfig";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
+import { CommunityDto } from "@/src/entities/dto/CommunityDto";
+import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
+import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
 import { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
-import { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
 import { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
 import { StickyMessage } from "@/src/entities/vo/StickyMessage";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
+import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { IStickyLogic } from "@/src/logics/Interfaces/logics/IStickyLogic";
 import type { CacheType, ChatInputCommandInteraction } from "discord.js";
 import {
@@ -20,6 +23,9 @@ import { inject, injectable } from "inversify";
 export class StickyUpdateCommandHandler implements SlashCommandHandler {
 	@inject(LogicTypes.StickyLogic)
 	private stickyLogic!: IStickyLogic;
+
+	@inject(LogicTypes.CommunityLogic)
+	private CommunityLogic!: ICommunityLogic;
 	isHandle(commandName: string): boolean {
 		return commandName === "stickyupdate";
 	}
@@ -42,9 +48,19 @@ export class StickyUpdateCommandHandler implements SlashCommandHandler {
 			return;
 		}
 
+		const communityId = await this.CommunityLogic.getId(
+			new CommunityDto(
+				CommunityCategoryType.Discord,
+				new CommunityClientId(BigInt(interaction.guildId)),
+			),
+		);
+		if (communityId == null) {
+			return;
+		}
+
 		const sticky = await this.stickyLogic.find(
-			new DiscordGuildId(interaction.guildId),
-			new DiscordMessageId(interaction.options.getString("channelid", true)),
+			communityId,
+			new DiscordChannelId(interaction.options.getString("channelid", true)),
 		);
 		if (sticky === undefined) {
 			await interaction.reply("スティッキーが登録されていなかったよ！っ");
@@ -92,7 +108,7 @@ export class StickyUpdateCommandHandler implements SlashCommandHandler {
 
 				await t.reply(
 					await this.stickyLogic.updateMessage(
-						new DiscordGuildId(interaction.guildId),
+						communityId,
 						new DiscordChannelId(
 							interaction.options.getString("channelid", true),
 						),

@@ -1,9 +1,11 @@
+import { CommunityRepositoryImpl } from "@/src/repositories/sequelize-mysql/CommunityRepositoryImpl";
 import { ReminderRepositoryImpl } from "@/src/repositories/sequelize-mysql/ReminderRepositoryImpl";
 import { ReminderSchedulerRepositoryImpl } from "@/src/repositories/sequelize-mysql/ReminderSchedulerRepositoryImpl";
 import { CandyItemRepositoryImpl } from "./CandyItemRepositoryImpl";
 import { CandyRepositoryImpl } from "./CandyRepositoryImpl";
 import { ContextRepositoryImpl } from "./ContextRepositoryImpl";
 import { CrownRepositoryImpl } from "./CrownRepositoryImpl";
+import { DataDeletionCircularImpl } from "./DataDeletionCircularImpl";
 import { PersonalityContextRepositoryImpl } from "./PersonalityContextRepositoryImpl";
 import { PersonalityRepositoryImpl } from "./PersonalityRepositoryImpl";
 import { RoomAddChannelRepositoryImpl } from "./RoomAddChannelRepositoryImpl";
@@ -12,8 +14,11 @@ import { RoomNotificationChannelRepositoryImpl } from "./RoomNotificationChannel
 import { StickyRepositoryImpl } from "./StickyRepositoryImpl";
 import { ThreadRepositoryImpl } from "./ThreadRepositoryImpl";
 import { UserCandyItemRepositoryImpl } from "./UserCandyItemRepositoryImpl";
+import { UserRepositoryImpl } from "./UserRepositoryImpl";
 
 export {
+	CommunityRepositoryImpl,
+	UserRepositoryImpl,
 	ReminderRepositoryImpl,
 	ReminderSchedulerRepositoryImpl,
 	CandyItemRepositoryImpl,
@@ -28,4 +33,5 @@ export {
 	RoomChannelRepositoryImpl,
 	RoomNotificationChannelRepositoryImpl,
 	StickyRepositoryImpl,
+	DataDeletionCircularImpl,
 };

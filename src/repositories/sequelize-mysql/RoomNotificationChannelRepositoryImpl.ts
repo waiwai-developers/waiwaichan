@@ -1,9 +1,10 @@
 import { RoomNotificationChannelDto } from "@/src/entities/dto/RoomNotificationChannelDto";
+import { CommunityId } from "@/src/entities/vo/CommunityId";
 import { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
-import { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
 import type { IRoomNotificationChannelRepository } from "@/src/logics/Interfaces/repositories/database/IRoomNotificationChannelRepository";
 import { injectable } from "inversify";
 import {
+	AutoIncrement,
 	Column,
 	DataType,
 	Model,
@@ -21,39 +22,43 @@ class RoomNotificationChannelRepositoryImpl
 	extends Model
 	implements IRoomNotificationChannelRepository
 {
-	@Column(DataType.STRING)
-	declare guildId: string;
+	@PrimaryKey
+	@AutoIncrement
+	@Column(DataType.INTEGER)
+	declare id: number;
+	@Column(DataType.BIGINT)
+	declare communityId: number;
 	@Column(DataType.STRING)
 	declare channelId: string;
 
 	async create(data: RoomNotificationChannelDto): Promise<boolean> {
 		return RoomNotificationChannelRepositoryImpl.create({
-			guildId: data.guildId.getValue(),
+			communityId: data.communityId.getValue(),
 			channelId: data.channelId.getValue(),
 		}).then((res) => !!res);
 	}
 
-	async delete(discordGuildId: DiscordGuildId): Promise<boolean> {
+	async delete(communityId: CommunityId): Promise<boolean> {
 		return RoomNotificationChannelRepositoryImpl.destroy({
 			where: {
-				guildId: discordGuildId.getValue(),
+				communityId: communityId.getValue(),
 			},
 		}).then((res) => res > 0);
 	}
 
 	async findOne(
-		discordGuildId: DiscordGuildId,
+		communityId: CommunityId,
 	): Promise<RoomNotificationChannelDto | undefined> {
 		return RoomNotificationChannelRepositoryImpl.findOne({
 			where: {
-				guildId: discordGuildId.getValue(),
+				communityId: communityId.getValue(),
 			},
 		}).then((res) => (res ? res.toDto() : undefined));
 	}
 
 	toDto(): RoomNotificationChannelDto {
 		return new RoomNotificationChannelDto(
-			new DiscordGuildId(this.guildId),
+			new CommunityId(this.communityId),
 			new DiscordChannelId(this.channelId),
 		);
 	}

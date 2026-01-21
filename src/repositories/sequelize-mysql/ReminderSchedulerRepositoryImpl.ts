@@ -1,11 +1,11 @@
 import { ReminderDto } from "@/src/entities/dto/ReminderDto";
+import { CommunityId } from "@/src/entities/vo/CommunityId";
 import { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
-import { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
-import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
 import { ReceiveDiscordUserName } from "@/src/entities/vo/ReceiveDiscordUserName";
 import { RemindTime } from "@/src/entities/vo/RemindTime";
 import { ReminderId } from "@/src/entities/vo/ReminderId";
 import { ReminderMessage } from "@/src/entities/vo/ReminderMessage";
+import { UserId } from "@/src/entities/vo/UserId";
 import type { IReminderSchedulerRepository } from "@/src/logics/Interfaces/repositories/database/IReminderSchedulerRepository";
 import dayjs from "dayjs";
 import { injectable } from "inversify";
@@ -33,12 +33,12 @@ class ReminderSchedulerRepositoryImpl
 	@AutoIncrement
 	@Column(DataType.INTEGER)
 	declare id: number;
-	@Column(DataType.STRING)
-	declare guildId: string;
+	@Column(DataType.INTEGER)
+	declare communityId: number;
 	@Column(DataType.STRING)
 	declare channelId: string;
 	@Column(DataType.STRING)
-	declare userId: string;
+	declare userId: number;
 	@Column(DataType.STRING)
 	declare receiveUserName: string;
 	@Column(DataType.STRING)
@@ -65,9 +65,9 @@ class ReminderSchedulerRepositoryImpl
 	toDto(): ReminderDto {
 		return new ReminderDto(
 			new ReminderId(this.id),
-			new DiscordGuildId(this.guildId),
+			new CommunityId(this.communityId),
 			new DiscordChannelId(this.channelId),
-			new DiscordUserId(this.userId),
+			new UserId(this.userId),
 			new ReceiveDiscordUserName(this.receiveUserName),
 			new ReminderMessage(this.message),
 			new RemindTime(this.remindAt),

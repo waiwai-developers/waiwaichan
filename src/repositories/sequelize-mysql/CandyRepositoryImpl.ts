@@ -4,10 +4,10 @@ import { CandyCount } from "@/src/entities/vo/CandyCount";
 import type { CandyCreatedAt } from "@/src/entities/vo/CandyCreatedAt";
 import { CandyExpire } from "@/src/entities/vo/CandyExpire";
 import { CandyId } from "@/src/entities/vo/CandyId";
+import { CommunityId } from "@/src/entities/vo/CommunityId";
 import type { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
-import { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
 import { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
-import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
+import { UserId } from "@/src/entities/vo/UserId";
 import type { ICandyRepository } from "@/src/logics/Interfaces/repositories/database/ICandyRepository";
 import dayjs from "dayjs";
 import { injectable } from "inversify";
@@ -32,12 +32,12 @@ class CandyRepositoryImpl extends Model implements ICandyRepository {
 	@AutoIncrement
 	@Column(DataType.INTEGER)
 	declare id: number;
-	@Column(DataType.STRING)
-	declare guildId: string;
-	@Column(DataType.STRING)
-	declare receiveUserId: string;
-	@Column(DataType.STRING)
-	declare giveUserId: string;
+	@Column(DataType.INTEGER)
+	declare communityId: number;
+	@Column(DataType.BIGINT)
+	declare userId: number;
+	@Column(DataType.BIGINT)
+	declare giveUserId: number;
 	@Column(DataType.STRING)
 	declare messageId: string;
 	@Column(DataType.INTEGER)
@@ -48,8 +48,8 @@ class CandyRepositoryImpl extends Model implements ICandyRepository {
 	async bulkCreateCandy(data: CandyDto[]): Promise<boolean> {
 		await CandyRepositoryImpl.bulkCreate(
 			data.map((d) => ({
-				guildId: d.guildId.getValue(),
-				receiveUserId: d.receiveUserId.getValue(),
+				communityId: d.communityId.getValue(),
+				userId: d.userId.getValue(),
 				giveUserId: d.giveUserId.getValue(),
 				messageId: d.messageId.getValue(),
 				categoryType: d.categoryType.getValue(),
@@ -60,27 +60,27 @@ class CandyRepositoryImpl extends Model implements ICandyRepository {
 	}
 
 	async candyCount(
-		guildId: DiscordGuildId,
-		userId: DiscordUserId,
+		communityId: CommunityId,
+		userId: UserId,
 	): Promise<CandyCount> {
 		return CandyRepositoryImpl.count({
 			where: {
-				guildId: guildId.getValue(),
-				receiveUserId: userId.getValue(),
+				communityId: Number(communityId.getValue()),
+				userId: Number(userId.getValue()),
 				expiredAt: { [Op.gt]: dayjs().toDate() },
 			},
 		}).then((c) => new CandyCount(c));
 	}
 
 	async candyCountFromJackpod(
-		guildId: DiscordGuildId,
-		userId: DiscordUserId,
+		communityId: CommunityId,
+		userId: UserId,
 		candyId: CandyId | undefined,
 	): Promise<CandyCount> {
 		return CandyRepositoryImpl.count({
 			where: {
-				guildId: guildId.getValue(),
-				receiveUserId: userId.getValue(),
+				communityId: communityId.getValue(),
+				userId: userId.getValue(),
 				deletedAt: { [Op.ne]: null },
 				...(candyId ? { id: { [Op.gt]: candyId.getValue() } } : {}),
 			},
@@ -89,13 +89,13 @@ class CandyRepositoryImpl extends Model implements ICandyRepository {
 	}
 
 	async candyExpire(
-		guildId: DiscordGuildId,
-		userId: DiscordUserId,
+		communityId: CommunityId,
+		userId: UserId,
 	): Promise<CandyExpire | undefined> {
 		return CandyRepositoryImpl.findOne({
 			where: {
-				guildId: guildId.getValue(),
-				receiveUserId: userId.getValue(),
+				communityId: communityId.getValue(),
+				userId: userId.getValue(),
 				expiredAt: { [Op.gt]: dayjs().toDate() },
 			},
 			order: [[col("expiredAt"), "ASC"]],
@@ -103,14 +103,14 @@ class CandyRepositoryImpl extends Model implements ICandyRepository {
 	}
 
 	async countByPeriod(
-		guildId: DiscordGuildId,
-		userId: DiscordUserId,
+		communityId: CommunityId,
+		userId: UserId,
 		categoryType: CandyCategoryType,
 		createdAt: CandyCreatedAt,
 	): Promise<CandyCount> {
 		return CandyRepositoryImpl.count({
 			where: {
-				guildId: guildId.getValue(),
+				communityId: communityId.getValue(),
 				giveUserId: userId.getValue(),
 				categoryType: categoryType.getValue(),
 				createdAt: { [Op.gte]: createdAt.getValue() },
@@ -120,14 +120,14 @@ class CandyRepositoryImpl extends Model implements ICandyRepository {
 	}
 
 	async consumeCandies(
-		guildId: DiscordGuildId,
-		userId: DiscordUserId,
+		communityId: CommunityId,
+		userId: UserId,
 		candyCount: CandyCount,
 	): Promise<CandyId[]> {
 		return CandyRepositoryImpl.findAll({
 			where: {
-				guildId: guildId.getValue(),
-				receiveUserId: userId.getValue(),
+				communityId: communityId.getValue(),
+				userId: userId.getValue(),
 				expiredAt: { [Op.gt]: dayjs().toDate() },
 			},
 			limit: candyCount.getValue(),
@@ -148,14 +148,14 @@ class CandyRepositoryImpl extends Model implements ICandyRepository {
 	}
 
 	async findByGiverAndMessageId(
-		guildId: DiscordGuildId,
-		giver: DiscordChannelId,
+		communityId: CommunityId,
+		giver: UserId,
 		messageId: DiscordMessageId,
 		categoryType: CandyCategoryType,
 	): Promise<Array<CandyDto>> {
 		return CandyRepositoryImpl.findAll({
 			where: {
-				guildId: guildId.getValue(),
+				communityId: communityId.getValue(),
 				giveUserId: giver.getValue(),
 				messageId: messageId.getValue(),
 				categoryType: categoryType.getValue(),
@@ -163,17 +163,17 @@ class CandyRepositoryImpl extends Model implements ICandyRepository {
 		}).then((res) => res.map((r) => this.toDto(r)));
 	}
 	toDto({
-		guildId,
-		receiveUserId,
+		communityId,
+		userId,
 		giveUserId,
 		messageId,
 		categoryType,
 		expiredAt,
 	}: CandyRepositoryImpl): CandyDto {
 		return new CandyDto(
-			new DiscordGuildId(guildId),
-			new DiscordUserId(receiveUserId),
-			new DiscordUserId(giveUserId),
+			new CommunityId(communityId),
+			new UserId(userId),
+			new UserId(giveUserId),
 			new DiscordMessageId(messageId),
 			new CandyCategoryType(categoryType),
 			new CandyExpire(expiredAt),

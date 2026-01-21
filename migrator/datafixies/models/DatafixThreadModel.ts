@@ -11,8 +11,8 @@ import {
 })
 class DatafixThreadModel extends Model {
 	@PrimaryKey
-	@Column(DataType.BIGINT)
-	declare guildId: number;
+	@Column(DataType.INTEGER)
+	declare communityId: number;
 	@PrimaryKey
 	@Column(DataType.BIGINT)
 	declare messageId: number;

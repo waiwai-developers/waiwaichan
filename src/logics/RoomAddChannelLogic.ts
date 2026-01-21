@@ -1,6 +1,6 @@
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import type { RoomAddChannelDto } from "@/src/entities/dto/RoomAddChannelDto";
-import type { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
+import type { CommunityId } from "@/src/entities/vo/CommunityId";
 import type { IRoomAddChannelLogic } from "@/src/logics/Interfaces/logics/IRoomAddChannelLogic";
 import type { IRoomAddChannelRepository } from "@/src/logics/Interfaces/repositories/database/IRoomAddChannelRepository";
 import type { ITransaction } from "@/src/logics/Interfaces/repositories/database/ITransaction";
@@ -21,17 +21,15 @@ export class RoomAddChannelLogic implements IRoomAddChannelLogic {
 		});
 	}
 
-	async find(
-		discordGuildId: DiscordGuildId,
-	): Promise<RoomAddChannelDto | undefined> {
+	async find(communityId: CommunityId): Promise<RoomAddChannelDto | undefined> {
 		return this.transaction.startTransaction(async () => {
-			return await this.RoomAddChannelRepository.findOne(discordGuildId);
+			return await this.RoomAddChannelRepository.findOne(communityId);
 		});
 	}
 
-	async delete(discordGuildId: DiscordGuildId): Promise<string> {
+	async delete(communityId: CommunityId): Promise<string> {
 		return this.transaction.startTransaction(async () => {
-			await this.RoomAddChannelRepository.delete(discordGuildId);
+			await this.RoomAddChannelRepository.delete(communityId);
 			return "部屋追加チャンネルを削除したよ！っ";
 		});
 	}

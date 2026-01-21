@@ -1,12 +1,13 @@
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import type { ReminderDto } from "@/src/entities/dto/ReminderDto";
-import type { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
+import type { CommunityId } from "@/src/entities/vo/CommunityId";
 import type { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
 import type { ReminderId } from "@/src/entities/vo/ReminderId";
 import type { IReminderLogic } from "@/src/logics/Interfaces/logics/IReminderLogic";
 import type { IReminderRepository } from "@/src/logics/Interfaces/repositories/database/IReminderRepository";
 import dayjs from "dayjs";
 import { inject, injectable } from "inversify";
+import type { UserId } from "../entities/vo/UserId";
 import type { ITransaction } from "./Interfaces/repositories/database/ITransaction";
 
 @injectable()
@@ -26,10 +27,10 @@ export class ReminderLogic implements IReminderLogic {
 			return "リマインドの投稿を予約したよ！っ";
 		});
 	}
-	list(guildId: DiscordGuildId, userId: DiscordUserId): Promise<string> {
+	list(communityId: CommunityId, userId: UserId): Promise<string> {
 		return this.transaction.startTransaction(async () => {
 			const reminders = await this.reminderRepository.findByUserId(
-				guildId,
+				communityId,
 				userId,
 			);
 			if (!reminders || reminders.length <= 0) {
@@ -46,13 +47,13 @@ export class ReminderLogic implements IReminderLogic {
 	}
 	delete(
 		id: ReminderId,
-		guildId: DiscordGuildId,
-		userId: DiscordUserId,
+		communityId: CommunityId,
+		userId: UserId,
 	): Promise<string> {
 		return this.transaction.startTransaction(async () => {
 			const success = await this.reminderRepository.deleteReminder(
 				id,
-				guildId,
+				communityId,
 				userId,
 			);
 			if (!success) return "リマインドの予約はされていなかったよ！っ";

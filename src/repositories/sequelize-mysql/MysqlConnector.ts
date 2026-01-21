@@ -4,6 +4,7 @@ import type { IDataBaseConnector } from "@/src/logics/Interfaces/repositories/da
 import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 import { CandyItemRepositoryImpl } from "@/src/repositories/sequelize-mysql/CandyItemRepositoryImpl";
 import { CandyRepositoryImpl } from "@/src/repositories/sequelize-mysql/CandyRepositoryImpl";
+import { CommunityRepositoryImpl } from "@/src/repositories/sequelize-mysql/CommunityRepositoryImpl";
 import { ContextRepositoryImpl } from "@/src/repositories/sequelize-mysql/ContextRepositoryImpl";
 import { CrownRepositoryImpl } from "@/src/repositories/sequelize-mysql/CrownRepositoryImpl";
 import { PersonalityContextRepositoryImpl } from "@/src/repositories/sequelize-mysql/PersonalityContextRepositoryImpl";
@@ -16,6 +17,7 @@ import { SequelizeLogger } from "@/src/repositories/sequelize-mysql/SequelizeLog
 import { StickyRepositoryImpl } from "@/src/repositories/sequelize-mysql/StickyRepositoryImpl";
 import { ThreadRepositoryImpl } from "@/src/repositories/sequelize-mysql/ThreadRepositoryImpl";
 import { UserCandyItemRepositoryImpl } from "@/src/repositories/sequelize-mysql/UserCandyItemRepositoryImpl";
+import { UserRepositoryImpl } from "@/src/repositories/sequelize-mysql/UserRepositoryImpl";
 import { inject, injectable } from "inversify";
 import type { Dialect } from "sequelize";
 import { Sequelize } from "sequelize-typescript";
@@ -24,8 +26,25 @@ import { Sequelize } from "sequelize-typescript";
 export class MysqlConnector implements IDataBaseConnector<Sequelize, "mysql"> {
 	@inject(RepoTypes.Logger)
 	private readonly logger!: ILogger;
+	static readonly models = [
+		CandyRepositoryImpl,
+		CandyItemRepositoryImpl,
+		CrownRepositoryImpl,
+		UserCandyItemRepositoryImpl,
+		ReminderRepositoryImpl,
+		ThreadRepositoryImpl,
+		StickyRepositoryImpl,
+		CommunityRepositoryImpl,
+		UserRepositoryImpl,
+		PersonalityRepositoryImpl,
+		PersonalityContextRepositoryImpl,
+		ContextRepositoryImpl,
+		RoomAddChannelRepositoryImpl,
+		RoomChannelRepositoryImpl,
+		RoomNotificationChannelRepositoryImpl,
+	];
+	readonly instance: Sequelize;
 
-	instance: Sequelize;
 	constructor() {
 		const dbConfig = DatabaseConfig;
 		this.instance = new Sequelize(
@@ -37,21 +56,7 @@ export class MysqlConnector implements IDataBaseConnector<Sequelize, "mysql"> {
 				port: dbConfig.port,
 				dialect: dbConfig.dialect as Dialect,
 				logging: (s, t) => SequelizeLogger(s, t, this.logger),
-				models: [
-					CandyRepositoryImpl,
-					CandyItemRepositoryImpl,
-					CrownRepositoryImpl,
-					UserCandyItemRepositoryImpl,
-					ReminderRepositoryImpl,
-					ThreadRepositoryImpl,
-					PersonalityRepositoryImpl,
-					PersonalityContextRepositoryImpl,
-					ContextRepositoryImpl,
-					RoomAddChannelRepositoryImpl,
-					RoomChannelRepositoryImpl,
-					RoomNotificationChannelRepositoryImpl,
-					StickyRepositoryImpl,
-				],
+				models: MysqlConnector.models,
 			},
 		);
 	}
