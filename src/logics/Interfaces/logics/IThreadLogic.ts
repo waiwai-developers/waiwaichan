@@ -1,11 +1,11 @@
+import type { CommunityId } from "@/src/entities/vo/CommunityId";
 import type { ThreadDto } from "@/src/entities/dto/ThreadDto";
-import type { ThreadGuildId } from "@/src/entities/vo/ThreadGuildId";
 import type { ThreadMessageId } from "@/src/entities/vo/ThreadMessageId";
 
 export interface IThreadLogic {
 	create(data: ThreadDto): Promise<boolean>;
 	find(
-		threadGuildId: ThreadGuildId,
+		communityId: CommunityId,
 		messageId: ThreadMessageId,
 	): Promise<ThreadDto | undefined>;
 }
