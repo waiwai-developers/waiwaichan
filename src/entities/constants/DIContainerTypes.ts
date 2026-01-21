@@ -59,6 +59,8 @@ export const RouteTypes = {
 	ActionRemoveBotRoute: Symbol.for("ActionRemoveBotRoute"),
 	ActionAddUserRoute: Symbol.for("ActionAddUserRoute"),
 	ActionRemoveUserRoute: Symbol.for("ActionRemoveUserRoute"),
+	ActionAddChannelRoute: Symbol.for("ActionAddChannelRoute"),
+	ActionRemoveChannelRoute: Symbol.for("ActionRemoveChannelRoute"),
 	VoiceChannelEventRoute: Symbol.for("VoiceChannelEventRoute"),
 };
 
@@ -74,5 +76,7 @@ export const HandlerTypes = {
 	ActionRemoveBotHandler: Symbol.for("ActionRemoveBotHandler"),
 	ActionAddUserHandler: Symbol.for("ActionAddUserHandler"),
 	ActionRemoveUserHandler: Symbol.for("ActionRemoveUserHandler"),
+	ActionAddChannelHandler: Symbol.for("ActionAddChannelHandler"),
+	ActionRemoveChannelHandler: Symbol.for("ActionRemoveChannelHandler"),
 	VoiceChannelEventHandler: Symbol.for("VoiceChannelEventHandler"),
 };
