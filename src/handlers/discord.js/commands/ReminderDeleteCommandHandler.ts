@@ -1,16 +1,8 @@
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
-<<<<<<< Updated upstream
 import { CommunityDto } from "@/src/entities/dto/CommunityDto";
 import { UserDto } from "@/src/entities/dto/UserDto";
 import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
 import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
-=======
-import { InternalErrorMessage } from "@/src/entities/DiscordErrorMessages";
-import { CommunityDto } from "@/src/entities/dto/CommunityDto";
-import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
-import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
-import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
->>>>>>> Stashed changes
 import { ReminderId } from "@/src/entities/vo/ReminderId";
 import { UserCategoryType } from "@/src/entities/vo/UserCategoryType";
 import { UserClientId } from "@/src/entities/vo/UserClientId";
@@ -28,16 +20,11 @@ export class ReminderDeleteCommandHandler implements SlashCommandHandler {
 	@inject(LogicTypes.ReminderLogic)
 	private reminderLogic!: IReminderLogic;
 
-<<<<<<< Updated upstream
 @inject(LogicTypes.CommunityLogic)
 private CommunityLogic!: ICommunityLogic;
 
 @inject(LogicTypes.UserLogic)
 private UserLogic!: IUserLogic;
-=======
-	@inject(LogicTypes.CommunityLogic)
-	private communityLogic!: ICommunityLogic;
->>>>>>> Stashed changes
 
 	isHandle(commandName: string): boolean {
 		return commandName === "reminderdelete";
@@ -49,7 +36,6 @@ private UserLogic!: IUserLogic;
 		if (!interaction.guildId) {
 			return;
 		}
-<<<<<<< Updated upstream
 		const communityId = await this.CommunityLogic.getId(
 			new CommunityDto(
 				CommunityCategoryType.Discord,
@@ -69,17 +55,6 @@ private UserLogic!: IUserLogic;
 			)
 		)
 		if (userId == null) {
-=======
-
-		const communityId = await this.communityLogic.getId(
-			new CommunityDto(
-				CommunityCategoryType.Discord,
-				new CommunityClientId(BigInt(interaction.guildId)),
-			),
-		);
-		if (communityId == null) {
-			await interaction.reply(InternalErrorMessage);
->>>>>>> Stashed changes
 			return;
 		}
 
@@ -87,11 +62,7 @@ private UserLogic!: IUserLogic;
 			await this.reminderLogic.delete(
 				new ReminderId(interaction.options?.getInteger("id", true)),
 				communityId,
-<<<<<<< Updated upstream
 				userId,
-=======
-				new DiscordUserId(interaction.user.id),
->>>>>>> Stashed changes
 			),
 		);
 	}
