@@ -1,9 +1,12 @@
 import { RoleConfig } from "@/src/entities/config/RoleConfig";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
+import { CommunityDto } from "@/src/entities/dto/CommunityDto";
 import { RoomNotificationChannelDto } from "@/src/entities/dto/RoomNotificationChannelDto";
-import { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
+import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
+import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
 import { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
+import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { IRoomNotificationChannelLogic } from "@/src/logics/Interfaces/logics/IRoomNotificationChannelLogic";
 import type { CacheType, ChatInputCommandInteraction } from "discord.js";
 import { TextChannel } from "discord.js";
@@ -15,6 +18,10 @@ export class RoomNotificationChannelCreateCommandHandler
 {
 	@inject(LogicTypes.RoomNotificationChannelLogic)
 	private roomNotificationChannelLogic!: IRoomNotificationChannelLogic;
+
+	@inject(LogicTypes.CommunityLogic)
+	private CommunityLogic!: ICommunityLogic;
+
 	isHandle(commandName: string): boolean {
 		return commandName === "roomnotificationchannelcreate";
 	}
@@ -37,10 +44,18 @@ export class RoomNotificationChannelCreateCommandHandler
 			return;
 		}
 
+		const communityId = await this.CommunityLogic.getId(
+			new CommunityDto(
+				CommunityCategoryType.Discord,
+				new CommunityClientId(BigInt(interaction.guildId))
+			)
+		);
+		if (communityId == null) {
+			return;
+		}
+
 		const roomNotificationChannel =
-			await this.roomNotificationChannelLogic.find(
-				new DiscordGuildId(interaction.guildId),
-			);
+			await this.roomNotificationChannelLogic.find(communityId);
 		if (roomNotificationChannel !== undefined) {
 			await interaction.reply("部屋通知チャンネルが既に登録されているよ！っ");
 			return;
@@ -59,7 +74,7 @@ export class RoomNotificationChannelCreateCommandHandler
 		await interaction.reply(
 			await this.roomNotificationChannelLogic.create(
 				new RoomNotificationChannelDto(
-					new DiscordGuildId(interaction.guildId),
+					communityId,
 					new DiscordMessageId(
 						interaction.options.getString("channelid", true),
 					),
