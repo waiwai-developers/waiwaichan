@@ -1,5 +1,8 @@
 import { InternalErrorMessage } from "@/src/entities/DiscordErrorMessages";
 import { TranslateConst } from "@/src/entities/constants/translate";
+import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
+import { CommunityRepositoryImpl } from "@/src/repositories/sequelize-mysql/CommunityRepositoryImpl";
+import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnector";
 import { createMockMessage, mockSlashCommand, waitUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { TestDiscordServer } from "@/tests/fixtures/discord.js/TestDiscordServer";
 import { expect } from "chai";
@@ -10,7 +13,29 @@ const JAPANESE_TARGET = TranslateConst.target.find((it) => it.value === "JA")?.v
 const ENGLISH_SOURCE = TranslateConst.source.find((it) => it.value === "EN")?.value;
 const ENGLISH_TARGET = TranslateConst.target.find((it) => it.value === "EN-US")?.value;
 
+// テスト用のguildId（MockSlashCommandで使用される値と一致させる）
+const TEST_GUILD_ID = "9999";
+
 describe("Test Translate Command", () => {
+	beforeEach(async () => {
+		// データベース接続を初期化
+		const connector = new MysqlConnector();
+		// @ts-ignore - privateフィールドにアクセスするため
+		connector.instance.options.logging = false;
+
+		// コミュニティデータをクリーンアップ
+		await CommunityRepositoryImpl.destroy({
+			truncate: true,
+			force: true,
+		});
+
+		// テスト用のコミュニティを作成
+		await CommunityRepositoryImpl.create({
+			categoryType: CommunityCategoryType.Discord.getValue(),
+			clientId: BigInt(TEST_GUILD_ID),
+			batchStatus: 0,
+		});
+	});
 	/**
 	 * TranslateCommandHandlerのテスト
 	 */

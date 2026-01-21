@@ -1,6 +1,6 @@
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import type { ThreadDto } from "@/src/entities/dto/ThreadDto";
-import type { ThreadGuildId } from "@/src/entities/vo/ThreadGuildId";
+import type { CommunityId } from "@/src/entities/vo/CommunityId";
 import type { ThreadMessageId } from "@/src/entities/vo/ThreadMessageId";
 import type { IThreadLogic } from "@/src/logics/Interfaces/logics/IThreadLogic";
 import type { IThreadRepository } from "@/src/logics/Interfaces/repositories/database/IThreadRepository";
@@ -21,11 +21,11 @@ export class ThreadLogic implements IThreadLogic {
 		});
 	}
 	find(
-		guildId: ThreadGuildId,
+		communityId: CommunityId,
 		messageId: ThreadMessageId,
 	): Promise<ThreadDto | undefined> {
 		return this.transaction.startTransaction(async () => {
-			return await this.threadRepository.findByMessageId(guildId, messageId);
+			return await this.threadRepository.findByMessageId(communityId, messageId);
 		});
 	}
 }

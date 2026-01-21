@@ -1,14 +1,17 @@
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
+import { CommunityDto } from "@/src/entities/dto/CommunityDto";
 import { ThreadDto } from "@/src/entities/dto/ThreadDto";
+import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
+import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
 import { ContextId } from "@/src/entities/vo/ContextId";
 import { PersonalityContextContextId } from "@/src/entities/vo/PersonalityContextContextId";
 import { PersonalityContextPersonalityId } from "@/src/entities/vo/PersonalityContextPersonalityId";
 import { PersonalityId } from "@/src/entities/vo/PersonalityId";
 import { ThreadCategoryType } from "@/src/entities/vo/ThreadCategoryType";
-import { ThreadGuildId } from "@/src/entities/vo/ThreadGuildId";
 import { ThreadMessageId } from "@/src/entities/vo/ThreadMessageId";
 import { ThreadMetadataChatgpt } from "@/src/entities/vo/ThreadMetadataChatgpt";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
+import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { IContextLogic } from "@/src/logics/Interfaces/logics/IContextLogic";
 import type { IPersonalityContextLogic } from "@/src/logics/Interfaces/logics/IPersonalityContextLogic";
 import type { IPersonalityLogic } from "@/src/logics/Interfaces/logics/IPersonalityLogic";
@@ -30,6 +33,8 @@ export class TalkCommandHandler implements SlashCommandHandler {
 	private readonly contextLogic!: IContextLogic;
 	@inject(LogicTypes.PersonalityContextLogic)
 	private readonly personalityContextLogic!: IPersonalityContextLogic;
+	@inject(LogicTypes.CommunityLogic)
+	private CommunityLogic!: ICommunityLogic;
 
 	isHandle(commandName: string): boolean {
 		return commandName === "talk";
@@ -49,6 +54,18 @@ export class TalkCommandHandler implements SlashCommandHandler {
 			return;
 		}
 		if (!this.isTextChannel(interaction.channel)) {
+			return;
+		}
+		if (!interaction.guildId) {
+			return;
+		}
+		const communityId = await this.CommunityLogic.getId(
+			new CommunityDto(
+				CommunityCategoryType.Discord,
+				new CommunityClientId(BigInt(interaction.guildId))
+			)
+		)
+		if (communityId == null) {
 			return;
 		}
 
@@ -88,7 +105,7 @@ export class TalkCommandHandler implements SlashCommandHandler {
 
 		await this.threadLogic.create(
 			new ThreadDto(
-				new ThreadGuildId(message.guildId),
+				communityId,
 				new ThreadMessageId(message.id),
 				ThreadCategoryType.CATEGORY_TYPE_CHATGPT,
 				new ThreadMetadataChatgpt(metadata),
