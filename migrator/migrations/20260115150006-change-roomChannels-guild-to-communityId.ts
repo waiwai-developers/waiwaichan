@@ -1,7 +1,7 @@
 import type { Migration } from "@/migrator/umzug";
 import { DataTypes } from "sequelize";
 
-const TABLE_NAME = "Threads";
+const TABLE_NAME = "RoomChannels";
 const COLUMN_NAME_1 = "communityId";
 const COLUMN_NAME_2 = "guildId";
 
