@@ -4,6 +4,7 @@ import type { IDataBaseConnector } from "@/src/logics/Interfaces/repositories/da
 import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 import { CandyItemRepositoryImpl } from "@/src/repositories/sequelize-mysql/CandyItemRepositoryImpl";
 import { CandyRepositoryImpl } from "@/src/repositories/sequelize-mysql/CandyRepositoryImpl";
+import { ChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/ChannelRepositoryImpl";
 import { CommunityRepositoryImpl } from "@/src/repositories/sequelize-mysql/CommunityRepositoryImpl";
 import { ContextRepositoryImpl } from "@/src/repositories/sequelize-mysql/ContextRepositoryImpl";
 import { CrownRepositoryImpl } from "@/src/repositories/sequelize-mysql/CrownRepositoryImpl";
@@ -29,6 +30,7 @@ export class MysqlConnector implements IDataBaseConnector<Sequelize, "mysql"> {
 	static readonly models = [
 		CandyRepositoryImpl,
 		CandyItemRepositoryImpl,
+		ChannelRepositoryImpl,
 		CrownRepositoryImpl,
 		UserCandyItemRepositoryImpl,
 		ReminderRepositoryImpl,

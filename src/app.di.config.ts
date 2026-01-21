@@ -43,11 +43,13 @@ import { VoiceChannelConnectHandler } from "@/src/handlers/discord.js/events/Voi
 import { VoiceChannelDisconnectHandler } from "@/src/handlers/discord.js/events/VoiceChannelDisconnectHandler";
 import type { VoiceChannelEventHandler, VoiceChannelState } from "@/src/handlers/discord.js/events/VoiceChannelEventHandler";
 import { CandyLogic } from "@/src/logics/CandyLogic";
+import { ChannelLogic } from "@/src/logics/ChannelLogic";
 import { ChatAILogic } from "@/src/logics/ChatAILogic";
 import { CommunityLogic } from "@/src/logics/CommunityLogic";
 import { ContextLogic } from "@/src/logics/ContextLogic";
 import { CrownLogic } from "@/src/logics/CrownLogic";
 import type { ICandyLogic } from "@/src/logics/Interfaces/logics/ICandyLogic";
+import type { IChannelLogic } from "@/src/logics/Interfaces/logics/IChannelLogic";
 import type { IChatAILogic } from "@/src/logics/Interfaces/logics/IChatAILogic";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { IContextLogic } from "@/src/logics/Interfaces/logics/IContextLogic";
@@ -67,6 +69,7 @@ import type { IUtilityLogic } from "@/src/logics/Interfaces/logics/IUtilityLogic
 import type { IChatAIRepository } from "@/src/logics/Interfaces/repositories/chataiapi/IChatAIRepository";
 import type { ICandyItemRepository } from "@/src/logics/Interfaces/repositories/database/ICandyItemRepository";
 import type { ICandyRepository } from "@/src/logics/Interfaces/repositories/database/ICandyRepository";
+import type { IChannelRepository } from "@/src/logics/Interfaces/repositories/database/IChannelRepository";
 import type { ICommunityRepository } from "@/src/logics/Interfaces/repositories/database/ICommunityRepository";
 import type { IContextRepository } from "@/src/logics/Interfaces/repositories/database/IContextRepository";
 import type { ICrownRepository } from "@/src/logics/Interfaces/repositories/database/ICrownRepository";
@@ -107,6 +110,7 @@ import { AwaitSemaphoreMutex } from "@/src/repositories/mutex/AwaitSemaphoreMute
 import {
 	CandyItemRepositoryImpl,
 	CandyRepositoryImpl,
+	ChannelRepositoryImpl,
 	CommunityRepositoryImpl,
 	ContextRepositoryImpl,
 	CrownRepositoryImpl,
@@ -163,6 +167,7 @@ appContainer.bind<IRoomNotificationChannelRepository>(RepoTypes.RoomNotification
 appContainer.bind<IStickyRepository>(RepoTypes.StickyRepository).to(StickyRepositoryImpl);
 appContainer.bind<ICommunityRepository>(RepoTypes.CommunityRepository).to(CommunityRepositoryImpl);
 appContainer.bind<IUserRepository>(RepoTypes.UserRepository).to(UserRepositoryImpl);
+appContainer.bind<IChannelRepository>(RepoTypes.ChannelRepository).to(ChannelRepositoryImpl);
 appContainer.bind<IDataDeletionCircular>(RepoTypes.DataDeletionCircular).to(DataDeletionCircularImpl);
 // ChatGPT
 appContainer.bind<IChatAIRepository>(RepoTypes.ChatAIRepository).to(ChatGPTRepositoryImpl);
@@ -192,6 +197,7 @@ appContainer.bind<IRoomNotificationChannelLogic>(LogicTypes.RoomNotificationChan
 appContainer.bind<IUtilityLogic>(LogicTypes.UtilityLogic).to(UtilityLogic);
 appContainer.bind<ICommunityLogic>(LogicTypes.CommunityLogic).to(CommunityLogic);
 appContainer.bind<IUserLogic>(LogicTypes.UserLogic).to(UserLogic);
+appContainer.bind<IChannelLogic>(LogicTypes.ChannelLogic).to(ChannelLogic);
 
 // Handlers
 appContainer.bind<DiscordEventHandler<Message>>(HandlerTypes.MessageHandler).to(AIReplyHandler);
