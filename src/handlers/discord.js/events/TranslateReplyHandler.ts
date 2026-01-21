@@ -1,14 +1,16 @@
 import { AppConfig } from "@/src/entities/config/AppConfig";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
-import { MAX_REPLY_CHARACTERS } from "@/src/entities/constants/Discord";
+import { CommunityDto } from "@/src/entities/dto/CommunityDto";
 import { TranslateDto } from "@/src/entities/dto/TranslateDto";
+import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
+import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
 import { ThreadCategoryType } from "@/src/entities/vo/ThreadCategoryType";
-import { ThreadGuildId } from "@/src/entities/vo/ThreadGuildId";
 import { ThreadMessageId } from "@/src/entities/vo/ThreadMessageId";
 import { TranslateSourceLanguage } from "@/src/entities/vo/TranslateSourceLanguage";
 import { TranslateTargetLanguage } from "@/src/entities/vo/TranslateTargetLanguage";
 import { TranslateText } from "@/src/entities/vo/TranslateText";
 import type { DiscordEventHandler } from "@/src/handlers/discord.js/events/DiscordEventHandler";
+import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { IThreadLogic } from "@/src/logics/Interfaces/logics/IThreadLogic";
 import type { ITranslatorLogic } from "@/src/logics/Interfaces/logics/ITranslatorLogic.ts";
 import { DiscordTextPresenter } from "@/src/presenter/DiscordTextPresenter";
@@ -21,13 +23,27 @@ export class TranslateReplyHandler implements DiscordEventHandler<Message> {
 	private readonly translatorLogic!: ITranslatorLogic;
 	@inject(LogicTypes.ThreadLogic)
 	private readonly threadLogic!: IThreadLogic;
+	@inject(LogicTypes.CommunityLogic)
+	private CommunityLogic!: ICommunityLogic;
+
 	async handle(message: Message) {
 		if (message.author.bot) return;
 		if (!message.channel.isThread()) return;
 		if (!(message.channel.ownerId === AppConfig.discord.clientId)) return;
 
+		const guildId = message.channel.guildId;
+		if (!guildId) return;
+
+		const communityId = await this.CommunityLogic.getId(
+			new CommunityDto(
+				CommunityCategoryType.Discord,
+				new CommunityClientId(BigInt(guildId))
+			)
+		);
+		if (communityId == null) return;
+
 		const thread = await this.threadLogic.find(
-			new ThreadGuildId(message.channel.guildId),
+			communityId,
 			new ThreadMessageId(message.channel.id),
 		);
 
