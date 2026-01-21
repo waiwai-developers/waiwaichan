@@ -1,12 +1,11 @@
 import { ThreadDto } from "@/src/entities/dto/ThreadDto";
+import { CommunityId } from "@/src/entities/vo/CommunityId";
 import { ThreadCategoryType } from "@/src/entities/vo/ThreadCategoryType";
-import { ThreadGuildId } from "@/src/entities/vo/ThreadGuildId";
 import { ThreadMessageId } from "@/src/entities/vo/ThreadMessageId";
 import { ThreadMetadata } from "@/src/entities/vo/ThreadMetadata";
 import type { IThreadRepository } from "@/src/logics/Interfaces/repositories/database/IThreadRepository";
 import { injectable } from "inversify";
 import {
-	AutoIncrement,
 	Column,
 	DataType,
 	Model,
@@ -22,8 +21,8 @@ import {
 })
 class ThreadRepositoryImpl extends Model implements IThreadRepository {
 	@PrimaryKey
-	@Column(DataType.STRING)
-	declare guildId: string;
+	@Column(DataType.INTEGER)
+	declare communityId: number;
 	@PrimaryKey
 	@Column(DataType.STRING)
 	declare messageId: string;
@@ -34,7 +33,7 @@ class ThreadRepositoryImpl extends Model implements IThreadRepository {
 
 	async create(data: ThreadDto): Promise<boolean> {
 		return ThreadRepositoryImpl.create({
-			guildId: data.guildId.getValue(),
+			communityId: data.communityId.getValue(),
 			messageId: data.messageId.getValue(),
 			categoryType: data.categoryType.getValue(),
 			metadata: data.metadata.getValue(),
@@ -42,12 +41,12 @@ class ThreadRepositoryImpl extends Model implements IThreadRepository {
 	}
 
 	async findByMessageId(
-		guildId: ThreadGuildId,
+		communityId: CommunityId,
 		messageId: ThreadMessageId,
 	): Promise<ThreadDto | undefined> {
 		return ThreadRepositoryImpl.findOne({
 			where: {
-				guildId: guildId.getValue(),
+				communityId: communityId.getValue(),
 				messageId: messageId.getValue(),
 			},
 		}).then((res) => (res ? res.toDto() : undefined));
@@ -55,7 +54,7 @@ class ThreadRepositoryImpl extends Model implements IThreadRepository {
 
 	toDto(): ThreadDto {
 		return new ThreadDto(
-			new ThreadGuildId(this.guildId),
+			new CommunityId(this.communityId),
 			new ThreadMessageId(this.messageId),
 			new ThreadCategoryType(this.categoryType),
 			new ThreadMetadata(this.metadata),
