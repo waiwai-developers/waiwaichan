@@ -1,8 +1,11 @@
 import { RoleConfig } from "@/src/entities/config/RoleConfig";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
+import { CommunityDto } from "@/src/entities/dto/CommunityDto";
 import type { StickyDto } from "@/src/entities/dto/StickyDto";
-import { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
+import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
+import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
+import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { IStickyLogic } from "@/src/logics/Interfaces/logics/IStickyLogic";
 import type { CacheType, ChatInputCommandInteraction } from "discord.js";
 import { inject, injectable } from "inversify";
@@ -11,6 +14,9 @@ import { inject, injectable } from "inversify";
 export class StickyListCommandHandler implements SlashCommandHandler {
 	@inject(LogicTypes.StickyLogic)
 	private stickyLogic!: IStickyLogic;
+
+	@inject(LogicTypes.CommunityLogic)
+	private CommunityLogic!: ICommunityLogic;
 	isHandle(commandName: string): boolean {
 		return commandName === "stickylist";
 	}
@@ -33,9 +39,17 @@ export class StickyListCommandHandler implements SlashCommandHandler {
 			return;
 		}
 
-		const stickys = await this.stickyLogic.findByCommunityId(
-			new DiscordGuildId(interaction.guildId),
+		const communityId = await this.CommunityLogic.getId(
+			new CommunityDto(
+				CommunityCategoryType.Discord,
+				new CommunityClientId(BigInt(interaction.guildId)),
+			),
 		);
+		if (communityId == null) {
+			return;
+		}
+
+		const stickys = await this.stickyLogic.findByCommunityId(communityId);
 		if (stickys.length === 0) {
 			await interaction.reply("スティッキーが登録されていなかったよ！っ");
 			return;

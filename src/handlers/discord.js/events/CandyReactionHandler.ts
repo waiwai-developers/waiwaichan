@@ -3,16 +3,24 @@ import {
 	LogicTypes,
 	RepoTypes,
 } from "@/src/entities/constants/DIContainerTypes";
+import { CommunityDto } from "@/src/entities/dto/CommunityDto";
+import { UserDto } from "@/src/entities/dto/UserDto";
 import { CandyCategoryType } from "@/src/entities/vo/CandyCategoryType";
-import { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
+import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
+import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
 import { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
 import { DiscordMessageLink } from "@/src/entities/vo/DiscordMessageLink";
-import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
+import { UserCategoryType } from "@/src/entities/vo/UserCategoryType";
+import { UserClientId } from "@/src/entities/vo/UserClientId";
+import { UserCommunityId } from "@/src/entities/vo/UserCommunityId";
+import { UserType } from "@/src/entities/vo/UserType";
 import type {
 	DiscordEventHandler,
 	ReactionInteraction,
 } from "@/src/handlers/discord.js/events/DiscordEventHandler";
 import type { ICandyLogic } from "@/src/logics/Interfaces/logics/ICandyLogic";
+import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
+import type { IUserLogic } from "@/src/logics/Interfaces/logics/IUserLogic";
 import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 import { TextChannel } from "discord.js";
 import { inject, injectable } from "inversify";
@@ -23,6 +31,12 @@ export class CandyReactionHandler
 {
 	@inject(LogicTypes.CandyLogic)
 	private candyLogic!: ICandyLogic;
+
+	@inject(LogicTypes.CommunityLogic)
+	private CommunityLogic!: ICommunityLogic;
+
+	@inject(LogicTypes.UserLogic)
+	private UserLogic!: IUserLogic;
 
 	@inject(RepoTypes.Logger)
 	private readonly logger!: ILogger;
@@ -74,10 +88,44 @@ export class CandyReactionHandler
 			return;
 		}
 
+		const communityId = await this.CommunityLogic.getId(
+			new CommunityDto(
+				CommunityCategoryType.Discord,
+				new CommunityClientId(BigInt(reaction.message.guildId)),
+			),
+		);
+		if (communityId == null) {
+			return;
+		}
+
+		const receiverUserId = await this.UserLogic.getId(
+			new UserDto(
+				UserCategoryType.Discord,
+				new UserClientId(BigInt(reaction.message.author.id)),
+				UserType.user,
+				new UserCommunityId(communityId.getValue()),
+			),
+		);
+		if (receiverUserId == null) {
+			return;
+		}
+
+		const giveUserId = await this.UserLogic.getId(
+			new UserDto(
+				UserCategoryType.Discord,
+				new UserClientId(BigInt(user.id)),
+				UserType.user,
+				new UserCommunityId(communityId.getValue()),
+			),
+		);
+		if (giveUserId == null) {
+			return;
+		}
+
 		const res = await this.candyLogic.giveCandys(
-			new DiscordGuildId(reaction.message.guildId),
-			new DiscordUserId(reaction.message.author.id),
-			new DiscordUserId(user.id),
+			communityId,
+			receiverUserId,
+			giveUserId,
 			new DiscordMessageId(reaction.message.id),
 			new DiscordMessageLink(reaction.message.url),
 			candyCategoryType,
@@ -92,6 +140,8 @@ export class CandyReactionHandler
 		if (!(channel instanceof TextChannel)) {
 			return;
 		}
-		await channel.send(res);
+		await channel.send(
+			`<@${reaction.message.author.id}>さんが<@${user.id}>さんに${res}`,
+		);
 	}
 }

@@ -1,10 +1,13 @@
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
+import { CommunityDto } from "@/src/entities/dto/CommunityDto";
 import { ThreadDto } from "@/src/entities/dto/ThreadDto";
+import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
+import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
 import { ThreadCategoryType } from "@/src/entities/vo/ThreadCategoryType";
-import { ThreadGuildId } from "@/src/entities/vo/ThreadGuildId";
 import { ThreadMessageId } from "@/src/entities/vo/ThreadMessageId";
 import { ThreadMetadataDeepl } from "@/src/entities/vo/ThreadMetadataDeepl";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
+import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { IThreadLogic } from "@/src/logics/Interfaces/logics/IThreadLogic";
 import type {
 	CacheType,
@@ -17,6 +20,9 @@ import { inject, injectable } from "inversify";
 export class TranslateCommandHandler implements SlashCommandHandler {
 	@inject(LogicTypes.ThreadLogic)
 	private readonly threadLogic!: IThreadLogic;
+	@inject(LogicTypes.CommunityLogic)
+	private CommunityLogic!: ICommunityLogic;
+
 	isHandle(commandName: string): boolean {
 		return commandName === "translate";
 	}
@@ -35,6 +41,18 @@ export class TranslateCommandHandler implements SlashCommandHandler {
 			return;
 		}
 		if (!this.isTextChannel(interaction.channel)) {
+			return;
+		}
+		if (!interaction.guildId) {
+			return;
+		}
+		const communityId = await this.CommunityLogic.getId(
+			new CommunityDto(
+				CommunityCategoryType.Discord,
+				new CommunityClientId(BigInt(interaction.guildId)),
+			),
+		);
+		if (communityId == null) {
 			return;
 		}
 
@@ -57,7 +75,7 @@ export class TranslateCommandHandler implements SlashCommandHandler {
 
 		await this.threadLogic.create(
 			new ThreadDto(
-				new ThreadGuildId(message.guildId),
+				communityId,
 				new ThreadMessageId(message.id),
 				ThreadCategoryType.CATEGORY_TYPE_DEEPL,
 				new ThreadMetadataDeepl(

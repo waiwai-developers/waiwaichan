@@ -33,9 +33,9 @@ export class SlashCommandRouter implements DiscordEventRouter {
 				this.logger.error(`Error: ${error}`);
 				if (interaction.isChatInputCommand()) {
 					if (interaction.replied || interaction.deferred) {
-						interaction.editReply(InternalErrorMessage);
+						await interaction.editReply(InternalErrorMessage);
 					} else {
-						interaction.reply(InternalErrorMessage);
+						await interaction.reply(InternalErrorMessage);
 					}
 				}
 			}

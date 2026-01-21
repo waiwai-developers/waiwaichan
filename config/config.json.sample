@@ -1,7 +1,8 @@
 {
 	"discord": {
 		"token": "",
-		"clientId": ""
+		"clientId": "",
+		"guildId": ""
 	},
 	"deepl": {
 		"deeplApiKey": ""

@@ -1,12 +1,15 @@
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
+import { CommunityDto } from "@/src/entities/dto/CommunityDto";
 import { RoomChannelDto } from "@/src/entities/dto/RoomChannelDto";
+import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
+import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
 import { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
-import { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
 import type {
 	VoiceChannelEventHandler,
 	VoiceChannelState,
 } from "@/src/handlers/discord.js/events/VoiceChannelEventHandler";
+import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { IRoomAddChannelLogic } from "@/src/logics/Interfaces/logics/IRoomAddChannelLogic";
 import type { IRoomChannelLogic } from "@/src/logics/Interfaces/logics/IRoomChannelLogic";
 import type { IRoomNotificationChannelLogic } from "@/src/logics/Interfaces/logics/IRoomNotificationChannelLogic";
@@ -26,6 +29,8 @@ export class VoiceChannelConnectHandler
 	private roomNotificationChannelLogic!: IRoomNotificationChannelLogic;
 	@inject(LogicTypes.RoomChannelLogic)
 	private roomChannelLogic!: IRoomChannelLogic;
+	@inject(LogicTypes.CommunityLogic)
+	private CommunityLogic!: ICommunityLogic;
 
 	async handle({ newState }: VoiceChannelState): Promise<void> {
 		// 新規接続でない
@@ -42,10 +47,19 @@ export class VoiceChannelConnectHandler
 			return;
 		}
 
-		//guildIDで部屋追加Channelを取得し存在チェック
-		const roomAddChannel = await this.roomAddChannelLogic.find(
-			new DiscordGuildId(newState.guild.id),
+		const communityId = await this.CommunityLogic.getId(
+			new CommunityDto(
+				CommunityCategoryType.Discord,
+				new CommunityClientId(BigInt(newState.guild.id)),
+			),
 		);
+		if (communityId == null) {
+			this.logger.info("not exist community");
+			return;
+		}
+
+		//communityIdで部屋追加Channelを取得し存在チェック
+		const roomAddChannel = await this.roomAddChannelLogic.find(communityId);
 		if (roomAddChannel === undefined) {
 			this.logger.info("not exist room add channel");
 			return;
@@ -64,18 +78,13 @@ export class VoiceChannelConnectHandler
 			type: ChannelType.GuildVoice,
 		});
 		await this.roomChannelLogic.create(
-			new RoomChannelDto(
-				new DiscordGuildId(newChannel.guildId),
-				new DiscordChannelId(newChannel.id),
-			),
+			new RoomChannelDto(communityId, new DiscordChannelId(newChannel.id)),
 		);
 		await newState.member.voice.setChannel(newChannel);
 
-		//guildIDから部屋通知Channelを取得し通知を送信
+		//communityIdから部屋通知Channelを取得し通知を送信
 		const roomNotificationChannel =
-			await this.roomNotificationChannelLogic.find(
-				new DiscordGuildId(newState.guild.id),
-			);
+			await this.roomNotificationChannelLogic.find(communityId);
 		if (roomNotificationChannel === undefined) {
 			this.logger.info("not setting room notification channel");
 			return;

@@ -1,18 +1,18 @@
+x-build: &build
+  context: ../../.
+  dockerfile: environment/development/Dockerfile
 x-base-service: &base-service
-  build:
-    context: ../../.
-    dockerfile: environment/development/Dockerfile
-  image: waiwai-app:development
+  build: *build
   networks:
     - server-network
   environment:
-    CI: "true"
-    GOOGLE_APPLICATION_CREDENTIALS: /app/config/key.json
     NODE_ENV: development
   volumes:
-    - type: bind
-      source: ../../config
-      target: /app/config
+    - ../../src:/app/src
+    - ../../migrator:/app/migrator
+    - ../../tests:/app/tests
+    - ../../tsconfig.json:/app/tsconfig.json
+    - ../../config:/app/config
 services:
   database:
     container_name: waiwai-database
@@ -39,6 +39,7 @@ services:
   migrate:
     <<: *base-service
     container_name: waiwai-migrate
+    image: waiwai-app:development-migrate
     restart: "no"
     command: ["pnpm", "migrateAll:up"]
     depends_on:
@@ -47,6 +48,7 @@ services:
   backend:
     <<: *base-service
     container_name: waiwai-backend
+    image: waiwai-app:development-backend
     restart: always
     command: ["pnpm", "dev:backend"]
     depends_on:
@@ -57,6 +59,7 @@ services:
   scheduler:
     <<: *base-service
     container_name: waiwai-scheduler
+    image: waiwai-app:development-scheduler
     restart: always
     command: ["pnpm", "dev:scheduler"]
     depends_on:

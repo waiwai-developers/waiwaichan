@@ -1,12 +1,18 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { DatafixCandyModel } from "@/migrator/datafixies/models/DatafixCandyModel";
+import { DatafixCommunityModel } from "@/migrator/datafixies/models/DatafixCommunityModel";
 import { DatafixContextModel } from "@/migrator/datafixies/models/DatafixContextModel";
+import { DatafixCrownModel } from "@/migrator/datafixies/models/DatafixCrownModel";
 import { DatafixPersonalityContextModel } from "@/migrator/datafixies/models/DatafixPersonalityContextModel";
 import { DatafixPersonalityModel } from "@/migrator/datafixies/models/DatafixPersonalityModel";
 import { DatafixReminderModel } from "@/migrator/datafixies/models/DatafixReminderModel";
+import { DatafixRoomAddChannelsModel } from "@/migrator/datafixies/models/DatafixRoomAddChannelsModel";
+import { DatafixRoomChannelsModel } from "@/migrator/datafixies/models/DatafixRoomChannelsModel";
+import { DatafixRoomNotificationChannelsModel } from "@/migrator/datafixies/models/DatafixRoomNotificationChannelsModel";
 import { DatafixThreadModel } from "@/migrator/datafixies/models/DatafixThreadModel";
 import { DatafixUserItemModel } from "@/migrator/datafixies/models/DatafixUserItemModel";
+import { DatafixUserModel } from "@/migrator/datafixies/models/DatafixUserModel";
 import {
 	type DatabaseConfigType,
 	GetEnvDatabaseConfig,
@@ -14,6 +20,7 @@ import {
 import { Sequelize } from "sequelize-typescript";
 import { SequelizeStorage, Umzug } from "umzug";
 import type { MigrationParams } from "umzug/lib/types";
+import { DatafixStickyModel } from "./datafixies/models/DatafixStickyModel";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -140,9 +147,16 @@ export const datafixer = (
 				DatafixCandyModel,
 				DatafixThreadModel,
 				DatafixReminderModel,
+				DatafixCommunityModel,
+				DatafixUserModel,
+				DatafixStickyModel,
+				DatafixCrownModel,
 				DatafixPersonalityModel,
 				DatafixContextModel,
 				DatafixPersonalityContextModel,
+				DatafixRoomAddChannelsModel,
+				DatafixRoomChannelsModel,
+				DatafixRoomNotificationChannelsModel,
 			],
 		},
 	);
