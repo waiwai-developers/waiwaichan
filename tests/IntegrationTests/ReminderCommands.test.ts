@@ -11,38 +11,12 @@ import { type Channel, type ChannelManager, type Client, type Collection, type S
 import { anything, instance, mock, verify, when } from "ts-mockito";
 
 // テスト用の定数
-const TEST_GUILD_ID = "9999"; // communityのclientId
-const TEST_USER_ID = "1234"; // userのclientId
-
-// Helper function to create community and user for tests
-async function createCommunityAndUser(): Promise<{
-	communityId: number;
-	userId: number;
-}> {
-	// Create community
-	const community = await CommunityRepositoryImpl.create({
-		categoryType: 0, // Discord
-		clientId: BigInt(TEST_GUILD_ID),
-		batchStatus: 0,
-	});
-
-	// Create user
-	const user = await UserRepositoryImpl.create({
-		categoryType: 0, // Discord
-		clientId: BigInt(TEST_USER_ID),
-		userType: 0, // user
-		communityId: community.id,
-		batchStatus: 0,
-	});
-
-	return {
-		communityId: community.id,
-		userId: user.id,
-	};
-}
+const TEST_GUILD_ID = "9999"; // communityのclientId（MockSlashCommandのデフォルト）
+const TEST_USER_ID = "1234"; // userのclientId（MockSlashCommandのデフォルト）
+const TEST_CHANNEL_ID = "5678"; // channelId（MockSlashCommandのデフォルト）
 
 describe("Test Reminder Commands", () => {
-	// テスト用のコミュニティとユーザーのID（autoincrement）
+	// テスト用のコミュニティのID（autoincrement）
 	let testCommunityId: number;
 	let testUserId: number;
 
@@ -56,11 +30,26 @@ describe("Test Reminder Commands", () => {
 		await ReminderRepositoryImpl.destroy({ truncate: true, force: true });
 		await UserRepositoryImpl.destroy({ truncate: true, force: true });
 		await CommunityRepositoryImpl.destroy({ truncate: true, force: true });
-		// Create community and user for each test
-		const { communityId, userId } = await createCommunityAndUser();
-		testCommunityId = communityId;
-		testUserId = userId;
+
+		// Create community for each test
+		const community = await CommunityRepositoryImpl.create({
+			categoryType: 0, // Discord
+			clientId: BigInt(TEST_GUILD_ID),
+			batchStatus: 0,
+		});
+		testCommunityId = community.id;
+
+		// Create user for each test
+		const user = await UserRepositoryImpl.create({
+			categoryType: 0, // Discord
+			clientId: BigInt(TEST_USER_ID),
+			userType: 0, // user
+			communityId: community.id,
+			batchStatus: 0,
+		});
+		testUserId = user.id;
 	});
+
 	/**
 	 * ReminderSetCommandHandlerのテスト
 	 */
@@ -87,8 +76,8 @@ describe("Test Reminder Commands", () => {
 
 		expect(res[0].id).to.eq(1);
 		expect(res[0].communityId).to.eq(testCommunityId);
-		expect(res[0].userId).to.eq(testUserId);
-		expect(res[0].channelId).to.eq(5678);
+		expect(String(res[0].userId)).to.eq(String(TEST_USER_ID));
+		expect(String(res[0].channelId)).to.eq(String(TEST_CHANNEL_ID));
 		expect(res[0].message).to.eq("test reminder");
 	});
 
@@ -195,16 +184,16 @@ describe("Test Reminder Commands", () => {
 		await ReminderRepositoryImpl.bulkCreate([
 			{
 				communityId: testCommunityId,
-				userId: testUserId,
-				channelId: 5678,
+				userId: TEST_USER_ID,
+				channelId: TEST_CHANNEL_ID,
 				receiveUserName: "username",
 				message: "reminderlist test 1",
 				remindAt: "2999/12/31 23:59:59",
 			},
 			{
 				communityId: testCommunityId,
-				userId: testUserId,
-				channelId: 5678,
+				userId: TEST_USER_ID,
+				channelId: TEST_CHANNEL_ID,
 				receiveUserName: "username",
 				message: "reminderlist test 2",
 				remindAt: "2999/12/31 23:59:59",
@@ -241,24 +230,24 @@ describe("Test Reminder Commands", () => {
 		const [forDeleteObj, forNotDeleteObjSameUserId, forNotDeleteObjDifferentUserId] = await ReminderRepositoryImpl.bulkCreate([
 			{
 				communityId: testCommunityId,
-				userId: testUserId,
-				channelId: 5678,
+				userId: TEST_USER_ID,
+				channelId: TEST_CHANNEL_ID,
 				receiveUserName: "username",
 				message: "reminderlist test 1",
 				remindAt: "2999/12/31 23:59:59",
 			},
 			{
 				communityId: testCommunityId,
-				userId: testUserId,
-				channelId: 5678,
+				userId: TEST_USER_ID,
+				channelId: TEST_CHANNEL_ID,
 				receiveUserName: "username",
 				message: "reminderlist test 2",
 				remindAt: "2999/12/31 23:59:59",
 			},
 			{
 				communityId: testCommunityId,
-				userId: 9012,
-				channelId: 3456,
+				userId: "9012",
+				channelId: "3456",
 				receiveUserName: "username",
 				message: "reminderlist test 3",
 				remindAt: "2000/12/31 23:59:59",
@@ -279,13 +268,13 @@ describe("Test Reminder Commands", () => {
 		expect(res.length).to.eq(2);
 
 		expect(res[0].id).to.eq(forNotDeleteObjSameUserId.id);
-		expect(res[0].userId).to.eq(forNotDeleteObjSameUserId.userId);
-		expect(res[0].channelId).to.eq(forNotDeleteObjSameUserId.channelId);
+		expect(String(res[0].userId)).to.eq(String(forNotDeleteObjSameUserId.userId));
+		expect(String(res[0].channelId)).to.eq(String(forNotDeleteObjSameUserId.channelId));
 		expect(res[0].message).to.eq(forNotDeleteObjSameUserId.message);
 
 		expect(res[1].id).to.eq(forNotDeleteObjDifferentUserId.id);
-		expect(res[1].userId).to.eq(forNotDeleteObjDifferentUserId.userId);
-		expect(res[1].channelId).to.eq(forNotDeleteObjDifferentUserId.channelId);
+		expect(String(res[1].userId)).to.eq(String(forNotDeleteObjDifferentUserId.userId));
+		expect(String(res[1].channelId)).to.eq(String(forNotDeleteObjDifferentUserId.channelId));
 		expect(res[1].message).to.eq(forNotDeleteObjDifferentUserId.message);
 	});
 
@@ -298,24 +287,24 @@ describe("Test Reminder Commands", () => {
 		const [inserted0, inserted1, inserted2] = await ReminderRepositoryImpl.bulkCreate([
 			{
 				communityId: testCommunityId,
-				userId: 9012, // Different user - cannot delete
-				channelId: 5678,
+				userId: "9012",
+				channelId: TEST_CHANNEL_ID,
 				receiveUserName: "username",
 				message: "reminderlist test 1",
 				remindAt: "2999/12/31 23:59:59",
 			},
 			{
 				communityId: testCommunityId,
-				userId: testUserId,
-				channelId: 5678,
+				userId: TEST_USER_ID,
+				channelId: TEST_CHANNEL_ID,
 				receiveUserName: "username",
 				message: "reminderlist test 2",
 				remindAt: "2999/12/31 23:59:59",
 			},
 			{
 				communityId: testCommunityId,
-				userId: 9012, // Different user
-				channelId: 3456,
+				userId: "9012",
+				channelId: "3456",
 				receiveUserName: "username",
 				message: "reminderlist test 3",
 				remindAt: "2000/12/31 23:59:59",
@@ -336,18 +325,18 @@ describe("Test Reminder Commands", () => {
 		expect(res.length).to.eq(3);
 
 		expect(res[0].id).to.eq(inserted0.id);
-		expect(res[0].userId).to.eq(inserted0.userId);
-		expect(res[0].channelId).to.eq(inserted0.channelId);
+		expect(String(res[0].userId)).to.eq(String(inserted0.userId));
+		expect(String(res[0].channelId)).to.eq(String(inserted0.channelId));
 		expect(res[0].message).to.eq(inserted0.message);
 
 		expect(res[1].id).to.eq(inserted1.id);
-		expect(res[1].userId).to.eq(inserted1.userId);
-		expect(res[1].channelId).to.eq(inserted1.channelId);
+		expect(String(res[1].userId)).to.eq(String(inserted1.userId));
+		expect(String(res[1].channelId)).to.eq(String(inserted1.channelId));
 		expect(res[1].message).to.eq(inserted1.message);
 
 		expect(res[2].id).to.eq(inserted2.id);
-		expect(res[2].userId).to.eq(inserted2.userId);
-		expect(res[2].channelId).to.eq(inserted2.channelId);
+		expect(String(res[2].userId)).to.eq(String(inserted2.userId));
+		expect(String(res[2].channelId)).to.eq(String(inserted2.channelId));
 		expect(res[2].message).to.eq(inserted2.message);
 	});
 
@@ -398,24 +387,24 @@ describe("Test Reminder Commands", () => {
 		const [inserted0, inserted1, inserted2] = await ReminderRepositoryImpl.bulkCreate([
 			{
 				communityId: testCommunityId,
-				userId: 9012,
-				channelId: 5678,
+				userId: "9012",
+				channelId: TEST_CHANNEL_ID,
 				receiveUserName: "username",
 				message: "reminderlist test 1",
 				remindAt: dayjs().subtract(1, "second"),
 			},
 			{
 				communityId: testCommunityId,
-				userId: testUserId,
-				channelId: 5678,
+				userId: TEST_USER_ID,
+				channelId: TEST_CHANNEL_ID,
 				receiveUserName: "username",
 				message: "reminderlist test 2",
 				remindAt: "2999/12/31 23:59:59",
 			},
 			{
 				communityId: testCommunityId,
-				userId: 9012,
-				channelId: 3456,
+				userId: "9012",
+				channelId: "3456",
 				receiveUserName: "username",
 				message: "reminderlist test 3",
 				remindAt: "2999/12/31 23:59:59",
@@ -455,13 +444,13 @@ describe("Test Reminder Commands", () => {
 		expect(res.length).to.eq(2);
 
 		expect(res[0].id).to.eq(inserted1.id);
-		expect(res[0].userId).to.eq(inserted1.userId);
-		expect(res[0].channelId).to.eq(inserted1.channelId);
+		expect(String(res[0].userId)).to.eq(String(inserted1.userId));
+		expect(String(res[0].channelId)).to.eq(String(inserted1.channelId));
 		expect(res[0].message).to.eq(inserted1.message);
 
 		expect(res[1].id).to.eq(inserted2.id);
-		expect(res[1].userId).to.eq(inserted2.userId);
-		expect(res[1].channelId).to.eq(inserted2.channelId);
+		expect(String(res[1].userId)).to.eq(String(inserted2.userId));
+		expect(String(res[1].channelId)).to.eq(String(inserted2.channelId));
 		expect(res[1].message).to.eq(inserted2.message);
 	});
 
@@ -512,24 +501,24 @@ describe("Test Reminder Commands", () => {
 		const [inserted0, inserted1, inserted2] = await ReminderRepositoryImpl.bulkCreate([
 			{
 				communityId: testCommunityId,
-				userId: 9012,
-				channelId: 5678,
+				userId: "9012",
+				channelId: TEST_CHANNEL_ID,
 				receiveUserName: "username",
 				message: "reminderlist test 1",
 				remindAt: dayjs().subtract(1, "second"),
 			},
 			{
 				communityId: testCommunityId,
-				userId: testUserId,
-				channelId: 5678,
+				userId: TEST_USER_ID,
+				channelId: TEST_CHANNEL_ID,
 				receiveUserName: "username",
 				message: "reminderlist test 2",
 				remindAt: "2999/12/31 23:59:59",
 			},
 			{
 				communityId: testCommunityId,
-				userId: 9012,
-				channelId: 3456,
+				userId: "9012",
+				channelId: "3456",
 				receiveUserName: "username",
 				message: "reminderlist test 3",
 				remindAt: "2999/12/31 23:59:59",
@@ -561,18 +550,18 @@ describe("Test Reminder Commands", () => {
 		expect(res.length).to.eq(3);
 
 		expect(res[0].id).to.eq(inserted0.id);
-		expect(res[0].userId).to.eq(inserted0.userId);
-		expect(res[0].channelId).to.eq(inserted0.channelId);
+		expect(String(res[0].userId)).to.eq(String(inserted0.userId));
+		expect(String(res[0].channelId)).to.eq(String(inserted0.channelId));
 		expect(res[0].message).to.eq(inserted0.message);
 
 		expect(res[1].id).to.eq(inserted1.id);
-		expect(res[1].userId).to.eq(inserted1.userId);
-		expect(res[1].channelId).to.eq(inserted1.channelId);
+		expect(String(res[1].userId)).to.eq(String(inserted1.userId));
+		expect(String(res[1].channelId)).to.eq(String(inserted1.channelId));
 		expect(res[1].message).to.eq(inserted1.message);
 
 		expect(res[2].id).to.eq(inserted2.id);
-		expect(res[2].userId).to.eq(inserted2.userId);
-		expect(res[2].channelId).to.eq(inserted2.channelId);
+		expect(String(res[2].userId)).to.eq(String(inserted2.userId));
+		expect(String(res[2].channelId)).to.eq(String(inserted2.channelId));
 		expect(res[2].message).to.eq(inserted2.message);
 	});
 

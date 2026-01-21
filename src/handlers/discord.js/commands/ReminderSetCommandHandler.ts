@@ -1,4 +1,5 @@
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
+<<<<<<< Updated upstream
 import { CommunityDto } from "@/src/entities/dto/CommunityDto";
 import { ReminderDto } from "@/src/entities/dto/ReminderDto";
 import { UserDto } from "@/src/entities/dto/UserDto";
@@ -9,6 +10,15 @@ import { UserCategoryType } from "@/src/entities/vo/UserCategoryType";
 import { UserClientId } from "@/src/entities/vo/UserClientId";
 import { UserCommunityId } from "@/src/entities/vo/UserCommunityId";
 import { UserType } from "@/src/entities/vo/UserType";
+=======
+import { InternalErrorMessage } from "@/src/entities/DiscordErrorMessages";
+import { CommunityDto } from "@/src/entities/dto/CommunityDto";
+import { ReminderDto } from "@/src/entities/dto/ReminderDto";
+import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
+import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
+import { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
+import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
+>>>>>>> Stashed changes
 import { ReceiveDiscordUserName } from "@/src/entities/vo/ReceiveDiscordUserName";
 import { RemindTime } from "@/src/entities/vo/RemindTime";
 import { ReminderMessage } from "@/src/entities/vo/ReminderMessage";
@@ -26,10 +36,14 @@ export class ReminderSetCommandHandler implements SlashCommandHandler {
 	private reminderLogic!: IReminderLogic;
 
 	@inject(LogicTypes.CommunityLogic)
+<<<<<<< Updated upstream
 	private CommunityLogic!: ICommunityLogic;
 
 	@inject(LogicTypes.UserLogic)
 	private UserLogic!: IUserLogic;
+=======
+	private communityLogic!: ICommunityLogic;
+>>>>>>> Stashed changes
 
 	isHandle(commandName: string): boolean {
 		return commandName === "reminderset";
@@ -41,6 +55,7 @@ export class ReminderSetCommandHandler implements SlashCommandHandler {
 		if (!interaction.guildId) {
 			return;
 		}
+<<<<<<< Updated upstream
 		const communityId = await this.CommunityLogic.getId(
 			new CommunityDto(
 				CommunityCategoryType.Discord,
@@ -60,6 +75,17 @@ export class ReminderSetCommandHandler implements SlashCommandHandler {
 			)
 		)
 		if (userId == null) {
+=======
+
+		const communityId = await this.communityLogic.getId(
+			new CommunityDto(
+				CommunityCategoryType.Discord,
+				new CommunityClientId(BigInt(interaction.guildId)),
+			),
+		);
+		if (communityId == null) {
+			await interaction.reply(InternalErrorMessage);
+>>>>>>> Stashed changes
 			return;
 		}
 
