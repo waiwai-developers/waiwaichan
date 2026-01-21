@@ -8,8 +8,8 @@ import {
 	ChannelType as DiscordChannelType,
 	GatewayIntentBits,
 } from "discord.js";
-import { DatafixChannelModel } from "../../models/DatafixChannelModel";
-import { DatafixCommunityModel } from "../../models/DatafixCommunityModel";
+import { DatafixChannelModel } from "./models/DatafixChannelModel";
+import { DatafixCommunityModel } from "./models/DatafixCommunityModel";
 
 /**
  * DiscordのChannelTypeをアプリケーションのChannelTypeに変換する
