@@ -29,8 +29,10 @@ export const up: Datafix = async () => {
 				},
 			);
 		}
-	} catch (error: any) {
-		console.error(`migration failed: ${error.message}`);
+	} catch (error: unknown) {
+		console.error(
+			`migration failed: ${error instanceof Error ? error.message : String(error)}`,
+		);
 		throw error;
 	}
 };
