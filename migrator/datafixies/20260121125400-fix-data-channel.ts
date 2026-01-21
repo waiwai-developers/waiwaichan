@@ -40,15 +40,35 @@ export const up: Datafix = async () => {
 	const client = new Client({
 		intents: [GatewayIntentBits.Guilds],
 	});
-	await client.login(AppConfig.discord.token);
 
 	try {
+		// clientがreadyになるまで待機する
+		await new Promise<void>((resolve, reject) => {
+			client.once("ready", () => {
+				console.log("Discord client is ready");
+				resolve();
+			});
+			client.once("error", (error) => {
+				console.error("Discord client error:", error);
+				reject(error);
+			});
+			client.login(AppConfig.discord.token).catch((error) => {
+				console.error("Discord login failed:", error);
+				reject(error);
+			});
+		});
+
 		const communities = await DatafixCommunityModel.findAll();
+		console.log(`found ${communities.length} communities`);
+
 		for (const community of communities) {
 			try {
 				console.log(`processing community guild: ${community.clientId}`);
 				const guild = await client.guilds.fetch(community.clientId);
 				const channels = await guild.channels.fetch();
+				console.log(
+					`fetched ${channels.size} channels for guild: ${community.clientId}`,
+				);
 				const channelData = channels
 					.filter((channel) => channel !== null)
 					.map((channel) => {
@@ -63,10 +83,14 @@ export const up: Datafix = async () => {
 					});
 				if (channelData.length > 0) {
 					await DatafixChannelModel.bulkCreate(channelData);
+					console.log(
+						`successfully created ${channelData.length} Channels for community guildId: ${community.clientId}`,
+					);
+				} else {
+					console.log(
+						`no channels to create for community guildId: ${community.clientId}`,
+					);
 				}
-				console.log(
-					`successfully created ${channelData.length} Channels for community guildId: ${community.clientId}`,
-				);
 			} catch (error: unknown) {
 				const message = error instanceof Error ? error.message : String(error);
 				console.error(
@@ -78,6 +102,10 @@ export const up: Datafix = async () => {
 		const message = error instanceof Error ? error.message : String(error);
 		console.error(`migration failed: ${message}`);
 		throw error;
+	} finally {
+		// Discordクライアントを適切に終了する
+		console.log("destroying Discord client");
+		client.destroy();
 	}
 };
 
