@@ -6,8 +6,9 @@ import { injectable } from "inversify";
 import {
 	Column,
 	DataType,
-	Model,
 	PrimaryKey,
+	AutoIncrement,
+	Model,
 	Table,
 } from "sequelize-typescript";
 
@@ -21,6 +22,10 @@ class RoomNotificationChannelRepositoryImpl
 	extends Model
 	implements IRoomNotificationChannelRepository
 {
+	@PrimaryKey
+	@AutoIncrement
+	@Column(DataType.INTEGER)
+	declare id: number;
 	@Column(DataType.STRING)
 	declare guildId: string;
 	@Column(DataType.STRING)
