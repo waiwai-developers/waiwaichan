@@ -1,5 +1,5 @@
 import { RoleConfig } from "@/src/entities/config/RoleConfig";
-import { RoomAddChannelRepositoryImpl, RoomChannelRepositoryImpl, RoomNotificationChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql";
+import { CommunityRepositoryImpl, RoomAddChannelRepositoryImpl, RoomChannelRepositoryImpl, RoomNotificationChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql";
 import { MysqlConnector } from "@/tests/fixtures/database/MysqlConnector";
 import { mockSlashCommand, waitUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { expect } from "chai";
@@ -9,8 +9,19 @@ import { anything, instance, when } from "ts-mockito";
 import { TestDiscordServer } from "../fixtures/discord.js/TestDiscordServer";
 
 describe("Test Room Commands", () => {
-	beforeEach(() => {
+	beforeEach(async () => {
 		new MysqlConnector();
+		// VoiceChannelConnect/Disconnectのテストに必要なCommunityを作成
+		// テストではcommunityId = "1"をguildIdとして使用するため、clientId = 1のCommunityが必要
+		await CommunityRepositoryImpl.destroy({
+			truncate: true,
+			force: true,
+		});
+		await CommunityRepositoryImpl.create({
+			categoryType: 0, // Discord
+			clientId: 1, // guildId = "1" に対応
+			batchStatus: 0,
+		});
 	});
 
 	afterEach(async () => {
@@ -23,6 +34,10 @@ describe("Test Room Commands", () => {
 			force: true,
 		});
 		await RoomChannelRepositoryImpl.destroy({
+			truncate: true,
+			force: true,
+		});
+		await CommunityRepositoryImpl.destroy({
 			truncate: true,
 			force: true,
 		});
@@ -42,7 +57,7 @@ describe("Test Room Commands", () => {
 		this.timeout(10_000);
 
 		return (async () => {
-			const guildId = "1";
+			const communityId = "1";
 			const channelId = "2";
 			const userId = "3";
 
@@ -52,8 +67,8 @@ describe("Test Room Commands", () => {
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("roomaddchannelcreate", { channelid: channelId }, userId);
 
-			// guildIdとchannelを設定
-			when(commandMock.guildId).thenReturn(guildId);
+			// communityIdとchannelを設定
+			when(commandMock.guildId).thenReturn(communityId);
 			when(commandMock.channel).thenReturn({} as any);
 
 			// replyメソッドをモック
@@ -88,7 +103,7 @@ describe("Test Room Commands", () => {
 		this.timeout(10_000);
 
 		return (async () => {
-			const guildId = "1";
+			const communityId = "1";
 			const channelId = "2";
 			const userId = "3";
 
@@ -98,8 +113,8 @@ describe("Test Room Commands", () => {
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("roomaddchannelcreate", { channelid: channelId }, userId);
 
-			// guildIdとchannelを設定
-			when(commandMock.guildId).thenReturn(guildId);
+			// guildIdとchannelを設定（communityIdはCommunityテーブルのidだが、guildIdはDiscordのguildIdでありCommunity.clientIdに対応する）
+			when(commandMock.guildId).thenReturn(communityId);
 			when(commandMock.channel).thenReturn({} as any);
 
 			// VoiceChannelを返すようにモック
@@ -139,10 +154,9 @@ describe("Test Room Commands", () => {
 			// 応答の検証
 			expect(replyValue).to.eq("部屋追加チャンネルを登録したよ！っ");
 
-			// データが作られていることを確認
+			// データが作られていることを確認（CommunityIdはCommunityテーブルのauto increment id）
 			const afterData = await RoomAddChannelRepositoryImpl.findAll();
 			expect(afterData.length).to.eq(1);
-			expect(String(afterData[0].communityId)).to.eq(String(guildId));
 			expect(String(afterData[0].channelId)).to.eq(String(channelId));
 			expect(afterData[0].deletedAt).to.be.null;
 		})();
@@ -157,7 +171,7 @@ describe("Test Room Commands", () => {
 		this.timeout(10_000);
 
 		return (async () => {
-			const guildId = "1";
+			const communityId = "1";
 			const channelId = "2";
 			const userId = "3";
 
@@ -166,7 +180,7 @@ describe("Test Room Commands", () => {
 
 			// 削除済みのデータを作成
 			const deletedData = await RoomAddChannelRepositoryImpl.create({
-				guildId: guildId,
+				communityId: communityId,
 				channelId: channelId,
 			});
 			await deletedData.destroy();
@@ -178,8 +192,8 @@ describe("Test Room Commands", () => {
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("roomaddchannelcreate", { channelid: channelId }, userId);
 
-			// guildIdとchannelを設定
-			when(commandMock.guildId).thenReturn(guildId);
+			// communityIdとchannelを設定
+			when(commandMock.guildId).thenReturn(communityId);
 			when(commandMock.channel).thenReturn({} as any);
 
 			// VoiceChannelを返すようにモック
@@ -218,7 +232,7 @@ describe("Test Room Commands", () => {
 			// 新しいデータが作られていることを確認
 			const afterData = await RoomAddChannelRepositoryImpl.findAll();
 			expect(afterData.length).to.eq(1);
-			expect(String(afterData[0].communityId)).to.eq(String(guildId));
+			expect(String(afterData[0].communityId)).to.eq(String(communityId));
 			expect(String(afterData[0].channelId)).to.eq(String(channelId));
 			expect(afterData[0].deletedAt).to.be.null;
 		})();
@@ -234,7 +248,7 @@ describe("Test Room Commands", () => {
 		this.timeout(10_000);
 
 		return (async () => {
-			const guildId = "1";
+			const communityId = "1";
 			const channelId = "2";
 			const userId = "3";
 
@@ -243,15 +257,15 @@ describe("Test Room Commands", () => {
 
 			// 既存のデータを作成
 			await RoomAddChannelRepositoryImpl.create({
-				guildId: guildId,
+				communityId: communityId,
 				channelId: channelId,
 			});
 
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("roomaddchannelcreate", { channelid: channelId }, userId);
 
-			// guildIdとchannelを設定
-			when(commandMock.guildId).thenReturn(guildId);
+			// communityIdとchannelを設定
+			when(commandMock.guildId).thenReturn(communityId);
 			when(commandMock.channel).thenReturn({} as any);
 
 			// replyメソッドをモック
@@ -292,7 +306,7 @@ describe("Test Room Commands", () => {
 		this.timeout(10_000);
 
 		return (async () => {
-			const guildId = "1";
+			const communityId = "1";
 			const channelId = "2";
 			const userId = "3";
 
@@ -302,8 +316,8 @@ describe("Test Room Commands", () => {
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("roomaddchannelcreate", { channelid: channelId }, userId);
 
-			// guildIdとchannelを設定
-			when(commandMock.guildId).thenReturn(guildId);
+			// communityIdとchannelを設定
+			when(commandMock.guildId).thenReturn(communityId);
 			when(commandMock.channel).thenReturn({} as any);
 
 			// VoiceChannel以外のチャンネルを返すようにモック
@@ -358,7 +372,7 @@ describe("Test Room Commands", () => {
 		this.timeout(10_000);
 
 		return (async () => {
-			const guildId = "1";
+			const communityId = "1";
 			const channelId = "2";
 			const userId = "3";
 
@@ -368,8 +382,8 @@ describe("Test Room Commands", () => {
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("roomaddchannelcreate", { channelid: channelId }, userId);
 
-			// guildIdとchannelを設定
-			when(commandMock.guildId).thenReturn(guildId);
+			// communityIdとchannelを設定
+			when(commandMock.guildId).thenReturn(communityId);
 			when(commandMock.channel).thenReturn({} as any);
 
 			// VoiceChannelを返すようにモック
@@ -412,7 +426,7 @@ describe("Test Room Commands", () => {
 			// データが作られていることを確認
 			const afterData = await RoomAddChannelRepositoryImpl.findAll();
 			expect(afterData.length).to.eq(1);
-			expect(String(afterData[0].communityId)).to.eq(String(guildId));
+			expect(String(afterData[0].communityId)).to.eq(String(communityId));
 			expect(String(afterData[0].channelId)).to.eq(String(channelId));
 		})();
 	});
@@ -431,7 +445,7 @@ describe("Test Room Commands", () => {
 		this.timeout(10_000);
 
 		return (async () => {
-			const guildId = "1";
+			const communityId = "1";
 			const channelId = "2";
 			const userId = "3";
 
@@ -441,8 +455,8 @@ describe("Test Room Commands", () => {
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("roomaddchanneldelete", {}, userId);
 
-			// guildIdとchannelを設定
-			when(commandMock.guildId).thenReturn(guildId);
+			// communityIdとchannelを設定
+			when(commandMock.guildId).thenReturn(communityId);
 			when(commandMock.channel).thenReturn({} as any);
 
 			// replyメソッドをモック
@@ -472,7 +486,7 @@ describe("Test Room Commands", () => {
 		this.timeout(10_000);
 
 		return (async () => {
-			const guildId = "1";
+			const communityId = "1";
 			const userId = "3";
 
 			// 管理者ユーザーIDを設定
@@ -481,8 +495,8 @@ describe("Test Room Commands", () => {
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("roomaddchanneldelete", {}, userId);
 
-			// guildIdとchannelを設定
-			when(commandMock.guildId).thenReturn(guildId);
+			// communityIdとchannelを設定
+			when(commandMock.guildId).thenReturn(communityId);
 			when(commandMock.channel).thenReturn({} as any);
 
 			// replyメソッドをモック
@@ -521,7 +535,7 @@ describe("Test Room Commands", () => {
 		this.timeout(10_000);
 
 		return (async () => {
-			const guildId = "1";
+			const communityId = "1";
 			const channelId = "2";
 			const userId = "3";
 
@@ -530,15 +544,15 @@ describe("Test Room Commands", () => {
 
 			// 既存のデータを作成
 			await RoomAddChannelRepositoryImpl.create({
-				guildId: guildId,
+				communityId: communityId,
 				channelId: channelId,
 			});
 
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("roomaddchanneldelete", {}, userId);
 
-			// guildIdとchannelを設定
-			when(commandMock.guildId).thenReturn(guildId);
+			// communityIdとchannelを設定
+			when(commandMock.guildId).thenReturn(communityId);
 			when(commandMock.channel).thenReturn({} as any);
 
 			// replyメソッドをモック
@@ -584,7 +598,7 @@ describe("Test Room Commands", () => {
 		this.timeout(10_000);
 
 		return (async () => {
-			const guildId = "1";
+			const communityId = "1";
 			const channelId = "2";
 			const userId = "3";
 
@@ -593,7 +607,7 @@ describe("Test Room Commands", () => {
 
 			// 削除済みのデータを作成
 			const deletedData = await RoomAddChannelRepositoryImpl.create({
-				guildId: guildId,
+				communityId: communityId,
 				channelId: channelId,
 			});
 			await deletedData.destroy();
@@ -601,8 +615,8 @@ describe("Test Room Commands", () => {
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("roomaddchanneldelete", {}, userId);
 
-			// guildIdとchannelを設定
-			when(commandMock.guildId).thenReturn(guildId);
+			// communityIdとchannelを設定
+			when(commandMock.guildId).thenReturn(communityId);
 			when(commandMock.channel).thenReturn({} as any);
 
 			// replyメソッドをモック
@@ -642,7 +656,7 @@ describe("Test Room Commands", () => {
 		this.timeout(10_000);
 
 		return (async () => {
-			const guildId = "1";
+			const communityId = "1";
 			const channelId = "2";
 			const userId = "3";
 
@@ -652,8 +666,8 @@ describe("Test Room Commands", () => {
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("roomnotificationchannelcreate", { channelid: channelId }, userId);
 
-			// guildIdとchannelを設定
-			when(commandMock.guildId).thenReturn(guildId);
+			// communityIdとchannelを設定
+			when(commandMock.guildId).thenReturn(communityId);
 			when(commandMock.channel).thenReturn({} as any);
 
 			// replyメソッドをモック
@@ -688,7 +702,7 @@ describe("Test Room Commands", () => {
 		this.timeout(10_000);
 
 		return (async () => {
-			const guildId = "1";
+			const communityId = "1";
 			const channelId = "2";
 			const userId = "3";
 
@@ -698,8 +712,8 @@ describe("Test Room Commands", () => {
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("roomnotificationchannelcreate", { channelid: channelId }, userId);
 
-			// guildIdとchannelを設定
-			when(commandMock.guildId).thenReturn(guildId);
+			// communityIdとchannelを設定
+			when(commandMock.guildId).thenReturn(communityId);
 			when(commandMock.channel).thenReturn({} as any);
 
 			// TextChannelを返すようにモック
@@ -742,7 +756,7 @@ describe("Test Room Commands", () => {
 			// データが作られていることを確認
 			const afterData = await RoomNotificationChannelRepositoryImpl.findAll();
 			expect(afterData.length).to.eq(1);
-			expect(String(afterData[0].communityId)).to.eq(String(guildId));
+			expect(String(afterData[0].communityId)).to.eq(String(communityId));
 			expect(String(afterData[0].channelId)).to.eq(String(channelId));
 			expect(afterData[0].deletedAt).to.be.null;
 		})();
@@ -757,7 +771,7 @@ describe("Test Room Commands", () => {
 		this.timeout(10_000);
 
 		return (async () => {
-			const guildId = "1";
+			const communityId = "1";
 			const channelId = "2";
 			const userId = "3";
 
@@ -766,7 +780,7 @@ describe("Test Room Commands", () => {
 
 			// 削除済みのデータを作成
 			const deletedData = await RoomNotificationChannelRepositoryImpl.create({
-				guildId: guildId,
+				communityId: communityId,
 				channelId: channelId,
 			});
 			await deletedData.destroy();
@@ -778,8 +792,8 @@ describe("Test Room Commands", () => {
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("roomnotificationchannelcreate", { channelid: channelId }, userId);
 
-			// guildIdとchannelを設定
-			when(commandMock.guildId).thenReturn(guildId);
+			// communityIdとchannelを設定
+			when(commandMock.guildId).thenReturn(communityId);
 			when(commandMock.channel).thenReturn({} as any);
 
 			// TextChannelを返すようにモック
@@ -818,7 +832,7 @@ describe("Test Room Commands", () => {
 			// 新しいデータが作られていることを確認
 			const afterData = await RoomNotificationChannelRepositoryImpl.findAll();
 			expect(afterData.length).to.eq(1);
-			expect(String(afterData[0].communityId)).to.eq(String(guildId));
+			expect(String(afterData[0].communityId)).to.eq(String(communityId));
 			expect(String(afterData[0].channelId)).to.eq(String(channelId));
 			expect(afterData[0].deletedAt).to.be.null;
 		})();
@@ -834,7 +848,7 @@ describe("Test Room Commands", () => {
 		this.timeout(10_000);
 
 		return (async () => {
-			const guildId = "1";
+			const communityId = "1";
 			const channelId = "2";
 			const userId = "3";
 
@@ -843,15 +857,15 @@ describe("Test Room Commands", () => {
 
 			// 既存のデータを作成
 			await RoomNotificationChannelRepositoryImpl.create({
-				guildId: guildId,
+				communityId: communityId,
 				channelId: channelId,
 			});
 
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("roomnotificationchannelcreate", { channelid: channelId }, userId);
 
-			// guildIdとchannelを設定
-			when(commandMock.guildId).thenReturn(guildId);
+			// communityIdとchannelを設定
+			when(commandMock.guildId).thenReturn(communityId);
 			when(commandMock.channel).thenReturn({} as any);
 
 			// replyメソッドをモック
@@ -892,7 +906,7 @@ describe("Test Room Commands", () => {
 		this.timeout(10_000);
 
 		return (async () => {
-			const guildId = "1";
+			const communityId = "1";
 			const channelId = "2";
 			const userId = "3";
 
@@ -902,8 +916,8 @@ describe("Test Room Commands", () => {
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("roomnotificationchannelcreate", { channelid: channelId }, userId);
 
-			// guildIdとchannelを設定
-			when(commandMock.guildId).thenReturn(guildId);
+			// communityIdとchannelを設定
+			when(commandMock.guildId).thenReturn(communityId);
 			when(commandMock.channel).thenReturn({} as any);
 
 			// TextChannel以外のチャンネルを返すようにモック
@@ -958,7 +972,7 @@ describe("Test Room Commands", () => {
 		this.timeout(10_000);
 
 		return (async () => {
-			const guildId = "1";
+			const communityId = "1";
 			const channelId = "2";
 			const userId = "3";
 
@@ -968,8 +982,8 @@ describe("Test Room Commands", () => {
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("roomnotificationchannelcreate", { channelid: channelId }, userId);
 
-			// guildIdとchannelを設定
-			when(commandMock.guildId).thenReturn(guildId);
+			// communityIdとchannelを設定
+			when(commandMock.guildId).thenReturn(communityId);
 			when(commandMock.channel).thenReturn({} as any);
 
 			// TextChannelを返すようにモック
@@ -1012,7 +1026,7 @@ describe("Test Room Commands", () => {
 			// データが作られていることを確認
 			const afterData = await RoomNotificationChannelRepositoryImpl.findAll();
 			expect(afterData.length).to.eq(1);
-			expect(String(afterData[0].communityId)).to.eq(String(guildId));
+			expect(String(afterData[0].communityId)).to.eq(String(communityId));
 			expect(String(afterData[0].channelId)).to.eq(String(channelId));
 		})();
 	});
@@ -1031,7 +1045,7 @@ describe("Test Room Commands", () => {
 		this.timeout(10_000);
 
 		return (async () => {
-			const guildId = "1";
+			const communityId = "1";
 			const userId = "3";
 
 			// 非管理者ユーザーIDを設定
@@ -1040,8 +1054,8 @@ describe("Test Room Commands", () => {
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("roomnotificationchanneldelete", {}, userId);
 
-			// guildIdとchannelを設定
-			when(commandMock.guildId).thenReturn(guildId);
+			// communityIdとchannelを設定
+			when(commandMock.guildId).thenReturn(communityId);
 			when(commandMock.channel).thenReturn({} as any);
 
 			// replyメソッドをモック
@@ -1071,7 +1085,7 @@ describe("Test Room Commands", () => {
 		this.timeout(10_000);
 
 		return (async () => {
-			const guildId = "1";
+			const communityId = "1";
 			const userId = "3";
 
 			// 管理者ユーザーIDを設定
@@ -1080,8 +1094,8 @@ describe("Test Room Commands", () => {
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("roomnotificationchanneldelete", {}, userId);
 
-			// guildIdとchannelを設定
-			when(commandMock.guildId).thenReturn(guildId);
+			// communityIdとchannelを設定
+			when(commandMock.guildId).thenReturn(communityId);
 			when(commandMock.channel).thenReturn({} as any);
 
 			// replyメソッドをモック
@@ -1120,7 +1134,7 @@ describe("Test Room Commands", () => {
 		this.timeout(10_000);
 
 		return (async () => {
-			const guildId = "1";
+			const communityId = "1";
 			const channelId = "2";
 			const userId = "3";
 
@@ -1129,15 +1143,15 @@ describe("Test Room Commands", () => {
 
 			// 既存のデータを作成
 			await RoomNotificationChannelRepositoryImpl.create({
-				guildId: guildId,
+				communityId: communityId,
 				channelId: channelId,
 			});
 
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("roomnotificationchanneldelete", {}, userId);
 
-			// guildIdとchannelを設定
-			when(commandMock.guildId).thenReturn(guildId);
+			// communityIdとchannelを設定
+			when(commandMock.guildId).thenReturn(communityId);
 			when(commandMock.channel).thenReturn({} as any);
 
 			// replyメソッドをモック
@@ -1183,7 +1197,7 @@ describe("Test Room Commands", () => {
 		this.timeout(10_000);
 
 		return (async () => {
-			const guildId = "1";
+			const communityId = "1";
 			const channelId = "2";
 			const userId = "3";
 
@@ -1192,7 +1206,7 @@ describe("Test Room Commands", () => {
 
 			// 削除済みのデータを作成
 			const deletedData = await RoomNotificationChannelRepositoryImpl.create({
-				guildId: guildId,
+				communityId: communityId,
 				channelId: channelId,
 			});
 			await deletedData.destroy();
@@ -1200,8 +1214,8 @@ describe("Test Room Commands", () => {
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("roomnotificationchanneldelete", {}, userId);
 
-			// guildIdとchannelを設定
-			when(commandMock.guildId).thenReturn(guildId);
+			// communityIdとchannelを設定
+			when(commandMock.guildId).thenReturn(communityId);
 			when(commandMock.channel).thenReturn({} as any);
 
 			// replyメソッドをモック
@@ -1240,7 +1254,7 @@ describe("Test Room Commands", () => {
 		this.timeout(10_000);
 
 		return (async () => {
-			const guildId = "1";
+			const communityId = "1";
 			const userId = "2";
 			const roomAddChannelId = "3";
 			const roomNotificationChannelId = "4";
@@ -1248,16 +1262,16 @@ describe("Test Room Commands", () => {
 
 			// 部屋追加チャンネルと通知チャンネルを登録
 			await RoomAddChannelRepositoryImpl.create({
-				guildId: guildId,
+				communityId: communityId,
 				channelId: roomAddChannelId,
 			});
 			await RoomNotificationChannelRepositoryImpl.create({
-				guildId: guildId,
+				communityId: communityId,
 				channelId: roomNotificationChannelId,
 			});
 
 			const { mockVoiceState, addMockTextChannel } = await import("../fixtures/discord.js/MockVoiceState");
-			const { oldState, newState } = mockVoiceState(null, roomAddChannelId, guildId, userId, displayName);
+			const { oldState, newState } = mockVoiceState(null, roomAddChannelId, communityId, userId, displayName);
 
 			let notificationSent = false;
 			let notificationContent = "";
@@ -1286,7 +1300,7 @@ describe("Test Room Commands", () => {
 
 			// 作成されたデータを確認
 			const createdData = afterData[afterData.length - 1];
-			expect(String(createdData.communityId)).to.eq(String(guildId));
+			expect(String(createdData.communityId)).to.eq(String(communityId));
 			expect(String(createdData.channelId)).to.eq(String(newState.getCreatedChannelId()));
 
 			// 通知が送信されたことを確認
@@ -1304,7 +1318,7 @@ describe("Test Room Commands", () => {
 		this.timeout(10_000);
 
 		return (async () => {
-			const guildId = "1";
+			const communityId = "1";
 			const userId = "2";
 			const oldChannelId = "100"; // 元いた部屋
 			const roomAddChannelId = "3";
@@ -1313,17 +1327,17 @@ describe("Test Room Commands", () => {
 
 			// 部屋追加チャンネルと通知チャンネルを登録
 			await RoomAddChannelRepositoryImpl.create({
-				guildId: guildId,
+				communityId: communityId,
 				channelId: roomAddChannelId,
 			});
 			await RoomNotificationChannelRepositoryImpl.create({
-				guildId: guildId,
+				communityId: communityId,
 				channelId: roomNotificationChannelId,
 			});
 
 			const { mockVoiceState, addMockTextChannel } = await import("../fixtures/discord.js/MockVoiceState");
 			// oldChannelIdに別のチャンネルIDを設定（既に別の部屋にいる状態）
-			const { oldState, newState } = mockVoiceState(oldChannelId, roomAddChannelId, guildId, userId, displayName);
+			const { oldState, newState } = mockVoiceState(oldChannelId, roomAddChannelId, communityId, userId, displayName);
 
 			let notificationSent = false;
 			let notificationContent = "";
@@ -1352,7 +1366,7 @@ describe("Test Room Commands", () => {
 
 			// 作成されたデータを確認
 			const createdData = afterData[afterData.length - 1];
-			expect(String(createdData.communityId)).to.eq(String(guildId));
+			expect(String(createdData.communityId)).to.eq(String(communityId));
 			expect(String(createdData.channelId)).to.eq(String(newState.getCreatedChannelId()));
 
 			// 通知が送信されたことを確認
@@ -1370,7 +1384,7 @@ describe("Test Room Commands", () => {
 		this.timeout(10_000);
 
 		return (async () => {
-			const guildId = "1";
+			const communityId = "1";
 			const userId = "2";
 			const roomAddChannelId = "3";
 			const normalChannelId = "5";
@@ -1378,16 +1392,16 @@ describe("Test Room Commands", () => {
 
 			// 部屋追加チャンネルと通知チャンネルを登録
 			await RoomAddChannelRepositoryImpl.create({
-				guildId: guildId,
+				communityId: communityId,
 				channelId: roomAddChannelId,
 			});
 			await RoomNotificationChannelRepositoryImpl.create({
-				guildId: guildId,
+				communityId: communityId,
 				channelId: roomNotificationChannelId,
 			});
 
 			const { mockVoiceState, addMockTextChannel } = await import("../fixtures/discord.js/MockVoiceState");
-			const { oldState, newState } = mockVoiceState(null, normalChannelId, guildId, userId);
+			const { oldState, newState } = mockVoiceState(null, normalChannelId, communityId, userId);
 
 			let notificationSent = false;
 
@@ -1423,19 +1437,19 @@ describe("Test Room Commands", () => {
 		this.timeout(10_000);
 
 		return (async () => {
-			const guildId = "1";
+			const communityId = "1";
 			const userId = "2";
 			const roomAddChannelId = "3";
 			const displayName = "TestUser";
 
 			// 部屋追加チャンネルのみ登録（通知チャンネルは登録しない）
 			await RoomAddChannelRepositoryImpl.create({
-				guildId: guildId,
+				communityId: communityId,
 				channelId: roomAddChannelId,
 			});
 
 			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
-			const { oldState, newState } = mockVoiceState(null, roomAddChannelId, guildId, userId, displayName);
+			const { oldState, newState } = mockVoiceState(null, roomAddChannelId, communityId, userId, displayName);
 
 			const beforeCount = await RoomChannelRepositoryImpl.count();
 
@@ -1451,7 +1465,7 @@ describe("Test Room Commands", () => {
 
 			// 作成されたデータを確認
 			const createdData = afterData[afterData.length - 1];
-			expect(String(createdData.communityId)).to.eq(String(guildId));
+			expect(String(createdData.communityId)).to.eq(String(communityId));
 			expect(String(createdData.channelId)).to.eq(String(newState.getCreatedChannelId()));
 		})();
 	});
@@ -1465,19 +1479,19 @@ describe("Test Room Commands", () => {
 		this.timeout(10_000);
 
 		return (async () => {
-			const guildId = "1";
+			const communityId = "1";
 			const userId = "2";
 			const channelId = "3";
 			const roomNotificationChannelId = "4";
 
 			// 通知チャンネルのみ登録（部屋追加チャンネルは登録しない）
 			await RoomNotificationChannelRepositoryImpl.create({
-				guildId: guildId,
+				communityId: communityId,
 				channelId: roomNotificationChannelId,
 			});
 
 			const { mockVoiceState, addMockTextChannel } = await import("../fixtures/discord.js/MockVoiceState");
-			const { oldState, newState } = mockVoiceState(null, channelId, guildId, userId);
+			const { oldState, newState } = mockVoiceState(null, channelId, communityId, userId);
 
 			let notificationSent = false;
 
@@ -1513,13 +1527,13 @@ describe("Test Room Commands", () => {
 		this.timeout(10_000);
 
 		return (async () => {
-			const guildId = "1";
+			const communityId = "1";
 			const userId = "2";
 			const channelId = "3";
 
 			// どちらも登録しない
 			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
-			const { oldState, newState } = mockVoiceState(null, channelId, guildId, userId);
+			const { oldState, newState } = mockVoiceState(null, channelId, communityId, userId);
 
 			const beforeCount = await RoomChannelRepositoryImpl.count();
 
@@ -1544,13 +1558,13 @@ describe("Test Room Commands", () => {
 		this.timeout(10_000);
 
 		return (async () => {
-			const guildId = "1";
+			const communityId = "1";
 			const userId = "2";
 			const oldChannelId = "100";
 
 			// oldState.channelId = "old-channel", newState.channelId = null (disconnect)
 			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
-			const { oldState, newState } = mockVoiceState(oldChannelId, null, guildId, userId);
+			const { oldState, newState } = mockVoiceState(oldChannelId, null, communityId, userId);
 
 			const beforeCount = await RoomChannelRepositoryImpl.count();
 
@@ -1575,12 +1589,12 @@ describe("Test Room Commands", () => {
 		this.timeout(10_000);
 
 		return (async () => {
-			const guildId = "1";
+			const communityId = "1";
 			const userId = "2";
 			const newChannelId = "200";
 
 			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
-			const { oldState, newState } = mockVoiceState(null, newChannelId, guildId, userId);
+			const { oldState, newState } = mockVoiceState(null, newChannelId, communityId, userId);
 
 			// newState.memberをnullに設定
 			(newState as any).member = null;
@@ -1608,12 +1622,12 @@ describe("Test Room Commands", () => {
 		this.timeout(10_000);
 
 		return (async () => {
-			const guildId = "1";
+			const communityId = "1";
 			const userId = "2";
 			const newChannelId = "200";
 
 			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
-			const { oldState, newState } = mockVoiceState(null, newChannelId, guildId, userId);
+			const { oldState, newState } = mockVoiceState(null, newChannelId, communityId, userId);
 
 			// newState.channelをnullに設定
 			(newState as any).channel = null;
@@ -1641,12 +1655,12 @@ describe("Test Room Commands", () => {
 		this.timeout(10_000);
 
 		return (async () => {
-			const guildId = "1";
+			const communityId = "1";
 			const userId = "2";
 			const channelId = "3";
 
 			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
-			const { oldState, newState } = mockVoiceState(null, channelId, guildId, userId);
+			const { oldState, newState } = mockVoiceState(null, channelId, communityId, userId);
 
 			const beforeCount = await RoomChannelRepositoryImpl.count();
 
@@ -1671,19 +1685,19 @@ describe("Test Room Commands", () => {
 		this.timeout(10_000);
 
 		return (async () => {
-			const guildId = "1";
+			const communityId = "1";
 			const userId = "2";
 			const roomAddChannelId = "3";
 			const connectedChannelId = "4";
 
 			// 部屋追加チャンネルを登録
 			await RoomAddChannelRepositoryImpl.create({
-				guildId: guildId,
+				communityId: communityId,
 				channelId: roomAddChannelId,
 			});
 
 			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
-			const { oldState, newState } = mockVoiceState(null, connectedChannelId, guildId, userId);
+			const { oldState, newState } = mockVoiceState(null, connectedChannelId, communityId, userId);
 
 			const beforeCount = await RoomChannelRepositoryImpl.count();
 
@@ -1708,19 +1722,19 @@ describe("Test Room Commands", () => {
 		this.timeout(10_000);
 
 		return (async () => {
-			const guildId = "1";
+			const communityId = "1";
 			const userId = "2";
 			const roomAddChannelId = "3";
 			const displayName = "TestUser";
 
 			// 部屋追加チャンネルを登録
 			await RoomAddChannelRepositoryImpl.create({
-				guildId: guildId,
+				communityId: communityId,
 				channelId: roomAddChannelId,
 			});
 
 			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
-			const { oldState, newState } = mockVoiceState(null, roomAddChannelId, guildId, userId, displayName);
+			const { oldState, newState } = mockVoiceState(null, roomAddChannelId, communityId, userId, displayName);
 
 			const beforeCount = await RoomChannelRepositoryImpl.count();
 
@@ -1736,7 +1750,7 @@ describe("Test Room Commands", () => {
 
 			// 作成されたデータを確認
 			const createdData = afterData[afterData.length - 1];
-			expect(String(createdData.communityId)).to.eq(String(guildId));
+			expect(String(createdData.communityId)).to.eq(String(communityId));
 			expect(String(createdData.channelId)).to.eq(String(newState.getCreatedChannelId()));
 		})();
 	});
@@ -1750,7 +1764,7 @@ describe("Test Room Commands", () => {
 		this.timeout(10_000);
 
 		return (async () => {
-			const guildId = "1";
+			const communityId = "1";
 			const userId = "2";
 			const roomAddChannelId = "3";
 			const roomNotificationChannelId = "4";
@@ -1758,16 +1772,16 @@ describe("Test Room Commands", () => {
 
 			// 部屋追加チャンネルと通知チャンネルを登録
 			await RoomAddChannelRepositoryImpl.create({
-				guildId: guildId,
+				communityId: communityId,
 				channelId: roomAddChannelId,
 			});
 			await RoomNotificationChannelRepositoryImpl.create({
-				guildId: guildId,
+				communityId: communityId,
 				channelId: roomNotificationChannelId,
 			});
 
 			const { mockVoiceState, addMockTextChannel } = await import("../fixtures/discord.js/MockVoiceState");
-			const { oldState, newState } = mockVoiceState(null, newChannelId, guildId, userId);
+			const { oldState, newState } = mockVoiceState(null, newChannelId, communityId, userId);
 
 			let notificationSent = false;
 			let notificationContent = "";
@@ -1803,18 +1817,18 @@ describe("Test Room Commands", () => {
 		this.timeout(10_000);
 
 		return (async () => {
-			const guildId = "1";
+			const communityId = "1";
 			const userId = "2";
 			const roomAddChannelId = "3";
 
 			// 部屋追加チャンネルのみ登録
 			await RoomAddChannelRepositoryImpl.create({
-				guildId: guildId,
+				communityId: communityId,
 				channelId: roomAddChannelId,
 			});
 
 			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
-			const { oldState, newState } = mockVoiceState(null, roomAddChannelId, guildId, userId);
+			const { oldState, newState } = mockVoiceState(null, roomAddChannelId, communityId, userId);
 
 			// イベント発火（エラーが発生しないことを確認）
 			const TEST_CLIENT = await TestDiscordServer.getClient();
@@ -1842,7 +1856,7 @@ describe("Test Room Commands", () => {
 		this.timeout(10_000);
 
 		return (async () => {
-			const guildId = "1";
+			const communityId = "1";
 			const userId = "2";
 			const roomChannelId = "3";
 			const roomNotificationChannelId = "4";
@@ -1850,22 +1864,22 @@ describe("Test Room Commands", () => {
 
 			// 部屋追加チャンネルと通知チャンネルを登録
 			await RoomAddChannelRepositoryImpl.create({
-				guildId: guildId,
+				communityId: communityId,
 				channelId: "999", // 元の部屋追加チャンネル
 			});
 			await RoomNotificationChannelRepositoryImpl.create({
-				guildId: guildId,
+				communityId: communityId,
 				channelId: roomNotificationChannelId,
 			});
 
 			// 部屋チャンネルとして登録（部屋追加チャンネルで作成された部屋）
 			await RoomChannelRepositoryImpl.create({
-				guildId: guildId,
+				communityId: communityId,
 				channelId: roomChannelId,
 			});
 
 			const { mockVoiceState, addMockTextChannel } = await import("../fixtures/discord.js/MockVoiceState");
-			const { oldState, newState } = mockVoiceState(roomChannelId, null, guildId, userId, displayName);
+			const { oldState, newState } = mockVoiceState(roomChannelId, null, communityId, userId, displayName);
 
 			let notificationSent = false;
 			let notificationContent = "";
@@ -1908,23 +1922,23 @@ describe("Test Room Commands", () => {
 		this.timeout(10_000);
 
 		return (async () => {
-			const guildId = "1";
+			const communityId = "1";
 			const userId = "2";
 			const normalChannelId = "5";
 			const roomNotificationChannelId = "4";
 
 			// 部屋追加チャンネルと通知チャンネルを登録
 			await RoomAddChannelRepositoryImpl.create({
-				guildId: guildId,
+				communityId: communityId,
 				channelId: "999",
 			});
 			await RoomNotificationChannelRepositoryImpl.create({
-				guildId: guildId,
+				communityId: communityId,
 				channelId: roomNotificationChannelId,
 			});
 
 			const { mockVoiceState, addMockTextChannel } = await import("../fixtures/discord.js/MockVoiceState");
-			const { oldState, newState } = mockVoiceState(normalChannelId, null, guildId, userId);
+			const { oldState, newState } = mockVoiceState(normalChannelId, null, communityId, userId);
 
 			let notificationSent = false;
 
@@ -1955,25 +1969,25 @@ describe("Test Room Commands", () => {
 		this.timeout(10_000);
 
 		return (async () => {
-			const guildId = "1";
+			const communityId = "1";
 			const userId = "2";
 			const roomChannelId = "3";
 			const displayName = "TestUser";
 
 			// 部屋追加チャンネルのみ登録（通知チャンネルは登録しない）
 			await RoomAddChannelRepositoryImpl.create({
-				guildId: guildId,
+				communityId: communityId,
 				channelId: "999",
 			});
 
 			// 部屋チャンネルとして登録
 			await RoomChannelRepositoryImpl.create({
-				guildId: guildId,
+				communityId: communityId,
 				channelId: roomChannelId,
 			});
 
 			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
-			const { oldState, newState } = mockVoiceState(roomChannelId, null, guildId, userId, displayName);
+			const { oldState, newState } = mockVoiceState(roomChannelId, null, communityId, userId, displayName);
 
 			const beforeCount = await RoomChannelRepositoryImpl.count();
 
@@ -1999,19 +2013,19 @@ describe("Test Room Commands", () => {
 		this.timeout(10_000);
 
 		return (async () => {
-			const guildId = "1";
+			const communityId = "1";
 			const userId = "2";
 			const channelId = "3";
 			const roomNotificationChannelId = "4";
 
 			// 通知チャンネルのみ登録（部屋追加チャンネルは登録しない）
 			await RoomNotificationChannelRepositoryImpl.create({
-				guildId: guildId,
+				communityId: communityId,
 				channelId: roomNotificationChannelId,
 			});
 
 			const { mockVoiceState, addMockTextChannel } = await import("../fixtures/discord.js/MockVoiceState");
-			const { oldState, newState } = mockVoiceState(channelId, null, guildId, userId);
+			const { oldState, newState } = mockVoiceState(channelId, null, communityId, userId);
 
 			let notificationSent = false;
 
@@ -2047,13 +2061,13 @@ describe("Test Room Commands", () => {
 		this.timeout(10_000);
 
 		return (async () => {
-			const guildId = "1";
+			const communityId = "1";
 			const userId = "2";
 			const channelId = "3";
 
 			// どちらも登録しない
 			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
-			const { oldState, newState } = mockVoiceState(channelId, null, guildId, userId);
+			const { oldState, newState } = mockVoiceState(channelId, null, communityId, userId);
 
 			const beforeCount = await RoomChannelRepositoryImpl.count();
 
@@ -2079,7 +2093,7 @@ describe("Test Room Commands", () => {
 		this.timeout(10_000);
 
 		return (async () => {
-			const guildId = "1";
+			const communityId = "1";
 			const userId = "2";
 			const roomChannelId = "3";
 			const newChannelId = "100"; // 移動先のチャンネル
@@ -2088,23 +2102,23 @@ describe("Test Room Commands", () => {
 
 			// 部屋追加チャンネルと通知チャンネルを登録
 			await RoomAddChannelRepositoryImpl.create({
-				guildId: guildId,
+				communityId: communityId,
 				channelId: "999",
 			});
 			await RoomNotificationChannelRepositoryImpl.create({
-				guildId: guildId,
+				communityId: communityId,
 				channelId: roomNotificationChannelId,
 			});
 
 			// 部屋チャンネルとして登録
 			await RoomChannelRepositoryImpl.create({
-				guildId: guildId,
+				communityId: communityId,
 				channelId: roomChannelId,
 			});
 
 			const { mockVoiceState, addMockTextChannel } = await import("../fixtures/discord.js/MockVoiceState");
 			// oldChannelId = roomChannelId, newChannelId = newChannelId（別の部屋に移動）
-			const { oldState, newState } = mockVoiceState(roomChannelId, newChannelId, guildId, userId, displayName);
+			const { oldState, newState } = mockVoiceState(roomChannelId, newChannelId, communityId, userId, displayName);
 
 			let notificationSent = false;
 			let notificationContent = "";
@@ -2145,17 +2159,17 @@ describe("Test Room Commands", () => {
 		this.timeout(10_000);
 
 		return (async () => {
-			const guildId = "1";
+			const communityId = "1";
 			const userId = "2";
 			const newChannelId = "200";
 
 			// oldState.channelId = null, newState.channelId = "new-channel" (connect)
 			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
-			const { oldState, newState } = mockVoiceState(null, newChannelId, guildId, userId);
+			const { oldState, newState } = mockVoiceState(null, newChannelId, communityId, userId);
 
 			// テストデータ作成
 			await RoomChannelRepositoryImpl.create({
-				guildId: guildId,
+				communityId: communityId,
 				channelId: 999,
 			});
 
@@ -2182,19 +2196,19 @@ describe("Test Room Commands", () => {
 		this.timeout(10_000);
 
 		return (async () => {
-			const guildId = "1";
+			const communityId = "1";
 			const userId = "2";
 			const channelId = "3";
 
 			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
-			const { oldState, newState } = mockVoiceState(channelId, null, guildId, userId);
+			const { oldState, newState } = mockVoiceState(channelId, null, communityId, userId);
 
 			// oldState.memberをnullに設定
 			(oldState as any).member = null;
 
 			// テストデータ作成
 			await RoomChannelRepositoryImpl.create({
-				guildId: guildId,
+				communityId: communityId,
 				channelId: channelId,
 			});
 
@@ -2221,19 +2235,19 @@ describe("Test Room Commands", () => {
 		this.timeout(10_000);
 
 		return (async () => {
-			const guildId = "1";
+			const communityId = "1";
 			const userId = "2";
 			const channelId = "3";
 
 			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
-			const { oldState, newState } = mockVoiceState(channelId, null, guildId, userId);
+			const { oldState, newState } = mockVoiceState(channelId, null, communityId, userId);
 
 			// oldState.channelをnullに設定
 			(oldState as any).channel = null;
 
 			// テストデータ作成
 			await RoomChannelRepositoryImpl.create({
-				guildId: guildId,
+				communityId: communityId,
 				channelId: channelId,
 			});
 
@@ -2260,12 +2274,12 @@ describe("Test Room Commands", () => {
 		this.timeout(10_000);
 
 		return (async () => {
-			const guildId = "1";
+			const communityId = "1";
 			const userId = "2";
 			const channelId = "3";
 
 			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
-			const { oldState, newState } = mockVoiceState(channelId, null, guildId, userId);
+			const { oldState, newState } = mockVoiceState(channelId, null, communityId, userId);
 
 			// 部屋チャンネルとして登録されていない
 			const beforeCount = await RoomChannelRepositoryImpl.count();
@@ -2291,18 +2305,18 @@ describe("Test Room Commands", () => {
 		this.timeout(10_000);
 
 		return (async () => {
-			const guildId = "1";
+			const communityId = "1";
 			const userId = "2";
 			const channelId = "3";
 
 			// 部屋チャンネルとして登録
 			await RoomChannelRepositoryImpl.create({
-				guildId: guildId,
+				communityId: communityId,
 				channelId: channelId,
 			});
 
 			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
-			const { oldState, newState } = mockVoiceState(channelId, null, guildId, userId);
+			const { oldState, newState } = mockVoiceState(channelId, null, communityId, userId);
 
 			// チャンネルにユーザーが残っている状態にする
 			(oldState.channel as any).members = {
@@ -2332,18 +2346,18 @@ describe("Test Room Commands", () => {
 		this.timeout(10_000);
 
 		return (async () => {
-			const guildId = "1";
+			const communityId = "1";
 			const userId = "2";
 			const channelId = "3";
 
 			// 部屋チャンネルとして登録
 			await RoomChannelRepositoryImpl.create({
-				guildId: guildId,
+				communityId: communityId,
 				channelId: channelId,
 			});
 
 			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
-			const { oldState, newState } = mockVoiceState(channelId, null, guildId, userId);
+			const { oldState, newState } = mockVoiceState(channelId, null, communityId, userId);
 
 			const beforeCount = await RoomChannelRepositoryImpl.count();
 			expect(beforeCount).to.be.at.least(1);
@@ -2370,23 +2384,23 @@ describe("Test Room Commands", () => {
 		this.timeout(10_000);
 
 		return (async () => {
-			const guildId = "1";
+			const communityId = "1";
 			const userId = "2";
 			const channelId = "3";
 			const notificationChannelId = "4";
 
 			// 部屋チャンネルと通知チャンネルを登録
 			await RoomChannelRepositoryImpl.create({
-				guildId: guildId,
+				communityId: communityId,
 				channelId: channelId,
 			});
 			await RoomNotificationChannelRepositoryImpl.create({
-				guildId: guildId,
+				communityId: communityId,
 				channelId: notificationChannelId,
 			});
 
 			const { mockVoiceState, addMockTextChannel } = await import("../fixtures/discord.js/MockVoiceState");
-			const { oldState, newState } = mockVoiceState(channelId, null, guildId, userId);
+			const { oldState, newState } = mockVoiceState(channelId, null, communityId, userId);
 
 			let notificationSent = false;
 			let notificationContent = "";
@@ -2422,18 +2436,18 @@ describe("Test Room Commands", () => {
 		this.timeout(10_000);
 
 		return (async () => {
-			const guildId = "1";
+			const communityId = "1";
 			const userId = "2";
 			const channelId = "3";
 
 			// 部屋チャンネルのみ登録
 			await RoomChannelRepositoryImpl.create({
-				guildId: guildId,
+				communityId: communityId,
 				channelId: channelId,
 			});
 
 			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
-			const { oldState, newState } = mockVoiceState(channelId, null, guildId, userId);
+			const { oldState, newState } = mockVoiceState(channelId, null, communityId, userId);
 
 			const beforeCount = await RoomChannelRepositoryImpl.count();
 
