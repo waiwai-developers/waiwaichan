@@ -17,6 +17,7 @@ export const RepoTypes = {
 	StickyRepository: Symbol.for("StickyRepository"),
 	CommunityRepository: Symbol.for("CommunityRepository"),
 	UserRepository: Symbol.for("UserRepository"),
+	ChannelRepository: Symbol.for("ChannelRepository"),
 	DataDeletionCircular: Symbol.for("DataDeletionCircular"),
 	RoomAddChannelRepository: Symbol.for("RoomAddChannelRepository"),
 	RoomNotificationChannelRepository: Symbol.for(
@@ -41,6 +42,7 @@ export const LogicTypes = {
 	UtilityLogic: Symbol.for("UtilityLogic"),
 	CommunityLogic: Symbol.for("CommunityLogic"),
 	UserLogic: Symbol.for("UserLogic"),
+	ChannelLogic: Symbol.for("ChannelLogic"),
 	CrownLogic: Symbol.for("CrownLogic"),
 	dataDeletionCircularLogic: Symbol.for("dataDeletionCircularLogic"),
 	RoomAddChannelLogic: Symbol.for("RoomAddChannelLogic"),
