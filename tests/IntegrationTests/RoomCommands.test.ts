@@ -142,7 +142,7 @@ describe("Test Room Commands", () => {
 			// データが作られていることを確認
 			const afterData = await RoomAddChannelRepositoryImpl.findAll();
 			expect(afterData.length).to.eq(1);
-			expect(String(afterData[0].guildId)).to.eq(String(guildId));
+			expect(String(afterData[0].communityId)).to.eq(String(guildId));
 			expect(String(afterData[0].channelId)).to.eq(String(channelId));
 			expect(afterData[0].deletedAt).to.be.null;
 		})();
@@ -218,7 +218,7 @@ describe("Test Room Commands", () => {
 			// 新しいデータが作られていることを確認
 			const afterData = await RoomAddChannelRepositoryImpl.findAll();
 			expect(afterData.length).to.eq(1);
-			expect(String(afterData[0].guildId)).to.eq(String(guildId));
+			expect(String(afterData[0].communityId)).to.eq(String(guildId));
 			expect(String(afterData[0].channelId)).to.eq(String(channelId));
 			expect(afterData[0].deletedAt).to.be.null;
 		})();
@@ -412,7 +412,7 @@ describe("Test Room Commands", () => {
 			// データが作られていることを確認
 			const afterData = await RoomAddChannelRepositoryImpl.findAll();
 			expect(afterData.length).to.eq(1);
-			expect(String(afterData[0].guildId)).to.eq(String(guildId));
+			expect(String(afterData[0].communityId)).to.eq(String(guildId));
 			expect(String(afterData[0].channelId)).to.eq(String(channelId));
 		})();
 	});
@@ -742,7 +742,7 @@ describe("Test Room Commands", () => {
 			// データが作られていることを確認
 			const afterData = await RoomNotificationChannelRepositoryImpl.findAll();
 			expect(afterData.length).to.eq(1);
-			expect(String(afterData[0].guildId)).to.eq(String(guildId));
+			expect(String(afterData[0].communityId)).to.eq(String(guildId));
 			expect(String(afterData[0].channelId)).to.eq(String(channelId));
 			expect(afterData[0].deletedAt).to.be.null;
 		})();
@@ -818,7 +818,7 @@ describe("Test Room Commands", () => {
 			// 新しいデータが作られていることを確認
 			const afterData = await RoomNotificationChannelRepositoryImpl.findAll();
 			expect(afterData.length).to.eq(1);
-			expect(String(afterData[0].guildId)).to.eq(String(guildId));
+			expect(String(afterData[0].communityId)).to.eq(String(guildId));
 			expect(String(afterData[0].channelId)).to.eq(String(channelId));
 			expect(afterData[0].deletedAt).to.be.null;
 		})();
@@ -1012,7 +1012,7 @@ describe("Test Room Commands", () => {
 			// データが作られていることを確認
 			const afterData = await RoomNotificationChannelRepositoryImpl.findAll();
 			expect(afterData.length).to.eq(1);
-			expect(String(afterData[0].guildId)).to.eq(String(guildId));
+			expect(String(afterData[0].communityId)).to.eq(String(guildId));
 			expect(String(afterData[0].channelId)).to.eq(String(channelId));
 		})();
 	});
@@ -1286,7 +1286,7 @@ describe("Test Room Commands", () => {
 
 			// 作成されたデータを確認
 			const createdData = afterData[afterData.length - 1];
-			expect(String(createdData.guildId)).to.eq(String(guildId));
+			expect(String(createdData.communityId)).to.eq(String(guildId));
 			expect(String(createdData.channelId)).to.eq(String(newState.getCreatedChannelId()));
 
 			// 通知が送信されたことを確認
@@ -1352,7 +1352,7 @@ describe("Test Room Commands", () => {
 
 			// 作成されたデータを確認
 			const createdData = afterData[afterData.length - 1];
-			expect(String(createdData.guildId)).to.eq(String(guildId));
+			expect(String(createdData.communityId)).to.eq(String(guildId));
 			expect(String(createdData.channelId)).to.eq(String(newState.getCreatedChannelId()));
 
 			// 通知が送信されたことを確認
@@ -1451,7 +1451,7 @@ describe("Test Room Commands", () => {
 
 			// 作成されたデータを確認
 			const createdData = afterData[afterData.length - 1];
-			expect(String(createdData.guildId)).to.eq(String(guildId));
+			expect(String(createdData.communityId)).to.eq(String(guildId));
 			expect(String(createdData.channelId)).to.eq(String(newState.getCreatedChannelId()));
 		})();
 	});
@@ -1736,7 +1736,7 @@ describe("Test Room Commands", () => {
 
 			// 作成されたデータを確認
 			const createdData = afterData[afterData.length - 1];
-			expect(String(createdData.guildId)).to.eq(String(guildId));
+			expect(String(createdData.communityId)).to.eq(String(guildId));
 			expect(String(createdData.channelId)).to.eq(String(newState.getCreatedChannelId()));
 		})();
 	});

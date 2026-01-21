@@ -1,10 +1,10 @@
 import type { RoomNotificationChannelDto } from "@/src/entities/dto/RoomNotificationChannelDto";
-import type { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
+import type { CommunityId } from "@/src/entities/vo/CommunityId";
 
 export interface IRoomNotificationChannelRepository {
 	create(data: RoomNotificationChannelDto): Promise<boolean>;
 	findOne(
-		discordGuildId: DiscordGuildId,
+		communityId: CommunityId,
 	): Promise<RoomNotificationChannelDto | undefined>;
-	delete(discordGuildId: DiscordGuildId): Promise<boolean>;
+	delete(communityId: CommunityId): Promise<boolean>;
 }

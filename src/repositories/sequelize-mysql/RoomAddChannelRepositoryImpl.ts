@@ -1,6 +1,6 @@
 import { RoomAddChannelDto } from "@/src/entities/dto/RoomAddChannelDto";
+import { CommunityId } from "@/src/entities/vo/CommunityId";
 import { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
-import { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
 import type { IRoomAddChannelRepository } from "@/src/logics/Interfaces/repositories/database/IRoomAddChannelRepository";
 import { injectable } from "inversify";
 import {
@@ -26,39 +26,39 @@ class RoomAddChannelRepositoryImpl
 	@AutoIncrement
 	@Column(DataType.INTEGER)
 	declare id: number;
-	@Column(DataType.STRING)
-	declare guildId: string;
+	@Column(DataType.BIGINT)
+	declare communityId: number;
 	@Column(DataType.STRING)
 	declare channelId: string;
 
 	async create(data: RoomAddChannelDto): Promise<boolean> {
 		return RoomAddChannelRepositoryImpl.create({
-			guildId: data.guildId.getValue(),
+			communityId: data.communityId.getValue(),
 			channelId: data.channelId.getValue(),
 		}).then((res) => !!res);
 	}
 
-	async delete(discordGuildId: DiscordGuildId): Promise<boolean> {
+	async delete(communityId: CommunityId): Promise<boolean> {
 		return RoomAddChannelRepositoryImpl.destroy({
 			where: {
-				guildId: discordGuildId.getValue(),
+				communityId: communityId.getValue(),
 			},
 		}).then((res) => res > 0);
 	}
 
 	async findOne(
-		discordGuildId: DiscordGuildId,
+		communityId: CommunityId,
 	): Promise<RoomAddChannelDto | undefined> {
 		return RoomAddChannelRepositoryImpl.findOne({
 			where: {
-				guildId: discordGuildId.getValue(),
+				communityId: communityId.getValue(),
 			},
 		}).then((res) => (res ? res.toDto() : undefined));
 	}
 
 	toDto(): RoomAddChannelDto {
 		return new RoomAddChannelDto(
-			new DiscordGuildId(this.guildId),
+			new CommunityId(this.communityId),
 			new DiscordChannelId(this.channelId),
 		);
 	}
