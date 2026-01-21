@@ -26,7 +26,7 @@ const getChannelType = (discordChannelType: DiscordChannelType): ChannelType => 
 };
 
 export const up: Datafix = async () => {
-    if (process.env.CI === "true" || process.env.NODE_ENV === "testing") {
+    if (process.env.NODE_ENV === "testing") {
         console.log("skip discord Channel datafix in CI/testing environment");
         return;
     }
