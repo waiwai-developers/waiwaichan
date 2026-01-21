@@ -1,6 +1,6 @@
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import type { RoomNotificationChannelDto } from "@/src/entities/dto/RoomNotificationChannelDto";
-import type { DiscordGuildId } from "@/src/entities/vo/DiscordGuildId";
+import type { CommunityId } from "@/src/entities/vo/CommunityId";
 import type { IRoomNotificationChannelLogic } from "@/src/logics/Interfaces/logics/IRoomNotificationChannelLogic";
 import type { IRoomNotificationChannelRepository } from "@/src/logics/Interfaces/repositories/database/IRoomNotificationChannelRepository";
 import type { ITransaction } from "@/src/logics/Interfaces/repositories/database/ITransaction";
@@ -24,18 +24,18 @@ export class RoomNotificationChannelLogic
 	}
 
 	async find(
-		discordGuildId: DiscordGuildId,
+		communityId: CommunityId,
 	): Promise<RoomNotificationChannelDto | undefined> {
 		return this.transaction.startTransaction(async () => {
 			return await this.RoomNotificationChannelRepository.findOne(
-				discordGuildId,
+				communityId,
 			);
 		});
 	}
 
-	async delete(discordGuildId: DiscordGuildId): Promise<string> {
+	async delete(communityId: CommunityId): Promise<string> {
 		return this.transaction.startTransaction(async () => {
-			await this.RoomNotificationChannelRepository.delete(discordGuildId);
+			await this.RoomNotificationChannelRepository.delete(communityId);
 			return "部屋通知チャンネルを削除したよ！っ";
 		});
 	}

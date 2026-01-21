@@ -10,6 +10,9 @@ import { DatafixThreadModel } from "@/migrator/datafixies/models/DatafixThreadMo
 import { DatafixUserItemModel } from "@/migrator/datafixies/models/DatafixUserItemModel";
 import { DatafixUserModel } from "@/migrator/datafixies/models/DatafixUserModel";
 import { DatafixCrownModel } from "@/migrator/datafixies/models/DatafixCrownModel";
+import { DatafixRoomAddChannelsModel } from "@/migrator/datafixies/models/DatafixRoomAddChannelsModel";
+import { DatafixRoomChannelsModel } from "@/migrator/datafixies/models/DatafixRoomChannelsModel";
+import { DatafixRoomNotificationChannelsModel } from "@/migrator/datafixies/models/DatafixRoomNotificationChannelsModel";
 import {
 	type DatabaseConfigType,
 	GetEnvDatabaseConfig,
@@ -151,6 +154,9 @@ export const datafixer = (
 				DatafixPersonalityModel,
 				DatafixContextModel,
 				DatafixPersonalityContextModel,
+				DatafixRoomAddChannelsModel,
+				DatafixRoomChannelsModel,
+				DatafixRoomNotificationChannelsModel,
 			],
 		},
 	);
