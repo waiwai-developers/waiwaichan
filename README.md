@@ -33,7 +33,7 @@ docker compose -f environment/development/docker-compose.yml exec -T backend sh 
 How to execute specific test in the environment
 ```
 # development only
-pnpm test tests/IntegrationTests/TalkCommands.test.ts -- --grep "test name"
+docker compose -f environment/development/docker-compose.yml exec -T backend sh -c 'pnpm test tests/IntegrationTests/TalkCommands.test.ts -- --grep "test name"'
 ```
 
 How to execute the QA with Coverage
