@@ -4,6 +4,9 @@ import { AccountsConfig } from "@/src/entities/config/AccountsConfig";
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import { REVIEW_GRADE_HIGH } from "@/src/entities/constants/review";
 import type { IPullRequestRepository } from "@/src/logics/Interfaces/repositories/githubapi/IPullRequestRepository";
+import { CommunityRepositoryImpl } from "@/src/repositories/sequelize-mysql/CommunityRepositoryImpl";
+import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnector";
+import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
 import { createMockMessage, mockSlashCommand, waitUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { TestDiscordServer } from "@/tests/fixtures/discord.js/TestDiscordServer";
 import { DummyPullRequest, MockGithubAPI, MockNotfoundGithubAPI } from "@/tests/fixtures/repositories/MockGithubAPI";
@@ -11,8 +14,29 @@ import { expect } from "chai";
 import { type Message, TextChannel, type ThreadChannel } from "discord.js";
 import { anything, capture, instance, mock, verify, when } from "ts-mockito";
 
+// テスト用のguildId（MockSlashCommandで使用される値と一致させる）
+const TEST_GUILD_ID = "9999";
+
 describe("Test Review Commands", () => {
-	beforeEach(() => {
+	beforeEach(async () => {
+		// データベース接続を初期化
+		const connector = new MysqlConnector();
+		// @ts-ignore - privateフィールドにアクセスするため
+		connector.instance.options.logging = false;
+
+		// コミュニティデータをクリーンアップ
+		await CommunityRepositoryImpl.destroy({
+			truncate: true,
+			force: true,
+		});
+
+		// テスト用のコミュニティを作成
+		await CommunityRepositoryImpl.create({
+			categoryType: CommunityCategoryType.Discord.getValue(),
+			clientId: BigInt(TEST_GUILD_ID),
+			batchStatus: 0,
+		});
+
 		appContainer.rebind<IPullRequestRepository>(RepoTypes.PullRequestRepository).toConstantValue(MockGithubAPI());
 	});
 

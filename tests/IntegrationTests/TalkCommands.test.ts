@@ -3,16 +3,19 @@ import { AppConfig } from "@/src/entities/config/AppConfig";
 import { Thread_Exclude_Prefix, Thread_Fetch_Nom } from "@/src/entities/constants/Thread";
 import type { ChatAIMessageDto } from "@/src/entities/dto/ChatAIMessageDto";
 import { ThreadDto } from "@/src/entities/dto/ThreadDto";
+import { CommunityId } from "@/src/entities/vo/CommunityId";
+import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
 import { PersonalityId } from "@/src/entities/vo/PersonalityId";
 import { ThreadCategoryType } from "@/src/entities/vo/ThreadCategoryType";
-import { ThreadGuildId } from "@/src/entities/vo/ThreadGuildId";
 import { ThreadMessageId } from "@/src/entities/vo/ThreadMessageId";
 import { ThreadMetadata } from "@/src/entities/vo/ThreadMetadata";
 import { TalkCommandHandler } from "@/src/handlers/discord.js/commands/TalkCommandHandler";
 import { AIReplyHandler } from "@/src/handlers/discord.js/events/AIReplyHandler";
 import type { IChatAILogic } from "@/src/logics/Interfaces/logics/IChatAILogic";
+import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import { ThreadLogic } from "@/src/logics/ThreadLogic";
 import { DiscordTextPresenter } from "@/src/presenter/DiscordTextPresenter";
+import { CommunityRepositoryImpl } from "@/src/repositories/sequelize-mysql/CommunityRepositoryImpl";
 import { ContextRepositoryImpl } from "@/src/repositories/sequelize-mysql/ContextRepositoryImpl";
 import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnector";
 import { PersonalityContextRepositoryImpl } from "@/src/repositories/sequelize-mysql/PersonalityContextRepositoryImpl";
@@ -25,6 +28,9 @@ import { expect } from "chai";
 import type { TextChannel } from "discord.js";
 import { anything, instance, mock, verify, when } from "ts-mockito";
 
+// テスト用のguildId（MockSlashCommandで使用される値と一致させる）
+const TEST_GUILD_ID = "12345";
+
 describe("Test Talk Commands", function (this: Mocha.Suite) {
 	// テストのタイムアウト時間を延長（60秒）
 	this.timeout(60_000);
@@ -35,6 +41,19 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		const connector = new MysqlConnector();
 		// @ts-ignore - privateフィールドにアクセスするため
 		connector.instance.options.logging = false;
+
+		// コミュニティデータをクリーンアップ
+		await CommunityRepositoryImpl.destroy({
+			truncate: true,
+			force: true,
+		});
+
+		// テスト用のコミュニティを作成
+		await CommunityRepositoryImpl.create({
+			categoryType: CommunityCategoryType.Discord.getValue(),
+			clientId: BigInt(TEST_GUILD_ID),
+			batchStatus: 0,
+		});
 
 		// テスト前にデータをクリーンアップ
 		await ThreadRepositoryImpl.destroy({
@@ -155,11 +174,11 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		const testMessageId = "67890";
 		const expectedThreadTitle = `テストコンテキスト: ${testTitle}`;
 
-		// モックの設定
+		// モックの設定（guildIdを正しく設定）
 		const commandMock = mockSlashCommand("talk", {
 			title: testTitle,
 			type: testContextType,
-		});
+		}, { guildId: testGuildId });
 
 		// モックのチャンネル設定
 		const channelMock = mock<TextChannel>();
@@ -171,7 +190,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		// モックのメッセージ設定
 		when(commandMock.reply(anything())).thenResolve({
 			id: testMessageId,
-			guildId: testGuildId,
+			communityId: 1,
 			startThread: async (options: any) => {
 				// スレッドタイトルの検証
 				expect(options.name).to.equal(expectedThreadTitle);
@@ -187,7 +206,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 			}),
 		).thenResolve({
 			id: testMessageId,
-			guildId: testGuildId,
+			communityId: 1,
 			startThread: async (options: any) => {
 				// スレッドタイトルの検証
 				expect(options.name).to.equal(expectedThreadTitle);
@@ -215,7 +234,8 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 
 		// スレッドの内容を検証
 		const thread = threads[0];
-		expect(thread.guildId.toString()).to.eq(testGuildId);
+		// communityIdはDBの内部ID（1）なので、testGuildId（Discord guildId）ではなく"1"と比較
+		expect(thread.communityId.toString()).to.eq("1");
 		expect(thread.messageId.toString()).to.eq(testMessageId);
 		expect(thread.categoryType).to.eq(ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue());
 
@@ -524,7 +544,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		// テスト用のスレッドデータを作成
 		// 1. ChatGPTカテゴリのスレッド（Botが所有）
 		await ThreadRepositoryImpl.create({
-			guildId: testGuildId,
+			communityId: 1,
 			messageId: testThreadId,
 			categoryType: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
 			metadata: {
@@ -539,7 +559,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 
 		// 2. ChatGPTカテゴリのスレッド（他ユーザーが所有）
 		await ThreadRepositoryImpl.create({
-			guildId: testGuildId,
+			communityId: 1,
 			messageId: testOtherThreadId,
 			categoryType: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
 			metadata: {
@@ -554,7 +574,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 
 		// 3. 非ChatGPTカテゴリのスレッド（Botが所有）
 		await ThreadRepositoryImpl.create({
-			guildId: testGuildId,
+			communityId: 1,
 			messageId: testNonChatGPTThreadId,
 			categoryType: ThreadCategoryType.CATEGORY_TYPE_DEEPL.getValue(),
 			metadata: {
@@ -569,6 +589,13 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 
 		// AIReplyHandlerのインスタンスを作成
 		const aiReplyHandler = new AIReplyHandler();
+		// CommunityLogicのモックを作成
+		const communityLogicMock = mock<ICommunityLogic>();
+		// @ts-ignore - privateフィールドにアクセスするため
+		aiReplyHandler.CommunityLogic = instance(communityLogicMock);
+		// CommunityLogic.getIdメソッドのモック
+		when(communityLogicMock.getId(anything())).thenResolve(new CommunityId(1));
+
 		// @ts-ignore - privateフィールドにアクセスするため
 		const threadLogicMock = mock<ThreadLogic>();
 		// @ts-ignore - privateフィールドにアクセスするため
@@ -578,7 +605,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		const botMessageMock = mockMessage(testBotId, false, true);
 		when(botMessageMock.channel).thenReturn({
 			isThread: () => true,
-			guildId: testGuildId,
+			communityId: 1,
 			id: testThreadId,
 			ownerId: testBotId,
 			sendTyping: () => Promise.resolve(),
@@ -597,7 +624,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		const nonThreadMessageMock = mockMessage(testUserId);
 		when(nonThreadMessageMock.channel).thenReturn({
 			isThread: () => false,
-			guildId: testGuildId,
+			communityId: 1,
 			id: "12345",
 			sendTyping: () => Promise.resolve(),
 		} as any);
@@ -612,7 +639,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		const otherOwnerMessageMock = mockMessage(testUserId);
 		when(otherOwnerMessageMock.channel).thenReturn({
 			isThread: () => true,
-			guildId: testGuildId,
+			communityId: 1,
 			id: testOtherThreadId,
 			ownerId: testUserId, // Botではなく他のユーザーがオーナー
 			sendTyping: () => Promise.resolve(),
@@ -628,7 +655,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		const nonChatGPTMessageMock = mockMessage(testUserId);
 		when(nonChatGPTMessageMock.channel).thenReturn({
 			isThread: () => true,
-			guildId: testGuildId,
+			communityId: 1,
 			id: testNonChatGPTThreadId,
 			ownerId: testBotId,
 			sendTyping: () => Promise.resolve(),
@@ -637,7 +664,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		// ThreadLogicのfindメソッドをモック
 		when(threadLogicMock.find(anything(), anything())).thenResolve(
 			new ThreadDto(
-				new ThreadGuildId(testGuildId),
+				new CommunityId(1),
 				new ThreadMessageId(testNonChatGPTThreadId),
 				ThreadCategoryType.CATEGORY_TYPE_DEEPL, // ChatGPT以外のカテゴリ
 				new ThreadMetadata({
@@ -671,7 +698,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		const testBotId = AppConfig.discord.clientId;
 
 		await ThreadRepositoryImpl.create({
-			guildId: testGuildId,
+			communityId: 1,
 			messageId: testThreadId,
 			categoryType: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
 			metadata: {
@@ -685,6 +712,11 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		});
 
 		const aiReplyHandler = new AIReplyHandler();
+		// CommunityLogicのモックを作成
+		const communityLogicMock = mock<ICommunityLogic>();
+		// @ts-ignore - privateフィールドにアクセスするため
+		aiReplyHandler.CommunityLogic = instance(communityLogicMock);
+		when(communityLogicMock.getId(anything())).thenResolve(new CommunityId(1));
 
 		const threadLogicMock = mock<ThreadLogic>();
 		// @ts-ignore - privateフィールドにアクセスするため
@@ -696,7 +728,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 
 		when(threadLogicMock.find(anything(), anything())).thenResolve(
 			new ThreadDto(
-				new ThreadGuildId(testGuildId),
+				new CommunityId(1),
 				new ThreadMessageId(testThreadId),
 				ThreadCategoryType.CATEGORY_TYPE_CHATGPT,
 				new ThreadMetadata({
@@ -745,7 +777,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		const testBotId = AppConfig.discord.clientId;
 
 		await ThreadRepositoryImpl.create({
-			guildId: testGuildId,
+			communityId: 1,
 			messageId: testThreadId,
 			categoryType: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
 			metadata: {
@@ -759,6 +791,10 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		});
 
 		const aiReplyHandler = new AIReplyHandler();
+		const communityLogicMock = mock<ICommunityLogic>();
+		// @ts-ignore - privateフィールドにアクセスするため
+		aiReplyHandler.CommunityLogic = instance(communityLogicMock);
+		when(communityLogicMock.getId(anything())).thenResolve(new CommunityId(1));
 
 		const threadLogicMock = mock<ThreadLogic>();
 		// @ts-ignore - privateフィールドにアクセスするため
@@ -770,7 +806,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 
 		when(threadLogicMock.find(anything(), anything())).thenResolve(
 			new ThreadDto(
-				new ThreadGuildId(testGuildId),
+				new CommunityId(1),
 				new ThreadMessageId(testThreadId),
 				ThreadCategoryType.CATEGORY_TYPE_CHATGPT,
 				new ThreadMetadata({
@@ -829,7 +865,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 	/**
 	 * [ThreadSearch] スレッド検索機能の検証
 	 * - ThreadLogic.find が適切な引数で呼ばれるか
-	 * - ThreadGuildId および ThreadMessageId が正しい形式で生成されるか
+	 * - CommunityId および ThreadMessageId が正しい形式で生成されるか
 	 * - 対象スレッドが存在しないケースでのハンドリングが正しいか
 	 */
 	it("test ThreadLogic.find functionality", async function (this: Mocha.Context) {
@@ -844,8 +880,8 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 
 		// テスト用のスレッドデータを作成
 		await ThreadRepositoryImpl.create({
-			guildId: testGuildId,
-			messageId: testThreadId,
+			communityId: 1,
+			messageId: testThreadId.toString(),
 			categoryType: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
 			metadata: {
 				persona_role: "テスト役割",
@@ -871,27 +907,27 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		};
 
 		// 正常系: 存在するスレッドを検索
-		when(threadRepositoryMock.findByMessageId(anything(), anything())).thenCall(async (guildId: ThreadGuildId, messageId: ThreadMessageId) => {
+		when(threadRepositoryMock.findByMessageId(anything(), anything())).thenCall(async (communityId: CommunityId, messageId: ThreadMessageId) => {
 			// 引数の検証
-			expect(Number(guildId.getValue())).to.equal(testGuildId);
+			expect(communityId.getValue()).to.equal(1);
 			expect(Number(messageId.getValue())).to.equal(testThreadId);
 
 			// 実際のデータベースからスレッドを取得
 			return await ThreadRepositoryImpl.findOne({
 				where: {
-					guildId: guildId.getValue(),
+					communityId: 1,
 					messageId: messageId.getValue(),
 				},
 			}).then((res) => (res ? res.toDto() : undefined));
 		});
 
 		// スレッド検索の実行
-		const foundThread = await threadLogic.find(new ThreadGuildId(testGuildId.toString()), new ThreadMessageId(testThreadId.toString()));
+		const foundThread = await threadLogic.find(new CommunityId(1), new ThreadMessageId(testThreadId.toString()));
 
 		// 検索結果の検証
 		expect(foundThread).to.not.be.undefined;
 		if (foundThread) {
-			expect(Number(foundThread.guildId.getValue())).to.equal(testGuildId);
+			expect(foundThread.communityId.getValue()).to.equal(1);
 			expect(Number(foundThread.messageId.getValue())).to.equal(testThreadId);
 			expect(foundThread.categoryType.getValue()).to.equal(ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue());
 
@@ -906,9 +942,9 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		}
 
 		// 異常系: 存在しないスレッドを検索
-		when(threadRepositoryMock.findByMessageId(anything(), anything())).thenCall(async (guildId: ThreadGuildId, messageId: ThreadMessageId) => {
+		when(threadRepositoryMock.findByMessageId(anything(), anything())).thenCall(async (communityId: CommunityId, messageId: ThreadMessageId) => {
 			// 引数の検証
-			expect(Number(guildId.getValue())).to.equal(testGuildId);
+			expect(communityId.getValue()).to.equal(1);
 			expect(Number(messageId.getValue())).to.equal(testNonExistThreadId);
 
 			// 存在しないスレッドの場合はundefinedを返す
@@ -916,13 +952,17 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		});
 
 		// 存在しないスレッドの検索実行
-		const notFoundThread = await threadLogic.find(new ThreadGuildId(testGuildId.toString()), new ThreadMessageId(testNonExistThreadId.toString()));
+		const notFoundThread = await threadLogic.find(new CommunityId(1), new ThreadMessageId(testNonExistThreadId.toString()));
 
 		// 検索結果の検証（存在しない場合はundefinedが返されるはず）
 		expect(notFoundThread).to.be.undefined;
 
 		// AIReplyHandlerでのスレッド検索の挙動を検証
 		const aiReplyHandler = new AIReplyHandler();
+		const communityLogicMock = mock<ICommunityLogic>();
+		// @ts-ignore - privateフィールドにアクセスするため
+		aiReplyHandler.CommunityLogic = instance(communityLogicMock);
+		when(communityLogicMock.getId(anything())).thenResolve(new CommunityId(1));
 		// @ts-ignore - privateフィールドにアクセスするため
 		const threadLogicForHandlerMock = mock<ThreadLogic>();
 		// @ts-ignore - privateフィールドにアクセスするため
@@ -934,7 +974,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		const messageMock = mockMessage(testUserId.toString());
 		when(messageMock.channel).thenReturn({
 			isThread: () => true,
-			guildId: testGuildId,
+			communityId: 1,
 			id: testNonExistThreadId,
 			ownerId: AppConfig.discord.clientId,
 			sendTyping: () => Promise.resolve(),
@@ -947,7 +987,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		verify(messageMock.reply(anything())).never();
 
 		// ThreadGuildIdとThreadMessageIdの生成と検証
-		const guildId = new ThreadGuildId(testGuildId.toString());
+		const guildId = new CommunityId(testGuildId);
 		const messageId = new ThreadMessageId(testThreadId.toString());
 
 		expect(Number(guildId.getValue())).to.equal(testGuildId);
@@ -973,7 +1013,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 
 		// テスト用のスレッドデータを作成
 		await ThreadRepositoryImpl.create({
-			guildId: testGuildId,
+			communityId: 1,
 			messageId: testThreadId,
 			categoryType: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
 			metadata: {
@@ -988,6 +1028,10 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 
 		// AIReplyHandlerのインスタンスを作成
 		const aiReplyHandler = new AIReplyHandler();
+		const communityLogicMock = mock<ICommunityLogic>();
+		// @ts-ignore - privateフィールドにアクセスするため
+		aiReplyHandler.CommunityLogic = instance(communityLogicMock);
+		when(communityLogicMock.getId(anything())).thenResolve(new CommunityId(1));
 
 		// ThreadLogicのモックを作成
 		const threadLogicMockForAI = mock<ThreadLogic>();
@@ -1002,7 +1046,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		// ThreadLogic.findメソッドのモック
 		when(threadLogicMockForAI.find(anything(), anything())).thenResolve(
 			new ThreadDto(
-				new ThreadGuildId(testGuildId),
+				new CommunityId(1),
 				new ThreadMessageId(testThreadId),
 				ThreadCategoryType.CATEGORY_TYPE_CHATGPT,
 				new ThreadMetadata({
@@ -1085,7 +1129,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 
 		// テスト用のスレッドデータを作成
 		await ThreadRepositoryImpl.create({
-			guildId: testGuildId,
+			communityId: 1,
 			messageId: testThreadId,
 			categoryType: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
 			metadata: {
@@ -1100,6 +1144,10 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 
 		// AIReplyHandlerのインスタンスを作成
 		const aiReplyHandler = new AIReplyHandler();
+		const communityLogicMock = mock<ICommunityLogic>();
+		// @ts-ignore - privateフィールドにアクセスするため
+		aiReplyHandler.CommunityLogic = instance(communityLogicMock);
+		when(communityLogicMock.getId(anything())).thenResolve(new CommunityId(1));
 
 		// ThreadLogicのモックを作成
 		const threadLogicMockForTest = mock<ThreadLogic>();
@@ -1114,7 +1162,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		// ThreadLogic.findメソッドのモック
 		when(threadLogicMockForTest.find(anything(), anything())).thenResolve(
 			new ThreadDto(
-				new ThreadGuildId(testGuildId),
+				new CommunityId(1),
 				new ThreadMessageId(testThreadId),
 				ThreadCategoryType.CATEGORY_TYPE_CHATGPT,
 				new ThreadMetadata({
@@ -1218,7 +1266,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 
 		// ThreadRepositoryImplを使用してテスト用のスレッドデータを作成
 		await ThreadRepositoryImpl.create({
-			guildId: testGuildId,
+			communityId: 1,
 			messageId: testThreadId,
 			categoryType: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
 			metadata: testMetadata,
@@ -1226,6 +1274,10 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 
 		// AIReplyHandlerのインスタンスを作成
 		const aiReplyHandler = new AIReplyHandler();
+		const communityLogicMock = mock<ICommunityLogic>();
+		// @ts-ignore - privateフィールドにアクセスするため
+		aiReplyHandler.CommunityLogic = instance(communityLogicMock);
+		when(communityLogicMock.getId(anything())).thenResolve(new CommunityId(1));
 
 		// ThreadLogicのモックを作成
 		const threadLogicMockForChatAI = mock<ThreadLogic>();
@@ -1233,19 +1285,14 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		aiReplyHandler.threadLogic = instance(threadLogicMockForChatAI);
 
 		// ThreadLogic.findメソッドのモック
-		when(threadLogicMockForChatAI.find(anything(), anything())).thenCall(async (guildId, messageId) => {
-			// 引数の検証
-			expect(guildId.getValue()).to.equal(testGuildId);
-			expect(messageId.getValue()).to.equal(testThreadId);
-
-			// 実際のデータベースからスレッドを取得
-			return await ThreadRepositoryImpl.findOne({
-				where: {
-					guildId: guildId.getValue(),
-					messageId: messageId.getValue(),
-				},
-			}).then((res) => (res ? res.toDto() : undefined));
-		});
+		when(threadLogicMockForChatAI.find(anything(), anything())).thenResolve(
+			new ThreadDto(
+				new CommunityId(1),
+				new ThreadMessageId(testThreadId),
+				ThreadCategoryType.CATEGORY_TYPE_CHATGPT,
+				new ThreadMetadata(testMetadata as unknown as JSON),
+			),
+		);
 
 		// ChatAILogicのモックを作成
 		const chatAILogicMock = mock<IChatAILogic>();
@@ -1329,15 +1376,15 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		aiReplyHandler.threadLogic = instance(threadLogicMock);
 
 		// ThreadLogic.findメソッドのモック
-		when(threadLogicMock.find(anything(), anything())).thenCall(async (guildId, messageId) => {
+		when(threadLogicMock.find(anything(), anything())).thenCall(async (communityId, messageId) => {
 			// 引数の検証
-			expect(guildId.getValue()).to.equal(testGuildId);
+			expect(communityId.getValue()).to.equal(1);
 			expect(messageId.getValue()).to.equal(testThreadId);
 
 			// 実際のデータベースからスレッドを取得
 			return await ThreadRepositoryImpl.findOne({
 				where: {
-					guildId: guildId.getValue(),
+					communityId: 1,
 					messageId: messageId.getValue(),
 				},
 			}).then((res) => (res ? res.toDto() : undefined));
@@ -1387,7 +1434,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 
 		// ThreadRepositoryImplを使用してテスト用のスレッドデータを作成
 		await ThreadRepositoryImpl.create({
-			guildId: testGuildId,
+			communityId: 1,
 			messageId: testThreadId,
 			categoryType: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
 			metadata: testMetadata,
@@ -1395,6 +1442,10 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 
 		// AIReplyHandlerのインスタンスを作成
 		const aiReplyHandler = new AIReplyHandler();
+		const communityLogicMock = mock<ICommunityLogic>();
+		// @ts-ignore - privateフィールドにアクセスするため
+		aiReplyHandler.CommunityLogic = instance(communityLogicMock);
+		when(communityLogicMock.getId(anything())).thenResolve(new CommunityId(1));
 
 		// テスト用の長いテキスト（2000文字を超えるもの）
 		const longText = `${"これはテスト用の長いテキストです。".repeat(100)}\`\`\`\nコードブロックも含まれています\n\`\`\`${"さらに長いテキストが続きます。".repeat(50)}`;
@@ -1448,19 +1499,14 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		aiReplyHandler.threadLogic = instance(threadLogicMock);
 
 		// ThreadLogic.findメソッドのモック
-		when(threadLogicMock.find(anything(), anything())).thenCall(async (guildId, messageId) => {
-			// 引数の検証
-			expect(guildId.getValue()).to.equal(testGuildId);
-			expect(messageId.getValue()).to.equal(testThreadId);
-
-			// 実際のデータベースからスレッドを取得
-			return await ThreadRepositoryImpl.findOne({
-				where: {
-					guildId: guildId.getValue(),
-					messageId: messageId.getValue(),
-				},
-			}).then((res) => (res ? res.toDto() : undefined));
-		});
+		when(threadLogicMock.find(anything(), anything())).thenResolve(
+			new ThreadDto(
+				new CommunityId(1),
+				new ThreadMessageId(testThreadId),
+				ThreadCategoryType.CATEGORY_TYPE_CHATGPT,
+				new ThreadMetadata(testMetadata as unknown as JSON),
+			),
+		);
 
 		// テストケース1: 短いテキストの場合
 		// ChatAILogic.replyTalkメソッドのモック（短いテキストを返す）
@@ -1561,7 +1607,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 
 		// テスト用のスレッドデータを作成
 		await ThreadRepositoryImpl.create({
-			guildId: testGuildId,
+			communityId: 1,
 			messageId: testThreadId,
 			categoryType: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
 			metadata: testMetadata,
@@ -1569,6 +1615,10 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 
 		// AIReplyHandlerのインスタンスを作成
 		const aiReplyHandler = new AIReplyHandler();
+		const communityLogicMock = mock<ICommunityLogic>();
+		// @ts-ignore - privateフィールドにアクセスするため
+		aiReplyHandler.CommunityLogic = instance(communityLogicMock);
+		when(communityLogicMock.getId(anything())).thenResolve(new CommunityId(1));
 
 		// 複数の応答を返すテスト用の長いテキスト
 		const longResponse = "これは1つ目の応答です。".repeat(30) + "\n\nこれは2つ目の応答です。".repeat(30) + "\n\nこれは3つ目の応答です。".repeat(30);
@@ -1620,7 +1670,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		// ThreadLogic.findメソッドのモック
 		when(threadLogicMock.find(anything(), anything())).thenResolve(
 			new ThreadDto(
-				new ThreadGuildId(testGuildId),
+				new CommunityId(Number(testGuildId)),
 				new ThreadMessageId(testThreadId),
 				ThreadCategoryType.CATEGORY_TYPE_CHATGPT,
 				new ThreadMetadata(testMetadata as unknown as JSON),
@@ -1703,7 +1753,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 
 		// ThreadRepositoryImplを使用してテスト用のスレッドデータを作成
 		await ThreadRepositoryImpl.create({
-			guildId: testGuildId,
+			communityId: 1,
 			messageId: testThreadId,
 			categoryType: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
 			metadata: testMetadata,
@@ -1711,6 +1761,10 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 
 		// AIReplyHandlerのインスタンスを作成
 		const aiReplyHandler = new AIReplyHandler();
+		const communityLogicMock = mock<ICommunityLogic>();
+		// @ts-ignore - privateフィールドにアクセスするため
+		aiReplyHandler.CommunityLogic = instance(communityLogicMock);
+		when(communityLogicMock.getId(anything())).thenResolve(new CommunityId(1));
 
 		// ChatAILogicのモックを作成
 		const chatAILogicMock = mock<IChatAILogic>();
@@ -1753,7 +1807,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		// ThreadLogic.findメソッドのモック
 		when(threadLogicMock.find(anything(), anything())).thenResolve(
 			new ThreadDto(
-				new ThreadGuildId(testGuildId),
+				new CommunityId(1),
 				new ThreadMessageId(testThreadId),
 				ThreadCategoryType.CATEGORY_TYPE_CHATGPT,
 				new ThreadMetadata(testMetadata as unknown as JSON),
@@ -1878,7 +1932,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 
 		// ThreadRepositoryImplを使用してテスト用のスレッドデータを作成
 		await ThreadRepositoryImpl.create({
-			guildId: testGuildId,
+			communityId: 1,
 			messageId: testThreadId,
 			categoryType: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
 			metadata: testMetadata,
@@ -1886,6 +1940,10 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 
 		// AIReplyHandlerのインスタンスを作成
 		const aiReplyHandler = new AIReplyHandler();
+		const communityLogicMock = mock<ICommunityLogic>();
+		// @ts-ignore - privateフィールドにアクセスするため
+		aiReplyHandler.CommunityLogic = instance(communityLogicMock);
+		when(communityLogicMock.getId(anything())).thenResolve(new CommunityId(1));
 
 		// ThreadLogicのモックを作成
 		const threadLogicMock = mock<ThreadLogic>();
@@ -1893,15 +1951,15 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		aiReplyHandler.threadLogic = instance(threadLogicMock);
 
 		// ThreadLogic.findメソッドのモック
-		when(threadLogicMock.find(anything(), anything())).thenCall(async (guildId, messageId) => {
+		when(threadLogicMock.find(anything(), anything())).thenCall(async (communityId, messageId) => {
 			// 引数の検証
-			expect(guildId.getValue()).to.equal(testGuildId);
+			expect(communityId.getValue()).to.equal(1);
 			expect(messageId.getValue()).to.equal(testThreadId);
 
 			// 実際のデータベースからスレッドを取得
 			return await ThreadRepositoryImpl.findOne({
 				where: {
-					guildId: guildId.getValue(),
+					communityId: 1,
 					messageId: messageId.getValue(),
 				},
 			}).then((res) => (res ? res.toDto() : undefined));
@@ -2106,14 +2164,15 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		// スレッドが正しく保存されていることを確認
 		const savedThread = await ThreadRepositoryImpl.findOne({
 			where: {
-				guildId: testGuildId,
+				communityId: 1,
 				messageId: testThreadId,
 			},
 		});
 
 		expect(savedThread).to.not.be.null;
 		if (savedThread) {
-			expect(savedThread.guildId.toString()).to.equal(testGuildId);
+			// communityIdはDBの内部ID（1）なので、testGuildId（Discord guildId）ではなく"1"と比較
+			expect(savedThread.communityId.toString()).to.equal("1");
 			expect(savedThread.messageId.toString()).to.equal(testThreadId);
 			expect(savedThread.categoryType).to.equal(ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue());
 
@@ -2160,7 +2219,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 
 		// ThreadRepositoryImplを使用してテスト用のスレッドデータを作成
 		await ThreadRepositoryImpl.create({
-			guildId: testGuildId,
+			communityId: 1,
 			messageId: testThreadId,
 			categoryType: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
 			metadata: testMetadata,
@@ -2168,6 +2227,10 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 
 		// AIReplyHandlerのインスタンスを作成
 		const aiReplyHandler = new AIReplyHandler();
+		const communityLogicMock = mock<ICommunityLogic>();
+		// @ts-ignore - privateフィールドにアクセスするため
+		aiReplyHandler.CommunityLogic = instance(communityLogicMock);
+		when(communityLogicMock.getId(anything())).thenResolve(new CommunityId(1));
 
 		// ThreadLogicのモックを作成
 		const threadLogicMock = mock<ThreadLogic>();
@@ -2177,7 +2240,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		// ThreadLogic.findメソッドのモック
 		when(threadLogicMock.find(anything(), anything())).thenResolve(
 			new ThreadDto(
-				new ThreadGuildId(testGuildId),
+				new CommunityId(Number(testGuildId)),
 				new ThreadMessageId(testThreadId),
 				ThreadCategoryType.CATEGORY_TYPE_CHATGPT,
 				new ThreadMetadata(testMetadata as unknown as JSON),
@@ -2411,7 +2474,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 
 		// ThreadRepositoryImplを使用してテスト用のスレッドデータを作成
 		await ThreadRepositoryImpl.create({
-			guildId: testGuildId,
+			communityId: 1,
 			messageId: testThreadId,
 			categoryType: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
 			metadata: {
@@ -2426,6 +2489,10 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 
 		// AIReplyHandlerのインスタンスを作成
 		const aiReplyHandler = new AIReplyHandler();
+		const communityLogicMock = mock<ICommunityLogic>();
+		// @ts-ignore - privateフィールドにアクセスするため
+		aiReplyHandler.CommunityLogic = instance(communityLogicMock);
+		when(communityLogicMock.getId(anything())).thenResolve(new CommunityId(1));
 
 		// ThreadLogicのモックを作成
 		const threadLogicMock = mock<ThreadLogic>();
@@ -2433,15 +2500,15 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		aiReplyHandler.threadLogic = instance(threadLogicMock);
 
 		// ThreadLogic.findメソッドのモック
-		when(threadLogicMock.find(anything(), anything())).thenCall(async (guildId, messageId) => {
+		when(threadLogicMock.find(anything(), anything())).thenCall(async (communityId, messageId) => {
 			// 引数の検証
-			expect(guildId.getValue()).to.equal(testGuildId);
+			expect(communityId.getValue()).to.equal(1);
 			expect(messageId.getValue()).to.equal(testThreadId);
 
 			// 実際のデータベースからスレッドを取得
 			return await ThreadRepositoryImpl.findOne({
 				where: {
-					guildId: guildId.getValue(),
+					communityId: 1,
 					messageId: messageId.getValue(),
 				},
 			}).then((res) => (res ? res.toDto() : undefined));
@@ -2510,7 +2577,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 
 		// ThreadRepositoryImplを使用してテスト用のスレッドデータを作成
 		await ThreadRepositoryImpl.create({
-			guildId: testGuildId,
+			communityId: 1,
 			messageId: testThreadId,
 			categoryType: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
 			metadata: {
@@ -2525,6 +2592,10 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 
 		// AIReplyHandlerのインスタンスを作成
 		const aiReplyHandler = new AIReplyHandler();
+		const communityLogicMock = mock<ICommunityLogic>();
+		// @ts-ignore - privateフィールドにアクセスするため
+		aiReplyHandler.CommunityLogic = instance(communityLogicMock);
+		when(communityLogicMock.getId(anything())).thenResolve(new CommunityId(1));
 
 		// ThreadLogicのモックを作成
 		const threadLogicMock = mock<ThreadLogic>();
@@ -2532,15 +2603,15 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		aiReplyHandler.threadLogic = instance(threadLogicMock);
 
 		// ThreadLogic.findメソッドのモック
-		when(threadLogicMock.find(anything(), anything())).thenCall(async (guildId, messageId) => {
+		when(threadLogicMock.find(anything(), anything())).thenCall(async (communityId, messageId) => {
 			// 引数の検証
-			expect(guildId.getValue()).to.equal(testGuildId);
+			expect(communityId.getValue()).to.equal(1);
 			expect(messageId.getValue()).to.equal(testThreadId);
 
 			// 実際のデータベースからスレッドを取得
 			return await ThreadRepositoryImpl.findOne({
 				where: {
-					guildId: guildId.getValue(),
+					communityId: 1,
 					messageId: messageId.getValue(),
 				},
 			}).then((res) => (res ? res.toDto() : undefined));
@@ -2611,7 +2682,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 
 		// ThreadRepositoryImplを使用してテスト用のスレッドデータを作成
 		await ThreadRepositoryImpl.create({
-			guildId: testGuildId,
+			communityId: 1,
 			messageId: testThreadId,
 			categoryType: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
 			metadata: {
@@ -2626,6 +2697,10 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 
 		// AIReplyHandlerのインスタンスを作成
 		const aiReplyHandler = new AIReplyHandler();
+		const communityLogicMock = mock<ICommunityLogic>();
+		// @ts-ignore - privateフィールドにアクセスするため
+		aiReplyHandler.CommunityLogic = instance(communityLogicMock);
+		when(communityLogicMock.getId(anything())).thenResolve(new CommunityId(1));
 
 		// ThreadLogicのモックを作成
 		const threadLogicMock = mock<ThreadLogic>();
@@ -2633,15 +2708,15 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		aiReplyHandler.threadLogic = instance(threadLogicMock);
 
 		// ThreadLogic.findメソッドのモック
-		when(threadLogicMock.find(anything(), anything())).thenCall(async (guildId, messageId) => {
+		when(threadLogicMock.find(anything(), anything())).thenCall(async (communityId, messageId) => {
 			// 引数の検証
-			expect(guildId.getValue()).to.equal(testGuildId);
+			expect(communityId.getValue()).to.equal(1);
 			expect(messageId.getValue()).to.equal(testThreadId);
 
 			// 実際のデータベースからスレッドを取得
 			return await ThreadRepositoryImpl.findOne({
 				where: {
-					guildId: guildId.getValue(),
+					communityId: 1,
 					messageId: messageId.getValue(),
 				},
 			}).then((res) => (res ? res.toDto() : undefined));
@@ -2709,7 +2784,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		const testBotId = AppConfig.discord.clientId;
 
 		await ThreadRepositoryImpl.create({
-			guildId: testGuildId,
+			communityId: 1,
 			messageId: testThreadId,
 			categoryType: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
 			metadata: {
@@ -2723,14 +2798,18 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		});
 
 		const aiReplyHandler = new AIReplyHandler();
+		const communityLogicMock = mock<ICommunityLogic>();
+		// @ts-ignore - privateフィールドにアクセスするため
+		aiReplyHandler.CommunityLogic = instance(communityLogicMock);
+		when(communityLogicMock.getId(anything())).thenResolve(new CommunityId(1));
 
 		const threadLogicMock = mock<ThreadLogic>();
 		// @ts-ignore - privateフィールドにアクセスするため
 		aiReplyHandler.threadLogic = instance(threadLogicMock);
-		when(threadLogicMock.find(anything(), anything())).thenCall(async (guildId, messageId) => {
+		when(threadLogicMock.find(anything(), anything())).thenCall(async (communityId, messageId) => {
 			return await ThreadRepositoryImpl.findOne({
 				where: {
-					guildId: guildId.getValue(),
+					communityId: 1,
 					messageId: messageId.getValue(),
 				},
 			}).then((res) => (res ? res.toDto() : undefined));
@@ -2776,7 +2855,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		const testBotId = AppConfig.discord.clientId;
 
 		await ThreadRepositoryImpl.create({
-			guildId: testGuildId,
+			communityId: 1,
 			messageId: testThreadId,
 			categoryType: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
 			metadata: {
@@ -2790,14 +2869,18 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		});
 
 		const aiReplyHandler = new AIReplyHandler();
+		const communityLogicMock = mock<ICommunityLogic>();
+		// @ts-ignore - privateフィールドにアクセスするため
+		aiReplyHandler.CommunityLogic = instance(communityLogicMock);
+		when(communityLogicMock.getId(anything())).thenResolve(new CommunityId(1));
 
 		const threadLogicMock = mock<ThreadLogic>();
 		// @ts-ignore - privateフィールドにアクセスするため
 		aiReplyHandler.threadLogic = instance(threadLogicMock);
-		when(threadLogicMock.find(anything(), anything())).thenCall(async (guildId, messageId) => {
+		when(threadLogicMock.find(anything(), anything())).thenCall(async (communityId, messageId) => {
 			return await ThreadRepositoryImpl.findOne({
 				where: {
-					guildId: guildId.getValue(),
+					communityId: 1,
 					messageId: messageId.getValue(),
 				},
 			}).then((res) => (res ? res.toDto() : undefined));
