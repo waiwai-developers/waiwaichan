@@ -1,11 +1,15 @@
 import { RoleConfig } from "@/src/entities/config/RoleConfig";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
+import { ChannelDto } from "@/src/entities/dto/ChannelDto";
 import { CommunityDto } from "@/src/entities/dto/CommunityDto";
 import { StickyDto } from "@/src/entities/dto/StickyDto";
 import { UserDto } from "@/src/entities/dto/UserDto";
+import { ChannelCategoryType } from "@/src/entities/vo/ChannelCategoryType";
+import { ChannelClientId } from "@/src/entities/vo/ChannelClientId";
+import { ChannelCommunityId } from "@/src/entities/vo/ChannelCommunityId";
+import { ChannelType } from "@/src/entities/vo/ChannelType";
 import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
 import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
-import { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
 import { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
 import { StickyMessage } from "@/src/entities/vo/StickyMessage";
 import { UserCategoryType } from "@/src/entities/vo/UserCategoryType";
@@ -13,6 +17,7 @@ import { UserClientId } from "@/src/entities/vo/UserClientId";
 import { UserCommunityId } from "@/src/entities/vo/UserCommunityId";
 import { UserType } from "@/src/entities/vo/UserType";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
+import type { IChannelLogic } from "@/src/logics/Interfaces/logics/IChannelLogic";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { IStickyLogic } from "@/src/logics/Interfaces/logics/IStickyLogic";
 import type { IUserLogic } from "@/src/logics/Interfaces/logics/IUserLogic";
@@ -37,6 +42,9 @@ export class StickyCreateCommandHandler implements SlashCommandHandler {
 
 	@inject(LogicTypes.UserLogic)
 	private UserLogic!: IUserLogic;
+
+	@inject(LogicTypes.ChannelLogic)
+	private ChannelLogic!: IChannelLogic;
 
 	isHandle(commandName: string): boolean {
 		return commandName === "stickycreate";
@@ -85,10 +93,21 @@ export class StickyCreateCommandHandler implements SlashCommandHandler {
 			return;
 		}
 
-		const sticky = await this.stickyLogic.find(
-			communityId,
-			new DiscordChannelId(interaction.options.getString("channelid", true)),
+		const channelId = await this.ChannelLogic.getId(
+			new ChannelDto(
+				ChannelCategoryType.Discord,
+				new ChannelClientId(
+					BigInt(interaction.options.getString("channelid", true)),
+				),
+				ChannelType.DiscordText,
+				new ChannelCommunityId(communityId.getValue()),
+			),
 		);
+		if (channelId == null) {
+			return;
+		}
+
+		const sticky = await this.stickyLogic.find(communityId, channelId);
 		if (sticky !== undefined) {
 			await interaction.reply(
 				"スティッキーが既にチャンネルに登録されているよ！っ",
@@ -139,9 +158,7 @@ export class StickyCreateCommandHandler implements SlashCommandHandler {
 					await this.stickyLogic.create(
 						new StickyDto(
 							communityId,
-							new DiscordChannelId(
-								interaction.options.getString("channelid", true),
-							),
+							channelId,
 							userId,
 							new DiscordMessageId(message.id),
 							new StickyMessage(message.content),
