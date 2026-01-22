@@ -1,9 +1,10 @@
 import { RoleConfig } from "@/src/entities/config/RoleConfig";
-import { CommunityRepositoryImpl, StickyRepositoryImpl, UserRepositoryImpl } from "@/src/repositories/sequelize-mysql";
+import { ChannelRepositoryImpl, CommunityRepositoryImpl, StickyRepositoryImpl, UserRepositoryImpl } from "@/src/repositories/sequelize-mysql";
 import { MysqlConnector } from "@/tests/fixtures/database/MysqlConnector";
 import { mockMessage } from "@/tests/fixtures/discord.js/MockMessage";
 import { mockSlashCommand, waitUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { expect } from "chai";
+import type { InteractionResponse, Message } from "discord.js";
 import { ModalBuilder, TextChannel, TextInputBuilder, TextInputStyle } from "discord.js";
 import type Mocha from "mocha";
 import { anything, instance, mock, verify, when } from "ts-mockito";
@@ -13,7 +14,115 @@ import { TestDiscordServer } from "../fixtures/discord.js/TestDiscordServer";
 const TEST_GUILD_ID = "1234567890"; // communityのclientId
 const TEST_USER_ID = "1234"; // userのclientId
 
-// Helper function to create community and user for tests
+// ============================================
+// 型定義
+// ============================================
+
+/** 返り値キャプチャオブジェクト */
+interface ReplyCapture {
+	getValue: () => string;
+}
+
+/** スティッキーの期待データ */
+interface ExpectedStickyData {
+	userId?: number;
+	messageId?: string;
+	message?: string;
+}
+
+/** モックメッセージの設定オプション */
+interface MockMessageOptions {
+	deleteResult?: boolean;
+	onDelete?: () => void;
+	onEdit?: (newContent: string) => void;
+}
+
+/** イベントテスト用オプション */
+interface EventMessageMockOptions {
+	isBot?: boolean;
+	isThread?: boolean;
+}
+
+/** モックメッセージオブジェクト */
+interface MockDiscordMessage {
+	id: string;
+	content: string;
+	delete: () => Promise<boolean>;
+	edit: (newContent: string) => Promise<{ id: string; content: string }>;
+}
+
+// ============================================
+// モックファクトリ関数
+// ============================================
+
+/**
+ * RoleConfigのモック設定
+ * @param userId ユーザーID
+ * @param role ロール ('admin' | 'user')
+ */
+function setupRoleConfig(userId: string, role: "admin" | "user"): void {
+	RoleConfig.users = [{ discordId: userId, role }];
+}
+
+/**
+ * replyメソッドのモックを設定し、返り値をキャプチャする
+ * @param commandMock コマンドモック
+ * @returns キャプチャされた返り値を取得するオブジェクト
+ */
+function setupReplyCapture(commandMock: ReturnType<typeof mockSlashCommand>): ReplyCapture {
+	let replyValue = "";
+	when(commandMock.reply(anything())).thenCall((message: string) => {
+		replyValue = message;
+		return Promise.resolve({} as InteractionResponse);
+	});
+	return { getValue: () => replyValue };
+}
+
+
+/**
+ * メッセージのモックを作成
+ * @param messageId メッセージID
+ * @param content メッセージ内容
+ * @param options オプション設定
+ */
+function createMessageMock(
+	messageId: string,
+	content: string,
+	options: MockMessageOptions = {},
+): MockDiscordMessage {
+	const messageMock: MockDiscordMessage = {
+		id: messageId,
+		content,
+		delete: () => {
+			options.onDelete?.();
+			return Promise.resolve(options.deleteResult ?? true);
+		},
+		edit: (newContent: string) => {
+			options.onEdit?.(newContent);
+			messageMock.content = newContent;
+			return Promise.resolve({ id: messageId, content: newContent });
+		},
+	};
+	return messageMock;
+}
+
+/**
+ * コマンドの基本設定を行う（guildId, channel）
+ * @param commandMock コマンドモック
+ * @param guildId ギルドID
+ */
+function setupCommandBasics(commandMock: ReturnType<typeof mockSlashCommand>, guildId: string): void {
+	when(commandMock.guildId).thenReturn(guildId);
+	when(commandMock.channel).thenReturn({} as any);
+}
+
+// ============================================
+// テストデータ作成ヘルパー
+// ============================================
+
+/**
+ * Community と User を作成するヘルパー関数
+ */
 async function createCommunityAndUser(): Promise<{
 	communityId: number;
 	userId: number;
@@ -40,6 +149,207 @@ async function createCommunityAndUser(): Promise<{
 	};
 }
 
+/**
+ * テスト用Channelを作成するヘルパー関数
+ * @param communityId コミュニティID
+ * @param channelClientId チャンネルのクライアントID（Discord上のチャンネルID）
+ * @returns 作成されたチャンネルのID
+ */
+async function createTestChannel(
+	communityId: number,
+	channelClientId: string,
+): Promise<number> {
+	const channel = await ChannelRepositoryImpl.create({
+		categoryType: 0, // Discord
+		clientId: BigInt(channelClientId),
+		channelType: 2, // DiscordText
+		communityId: communityId,
+		batchStatus: 0,
+	});
+	return channel.id;
+}
+
+/**
+ * テスト用スティッキーを作成するヘルパー関数
+ */
+async function createTestSticky(
+	communityId: number,
+	userId: number,
+	channelId: string,
+	messageId: string,
+	message: string,
+): Promise<void> {
+	await StickyRepositoryImpl.create({
+		communityId,
+		channelId,
+		userId,
+		messageId,
+		message,
+	});
+}
+
+// ============================================
+// イベントテスト用ヘルパー関数
+// ============================================
+
+/**
+ * イベントテスト用のメッセージモックを設定
+ * @param userId ユーザーID
+ * @param guildId ギルドID
+ * @param channelId チャンネルID
+ * @param options オプション設定
+ */
+function setupEventMessageMock(
+	userId: string,
+	guildId: string,
+	channelId: string,
+	options: EventMessageMockOptions = {},
+): ReturnType<typeof mockMessage> {
+	const messageMock = mockMessage(userId, false, options.isBot ?? false);
+
+	// guildIdとchannelIdを設定
+	when(messageMock.guildId).thenReturn(guildId);
+	when(messageMock.channelId).thenReturn(channelId);
+
+	// チャンネルをモック
+	const channelMock = mock<TextChannel>();
+	when(channelMock.isThread()).thenReturn(options.isThread ?? false);
+	when(messageMock.channel).thenReturn(instance(channelMock));
+
+	return messageMock;
+}
+
+/**
+ * イベントテスト用のguildモックを設定（チャンネルキャッシュ付き）
+ * @param messageMock メッセージモック
+ * @param channelId チャンネルID
+ * @param channel チャンネルオブジェクト（undefined=存在しない, {}=非TextChannel, TextChannel=TextChannel）
+ */
+function setupEventGuildMock(
+	messageMock: ReturnType<typeof mockMessage>,
+	channelId: string,
+	channel: any,
+): void {
+	const guildMock = {
+		channels: {
+			cache: {
+				get: (id: string) => (id === channelId ? channel : undefined),
+			},
+		},
+	};
+	when(messageMock.guild).thenReturn(guildMock as any);
+}
+
+/**
+ * イベントテスト用のTextChannelモックを作成
+ * @param channelId チャンネルID
+ * @param oldMessage 古いメッセージモック
+ * @param newMessage 新しいメッセージモック（sendの戻り値）
+ */
+function createEventTextChannelMock(
+	channelId: string,
+	oldMessage: any,
+	newMessage: any,
+): TextChannel {
+	const textChannel = Object.create(TextChannel.prototype);
+	textChannel.id = channelId;
+	textChannel.type = 0;
+	textChannel.send = () => Promise.resolve(newMessage);
+	textChannel.messages = { fetch: () => Promise.resolve(oldMessage) };
+	return textChannel;
+}
+
+/**
+ * messageCreateイベントを発火して待つ
+ * @param messageMock メッセージモック
+ * @param waitMs 待機時間（ミリ秒）
+ */
+async function emitMessageCreateAndWait(
+	messageMock: ReturnType<typeof mockMessage>,
+	waitMs = 100,
+): Promise<void> {
+	const TEST_CLIENT = await TestDiscordServer.getClient();
+	TEST_CLIENT.emit("messageCreate", instance(messageMock));
+	await new Promise((resolve) => setTimeout(resolve, waitMs));
+}
+
+// ============================================
+// Repository検証ヘルパー関数
+// ============================================
+
+/**
+ * スティッキーの件数を検証
+ * @param expectedCount 期待されるスティッキーの件数
+ */
+async function expectStickyCount(expectedCount: number): Promise<void> {
+	const stickies = await StickyRepositoryImpl.findAll();
+	expect(stickies.length).to.eq(expectedCount);
+}
+
+/**
+ * スティッキーが存在しないことを検証
+ */
+async function expectNoStickies(): Promise<void> {
+	await expectStickyCount(0);
+}
+
+/**
+ * 特定のスティッキーが存在し、データが正しいことを検証
+ * @param communityId コミュニティID
+ * @param channelId チャンネルID
+ * @param expectedData 期待されるデータ（オプション）
+ */
+async function expectStickyExists(
+	communityId: number,
+	channelId: string,
+	expectedData?: ExpectedStickyData,
+): Promise<void> {
+	const sticky = await StickyRepositoryImpl.findOne({
+		where: { communityId, channelId },
+	});
+	expect(sticky).to.not.be.null;
+
+	if (expectedData) {
+		if (expectedData.userId !== undefined) {
+			expect(String(sticky?.userId)).to.eq(String(expectedData.userId));
+		}
+		if (expectedData.messageId !== undefined) {
+			expect(String(sticky?.messageId)).to.eq(String(expectedData.messageId));
+		}
+		if (expectedData.message !== undefined) {
+			expect(sticky?.message).to.eq(expectedData.message);
+		}
+	}
+}
+
+/**
+ * スティッキーのmessageIdが変更されていないことを検証
+ * @param communityId コミュニティID
+ * @param channelId チャンネルID
+ * @param expectedMessageId 期待されるメッセージID
+ */
+async function expectStickyMessageIdUnchanged(
+	communityId: number,
+	channelId: string,
+	expectedMessageId: string,
+): Promise<void> {
+	await expectStickyExists(communityId, channelId, { messageId: expectedMessageId });
+}
+
+/**
+ * スティッキーのmessageIdが更新されたことを検証
+ * @param communityId コミュニティID
+ * @param channelId チャンネルID
+ * @param expectedNewMessageId 期待される新しいメッセージID
+ */
+async function expectStickyMessageIdUpdated(
+	communityId: number,
+	channelId: string,
+	expectedNewMessageId: string,
+): Promise<void> {
+	await expectStickyExists(communityId, channelId, { messageId: expectedNewMessageId });
+}
+
 describe("Test Sticky Commands", () => {
 	// テスト用のコミュニティとユーザーのID（autoincrement）
 	let testCommunityId: number;
@@ -49,6 +359,7 @@ describe("Test Sticky Commands", () => {
 		new MysqlConnector();
 		// Clean up existing records
 		await StickyRepositoryImpl.destroy({ truncate: true, force: true });
+		await ChannelRepositoryImpl.destroy({ truncate: true, force: true });
 		await UserRepositoryImpl.destroy({ truncate: true, force: true });
 		await CommunityRepositoryImpl.destroy({ truncate: true, force: true });
 		// Create community and user for each test
@@ -59,6 +370,10 @@ describe("Test Sticky Commands", () => {
 
 	afterEach(async () => {
 		await StickyRepositoryImpl.destroy({
+			truncate: true,
+			force: true,
+		});
+		await ChannelRepositoryImpl.destroy({
 			truncate: true,
 			force: true,
 		});
@@ -88,25 +403,20 @@ describe("Test Sticky Commands", () => {
 		return (async () => {
 			// 非管理者ユーザーIDを設定
 			const guildId = "1";
-			const channelid = "2";
+			const channelId = "2";
 			const userId = "3";
 
 			// コマンドのモック作成
-			const commandMock = mockSlashCommand("stickycreate", { channelid: channelid }, userId);
+			const commandMock = mockSlashCommand("stickycreate", { channelid: channelId }, userId);
 
 			// RoleConfigのモック
-			RoleConfig.users = [{ discordId: userId, role: "user" }];
+			setupRoleConfig(userId, "user");
 
 			// guildIdとchannelを設定
-			when(commandMock.guildId).thenReturn(guildId);
-			when(commandMock.channel).thenReturn({} as any);
+			setupCommandBasics(commandMock, guildId);
 
 			// replyメソッドをモック
-			let replyValue = "";
-			when(commandMock.reply(anything())).thenCall((message: string) => {
-				replyValue = message;
-				return Promise.resolve({} as any);
-			});
+			const replyCapture = setupReplyCapture(commandMock);
 
 			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
@@ -116,11 +426,10 @@ describe("Test Sticky Commands", () => {
 			await waitUntilReply(commandMock, 1000);
 
 			// 応答の検証
-			expect(replyValue).to.eq("スティッキーを登録する権限を持っていないよ！っ");
+			expect(replyCapture.getValue()).to.eq("スティッキーを登録する権限を持っていないよ！っ");
 
 			// Stickyにデータが作られていないことを確認
-			const afterStickies = await StickyRepositoryImpl.findAll();
-			expect(afterStickies.length).to.eq(0);
+			await expectNoStickies();
 		})();
 	});
 
@@ -140,35 +449,25 @@ describe("Test Sticky Commands", () => {
 			const message = "スティッキーのメッセージ";
 
 			// RoleConfigのモック
-			RoleConfig.users = [{ discordId: TEST_USER_ID, role: "admin" }];
+			setupRoleConfig(TEST_USER_ID, "admin");
 
-			// 既存のスティッキーを返すようにfindメソッドをモック
+			// テスト用Channelを作成
+			await createTestChannel(testCommunityId, channelId);
 
-			await StickyRepositoryImpl.create({
-				communityId: testCommunityId,
-				channelId: channelId,
-				userId: testUserId,
-				messageId: messageId,
-				message: message,
-			});
+			// 既存のスティッキーを作成
+			await createTestSticky(testCommunityId, testUserId, channelId, messageId, message);
 
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("stickycreate", { channelid: channelId }, TEST_USER_ID);
 
 			// guildIdとchannelを設定
-			when(commandMock.guildId).thenReturn(TEST_GUILD_ID);
-			when(commandMock.channel).thenReturn({} as any);
+			setupCommandBasics(commandMock, TEST_GUILD_ID);
 
 			// replyメソッドをモック
-			let replyValue = "";
-			when(commandMock.reply(anything())).thenCall((message: string) => {
-				replyValue = message;
-				return Promise.resolve({} as any);
-			});
+			const replyCapture = setupReplyCapture(commandMock);
 
 			// データベースにスティッキーが存在することを確認
-			const beforeStickies = await StickyRepositoryImpl.findAll();
-			expect(beforeStickies.length).to.eq(1);
+			await expectStickyCount(1);
 
 			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
@@ -178,16 +477,15 @@ describe("Test Sticky Commands", () => {
 			await waitUntilReply(commandMock, 2000);
 
 			// 応答の検証
-			expect(replyValue).to.eq("スティッキーが既にチャンネルに登録されているよ！っ");
+			expect(replyCapture.getValue()).to.eq("スティッキーが既にチャンネルに登録されているよ！っ");
 
-			// Stickyにデータが作られていないことを確認
-			const afterStickies = await StickyRepositoryImpl.findAll();
-			expect(afterStickies.length).to.eq(1);
-			expect(String(afterStickies[0].communityId)).to.eq(String(testCommunityId));
-			expect(String(afterStickies[0].channelId)).to.eq(String(channelId));
-			expect(String(afterStickies[0].userId)).to.eq(String(testUserId));
-			expect(String(afterStickies[0].messageId)).to.eq(String(messageId));
-			expect(afterStickies[0].message).to.eq(message);
+			// Stickyにデータが作られていないことを確認（件数チェック + 詳細検証）
+			await expectStickyCount(1);
+			await expectStickyExists(testCommunityId, channelId, {
+				userId: testUserId,
+				messageId,
+				message,
+			});
 		})();
 	});
 	/**
@@ -238,8 +536,7 @@ describe("Test Sticky Commands", () => {
 			});
 
 			// データベースにスティッキーが存在しないことを確認
-			const beforeStickies = await StickyRepositoryImpl.findAll();
-			expect(beforeStickies.length).to.eq(0);
+			await expectNoStickies();
 
 			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
@@ -252,8 +549,7 @@ describe("Test Sticky Commands", () => {
 			expect(replyValue).to.eq("このチャンネルにはスティッキーを登録できないよ！っ");
 
 			// Stickyにデータが作られていないことを確認
-			const afterStickies = await StickyRepositoryImpl.findAll();
-			expect(afterStickies.length).to.eq(0);
+			await expectNoStickies();
 		})();
 	});
 	/**
@@ -421,8 +717,7 @@ describe("Test Sticky Commands", () => {
 			} as any);
 
 			// データベースにスティッキーが存在しないことを確認
-			const beforeStickies = await StickyRepositoryImpl.findAll();
-			expect(beforeStickies.length).to.eq(0);
+			await expectNoStickies();
 
 			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
@@ -435,8 +730,7 @@ describe("Test Sticky Commands", () => {
 			expect(modalSubmitInteraction.replyMessage).to.eq("スティッキーに登録するメッセージがないよ！っ");
 
 			// Stickyにデータが作られていないことを確認
-			const afterStickies = await StickyRepositoryImpl.findAll();
-			expect(afterStickies.length).to.eq(0);
+			await expectNoStickies();
 		})();
 	});
 	/**
@@ -567,27 +861,19 @@ describe("Test Sticky Commands", () => {
 			const userId = "3";
 
 			// RoleConfigのモック - 明示的に非管理者として設定
-			RoleConfig.users = [
-				{ discordId: userId, role: "user" }, // 非管理者として設定
-			];
+			setupRoleConfig(userId, "user");
 
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("stickydelete", { channelid: channelId }, userId);
 
 			// guildIdとchannelを設定
-			when(commandMock.guildId).thenReturn(guildId);
-			when(commandMock.channel).thenReturn({} as any);
+			setupCommandBasics(commandMock, guildId);
 
 			// replyメソッドをモック
-			let replyValue = "";
-			when(commandMock.reply(anything())).thenCall((message: string) => {
-				replyValue = message;
-				return Promise.resolve({} as any);
-			});
+			const replyCapture = setupReplyCapture(commandMock);
 
 			// データベースにスティッキーが存在しないことを確認
-			const beforeStickies = await StickyRepositoryImpl.findAll();
-			expect(beforeStickies.length).to.eq(0);
+			await expectNoStickies();
 
 			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
@@ -597,11 +883,10 @@ describe("Test Sticky Commands", () => {
 			await waitUntilReply(commandMock, 1000);
 
 			// 応答の検証
-			expect(replyValue).to.eq("スティッキーを登録する権限を持っていないよ！っ");
+			expect(replyCapture.getValue()).to.eq("スティッキーを登録する権限を持っていないよ！っ");
 
 			// データベースにスティッキーが存在しないことを確認
-			const afterStickies = await StickyRepositoryImpl.findAll();
-			expect(afterStickies.length).to.eq(0);
+			await expectNoStickies();
 		})();
 	});
 
@@ -619,27 +904,22 @@ describe("Test Sticky Commands", () => {
 			const channelId = "2";
 
 			// RoleConfigのモック - 管理者として設定
-			RoleConfig.users = [
-				{ discordId: TEST_USER_ID, role: "admin" }, // 管理者として設定
-			];
+			setupRoleConfig(TEST_USER_ID, "admin");
+
+			// テスト用Channelを作成
+			await createTestChannel(testCommunityId, channelId);
 
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("stickydelete", { channelid: channelId }, TEST_USER_ID);
 
 			// guildIdとchannelを設定
-			when(commandMock.guildId).thenReturn(TEST_GUILD_ID);
-			when(commandMock.channel).thenReturn({} as any);
+			setupCommandBasics(commandMock, TEST_GUILD_ID);
 
 			// replyメソッドをモック
-			let replyValue = "";
-			when(commandMock.reply(anything())).thenCall((message: string) => {
-				replyValue = message;
-				return Promise.resolve({} as any);
-			});
+			const replyCapture = setupReplyCapture(commandMock);
 
 			// データベースにスティッキーが存在しないことを確認
-			const beforeStickies = await StickyRepositoryImpl.findAll();
-			expect(beforeStickies.length).to.eq(0);
+			await expectNoStickies();
 
 			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
@@ -649,11 +929,10 @@ describe("Test Sticky Commands", () => {
 			await waitUntilReply(commandMock, 1000);
 
 			// 応答の検証
-			expect(replyValue).to.eq("スティッキーが登録されていなかったよ！っ");
+			expect(replyCapture.getValue()).to.eq("スティッキーが登録されていなかったよ！っ");
 
 			// データベースにスティッキーが存在しないことを確認
-			const afterStickies = await StickyRepositoryImpl.findAll();
-			expect(afterStickies.length).to.eq(0);
+			await expectNoStickies();
 		})();
 	});
 	/**
@@ -675,6 +954,9 @@ describe("Test Sticky Commands", () => {
 			RoleConfig.users = [
 				{ discordId: TEST_USER_ID, role: "admin" }, // 管理者として設定
 			];
+
+			// テスト用Channelを作成
+			await createTestChannel(testCommunityId, channelId);
 
 			// スティッキーをデータベースに作成
 			await StickyRepositoryImpl.create({
@@ -711,8 +993,7 @@ describe("Test Sticky Commands", () => {
 				return Promise.resolve({} as any);
 			});
 
-			const beforeStickies = await StickyRepositoryImpl.findAll();
-			expect(beforeStickies.length).to.eq(1);
+			await expectStickyCount(1);
 
 			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
@@ -724,9 +1005,8 @@ describe("Test Sticky Commands", () => {
 			// 応答の検証 - チャンネルが存在しない場合のエラーメッセージ
 			expect(replyValue).to.eq("スティッキーの投稿がなかったよ！っ");
 
-			// データベースにスティッキーが存在しないするを確認
-			const afterStickies = await StickyRepositoryImpl.findAll();
-			expect(afterStickies.length).to.eq(1);
+			// データベースにスティッキーが存在することを確認
+			await expectStickyCount(1);
 		})();
 	});
 
@@ -749,6 +1029,9 @@ describe("Test Sticky Commands", () => {
 			RoleConfig.users = [
 				{ discordId: TEST_USER_ID, role: "admin" }, // 管理者として設定
 			];
+
+			// テスト用Channelを作成
+			await createTestChannel(testCommunityId, channelId);
 
 			// スティッキーをデータベースに作成
 			await StickyRepositoryImpl.create({
@@ -788,9 +1071,8 @@ describe("Test Sticky Commands", () => {
 				return Promise.resolve({} as any);
 			});
 
-			// データベースにスティッキーが存在しないことを確認
-			const beforeStickies = await StickyRepositoryImpl.findAll();
-			expect(beforeStickies.length).to.eq(1);
+			// データベースにスティッキーが存在することを確認
+			await expectStickyCount(1);
 
 			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
@@ -803,8 +1085,7 @@ describe("Test Sticky Commands", () => {
 			expect(replyValue).to.eq("このチャンネルのスティッキーを削除できないよ！っ");
 
 			// データベースにスティッキーが存在することを確認
-			const afterStickies = await StickyRepositoryImpl.findAll();
-			expect(afterStickies.length).to.eq(1);
+			await expectStickyCount(1);
 		})();
 	});
 
@@ -825,6 +1106,9 @@ describe("Test Sticky Commands", () => {
 			RoleConfig.users = [
 				{ discordId: TEST_USER_ID, role: "admin" }, // 管理者として設定
 			];
+
+			// テスト用Channelを作成
+			await createTestChannel(testCommunityId, channelId);
 
 			// スティッキーをデータベースに作成
 			await StickyRepositoryImpl.create({
@@ -883,9 +1167,8 @@ describe("Test Sticky Commands", () => {
 				return Promise.resolve({} as any);
 			});
 
-			// データベースにスティッキーが存在しないことを確認
-			const beforeStickies = await StickyRepositoryImpl.findAll();
-			expect(beforeStickies.length).to.eq(1);
+			// データベースにスティッキーが存在することを確認
+			await expectStickyCount(1);
 
 			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
@@ -898,8 +1181,7 @@ describe("Test Sticky Commands", () => {
 			expect(editReplyValue).to.eq("スティッキーを削除したよ！っ");
 
 			// データベースからスティッキーが削除されていることを確認
-			const afterStickies = await StickyRepositoryImpl.findAll();
-			expect(afterStickies.length).to.eq(0);
+			await expectNoStickies();
 		})();
 	});
 
@@ -921,6 +1203,9 @@ describe("Test Sticky Commands", () => {
 			RoleConfig.users = [
 				{ discordId: TEST_USER_ID, role: "admin" }, // 管理者として設定
 			];
+
+			// テスト用Channelを作成
+			await createTestChannel(testCommunityId, channelId);
 
 			// スティッキーをデータベースに作成
 			await StickyRepositoryImpl.create({
@@ -978,9 +1263,8 @@ describe("Test Sticky Commands", () => {
 				return Promise.resolve({} as any);
 			});
 
-			// データベースにスティッキーが存在しないことを確認
-			const beforeStickies = await StickyRepositoryImpl.findAll();
-			expect(beforeStickies.length).to.eq(1);
+			// データベースにスティッキーが存在することを確認
+			await expectStickyCount(1);
 
 			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
@@ -993,8 +1277,7 @@ describe("Test Sticky Commands", () => {
 			expect(replyValue).to.eq("スティッキーの削除に失敗したよ！っ");
 
 			// データベースにスティッキーが存在することを確認
-			const afterStickies = await StickyRepositoryImpl.findAll();
-			expect(afterStickies.length).to.eq(1);
+			await expectStickyCount(1);
 		})();
 	});
 
@@ -1016,6 +1299,9 @@ describe("Test Sticky Commands", () => {
 			RoleConfig.users = [
 				{ discordId: TEST_USER_ID, role: "admin" }, // 管理者として設定
 			];
+
+			// テスト用Channelを作成
+			await createTestChannel(testCommunityId, channelId);
 
 			// スティッキーをデータベースに作成
 			await StickyRepositoryImpl.create({
@@ -1075,8 +1361,7 @@ describe("Test Sticky Commands", () => {
 			});
 
 			// データベースにスティッキーが存在することを確認
-			const beforeStickies = await StickyRepositoryImpl.findAll();
-			expect(beforeStickies.length).to.eq(1);
+			await expectStickyCount(1);
 
 			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
@@ -1089,8 +1374,7 @@ describe("Test Sticky Commands", () => {
 			expect(editReplyValue).to.eq("スティッキーを削除したよ！っ");
 
 			// データベースにスティッキーが存在しないことを確認
-			const afterStickies = await StickyRepositoryImpl.findAll();
-			expect(afterStickies.length).to.eq(0);
+			await expectNoStickies();
 		})();
 	});
 
@@ -1346,6 +1630,9 @@ describe("Test Sticky Commands", () => {
 				{ discordId: TEST_USER_ID, role: "admin" }, // 管理者として設定
 			];
 
+			// テスト用Channelを作成
+			await createTestChannel(testCommunityId, channelId);
+
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("stickyupdate", { channelid: channelId }, TEST_USER_ID);
 
@@ -1399,6 +1686,9 @@ describe("Test Sticky Commands", () => {
 			RoleConfig.users = [
 				{ discordId: TEST_USER_ID, role: "admin" }, // 管理者として設定
 			];
+
+			// テスト用Channelを作成
+			await createTestChannel(testCommunityId, channelId);
 
 			// スティッキーをデータベースに作成
 			await StickyRepositoryImpl.create({
@@ -1477,6 +1767,9 @@ describe("Test Sticky Commands", () => {
 			const channelId = "2";
 			const messageId = "4";
 			const message = "スティッキーのメッセージ";
+
+			// テスト用Channelを作成
+			await createTestChannel(testCommunityId, channelId);
 
 			// スティッキーをデータベースに作成
 			await StickyRepositoryImpl.create({
@@ -1621,6 +1914,9 @@ describe("Test Sticky Commands", () => {
 			const messageId = "4";
 			const message = "スティッキーのメッセージ";
 
+			// テスト用Channelを作成
+			await createTestChannel(testCommunityId, channelId);
+
 			// スティッキーをデータベースに作成
 			await StickyRepositoryImpl.create({
 				communityId: testCommunityId,
@@ -1741,6 +2037,9 @@ describe("Test Sticky Commands", () => {
 			const messageId = "4";
 			const originalMessage = "元のスティッキーメッセージ";
 			const updatedMessage = "更新されたスティッキーメッセージ";
+
+			// テスト用Channelを作成
+			await createTestChannel(testCommunityId, channelId);
 
 			// スティッキーをデータベースに作成
 			await StickyRepositoryImpl.create({
@@ -1874,59 +2173,20 @@ describe("Test Sticky Commands", () => {
 			const message = "スティッキーのメッセージ";
 
 			// スティッキーをデータベースに作成
-			await StickyRepositoryImpl.create({
-				communityId: testCommunityId,
-				channelId: channelId,
-				userId: testUserId,
-				messageId: messageId,
-				message: message,
-			});
-
-			// テスト前のスティッキー情報を取得
-			const stickyBefore = await StickyRepositoryImpl.findOne({
-				where: {
-					communityId: testCommunityId,
-					channelId: channelId,
-				},
-			});
-
-			// ボットからのメッセージをモック作成
-			const messageMock = mockMessage(userId, false, true); // isBotMessage = true
-
-			// guildIdとchannelIdを設定
-			when(messageMock.guildId).thenReturn(guildId);
-			when(messageMock.channelId).thenReturn(channelId);
-
-			// チャンネルをモック
-			const channelMock = mock<TextChannel>();
-			when(channelMock.isThread()).thenReturn(false);
-			when(messageMock.channel).thenReturn(instance(channelMock));
+			await createTestSticky(testCommunityId, testUserId, channelId, messageId, message);
 
 			// データベースにスティッキーが存在することを確認
 			const beforeStickies = await StickyRepositoryImpl.findAll();
 			expect(beforeStickies.length).to.eq(1);
-			expect(String(beforeStickies[0]?.messageId)).to.eq(String(messageId));
-			expect(String(beforeStickies[0]?.messageId)).to.eq(String(stickyBefore?.messageId));
 
-			// TestDiscordServerを使用してmessageCreateイベントを発火
-			const TEST_CLIENT = await TestDiscordServer.getClient();
-			TEST_CLIENT.emit("messageCreate", instance(messageMock));
+			// ボットからのメッセージをモック作成（ヘルパー関数使用）
+			const messageMock = setupEventMessageMock(userId, guildId, channelId, { isBot: true });
 
-			// 処理が完了するまで少し待つ
-			await new Promise((resolve) => setTimeout(resolve, 100));
-
-			// テスト後のスティッキー情報を取得
-			const afterStickiy = await StickyRepositoryImpl.findOne({
-				where: {
-					communityId: testCommunityId,
-					channelId: channelId,
-				},
-			});
+			// イベント発火と待機
+			await emitMessageCreateAndWait(messageMock);
 
 			// StickyのmessageIdが更新されないことを検証
-			expect(afterStickiy).to.not.be.null;
-			expect(String(afterStickiy?.messageId)).to.eq(String(messageId));
-			expect(String(afterStickiy?.messageId)).to.eq(String(stickyBefore?.messageId));
+			await expectStickyMessageIdUnchanged(testCommunityId, channelId, messageId);
 		})();
 	});
 
@@ -1944,49 +2204,20 @@ describe("Test Sticky Commands", () => {
 			const message = "スティッキーのメッセージ";
 
 			// スティッキーをデータベースに作成
-			await StickyRepositoryImpl.create({
-				communityId: testCommunityId,
-				channelId: channelId,
-				userId: testUserId,
-				messageId: messageId,
-				message: message,
-			});
-
-			// 通常のユーザーからのメッセージをモック作成
-			const messageMock = mockMessage(TEST_USER_ID, false, false); // isBotMessage = false
-
-			// guildIdとchannelIdを設定
-			when(messageMock.guildId).thenReturn(TEST_GUILD_ID);
-			when(messageMock.channelId).thenReturn(channelId);
-
-			// チャンネルをモック - スレッドとして設定
-			const channelMock = mock<TextChannel>();
-			when(channelMock.isThread()).thenReturn(true); // スレッドとして設定
-			when(messageMock.channel).thenReturn(instance(channelMock));
+			await createTestSticky(testCommunityId, testUserId, channelId, messageId, message);
 
 			// データベースにスティッキーが存在することを確認
 			const beforeStickies = await StickyRepositoryImpl.findAll();
 			expect(beforeStickies.length).to.eq(1);
-			expect(String(beforeStickies[0].messageId)).to.eq(String(messageId));
 
-			// TestDiscordServerを使用してmessageCreateイベントを発火
-			const TEST_CLIENT = await TestDiscordServer.getClient();
-			TEST_CLIENT.emit("messageCreate", instance(messageMock));
+			// スレッド内のメッセージをモック作成（ヘルパー関数使用）
+			const messageMock = setupEventMessageMock(TEST_USER_ID, TEST_GUILD_ID, channelId, { isThread: true });
 
-			// 処理が完了するまで少し待つ
-			await new Promise((resolve) => setTimeout(resolve, 100));
-
-			// テスト後のスティッキー情報を取得
-			const afterStickiy = await StickyRepositoryImpl.findOne({
-				where: {
-					communityId: testCommunityId,
-					channelId: channelId,
-				},
-			});
+			// イベント発火と待機
+			await emitMessageCreateAndWait(messageMock);
 
 			// StickyのmessageIdが更新されないことを検証
-			expect(afterStickiy).to.not.be.null;
-			expect(String(afterStickiy?.messageId)).to.eq(String(messageId));
+			await expectStickyMessageIdUnchanged(testCommunityId, channelId, messageId);
 		})();
 	});
 
@@ -2005,62 +2236,23 @@ describe("Test Sticky Commands", () => {
 			const message = "スティッキーのメッセージ";
 
 			// スティッキーをデータベースに作成
-			await StickyRepositoryImpl.create({
-				communityId: testCommunityId,
-				channelId: channelId,
-				userId: testUserId,
-				messageId: messageId,
-				message: message,
-			});
-
-			// 通常のユーザーからのメッセージをモック作成
-			const messageMock = mockMessage(TEST_USER_ID, false, false); // isBotMessage = false
-
-			// guildIdとchannelIdを設定
-			when(messageMock.guildId).thenReturn(TEST_GUILD_ID);
-			when(messageMock.channelId).thenReturn(channelId);
-
-			// チャンネルをモック - 通常のチャンネルとして設定
-			const channelMock = mock<TextChannel>();
-			when(channelMock.isThread()).thenReturn(false); // 通常のチャンネル
-			when(messageMock.channel).thenReturn(instance(channelMock));
-
-			// guildをモック - チャンネルが存在しないように設定
-			const guildMock = {
-				channels: {
-					cache: {
-						get: (id: string) => {
-							// チャンネルが存在しないのでundefinedを返す
-							return undefined;
-						},
-					},
-				},
-			};
-			when(messageMock.guild).thenReturn(guildMock as any);
+			await createTestSticky(testCommunityId, testUserId, channelId, messageId, message);
 
 			// データベースにスティッキーが存在することを確認
 			const beforeStickies = await StickyRepositoryImpl.findAll();
 			expect(beforeStickies.length).to.eq(1);
-			expect(String(beforeStickies[0].messageId)).to.eq(String(messageId));
 
-			// TestDiscordServerを使用してmessageCreateイベントを発火
-			const TEST_CLIENT = await TestDiscordServer.getClient();
-			TEST_CLIENT.emit("messageCreate", instance(messageMock));
+			// 通常のユーザーからのメッセージをモック作成（ヘルパー関数使用）
+			const messageMock = setupEventMessageMock(TEST_USER_ID, TEST_GUILD_ID, channelId);
 
-			// 処理が完了するまで少し待つ
-			await new Promise((resolve) => setTimeout(resolve, 100));
+			// guildをモック - チャンネルが存在しないように設定（ヘルパー関数使用）
+			setupEventGuildMock(messageMock, channelId, undefined);
 
-			// テスト後のスティッキー情報を取得
-			const afterStickiy = await StickyRepositoryImpl.findOne({
-				where: {
-					communityId: testCommunityId,
-					channelId: channelId,
-				},
-			});
+			// イベント発火と待機
+			await emitMessageCreateAndWait(messageMock);
 
 			// StickyのmessageIdが更新されないことを検証
-			expect(afterStickiy).to.not.be.null;
-			expect(String(afterStickiy?.messageId)).to.eq(String(messageId));
+			await expectStickyMessageIdUnchanged(testCommunityId, channelId, messageId);
 		})();
 	});
 
@@ -2079,63 +2271,23 @@ describe("Test Sticky Commands", () => {
 			const message = "スティッキーのメッセージ";
 
 			// スティッキーをデータベースに作成
-			await StickyRepositoryImpl.create({
-				communityId: testCommunityId,
-				channelId: channelId,
-				userId: testUserId,
-				messageId: messageId,
-				message: message,
-			});
-
-			// 通常のユーザーからのメッセージをモック作成
-			const messageMock = mockMessage(TEST_USER_ID, false, false); // isBotMessage = false
-
-			// guildIdとchannelIdを設定
-			when(messageMock.guildId).thenReturn(TEST_GUILD_ID);
-			when(messageMock.channelId).thenReturn(channelId);
-
-			// チャンネルをモック - 通常のチャンネルとして設定
-			const channelMock = mock<TextChannel>();
-			when(channelMock.isThread()).thenReturn(false); // 通常のチャンネル
-			when(messageMock.channel).thenReturn(instance(channelMock));
-
-			// guildをモック - TextChannel以外のチャンネルを返すように設定
-			const nonTextChannelMock = {}; // TextChannelではないオブジェクト
-			const guildMock = {
-				channels: {
-					cache: {
-						get: (id: string) => {
-							// TextChannelではないチャンネルを返す
-							return nonTextChannelMock;
-						},
-					},
-				},
-			};
-			when(messageMock.guild).thenReturn(guildMock as any);
+			await createTestSticky(testCommunityId, testUserId, channelId, messageId, message);
 
 			// データベースにスティッキーが存在することを確認
 			const beforeStickies = await StickyRepositoryImpl.findAll();
 			expect(beforeStickies.length).to.eq(1);
-			expect(String(beforeStickies[0].messageId)).to.eq(String(messageId));
 
-			// TestDiscordServerを使用してmessageCreateイベントを発火
-			const TEST_CLIENT = await TestDiscordServer.getClient();
-			TEST_CLIENT.emit("messageCreate", instance(messageMock));
+			// 通常のユーザーからのメッセージをモック作成（ヘルパー関数使用）
+			const messageMock = setupEventMessageMock(TEST_USER_ID, TEST_GUILD_ID, channelId);
 
-			// 処理が完了するまで少し待つ
-			await new Promise((resolve) => setTimeout(resolve, 100));
+			// guildをモック - TextChannel以外のチャンネルを返すように設定（ヘルパー関数使用）
+			setupEventGuildMock(messageMock, channelId, {}); // 空オブジェクト = 非TextChannel
 
-			// テスト後のスティッキー情報を取得
-			const afterStickiy = await StickyRepositoryImpl.findOne({
-				where: {
-					communityId: testCommunityId,
-					channelId: channelId,
-				},
-			});
+			// イベント発火と待機
+			await emitMessageCreateAndWait(messageMock);
 
 			// StickyのmessageIdが更新されないことを検証
-			expect(afterStickiy).to.not.be.null;
-			expect(String(afterStickiy?.messageId)).to.eq(String(messageId));
+			await expectStickyMessageIdUnchanged(testCommunityId, channelId, messageId);
 		})();
 	});
 
@@ -2154,106 +2306,44 @@ describe("Test Sticky Commands", () => {
 			const newMessageId = "5";
 			const message = "スティッキーのメッセージ";
 
+			// テスト用Channelを作成
+			await createTestChannel(testCommunityId, channelId);
+
 			// スティッキーをデータベースに作成
-			await StickyRepositoryImpl.create({
-				communityId: testCommunityId,
-				channelId: channelId,
-				userId: testUserId,
-				messageId: oldMessageId,
-				message: message,
-			});
-
-			// 通常のユーザーからのメッセージをモック作成
-			const messageMock = mockMessage(TEST_USER_ID, false, false); // isBotMessage = false
-
-			// 古いメッセージのモック - 削除が成功するケース
-			let deleteWasCalled = false;
-			const oldMessageMock = {
-				guildId: TEST_GUILD_ID,
-				channelId: channelId,
-				id: oldMessageId,
-				content: message,
-				delete: () => {
-					deleteWasCalled = true;
-					return Promise.resolve(true);
-				},
-			};
-
-			// 新しいメッセージのモック
-			const newMessageMock = {
-				guildId: TEST_GUILD_ID,
-				channelId: channelId,
-				id: newMessageId,
-				content: message,
-			};
-
-			// チャンネルをモック - 通常のチャンネルとして設定
-			const channelMock = mock<TextChannel>();
-			when(channelMock.isThread()).thenReturn(false); // 通常のチャンネル
-			when(channelMock.send(anything())).thenResolve(newMessageMock as any);
-			when(channelMock.messages).thenReturn({
-				fetch: (id: string) => {
-					return Promise.resolve(oldMessageMock);
-				},
-			} as any);
-			when(messageMock.channel).thenReturn(instance(channelMock));
-
-			// guildIdとchannelIdを設定
-			when(messageMock.guildId).thenReturn(TEST_GUILD_ID);
-			when(messageMock.channelId).thenReturn(channelId);
-			// guildのモックを設定
-			when(messageMock.guild).thenReturn({
-				channels: {
-					cache: {
-						get: (id: string) => channelMock,
-					},
-				},
-			} as any);
-
-			// guildをモック - TextChannelを返すように設定
-			const guildMock = {
-				channels: {
-					cache: {
-						get: (id: string) => {
-							// TextChannelのインスタンスとして認識される
-							const textChannel = Object.create(TextChannel.prototype);
-							// 必要なメソッドをモック
-							textChannel.send = () => Promise.resolve(newMessageMock);
-							textChannel.messages = { fetch: () => Promise.resolve(oldMessageMock) };
-							// 必要なプロパティを追加
-							textChannel.id = id;
-							textChannel.type = 0; // TextChannelのtype
-							return textChannel;
-						},
-					},
-				},
-			};
-			when(messageMock.guild).thenReturn(guildMock as any);
+			await createTestSticky(testCommunityId, testUserId, channelId, oldMessageId, message);
 
 			// データベースにスティッキーが存在することを確認
 			const beforeStickies = await StickyRepositoryImpl.findAll();
 			expect(beforeStickies.length).to.eq(1);
 
-			// TestDiscordServerを使用してmessageCreateイベントを発火
-			const TEST_CLIENT = await TestDiscordServer.getClient();
-			TEST_CLIENT.emit("messageCreate", instance(messageMock));
+			// 通常のユーザーからのメッセージをモック作成（ヘルパー関数使用）
+			const messageMock = setupEventMessageMock(TEST_USER_ID, TEST_GUILD_ID, channelId);
 
-			// 処理が完了するまで少し待つ
-			await new Promise((resolve) => setTimeout(resolve, 100));
-
-			// テスト後のスティッキー情報を取得
-			const afterStickiy = await StickyRepositoryImpl.findOne({
-				where: {
-					communityId: testCommunityId,
-					channelId: channelId,
+			// 古いメッセージのモック - 削除が成功するケース
+			let deleteWasCalled = false;
+			const oldMessageMock = createMessageMock(oldMessageId, message, {
+				onDelete: () => {
+					deleteWasCalled = true;
 				},
 			});
 
-			// message.delete()が呼ばれるを検証
+			// 新しいメッセージのモック
+			const newMessageMock = { id: newMessageId, content: message };
+
+			// TextChannelのモック（ヘルパー関数使用）
+			const textChannelMock = createEventTextChannelMock(channelId, oldMessageMock, newMessageMock);
+
+			// guildをモック - TextChannelを返すように設定（ヘルパー関数使用）
+			setupEventGuildMock(messageMock, channelId, textChannelMock);
+
+			// イベント発火と待機
+			await emitMessageCreateAndWait(messageMock);
+
+			// message.delete()が呼ばれることを検証
 			expect(deleteWasCalled).to.eq(true);
 
 			// StickyのmessageIdが更新されたことを検証
-			expect(String(afterStickiy?.messageId)).to.eq(String(newMessageId));
+			await expectStickyMessageIdUpdated(testCommunityId, channelId, newMessageId);
 		})();
 	});
 });
