@@ -56,6 +56,16 @@ export class StickyUpdateCommandHandler implements SlashCommandHandler {
 			return;
 		}
 
+		const channel = interaction.guild?.channels.cache.get(
+			interaction.options.getString("channelid", true),
+		);
+		if (!(channel instanceof TextChannel)) {
+			await interaction.reply(
+				"このチャンネルにはスティッキーを登録できないよ！っ",
+			);
+			return;
+		}
+
 		const communityId = await this.CommunityLogic.getId(
 			new CommunityDto(
 				CommunityCategoryType.Discord,
@@ -83,16 +93,6 @@ export class StickyUpdateCommandHandler implements SlashCommandHandler {
 		const sticky = await this.stickyLogic.find(communityId, channelId);
 		if (sticky === undefined) {
 			await interaction.reply("スティッキーが登録されていなかったよ！っ");
-			return;
-		}
-
-		const channel = interaction.guild?.channels.cache.get(
-			interaction.options.getString("channelid", true),
-		);
-		if (!(channel instanceof TextChannel)) {
-			await interaction.reply(
-				"このチャンネルにはスティッキーを登録できないよ！っ",
-			);
 			return;
 		}
 
