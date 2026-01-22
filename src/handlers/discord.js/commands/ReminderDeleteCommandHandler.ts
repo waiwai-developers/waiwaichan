@@ -1,6 +1,11 @@
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
+import { ChannelDto } from "@/src/entities/dto/ChannelDto";
 import { CommunityDto } from "@/src/entities/dto/CommunityDto";
 import { UserDto } from "@/src/entities/dto/UserDto";
+import { ChannelCategoryType } from "@/src/entities/vo/ChannelCategoryType";
+import { ChannelClientId } from "@/src/entities/vo/ChannelClientId";
+import { ChannelCommunityId } from "@/src/entities/vo/ChannelCommunityId";
+import { ChannelType } from "@/src/entities/vo/ChannelType";
 import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
 import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
 import { ReminderId } from "@/src/entities/vo/ReminderId";
@@ -9,6 +14,7 @@ import { UserClientId } from "@/src/entities/vo/UserClientId";
 import { UserCommunityId } from "@/src/entities/vo/UserCommunityId";
 import { UserType } from "@/src/entities/vo/UserType";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
+import type { IChannelLogic } from "@/src/logics/Interfaces/logics/IChannelLogic";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { IReminderLogic } from "@/src/logics/Interfaces/logics/IReminderLogic";
 import type { IUserLogic } from "@/src/logics/Interfaces/logics/IUserLogic";
@@ -25,6 +31,9 @@ export class ReminderDeleteCommandHandler implements SlashCommandHandler {
 
 	@inject(LogicTypes.UserLogic)
 	private UserLogic!: IUserLogic;
+
+	@inject(LogicTypes.ChannelLogic)
+	private ChannelLogic!: IChannelLogic;
 
 	isHandle(commandName: string): boolean {
 		return commandName === "reminderdelete";
@@ -55,6 +64,18 @@ export class ReminderDeleteCommandHandler implements SlashCommandHandler {
 			),
 		);
 		if (userId == null) {
+			return;
+		}
+
+		const channelId = await this.ChannelLogic.getId(
+			new ChannelDto(
+				ChannelCategoryType.Discord,
+				new ChannelClientId(BigInt(interaction.channelId)),
+				ChannelType.DiscordText,
+				new ChannelCommunityId(communityId.getValue()),
+			),
+		);
+		if (channelId == null) {
 			return;
 		}
 
