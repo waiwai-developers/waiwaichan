@@ -1,7 +1,7 @@
 import { clearInterval } from "node:timers";
 import { InternalErrorMessage } from "@/src/entities/DiscordErrorMessages";
 import { ReminderNotifyHandler } from "@/src/handlers/discord.js/events/ReminderNotifyHandler";
-import { CommunityRepositoryImpl, ReminderRepositoryImpl, UserRepositoryImpl } from "@/src/repositories/sequelize-mysql";
+import { ChannelRepositoryImpl, CommunityRepositoryImpl, ReminderRepositoryImpl, UserRepositoryImpl } from "@/src/repositories/sequelize-mysql";
 import { MysqlConnector } from "@/tests/fixtures/database/MysqlConnector";
 import { mockSlashCommand, waitUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { TestDiscordServer } from "@/tests/fixtures/discord.js/TestDiscordServer";
@@ -15,7 +15,7 @@ import { anything, instance, mock, verify, when } from "ts-mockito";
 // =============================================================================
 const TEST_GUILD_ID = "9999"; // communityのclientId（MockSlashCommandのデフォルト）
 const TEST_USER_ID = "1234"; // userのclientId（MockSlashCommandのデフォルト）
-const TEST_CHANNEL_ID = "5678"; // channelId（MockSlashCommandのデフォルト）
+const TEST_CHANNEL_CLIENT_ID = "5678"; // channelのclientId（MockSlashCommandのデフォルト）
 
 const FUTURE_DATETIME = "2999/12/31 23:59:59";
 const PAST_DATETIME = "1000/12/31 23:59:59";
@@ -40,14 +40,14 @@ async function executeCommand<T extends Record<string, unknown>>(commandName: st
  * リマインダーデータの検証を行う
  */
 function verifyReminderData(
-	reminder: { id: number; userId: number | string; channelId: string; message: string },
-	expected: { id?: number; userId: number | string; channelId: string; message: string },
+	reminder: { id: number; userId: number | string; channelId: number; message: string },
+	expected: { id?: number; userId: number | string; channelId: number; message: string },
 ): void {
 	if (expected.id !== undefined) {
 		expect(reminder.id).to.eq(expected.id);
 	}
 	expect(String(reminder.userId)).to.eq(String(expected.userId));
-	expect(String(reminder.channelId)).to.eq(String(expected.channelId));
+	expect(reminder.channelId).to.eq(expected.channelId);
 	expect(reminder.message).to.eq(expected.message);
 }
 
@@ -97,7 +97,7 @@ async function waitForMethodCall(verifyFn: () => void, timeoutMs = 500, interval
 interface ReminderTestDataInput {
 	communityId: number;
 	userId: number | string;
-	channelId: string;
+	channelId: number;
 	receiveUserName: string;
 	message: string;
 	remindAt: string | dayjs.Dayjs;
@@ -106,12 +106,13 @@ interface ReminderTestDataInput {
 function createReminderTestData(
 	communityId: number,
 	userId: number | string,
-	overrides: Partial<Omit<ReminderTestDataInput, "communityId" | "userId">> = {},
+	channelId: number,
+	overrides: Partial<Omit<ReminderTestDataInput, "communityId" | "userId" | "channelId">> = {},
 ): Record<string, unknown> {
 	return {
 		communityId,
 		userId,
-		channelId: TEST_CHANNEL_ID,
+		channelId,
 		receiveUserName: "username",
 		message: "test reminder",
 		remindAt: FUTURE_DATETIME,
@@ -125,6 +126,7 @@ function createReminderTestData(
 describe("Test Reminder Commands", () => {
 	let testCommunityId: number;
 	let testUserId: number;
+	let testChannelId: number;
 
 	/**
 	 * テスト実行前に毎回実行される共通のセットアップ
@@ -134,6 +136,7 @@ describe("Test Reminder Commands", () => {
 
 		// 既存レコードのクリーンアップ
 		await ReminderRepositoryImpl.destroy({ truncate: true, force: true });
+		await ChannelRepositoryImpl.destroy({ truncate: true, force: true });
 		await UserRepositoryImpl.destroy({ truncate: true, force: true });
 		await CommunityRepositoryImpl.destroy({ truncate: true, force: true });
 
@@ -154,10 +157,21 @@ describe("Test Reminder Commands", () => {
 			batchStatus: 0,
 		});
 		testUserId = user.id;
+
+		// テスト用チャンネル作成
+		const channel = await ChannelRepositoryImpl.create({
+			categoryType: 0, // Discord
+			clientId: BigInt(TEST_CHANNEL_CLIENT_ID),
+			channelType: 2, // DiscordText
+			communityId: community.id,
+			batchStatus: 0,
+		});
+		testChannelId = channel.id;
 	});
 
 	afterEach(async () => {
 		await ReminderRepositoryImpl.destroy({ truncate: true, force: true });
+		await ChannelRepositoryImpl.destroy({ truncate: true, force: true });
 		await UserRepositoryImpl.destroy({ truncate: true, force: true });
 		await CommunityRepositoryImpl.destroy({ truncate: true, force: true });
 	});
@@ -183,7 +197,7 @@ describe("Test Reminder Commands", () => {
 
 			verifyReminderData(reminders[0], {
 				userId: testUserId,
-				channelId: TEST_CHANNEL_ID,
+				channelId: testChannelId,
 				message: "test reminder",
 			});
 			expect(reminders[0].communityId).to.eq(testCommunityId);
@@ -264,8 +278,8 @@ describe("Test Reminder Commands", () => {
 		 */
 		it("should display formatted list of registered reminders", async () => {
 			await ReminderRepositoryImpl.bulkCreate([
-				createReminderTestData(testCommunityId, testUserId, { message: "reminderlist test 1" }),
-				createReminderTestData(testCommunityId, testUserId, { message: "reminderlist test 2" }),
+				createReminderTestData(testCommunityId, testUserId, testChannelId, { message: "reminderlist test 1" }),
+				createReminderTestData(testCommunityId, testUserId, testChannelId, { message: "reminderlist test 2" }),
 			]);
 
 			const commandMock = mockSlashCommand("reminderlist");
@@ -296,10 +310,9 @@ describe("Test Reminder Commands", () => {
 		 */
 		it("should delete existing reminder successfully", async () => {
 			const [forDelete, forNotDelete1, forNotDelete2] = await ReminderRepositoryImpl.bulkCreate([
-				createReminderTestData(testCommunityId, testUserId, { message: "reminderlist test 1" }),
-				createReminderTestData(testCommunityId, testUserId, { message: "reminderlist test 2" }),
-				createReminderTestData(testCommunityId, 9012, {
-					channelId: "3456",
+				createReminderTestData(testCommunityId, testUserId, testChannelId, { message: "reminderlist test 1" }),
+				createReminderTestData(testCommunityId, testUserId, testChannelId, { message: "reminderlist test 2" }),
+				createReminderTestData(testCommunityId, 9012, 3456, {
 					message: "reminderlist test 3",
 					remindAt: "2000/12/31 23:59:59",
 				}),
@@ -316,13 +329,13 @@ describe("Test Reminder Commands", () => {
 			verifyReminderData(remainingReminders[0], {
 				id: forNotDelete1.id,
 				userId: forNotDelete1.userId,
-				channelId: String(forNotDelete1.channelId),
+				channelId: forNotDelete1.channelId,
 				message: forNotDelete1.message,
 			});
 			verifyReminderData(remainingReminders[1], {
 				id: forNotDelete2.id,
 				userId: forNotDelete2.userId,
-				channelId: String(forNotDelete2.channelId),
+				channelId: forNotDelete2.channelId,
 				message: forNotDelete2.message,
 			});
 		});
@@ -332,10 +345,9 @@ describe("Test Reminder Commands", () => {
 		 */
 		it("should not delete reminder owned by another user", async () => {
 			const [inserted0, inserted1, inserted2] = await ReminderRepositoryImpl.bulkCreate([
-				createReminderTestData(testCommunityId, 9012, { message: "reminderlist test 1" }),
-				createReminderTestData(testCommunityId, testUserId, { message: "reminderlist test 2" }),
-				createReminderTestData(testCommunityId, 9012, {
-					channelId: "3456",
+				createReminderTestData(testCommunityId, 9012, testChannelId, { message: "reminderlist test 1" }),
+				createReminderTestData(testCommunityId, testUserId, testChannelId, { message: "reminderlist test 2" }),
+				createReminderTestData(testCommunityId, 9012, 3456, {
 					message: "reminderlist test 3",
 					remindAt: "2000/12/31 23:59:59",
 				}),
@@ -354,7 +366,7 @@ describe("Test Reminder Commands", () => {
 				verifyReminderData(reminders[index], {
 					id: expected.id,
 					userId: expected.userId,
-					channelId: String(expected.channelId),
+					channelId: expected.channelId,
 					message: expected.message,
 				});
 			});
@@ -390,13 +402,12 @@ describe("Test Reminder Commands", () => {
 		 */
 		it("should notify and delete reminders when remind time has passed", async () => {
 			const [_, inserted1, inserted2] = await ReminderRepositoryImpl.bulkCreate([
-				createReminderTestData(testCommunityId, "9012", {
+				createReminderTestData(testCommunityId, "9012", testChannelId, {
 					message: "reminderlist test 1",
 					remindAt: dayjs().subtract(1, "second"),
 				}),
-				createReminderTestData(testCommunityId, TEST_USER_ID, { message: "reminderlist test 2" }),
-				createReminderTestData(testCommunityId, "9012", {
-					channelId: "3456",
+				createReminderTestData(testCommunityId, TEST_USER_ID, testChannelId, { message: "reminderlist test 2" }),
+				createReminderTestData(testCommunityId, "9012", 3456, {
 					message: "reminderlist test 3",
 				}),
 			]);
@@ -417,13 +428,13 @@ describe("Test Reminder Commands", () => {
 			verifyReminderData(remainingReminders[0], {
 				id: inserted1.id,
 				userId: inserted1.userId,
-				channelId: String(inserted1.channelId),
+				channelId: inserted1.channelId,
 				message: inserted1.message,
 			});
 			verifyReminderData(remainingReminders[1], {
 				id: inserted2.id,
 				userId: inserted2.userId,
-				channelId: String(inserted2.channelId),
+				channelId: inserted2.channelId,
 				message: inserted2.message,
 			});
 		});
@@ -454,13 +465,12 @@ describe("Test Reminder Commands", () => {
 		 */
 		it("should not delete reminder when send fails (rollback)", async () => {
 			const [inserted0, inserted1, inserted2] = await ReminderRepositoryImpl.bulkCreate([
-				createReminderTestData(testCommunityId, "9012", {
+				createReminderTestData(testCommunityId, "9012", testChannelId, {
 					message: "reminderlist test 1",
 					remindAt: dayjs().subtract(1, "second"),
 				}),
-				createReminderTestData(testCommunityId, TEST_USER_ID, { message: "reminderlist test 2" }),
-				createReminderTestData(testCommunityId, "9012", {
-					channelId: "3456",
+				createReminderTestData(testCommunityId, TEST_USER_ID, testChannelId, { message: "reminderlist test 2" }),
+				createReminderTestData(testCommunityId, "9012", 3456, {
 					message: "reminderlist test 3",
 				}),
 			]);
@@ -486,7 +496,7 @@ describe("Test Reminder Commands", () => {
 				verifyReminderData(reminders[index], {
 					id: expected.id,
 					userId: expected.userId,
-					channelId: String(expected.channelId),
+					channelId: expected.channelId,
 					message: expected.message,
 				});
 			});
