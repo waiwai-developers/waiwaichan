@@ -148,11 +148,7 @@ describe("Community event integration tests", () => {
 		return router;
 	};
 
-	const testEventRegistration = async <TRouter, TPayload>(
-		router: TRouter,
-		eventName: string,
-		payload: TPayload,
-	): Promise<void> => {
+	const testEventRegistration = async <TRouter, TPayload>(router: TRouter, eventName: string, payload: TPayload): Promise<void> => {
 		const { client, callbacks } = createClientMockWithEventCapture();
 		(router as any).register(client);
 		if (!callbacks[eventName]) {

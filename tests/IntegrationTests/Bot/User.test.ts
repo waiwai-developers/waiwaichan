@@ -6,7 +6,7 @@ import { UserCategoryType } from "@/src/entities/vo/UserCategoryType";
 import { UserClientId } from "@/src/entities/vo/UserClientId";
 import { UserCommunityId } from "@/src/entities/vo/UserCommunityId";
 import { UserType } from "@/src/entities/vo/UserType";
-import { ActionAddBotHandler } from "@/src/handlers/discord.js/events/ActionAddBotHandler";
+import type { ActionAddBotHandler } from "@/src/handlers/discord.js/events/ActionAddBotHandler";
 import { ActionAddUserHandler } from "@/src/handlers/discord.js/events/ActionAddUserHandler";
 import { ActionRemoveUserHandler } from "@/src/handlers/discord.js/events/ActionRemoveUserHandler";
 import type { IChannelLogic } from "@/src/logics/Interfaces/logics/IChannelLogic";
@@ -52,9 +52,7 @@ describe("User event integration tests", () => {
 			when(mock_.bulkCreate(anything() as any)).thenResolve(overrides.bulkCreateResult);
 		}
 		if (overrides?.deleteByCommunityIdAndClientIdResult !== undefined) {
-			when(mock_.deleteByCommunityIdAndClientId(anything() as any, anything() as any)).thenResolve(
-				overrides.deleteByCommunityIdAndClientIdResult,
-			);
+			when(mock_.deleteByCommunityIdAndClientId(anything() as any, anything() as any)).thenResolve(overrides.deleteByCommunityIdAndClientIdResult);
 		}
 		return mock_;
 	};
@@ -147,11 +145,7 @@ describe("User event integration tests", () => {
 		return router;
 	};
 
-	const testEventRegistration = async <TRouter, TPayload>(
-		router: TRouter,
-		eventName: string,
-		payload: TPayload,
-	): Promise<void> => {
+	const testEventRegistration = async <TRouter, TPayload>(router: TRouter, eventName: string, payload: TPayload): Promise<void> => {
 		const { client, callbacks } = createClientMockWithEventCapture();
 		(router as any).register(client);
 		if (!callbacks[eventName]) {

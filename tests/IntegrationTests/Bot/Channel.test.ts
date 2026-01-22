@@ -13,8 +13,8 @@ import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogge
 import { ChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/ChannelRepositoryImpl";
 import { ActionAddChannelRouter } from "@/src/routes/discordjs/events/ActionAddChannelRouter";
 import { ActionRemoveChannelRouter } from "@/src/routes/discordjs/events/ActionRemoveChannelRoute";
-import { ChannelType as DiscordChannelType } from "discord.js";
 import { expect } from "chai";
+import { ChannelType as DiscordChannelType } from "discord.js";
 import { Op } from "sequelize";
 import { anything, instance, mock, verify, when } from "ts-mockito";
 
@@ -49,9 +49,7 @@ describe("Channel event integration tests", () => {
 			when(mock_.bulkCreate(anything() as any)).thenResolve(overrides.bulkCreateResult);
 		}
 		if (overrides?.deleteByCommunityIdAndClientIdResult !== undefined) {
-			when(mock_.deleteByCommunityIdAndClientId(anything() as any, anything() as any)).thenResolve(
-				overrides.deleteByCommunityIdAndClientIdResult,
-			);
+			when(mock_.deleteByCommunityIdAndClientId(anything() as any, anything() as any)).thenResolve(overrides.deleteByCommunityIdAndClientIdResult);
 		}
 		return mock_;
 	};
@@ -108,11 +106,7 @@ describe("Channel event integration tests", () => {
 		return router;
 	};
 
-	const testEventRegistration = async <TRouter, TPayload>(
-		router: TRouter,
-		eventName: string,
-		payload: TPayload,
-	): Promise<void> => {
+	const testEventRegistration = async <TRouter, TPayload>(router: TRouter, eventName: string, payload: TPayload): Promise<void> => {
 		const { client, callbacks } = createClientMockWithEventCapture();
 		(router as any).register(client);
 		if (!callbacks[eventName]) {
@@ -387,12 +381,7 @@ describe("Channel event integration tests", () => {
 			};
 
 			await ChannelRepositoryImpl.prototype.bulkCreate.call({} as ChannelRepositoryImpl, [
-				new ChannelDto(
-					ChannelCategoryType.Discord,
-					new ChannelClientId(BigInt(10)),
-					ChannelType.DiscordText,
-					new ChannelCommunityId(20),
-				),
+				new ChannelDto(ChannelCategoryType.Discord, new ChannelClientId(BigInt(10)), ChannelType.DiscordText, new ChannelCommunityId(20)),
 			]);
 
 			expect(receivedRows[0].batchStatus).to.equal(ChannelBatchStatus.Yet.getValue());
@@ -467,10 +456,7 @@ describe("Channel event integration tests", () => {
 				return Promise.resolve(1);
 			};
 
-			await ChannelRepositoryImpl.prototype.deletebyCommunityId.call(
-				{} as ChannelRepositoryImpl,
-				new ChannelCommunityId(15),
-			);
+			await ChannelRepositoryImpl.prototype.deletebyCommunityId.call({} as ChannelRepositoryImpl, new ChannelCommunityId(15));
 
 			expect(receivedWhere.communityId).to.equal(15);
 			(ChannelRepositoryImpl as any).destroy = originalDestroy;

@@ -237,7 +237,10 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 			};
 
 			const repo = new ChannelRepositoryImpl();
-			await repo.deleteNotBelongByCommunityIdAndClientIds(new ChannelCommunityId(12), [new ChannelClientId(BigInt(99)), new ChannelClientId(BigInt(100))]);
+			await repo.deleteNotBelongByCommunityIdAndClientIds(new ChannelCommunityId(12), [
+				new ChannelClientId(BigInt(99)),
+				new ChannelClientId(BigInt(100)),
+			]);
 
 			expect(receivedWhere.communityId).to.equal(12);
 			expect(receivedWhere.clientId[Op.notIn]).to.deep.equal([BigInt(99), BigInt(100)]);

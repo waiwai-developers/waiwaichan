@@ -1,6 +1,7 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { DatafixCandyModel } from "@/migrator/datafixies/models/DatafixCandyModel";
+import { DatafixChannelModel } from "@/migrator/datafixies/models/DatafixChannelModel";
 import { DatafixCommunityModel } from "@/migrator/datafixies/models/DatafixCommunityModel";
 import { DatafixContextModel } from "@/migrator/datafixies/models/DatafixContextModel";
 import { DatafixCrownModel } from "@/migrator/datafixies/models/DatafixCrownModel";
@@ -12,7 +13,6 @@ import { DatafixRoomChannelsModel } from "@/migrator/datafixies/models/DatafixRo
 import { DatafixRoomNotificationChannelsModel } from "@/migrator/datafixies/models/DatafixRoomNotificationChannelsModel";
 import { DatafixThreadModel } from "@/migrator/datafixies/models/DatafixThreadModel";
 import { DatafixUserItemModel } from "@/migrator/datafixies/models/DatafixUserItemModel";
-import { DatafixChannelModel } from "@/migrator/datafixies/models/DatafixChannelModel";
 import { DatafixUserModel } from "@/migrator/datafixies/models/DatafixUserModel";
 import {
 	type DatabaseConfigType,

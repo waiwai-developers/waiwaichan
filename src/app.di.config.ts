@@ -33,9 +33,9 @@ import { ActionAddBotHandler } from "@/src/handlers/discord.js/events/ActionAddB
 import { ActionAddUserHandler } from "@/src/handlers/discord.js/events/ActionAddUserHandler";
 import { ActionRemoveBotHandler } from "@/src/handlers/discord.js/events/ActionRemoveBotHandler";
 import { ActionRemoveUserHandler } from "@/src/handlers/discord.js/events/ActionRemoveUserHandler";
+import { CandyReactionHandler } from "@/src/handlers/discord.js/events/CandyReactionHandler";
 import { ChannelCreateHandler } from "@/src/handlers/discord.js/events/ChannelCreateHandler";
 import { ChannelDeleteHandler } from "@/src/handlers/discord.js/events/ChannelDeleteHandler";
-import { CandyReactionHandler } from "@/src/handlers/discord.js/events/CandyReactionHandler";
 import { CrownReactionHandler } from "@/src/handlers/discord.js/events/CrownReactionHandler";
 import type { DiscordEventHandler } from "@/src/handlers/discord.js/events/DiscordEventHandler";
 import type { ReactionInteraction } from "@/src/handlers/discord.js/events/DiscordEventHandler";
@@ -131,11 +131,11 @@ import {
 import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnector";
 import { SequelizeTransaction } from "@/src/repositories/sequelize-mysql/SequelizeTransaction";
 import { ActionAddBotRouter } from "@/src/routes/discordjs/events/ActionAddBotRouter";
+import { ActionAddChannelRouter } from "@/src/routes/discordjs/events/ActionAddChannelRouter";
 import { ActionAddUserRouter } from "@/src/routes/discordjs/events/ActionAddUserRouter";
 import { ActionRemoveBotRouter } from "@/src/routes/discordjs/events/ActionRemoveBotRouter";
-import { ActionRemoveUserRouter } from "@/src/routes/discordjs/events/ActionRemoveUserRouter";
-import { ActionAddChannelRouter } from "@/src/routes/discordjs/events/ActionAddChannelRouter";
 import { ActionRemoveChannelRouter } from "@/src/routes/discordjs/events/ActionRemoveChannelRoute";
+import { ActionRemoveUserRouter } from "@/src/routes/discordjs/events/ActionRemoveUserRouter";
 import type { DiscordEventRouter } from "@/src/routes/discordjs/events/DiscordEventRouter";
 import { MessageReplyRouter } from "@/src/routes/discordjs/events/MessageReplyRouter";
 import { ReactionRouter } from "@/src/routes/discordjs/events/ReactionRouter";
