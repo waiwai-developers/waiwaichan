@@ -47,7 +47,10 @@ class StickyRepositoryImpl extends Model implements IStickyRepository {
 		}).then((res) => !!res);
 	}
 
-	async delete(communityId: CommunityId, channelId: ChannelId): Promise<boolean> {
+	async delete(
+		communityId: CommunityId,
+		channelId: ChannelId,
+	): Promise<boolean> {
 		return StickyRepositoryImpl.destroy({
 			where: {
 				communityId: communityId.getValue(),

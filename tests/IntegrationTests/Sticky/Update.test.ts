@@ -51,10 +51,7 @@ async function createCommunityAndUser(): Promise<{
  * @param channelClientId チャンネルのクライアントID（Discord上のチャンネルID）
  * @returns 作成されたチャンネルのID
  */
-async function createTestChannel(
-	communityId: number,
-	channelClientId: string,
-): Promise<number> {
+async function createTestChannel(communityId: number, channelClientId: string): Promise<number> {
 	const channel = await ChannelRepositoryImpl.create({
 		categoryType: 0, // Discord
 		clientId: BigInt(channelClientId),
