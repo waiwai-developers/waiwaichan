@@ -23,21 +23,39 @@ import { inject, injectable } from "inversify";
 /**
  * DiscordのChannelTypeをアプリケーションのChannelTypeに変換する
  * @param discordChannelType discord.jsのChannelType
- * @returns アプリケーションのChannelType（0: その他、1: テキストチャンネル、2: ボイスチャンネル）
+ * @returns アプリケーションのChannelType
  */
 const getChannelType = (
 	discordChannelType: DiscordChannelType,
 ): ChannelType => {
-	// テキストチャンネル（GuildText = 0）
-	if (discordChannelType === DiscordChannelType.GuildText) {
-		return ChannelType.Text;
+	switch (discordChannelType) {
+		case DiscordChannelType.DM:
+			return ChannelType.DiscordDM;
+		case DiscordChannelType.GuildText:
+			return ChannelType.DiscordText;
+		case DiscordChannelType.GuildVoice:
+			return ChannelType.DiscordVoice;
+		case DiscordChannelType.GroupDM:
+			return ChannelType.DiscordGroupDM;
+		case DiscordChannelType.GuildCategory:
+			return ChannelType.DiscordCategory;
+		case DiscordChannelType.GuildAnnouncement:
+			return ChannelType.DiscordAnnouncement;
+		case DiscordChannelType.AnnouncementThread:
+			return ChannelType.DiscordAnnouncementThread;
+		case DiscordChannelType.PublicThread:
+			return ChannelType.DiscordPublicThread;
+		case DiscordChannelType.PrivateThread:
+			return ChannelType.DiscordPrivateThread;
+		case DiscordChannelType.GuildStageVoice:
+			return ChannelType.DiscordStageVoice;
+		case DiscordChannelType.GuildForum:
+			return ChannelType.DiscordForum;
+		case DiscordChannelType.GuildMedia:
+			return ChannelType.DiscordMedia;
+		default:
+			return ChannelType.DiscordOther;
 	}
-	// ボイスチャンネル（GuildVoice = 2）
-	if (discordChannelType === DiscordChannelType.GuildVoice) {
-		return ChannelType.Voice;
-	}
-	// その他のチャンネルタイプ
-	return ChannelType.Other;
 };
 
 @injectable()
