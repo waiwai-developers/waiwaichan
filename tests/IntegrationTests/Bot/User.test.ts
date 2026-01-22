@@ -9,6 +9,7 @@ import { UserType } from "@/src/entities/vo/UserType";
 import { ActionAddBotHandler } from "@/src/handlers/discord.js/events/ActionAddBotHandler";
 import { ActionAddUserHandler } from "@/src/handlers/discord.js/events/ActionAddUserHandler";
 import { ActionRemoveUserHandler } from "@/src/handlers/discord.js/events/ActionRemoveUserHandler";
+import type { IChannelLogic } from "@/src/logics/Interfaces/logics/IChannelLogic";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { IUserLogic } from "@/src/logics/Interfaces/logics/IUserLogic";
 import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
@@ -58,9 +59,50 @@ describe("User event integration tests", () => {
 		return mock_;
 	};
 
+	const createChannelLogicMock = (overrides?: {
+		bulkCreateResult?: boolean;
+		deletebyCommunityIdResult?: boolean;
+	}) => {
+		const mock_ = mock<IChannelLogic>();
+		if (overrides?.bulkCreateResult !== undefined) {
+			when(mock_.bulkCreate(anything() as any)).thenResolve(overrides.bulkCreateResult);
+		}
+		if (overrides?.deletebyCommunityIdResult !== undefined) {
+			when(mock_.deletebyCommunityId(anything() as any)).thenResolve(overrides.deletebyCommunityIdResult);
+		}
+		return mock_;
+	};
+
 	const createMemberMock = (memberId: string, guildId: string): any => ({
 		id: memberId,
 		guild: { id: guildId },
+	});
+
+	const createMemberCollection = (items: { id: string; user: { bot: boolean } }[]) => ({
+		map: (mapper: (member: { id: string; user: { bot: boolean } }) => any) => items.map(mapper),
+	});
+
+	const createChannelCollection = (items: { id: string; type: number }[] = []) => ({
+		filter: (predicate: (channel: { id: string; type: number } | null) => boolean) => {
+			const filtered = items.filter(predicate);
+			return {
+				map: (mapper: (channel: { id: string; type: number }) => any) => filtered.map(mapper),
+			};
+		},
+	});
+
+	const createGuildMock = (
+		guildId: string,
+		members: { id: string; user: { bot: boolean } }[] = [],
+		channels: { id: string; type: number }[] = [],
+	): any => ({
+		id: guildId,
+		members: {
+			fetch: async () => createMemberCollection(members),
+		},
+		channels: {
+			fetch: async () => createChannelCollection(channels),
+		},
 	});
 
 	const createClientMockWithEventCapture = () => {
@@ -83,11 +125,13 @@ describe("User event integration tests", () => {
 			logger?: ILogger;
 			communityLogic?: ICommunityLogic;
 			userLogic?: IUserLogic;
+			channelLogic?: IChannelLogic;
 		},
 	): T => {
 		if (deps.logger) (handler as any).logger = deps.logger;
 		if (deps.communityLogic) (handler as any).CommunityLogic = deps.communityLogic;
 		if (deps.userLogic) (handler as any).UserLogic = deps.userLogic;
+		if (deps.channelLogic) (handler as any).ChannelLogic = deps.channelLogic;
 		return handler;
 	};
 
@@ -137,17 +181,20 @@ describe("User event integration tests", () => {
 		loggerMock: ILogger;
 		communityLogicMock: ICommunityLogic;
 		userLogicMock: IUserLogic;
+		channelLogicMock: IChannelLogic;
 	} => {
 		const loggerMock = createLoggerMock();
 		const communityLogicMock = mock<ICommunityLogic>();
 		const userLogicMock = mock<IUserLogic>();
+		const channelLogicMock = mock<IChannelLogic>();
 		const handler = new HandlerClass();
 		injectHandlerDependencies(handler, {
 			logger: instance(loggerMock),
 			communityLogic: instance(communityLogicMock),
 			userLogic: instance(userLogicMock),
+			channelLogic: instance(channelLogicMock),
 		});
-		return { handler, loggerMock, communityLogicMock, userLogicMock };
+		return { handler, loggerMock, communityLogicMock, userLogicMock, channelLogicMock };
 	};
 
 	/**
@@ -446,7 +493,7 @@ describe("User event integration tests", () => {
 			(router as any).logger = instance(routerLogger);
 			(router as any).handler = instance(handlerMock);
 
-			const guild = { id: "100" } as any;
+			const guild = createGuildMock("100", [], []);
 			let registeredCallback: ((g: any) => Promise<void>) | null = null;
 			const client = {
 				on: (event: string, callback: (g: any) => Promise<void>) => {

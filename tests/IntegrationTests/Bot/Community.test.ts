@@ -10,6 +10,7 @@ import { UserCommunityId } from "@/src/entities/vo/UserCommunityId";
 import { UserType } from "@/src/entities/vo/UserType";
 import { ActionAddBotHandler } from "@/src/handlers/discord.js/events/ActionAddBotHandler";
 import { ActionRemoveBotHandler } from "@/src/handlers/discord.js/events/ActionRemoveBotHandler";
+import type { IChannelLogic } from "@/src/logics/Interfaces/logics/IChannelLogic";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { IUserLogic } from "@/src/logics/Interfaces/logics/IUserLogic";
 import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
@@ -64,14 +65,44 @@ describe("Community event integration tests", () => {
 		return mock_;
 	};
 
+	const createChannelLogicMock = (overrides?: {
+		bulkCreateResult?: boolean;
+		deletebyCommunityIdResult?: boolean;
+	}) => {
+		const mock_ = mock<IChannelLogic>();
+		if (overrides?.bulkCreateResult !== undefined) {
+			when(mock_.bulkCreate(anything() as any)).thenResolve(overrides.bulkCreateResult);
+		}
+		if (overrides?.deletebyCommunityIdResult !== undefined) {
+			when(mock_.deletebyCommunityId(anything() as any)).thenResolve(overrides.deletebyCommunityIdResult);
+		}
+		return mock_;
+	};
+
 	const createMemberCollection = (items: { id: string; user: { bot: boolean } }[]) => ({
 		map: (mapper: (member: { id: string; user: { bot: boolean } }) => any) => items.map(mapper),
 	});
 
-	const createGuildMock = (guildId: string, members: { id: string; user: { bot: boolean } }[] = []): any => ({
+	const createChannelCollection = (items: { id: string; type: number }[] = []) => ({
+		filter: (predicate: (channel: { id: string; type: number } | null) => boolean) => {
+			const filtered = items.filter(predicate);
+			return {
+				map: (mapper: (channel: { id: string; type: number }) => any) => filtered.map(mapper),
+			};
+		},
+	});
+
+	const createGuildMock = (
+		guildId: string,
+		members: { id: string; user: { bot: boolean } }[] = [],
+		channels: { id: string; type: number }[] = [],
+	): any => ({
 		id: guildId,
 		members: {
 			fetch: async () => createMemberCollection(members),
+		},
+		channels: {
+			fetch: async () => createChannelCollection(channels),
 		},
 	});
 
@@ -95,11 +126,13 @@ describe("Community event integration tests", () => {
 			logger?: ILogger;
 			communityLogic?: ICommunityLogic;
 			userLogic?: IUserLogic;
+			channelLogic?: IChannelLogic;
 		},
 	): T => {
 		if (deps.logger) (handler as any).logger = deps.logger;
 		if (deps.communityLogic) (handler as any).CommunityLogic = deps.communityLogic;
 		if (deps.userLogic) (handler as any).UserLogic = deps.userLogic;
+		if (deps.channelLogic) (handler as any).ChannelLogic = deps.channelLogic;
 		return handler;
 	};
 
@@ -149,17 +182,20 @@ describe("Community event integration tests", () => {
 		loggerMock: ILogger;
 		communityLogicMock: ICommunityLogic;
 		userLogicMock: IUserLogic;
+		channelLogicMock: IChannelLogic;
 	} => {
 		const loggerMock = createLoggerMock();
 		const communityLogicMock = mock<ICommunityLogic>();
 		const userLogicMock = mock<IUserLogic>();
+		const channelLogicMock = mock<IChannelLogic>();
 		const handler = new HandlerClass();
 		injectHandlerDependencies(handler, {
 			logger: instance(loggerMock),
 			communityLogic: instance(communityLogicMock),
 			userLogic: instance(userLogicMock),
+			channelLogic: instance(channelLogicMock),
 		});
-		return { handler, loggerMock, communityLogicMock, userLogicMock };
+		return { handler, loggerMock, communityLogicMock, userLogicMock, channelLogicMock };
 	};
 
 	/**
@@ -194,6 +230,7 @@ describe("Community event integration tests", () => {
 			const loggerMock = createLoggerMock();
 			const communityLogicMock = mock<ICommunityLogic>();
 			const userLogicMock = mock<IUserLogic>();
+			const channelLogicMock = mock<IChannelLogic>();
 			const communityId = new CommunityId(12);
 
 			(when(communityLogicMock.create(anything()) as any) as any).thenCall((dto: CommunityDto) => {
@@ -202,17 +239,14 @@ describe("Community event integration tests", () => {
 				return Promise.resolve(communityId);
 			});
 			when(userLogicMock.bulkCreate(anything() as any)).thenResolve(true);
+			when(channelLogicMock.bulkCreate(anything() as any)).thenResolve(true);
 
 			(handler as any).logger = instance(loggerMock);
 			(handler as any).CommunityLogic = instance(communityLogicMock);
 			(handler as any).UserLogic = instance(userLogicMock);
+			(handler as any).ChannelLogic = instance(channelLogicMock);
 
-			const guild = {
-				id: "200",
-				members: {
-					fetch: async () => createMemberCollection([]),
-				},
-			} as any;
+			const guild = createGuildMock("200", [], []);
 
 			await handler.handle(guild);
 			verify(communityLogicMock.create(anything())).once();
@@ -242,11 +276,13 @@ describe("Community event integration tests", () => {
 			const handler = new ActionAddBotHandler();
 			const communityLogicMock = createCommunityLogicMock({ createResult: null });
 			const userLogicMock = createUserLogicMock();
+			const channelLogicMock = createChannelLogicMock();
 
 			injectHandlerDependencies(handler, {
 				logger: instance(createLoggerMock()),
 				communityLogic: instance(communityLogicMock),
 				userLogic: instance(userLogicMock),
+				channelLogic: instance(channelLogicMock),
 			});
 
 			const guild = createGuildMock("300", []);
@@ -266,16 +302,23 @@ describe("Community event integration tests", () => {
 				return Promise.resolve(true);
 			});
 
+			const channelLogicMock = createChannelLogicMock({ bulkCreateResult: true });
+
 			injectHandlerDependencies(handler, {
 				logger: instance(createLoggerMock()),
 				communityLogic: instance(communityLogicMock),
 				userLogic: instance(userLogicMock),
+				channelLogic: instance(channelLogicMock),
 			});
 
-			const guild = createGuildMock("555", [
-				{ id: "10", user: { bot: false } },
-				{ id: "11", user: { bot: true } },
-			]);
+			const guild = createGuildMock(
+				"555",
+				[
+					{ id: "10", user: { bot: false } },
+					{ id: "11", user: { bot: true } },
+				],
+				[],
+			);
 
 			await handler.handle(guild);
 			expect(receivedUsers).to.have.length(2);
@@ -294,16 +337,23 @@ describe("Community event integration tests", () => {
 				return Promise.resolve(true);
 			});
 
+			const channelLogicMock = createChannelLogicMock({ bulkCreateResult: true });
+
 			injectHandlerDependencies(handler, {
 				logger: instance(createLoggerMock()),
 				communityLogic: instance(communityLogicMock),
 				userLogic: instance(userLogicMock),
+				channelLogic: instance(channelLogicMock),
 			});
 
-			const guild = createGuildMock("700", [
-				{ id: "21", user: { bot: false } },
-				{ id: "22", user: { bot: true } },
-			]);
+			const guild = createGuildMock(
+				"700",
+				[
+					{ id: "21", user: { bot: false } },
+					{ id: "22", user: { bot: true } },
+				],
+				[],
+			);
 
 			await handler.handle(guild);
 			expect(receivedUsers[0]?.userType.getValue()).to.equal(UserType.user.getValue());
@@ -315,24 +365,25 @@ describe("Community event integration tests", () => {
 			const loggerMock = createLoggerMock();
 			const communityLogicMock = mock<ICommunityLogic>();
 			const userLogicMock = mock<IUserLogic>();
+			const channelLogicMock = mock<IChannelLogic>();
 			const communityId = new CommunityId(24);
 			when(communityLogicMock.create(anything() as any)).thenResolve(communityId);
 			when(userLogicMock.bulkCreate(anything() as any)).thenResolve(true);
+			when(channelLogicMock.bulkCreate(anything() as any)).thenResolve(true);
 
 			(handler as any).logger = instance(loggerMock);
 			(handler as any).CommunityLogic = instance(communityLogicMock);
 			(handler as any).UserLogic = instance(userLogicMock);
+			(handler as any).ChannelLogic = instance(channelLogicMock);
 
-			const guild = {
-				id: "888",
-				members: {
-					fetch: async () =>
-						createMemberCollection([
-							{ id: "31", user: { bot: false } },
-							{ id: "32", user: { bot: true } },
-						]),
-				},
-			} as any;
+			const guild = createGuildMock(
+				"888",
+				[
+					{ id: "31", user: { bot: false } },
+					{ id: "32", user: { bot: true } },
+				],
+				[],
+			);
 
 			await handler.handle(guild);
 			verify(userLogicMock.bulkCreate(anything())).once();
@@ -369,7 +420,7 @@ describe("Community event integration tests", () => {
 		});
 
 		it("CommunityLogic.getIdでCommunityIdが取得できない場合は処理を終了する", async () => {
-			const { handler, communityLogicMock, userLogicMock } = setupHandlerWithMocks(ActionRemoveBotHandler);
+			const { handler, communityLogicMock, userLogicMock, channelLogicMock } = setupHandlerWithMocks(ActionRemoveBotHandler);
 			(when(communityLogicMock.getId(anything()) as any) as any).thenResolve(undefined);
 
 			const guild = { id: "800" } as any;
@@ -377,6 +428,7 @@ describe("Community event integration tests", () => {
 
 			verify(communityLogicMock.delete(anything())).never();
 			verify(userLogicMock.deletebyCommunityId(anything())).never();
+			verify(channelLogicMock.deletebyCommunityId(anything())).never();
 		});
 
 		it("CommunityLogic.deleteが先に実行される", async () => {
@@ -384,6 +436,7 @@ describe("Community event integration tests", () => {
 			const loggerMock = createLoggerMock();
 			const communityLogicMock = mock<ICommunityLogic>();
 			const userLogicMock = mock<IUserLogic>();
+			const channelLogicMock = mock<IChannelLogic>();
 			const communityId = new CommunityId(66);
 			const callOrder: string[] = [];
 
@@ -396,19 +449,24 @@ describe("Community event integration tests", () => {
 				callOrder.push("userDelete");
 				return Promise.resolve(true);
 			});
+			when(channelLogicMock.deletebyCommunityId(anything() as any)).thenCall(() => {
+				callOrder.push("channelDelete");
+				return Promise.resolve(true);
+			});
 
 			(handler as any).logger = instance(loggerMock);
 			(handler as any).CommunityLogic = instance(communityLogicMock);
 			(handler as any).UserLogic = instance(userLogicMock);
+			(handler as any).ChannelLogic = instance(channelLogicMock);
 
 			const guild = { id: "600" } as any;
 			await handler.handle(guild);
 
-			expect(callOrder).to.deep.equal(["communityDelete", "userDelete"]);
+			expect(callOrder).to.deep.equal(["communityDelete", "userDelete", "channelDelete"]);
 		});
 
 		it("Community削除に失敗した場合、User削除が実行されない", async () => {
-			const { handler, communityLogicMock, userLogicMock } = setupHandlerWithMocks(ActionRemoveBotHandler);
+			const { handler, communityLogicMock, userLogicMock, channelLogicMock } = setupHandlerWithMocks(ActionRemoveBotHandler);
 			const communityId = new CommunityId(66);
 
 			(when(communityLogicMock.getId(anything()) as any) as any).thenResolve(communityId);
@@ -418,6 +476,7 @@ describe("Community event integration tests", () => {
 			await handler.handle(guild);
 
 			verify(userLogicMock.deletebyCommunityId(anything())).never();
+			verify(channelLogicMock.deletebyCommunityId(anything())).never();
 		});
 	});
 
