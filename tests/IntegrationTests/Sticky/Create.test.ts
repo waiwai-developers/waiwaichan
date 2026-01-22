@@ -105,10 +105,7 @@ async function createCommunityAndUser(): Promise<{
  * @param channelClientId チャンネルのクライアントID（Discord上のチャンネルID）
  * @returns 作成されたチャンネルのID
  */
-async function createTestChannel(
-	communityId: number,
-	channelClientId: string,
-): Promise<number> {
+async function createTestChannel(communityId: number, channelClientId: string): Promise<number> {
 	const channel = await ChannelRepositoryImpl.create({
 		categoryType: 0, // Discord
 		clientId: BigInt(channelClientId),
@@ -122,13 +119,7 @@ async function createTestChannel(
 /**
  * テスト用スティッキーを作成するヘルパー関数
  */
-async function createTestSticky(
-	communityId: number,
-	userId: number,
-	channelId: string,
-	messageId: string,
-	message: string,
-): Promise<void> {
+async function createTestSticky(communityId: number, userId: number, channelId: string, messageId: string, message: string): Promise<void> {
 	await StickyRepositoryImpl.create({
 		communityId,
 		channelId,
@@ -164,11 +155,7 @@ async function expectNoStickies(): Promise<void> {
  * @param channelId チャンネルID
  * @param expectedData 期待されるデータ（オプション）
  */
-async function expectStickyExists(
-	communityId: number,
-	channelId: string,
-	expectedData?: ExpectedStickyData,
-): Promise<void> {
+async function expectStickyExists(communityId: number, channelId: string, expectedData?: ExpectedStickyData): Promise<void> {
 	const sticky = await StickyRepositoryImpl.findOne({
 		where: { communityId, channelId },
 	});

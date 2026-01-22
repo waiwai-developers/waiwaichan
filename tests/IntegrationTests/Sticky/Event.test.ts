@@ -63,11 +63,7 @@ function setupRoleConfig(userId: string, role: "admin" | "user"): void {
  * @param content メッセージ内容
  * @param options オプション設定
  */
-function createMessageMock(
-	messageId: string,
-	content: string,
-	options: MockMessageOptions = {},
-): MockDiscordMessage {
+function createMessageMock(messageId: string, content: string, options: MockMessageOptions = {}): MockDiscordMessage {
 	const messageMock: MockDiscordMessage = {
 		id: messageId,
 		content,
@@ -123,10 +119,7 @@ async function createCommunityAndUser(): Promise<{
  * @param channelClientId チャンネルのクライアントID（Discord上のチャンネルID）
  * @returns 作成されたチャンネルのID
  */
-async function createTestChannel(
-	communityId: number,
-	channelClientId: string,
-): Promise<number> {
+async function createTestChannel(communityId: number, channelClientId: string): Promise<number> {
 	const channel = await ChannelRepositoryImpl.create({
 		categoryType: 0, // Discord
 		clientId: BigInt(channelClientId),
@@ -140,13 +133,7 @@ async function createTestChannel(
 /**
  * テスト用スティッキーを作成するヘルパー関数
  */
-async function createTestSticky(
-	communityId: number,
-	userId: number,
-	channelId: string,
-	messageId: string,
-	message: string,
-): Promise<void> {
+async function createTestSticky(communityId: number, userId: number, channelId: string, messageId: string, message: string): Promise<void> {
 	await StickyRepositoryImpl.create({
 		communityId,
 		channelId,
@@ -193,11 +180,7 @@ function setupEventMessageMock(
  * @param channelId チャンネルID
  * @param channel チャンネルオブジェクト（undefined=存在しない, {}=非TextChannel, TextChannel=TextChannel）
  */
-function setupEventGuildMock(
-	messageMock: ReturnType<typeof mockMessage>,
-	channelId: string,
-	channel: any,
-): void {
+function setupEventGuildMock(messageMock: ReturnType<typeof mockMessage>, channelId: string, channel: any): void {
 	const guildMock = {
 		channels: {
 			cache: {
@@ -214,11 +197,7 @@ function setupEventGuildMock(
  * @param oldMessage 古いメッセージモック
  * @param newMessage 新しいメッセージモック（sendの戻り値）
  */
-function createEventTextChannelMock(
-	channelId: string,
-	oldMessage: any,
-	newMessage: any,
-): TextChannel {
+function createEventTextChannelMock(channelId: string, oldMessage: any, newMessage: any): TextChannel {
 	const textChannel = Object.create(TextChannel.prototype);
 	textChannel.id = channelId;
 	textChannel.type = 0;
@@ -232,10 +211,7 @@ function createEventTextChannelMock(
  * @param messageMock メッセージモック
  * @param waitMs 待機時間（ミリ秒）
  */
-async function emitMessageCreateAndWait(
-	messageMock: ReturnType<typeof mockMessage>,
-	waitMs = 100,
-): Promise<void> {
+async function emitMessageCreateAndWait(messageMock: ReturnType<typeof mockMessage>, waitMs = 100): Promise<void> {
 	const TEST_CLIENT = await TestDiscordServer.getClient();
 	TEST_CLIENT.emit("messageCreate", instance(messageMock));
 	await new Promise((resolve) => setTimeout(resolve, waitMs));
@@ -260,11 +236,7 @@ async function expectStickyCount(expectedCount: number): Promise<void> {
  * @param channelId チャンネルID
  * @param expectedData 期待されるデータ（オプション）
  */
-async function expectStickyExists(
-	communityId: number,
-	channelId: string,
-	expectedData?: ExpectedStickyData,
-): Promise<void> {
+async function expectStickyExists(communityId: number, channelId: string, expectedData?: ExpectedStickyData): Promise<void> {
 	const sticky = await StickyRepositoryImpl.findOne({
 		where: { communityId, channelId },
 	});
@@ -289,11 +261,7 @@ async function expectStickyExists(
  * @param channelId チャンネルID
  * @param expectedMessageId 期待されるメッセージID
  */
-async function expectStickyMessageIdUnchanged(
-	communityId: number,
-	channelId: string,
-	expectedMessageId: string,
-): Promise<void> {
+async function expectStickyMessageIdUnchanged(communityId: number, channelId: string, expectedMessageId: string): Promise<void> {
 	await expectStickyExists(communityId, channelId, { messageId: expectedMessageId });
 }
 
@@ -303,11 +271,7 @@ async function expectStickyMessageIdUnchanged(
  * @param channelId チャンネルID
  * @param expectedNewMessageId 期待される新しいメッセージID
  */
-async function expectStickyMessageIdUpdated(
-	communityId: number,
-	channelId: string,
-	expectedNewMessageId: string,
-): Promise<void> {
+async function expectStickyMessageIdUpdated(communityId: number, channelId: string, expectedNewMessageId: string): Promise<void> {
 	await expectStickyExists(communityId, channelId, { messageId: expectedNewMessageId });
 }
 
