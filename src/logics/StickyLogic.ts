@@ -39,7 +39,10 @@ export class StickyLogic implements IStickyLogic {
 		});
 	}
 
-	async delete(communityId: CommunityId, channelId: ChannelId): Promise<string> {
+	async delete(
+		communityId: CommunityId,
+		channelId: ChannelId,
+	): Promise<string> {
 		return this.transaction.startTransaction(async () => {
 			await this.StickyRepository.delete(communityId, channelId);
 			return "スティッキーを削除したよ！っ";
