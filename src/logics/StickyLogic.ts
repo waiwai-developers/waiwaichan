@@ -1,7 +1,7 @@
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import type { StickyDto } from "@/src/entities/dto/StickyDto";
+import type { ChannelId } from "@/src/entities/vo/ChannelId";
 import type { CommunityId } from "@/src/entities/vo/CommunityId";
-import type { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
 import type { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
 import type { IStickyLogic } from "@/src/logics/Interfaces/logics/IStickyLogic";
 import type { IStickyRepository } from "@/src/logics/Interfaces/repositories/database/IStickyRepository";
@@ -26,7 +26,7 @@ export class StickyLogic implements IStickyLogic {
 
 	async find(
 		communityId: CommunityId,
-		channelId: DiscordChannelId,
+		channelId: ChannelId,
 	): Promise<StickyDto | undefined> {
 		return this.transaction.startTransaction(async () => {
 			return await this.StickyRepository.findOne(communityId, channelId);
@@ -39,10 +39,7 @@ export class StickyLogic implements IStickyLogic {
 		});
 	}
 
-	async delete(
-		communityId: CommunityId,
-		channelId: DiscordChannelId,
-	): Promise<string> {
+	async delete(communityId: CommunityId, channelId: ChannelId): Promise<string> {
 		return this.transaction.startTransaction(async () => {
 			await this.StickyRepository.delete(communityId, channelId);
 			return "スティッキーを削除したよ！っ";
@@ -51,7 +48,7 @@ export class StickyLogic implements IStickyLogic {
 
 	async updateMessageId(
 		communityId: CommunityId,
-		channelId: DiscordChannelId,
+		channelId: ChannelId,
 		messageId: DiscordMessageId,
 	): Promise<string> {
 		return this.transaction.startTransaction(async () => {
@@ -65,7 +62,7 @@ export class StickyLogic implements IStickyLogic {
 	}
 	async updateMessage(
 		communityId: CommunityId,
-		channelId: DiscordChannelId,
+		channelId: ChannelId,
 		message: StickyMessage,
 	): Promise<string> {
 		return this.transaction.startTransaction(async () => {
