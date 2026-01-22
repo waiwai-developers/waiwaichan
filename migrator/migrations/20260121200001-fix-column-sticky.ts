@@ -8,7 +8,9 @@ const COLUMN_NAME_2 = "clientId";
 
 export const up: Migration = async ({ context: sequelize }) => {
 	// 1. BigintのchannelIdのカラム名をclientIdに変更する
-	await sequelize.getQueryInterface().renameColumn(TABLE_NAME, COLUMN_NAME_1, COLUMN_NAME_2);
+	await sequelize
+		.getQueryInterface()
+		.renameColumn(TABLE_NAME, COLUMN_NAME_1, COLUMN_NAME_2);
 
 	// 2. 新しくIntegerのchannelIdカラムを追加する
 	await sequelize.getQueryInterface().addColumn(TABLE_NAME, COLUMN_NAME_1, {
@@ -43,5 +45,7 @@ export const down: Migration = async ({ context: sequelize }) => {
 	await sequelize.getQueryInterface().removeColumn(TABLE_NAME, COLUMN_NAME_1);
 
 	// 1. clientIdのカラム名をchannelIdに戻す
-	await sequelize.getQueryInterface().renameColumn(TABLE_NAME, COLUMN_NAME_2, COLUMN_NAME_1);
+	await sequelize
+		.getQueryInterface()
+		.renameColumn(TABLE_NAME, COLUMN_NAME_2, COLUMN_NAME_1);
 };
