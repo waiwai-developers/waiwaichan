@@ -1,5 +1,6 @@
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import { ColumnDto } from "@/src/entities/dto/Column";
+import type { ChannelId } from "@/src/entities/vo/ChannelId";
 import { ColumnId } from "@/src/entities/vo/ColumnId";
 import { ColumnName } from "@/src/entities/vo/ColumnName";
 import type { CommunityId } from "@/src/entities/vo/CommunityId";
@@ -26,6 +27,14 @@ export class DataDeletionCircularLogic implements IDataDeletionCircularLogic {
 	): Promise<boolean> {
 		return await this.dataDeletionCircular.deleteRecordInRelatedTable(
 			new ColumnDto(ColumnName.community, new ColumnId(communityId.getValue())),
+		);
+	}
+
+	async deleteRecordInRelatedTableChannelId(
+		channelId: ChannelId,
+	): Promise<boolean> {
+		return await this.dataDeletionCircular.deleteRecordInRelatedTable(
+			new ColumnDto(ColumnName.channel, new ColumnId(channelId.getValue())),
 		);
 	}
 }
