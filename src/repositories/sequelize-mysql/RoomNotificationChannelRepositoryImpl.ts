@@ -1,6 +1,6 @@
 import { RoomNotificationChannelDto } from "@/src/entities/dto/RoomNotificationChannelDto";
+import { ChannelId } from "@/src/entities/vo/ChannelId";
 import { CommunityId } from "@/src/entities/vo/CommunityId";
-import { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
 import type { IRoomNotificationChannelRepository } from "@/src/logics/Interfaces/repositories/database/IRoomNotificationChannelRepository";
 import { injectable } from "inversify";
 import {
@@ -28,8 +28,8 @@ class RoomNotificationChannelRepositoryImpl
 	declare id: number;
 	@Column(DataType.BIGINT)
 	declare communityId: number;
-	@Column(DataType.STRING)
-	declare channelId: string;
+	@Column(DataType.BIGINT)
+	declare channelId: number;
 
 	async create(data: RoomNotificationChannelDto): Promise<boolean> {
 		return RoomNotificationChannelRepositoryImpl.create({
@@ -59,7 +59,7 @@ class RoomNotificationChannelRepositoryImpl
 	toDto(): RoomNotificationChannelDto {
 		return new RoomNotificationChannelDto(
 			new CommunityId(this.communityId),
-			new DiscordChannelId(this.channelId),
+			new ChannelId(this.channelId),
 		);
 	}
 }

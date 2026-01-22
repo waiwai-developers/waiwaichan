@@ -1,6 +1,6 @@
 import { RoomChannelDto } from "@/src/entities/dto/RoomChannelDto";
+import { ChannelId } from "@/src/entities/vo/ChannelId";
 import { CommunityId } from "@/src/entities/vo/CommunityId";
-import { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
 import type { IRoomChannelRepository } from "@/src/logics/Interfaces/repositories/database/IRoomChannelRepository";
 import { injectable } from "inversify";
 import {
@@ -28,8 +28,8 @@ class RoomChannelRepositoryImpl
 	declare id: number;
 	@Column(DataType.BIGINT)
 	declare communityId: number;
-	@Column(DataType.STRING)
-	declare channelId: string;
+	@Column(DataType.BIGINT)
+	declare channelId: number;
 
 	async create(data: RoomChannelDto): Promise<boolean> {
 		return RoomChannelRepositoryImpl.create({
@@ -59,7 +59,7 @@ class RoomChannelRepositoryImpl
 	toDto(): RoomChannelDto {
 		return new RoomChannelDto(
 			new CommunityId(this.communityId),
-			new DiscordChannelId(this.channelId),
+			new ChannelId(this.channelId),
 		);
 	}
 }
