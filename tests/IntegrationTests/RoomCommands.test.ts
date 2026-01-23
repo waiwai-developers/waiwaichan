@@ -1579,10 +1579,14 @@ describe("Test Room Commands", () => {
 			const discordRoomAddChannelId = "3"; // Discord channel ID
 			const discordNotificationChannelId = "4"; // Discord channel ID
 			const displayName = "TestUser";
+			const predictableCreatedChannelDiscordId = "12345"; // 作成されるチャンネルのDiscord ID
 
 			// ChannelsテーブルにChannelレコードを作成
 			const roomAddChannelDbId = await createChannelAndGetId(discordRoomAddChannelId, communityId, DISCORD_VOICE_CHANNEL_TYPE);
 			const notificationChannelDbId = await createChannelAndGetId(discordNotificationChannelId, communityId, DISCORD_TEXT_CHANNEL_TYPE);
+
+			// 新しく作成されるチャンネル用のChannelレコードを事前に作成（ハンドラがChannelLogic.getIdで検索するため）
+			await createChannelAndGetId(predictableCreatedChannelDiscordId, communityId, DISCORD_VOICE_CHANNEL_TYPE);
 
 			// 部屋追加チャンネルと通知チャンネルを登録（Channel.idを使用）
 			await RoomAddChannelRepositoryImpl.create({
@@ -1603,7 +1607,8 @@ describe("Test Room Commands", () => {
 				oldChannelId: null,
 				newChannelId: discordRoomAddChannelId,
 				displayName,
-				notificationChannelId: discordNotificationChannelId,
+				notificationChannelId: String(notificationChannelDbId),
+				predictableCreatedChannelId: predictableCreatedChannelDiscordId,
 			});
 
 			// 部屋が作成されたことを確認
@@ -1636,10 +1641,14 @@ describe("Test Room Commands", () => {
 			const discordRoomAddChannelId = "3";
 			const discordNotificationChannelId = "4";
 			const displayName = "TestUser";
+			const predictableCreatedChannelDiscordId = "12345"; // 作成されるチャンネルのDiscord ID
 
 			// ChannelsテーブルにChannelレコードを作成
 			const roomAddChannelDbId = await createChannelAndGetId(discordRoomAddChannelId, communityId, DISCORD_VOICE_CHANNEL_TYPE);
 			const notificationChannelDbId = await createChannelAndGetId(discordNotificationChannelId, communityId, DISCORD_TEXT_CHANNEL_TYPE);
+
+			// 新しく作成されるチャンネル用のChannelレコードを事前に作成（ハンドラがChannelLogic.getIdで検索するため）
+			await createChannelAndGetId(predictableCreatedChannelDiscordId, communityId, DISCORD_VOICE_CHANNEL_TYPE);
 
 			// 部屋追加チャンネルと通知チャンネルを登録（Channel.idを使用）
 			await RoomAddChannelRepositoryImpl.create({
@@ -1661,6 +1670,7 @@ describe("Test Room Commands", () => {
 				newChannelId: discordRoomAddChannelId,
 				displayName,
 				notificationChannelId: String(notificationChannelDbId),
+				predictableCreatedChannelId: predictableCreatedChannelDiscordId,
 			});
 
 			// 部屋が作成されたことを確認
@@ -1736,9 +1746,13 @@ describe("Test Room Commands", () => {
 			const userId = "2";
 			const discordRoomAddChannelId = "3";
 			const displayName = "TestUser";
+			const predictableCreatedChannelDiscordId = "12345"; // 作成されるチャンネルのDiscord ID
 
 			// ChannelテーブルにChannelレコードを作成
 			const roomAddChannelDbId = await createChannelAndGetId(discordRoomAddChannelId, communityId, DISCORD_VOICE_CHANNEL_TYPE);
+
+			// 新しく作成されるチャンネル用のChannelレコードを事前に作成（ハンドラがChannelLogic.getIdで検索するため）
+			await createChannelAndGetId(predictableCreatedChannelDiscordId, communityId, DISCORD_VOICE_CHANNEL_TYPE);
 
 			// 部屋追加チャンネルのみ登録（通知チャンネルは登録しない）（Channel.idを使用）
 			await RoomAddChannelRepositoryImpl.create({
@@ -1755,6 +1769,7 @@ describe("Test Room Commands", () => {
 				oldChannelId: null,
 				newChannelId: discordRoomAddChannelId,
 				displayName,
+				predictableCreatedChannelId: predictableCreatedChannelDiscordId,
 			});
 
 			// 部屋が作成されたことを確認
