@@ -381,6 +381,8 @@ interface VoiceStateTestOptions {
 	newChannelId: string | null;
 	displayName?: string;
 	notificationChannelId?: string;
+	/** 作成されるチャンネルに使用する予測可能なDiscord ID（テストでChannel事前作成用） */
+	predictableCreatedChannelId?: string;
 }
 
 /**
@@ -398,10 +400,10 @@ interface VoiceStateTestSetup {
  * @returns セットアップ結果
  */
 async function setupVoiceStateTest(options: VoiceStateTestOptions): Promise<VoiceStateTestSetup> {
-	const { communityId, userId, oldChannelId, newChannelId, displayName, notificationChannelId } = options;
+	const { communityId, userId, oldChannelId, newChannelId, displayName, notificationChannelId, predictableCreatedChannelId } = options;
 
 	const { mockVoiceState, addMockTextChannel } = await import("../fixtures/discord.js/MockVoiceState");
-	const { oldState, newState } = mockVoiceState(oldChannelId, newChannelId, communityId, userId, displayName);
+	const { oldState, newState } = mockVoiceState(oldChannelId, newChannelId, communityId, userId, displayName, predictableCreatedChannelId);
 
 	const notificationCapture: NotificationCapture = {
 		sent: false,
@@ -409,6 +411,7 @@ async function setupVoiceStateTest(options: VoiceStateTestOptions): Promise<Voic
 	};
 
 	// 通知チャンネルが指定されている場合、モックを追加
+	// 注意: notificationChannelIdはデータベースのChannel.idを文字列化したものを渡すこと
 	if (notificationChannelId) {
 		const targetState = newChannelId ? newState : oldState;
 		addMockTextChannel(targetState, notificationChannelId, async (sendOptions: any) => {
@@ -1576,11 +1579,14 @@ describe("Test Room Commands", () => {
 			const userId = "2";
 			const discordRoomAddChannelId = "3"; // Discord channel ID
 			const discordNotificationChannelId = "4"; // Discord channel ID
+			const discordCreatedChannelId = "1000"; // 作成されるチャンネルのDiscord ID（予測可能）
 			const displayName = "TestUser";
 
 			// ChannelsテーブルにChannelレコードを作成
 			const roomAddChannelDbId = await createChannelAndGetId(discordRoomAddChannelId, communityId, DISCORD_VOICE_CHANNEL_TYPE);
 			const notificationChannelDbId = await createChannelAndGetId(discordNotificationChannelId, communityId, DISCORD_TEXT_CHANNEL_TYPE);
+			// 作成されるチャンネル用のChannelレコードも事前に作成
+			await createChannelAndGetId(discordCreatedChannelId, communityId, DISCORD_VOICE_CHANNEL_TYPE);
 
 			// 部屋追加チャンネルと通知チャンネルを登録（Channel.idを使用）
 			await RoomAddChannelRepositoryImpl.create({
@@ -1595,13 +1601,15 @@ describe("Test Room Commands", () => {
 			const beforeCount = await RoomChannelRepositoryImpl.count();
 
 			// ヘルパー関数を使用してテスト実行
+			// notificationChannelIdはDBのIDを使用（ハンドラがDBのIDで検索するため）
 			const { newState, notificationCapture } = await executeVoiceStateTest({
 				communityId: discordGuildId,
 				userId,
 				oldChannelId: null,
 				newChannelId: discordRoomAddChannelId,
 				displayName,
-				notificationChannelId: discordNotificationChannelId,
+				notificationChannelId: String(notificationChannelDbId),
+				predictableCreatedChannelId: discordCreatedChannelId,
 			});
 
 			// 部屋が作成されたことを確認
@@ -1633,11 +1641,14 @@ describe("Test Room Commands", () => {
 			const oldChannelId = "100"; // 元いた部屋
 			const discordRoomAddChannelId = "3";
 			const discordNotificationChannelId = "4";
+			const discordCreatedChannelId = "1001"; // 作成されるチャンネルのDiscord ID（予測可能）
 			const displayName = "TestUser";
 
 			// ChannelsテーブルにChannelレコードを作成
 			const roomAddChannelDbId = await createChannelAndGetId(discordRoomAddChannelId, communityId, DISCORD_VOICE_CHANNEL_TYPE);
 			const notificationChannelDbId = await createChannelAndGetId(discordNotificationChannelId, communityId, DISCORD_TEXT_CHANNEL_TYPE);
+			// 作成されるチャンネル用のChannelレコードも事前に作成
+			await createChannelAndGetId(discordCreatedChannelId, communityId, DISCORD_VOICE_CHANNEL_TYPE);
 
 			// 部屋追加チャンネルと通知チャンネルを登録（Channel.idを使用）
 			await RoomAddChannelRepositoryImpl.create({
@@ -1659,6 +1670,7 @@ describe("Test Room Commands", () => {
 				newChannelId: discordRoomAddChannelId,
 				displayName,
 				notificationChannelId: String(notificationChannelDbId),
+				predictableCreatedChannelId: discordCreatedChannelId,
 			});
 
 			// 部屋が作成されたことを確認
@@ -1733,10 +1745,13 @@ describe("Test Room Commands", () => {
 			const discordGuildId = "1"; // Discord guild ID
 			const userId = "2";
 			const discordRoomAddChannelId = "3";
+			const discordCreatedChannelId = "1002"; // 作成されるチャンネルのDiscord ID（予測可能）
 			const displayName = "TestUser";
 
 			// ChannelテーブルにChannelレコードを作成
 			const roomAddChannelDbId = await createChannelAndGetId(discordRoomAddChannelId, communityId, DISCORD_VOICE_CHANNEL_TYPE);
+			// 作成されるチャンネル用のChannelレコードも事前に作成
+			await createChannelAndGetId(discordCreatedChannelId, communityId, DISCORD_VOICE_CHANNEL_TYPE);
 
 			// 部屋追加チャンネルのみ登録（通知チャンネルは登録しない）（Channel.idを使用）
 			await RoomAddChannelRepositoryImpl.create({
@@ -1753,6 +1768,7 @@ describe("Test Room Commands", () => {
 				oldChannelId: null,
 				newChannelId: discordRoomAddChannelId,
 				displayName,
+				predictableCreatedChannelId: discordCreatedChannelId,
 			});
 
 			// 部屋が作成されたことを確認
