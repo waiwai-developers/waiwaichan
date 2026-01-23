@@ -5,6 +5,7 @@ import type { StickyDto } from "@/src/entities/dto/StickyDto";
 import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
 import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
+import type { IChannelLogic } from "@/src/logics/Interfaces/logics/IChannelLogic";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { IStickyLogic } from "@/src/logics/Interfaces/logics/IStickyLogic";
 import type { CacheType, ChatInputCommandInteraction } from "discord.js";
@@ -17,6 +18,9 @@ export class StickyListCommandHandler implements SlashCommandHandler {
 
 	@inject(LogicTypes.CommunityLogic)
 	private CommunityLogic!: ICommunityLogic;
+
+	@inject(LogicTypes.ChannelLogic)
+	private channelLogic!: IChannelLogic;
 	isHandle(commandName: string): boolean {
 		return commandName === "stickylist";
 	}
@@ -46,6 +50,7 @@ export class StickyListCommandHandler implements SlashCommandHandler {
 			),
 		);
 		if (communityId == null) {
+			await interaction.reply("コミュニティが登録されていなかったよ！っ");
 			return;
 		}
 
@@ -55,11 +60,26 @@ export class StickyListCommandHandler implements SlashCommandHandler {
 			return;
 		}
 
+		const channelListPromises = stickys.map(async (s: StickyDto) => {
+			const clientId = await this.channelLogic.getClientIdById(s.channelId);
+			if (clientId == null) {
+				return null;
+			}
+			return `- <#${clientId.getValue()}>`;
+		});
+		const channelList = (await Promise.all(channelListPromises)).filter(
+			(c): c is string => c !== null,
+		);
+
+		if (channelList.length === 0) {
+			await interaction.reply("スティッキーが登録されていなかったよ！っ");
+			return;
+		}
+
 		await interaction.reply(
-			[
-				"以下のチャンネルにスティッキーが登録されているよ！",
-				...stickys.map((s: StickyDto) => `- <#${s.channelId.getValue()}>`),
-			].join("\n"),
+			["以下のチャンネルにスティッキーが登録されているよ！", ...channelList].join(
+				"\n",
+			),
 		);
 	}
 }

@@ -44,6 +44,7 @@ export class CandyDrawCommandHandler implements SlashCommandHandler {
 			),
 		);
 		if (communityId == null) {
+			await interaction.reply("コミュニティが登録されていなかったよ！っ");
 			return;
 		}
 
@@ -56,6 +57,7 @@ export class CandyDrawCommandHandler implements SlashCommandHandler {
 			),
 		);
 		if (userId == null) {
+			await interaction.reply("ユーザーが登録されていなかったよ！っ");
 			return;
 		}
 

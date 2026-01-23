@@ -1,6 +1,7 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { DatafixCandyModel } from "@/migrator/datafixies/models/DatafixCandyModel";
+import { DatafixChannelModel } from "@/migrator/datafixies/models/DatafixChannelModel";
 import { DatafixCommunityModel } from "@/migrator/datafixies/models/DatafixCommunityModel";
 import { DatafixContextModel } from "@/migrator/datafixies/models/DatafixContextModel";
 import { DatafixCrownModel } from "@/migrator/datafixies/models/DatafixCrownModel";
@@ -157,6 +158,7 @@ export const datafixer = (
 				DatafixRoomAddChannelsModel,
 				DatafixRoomChannelsModel,
 				DatafixRoomNotificationChannelsModel,
+				DatafixChannelModel,
 			],
 		},
 	);

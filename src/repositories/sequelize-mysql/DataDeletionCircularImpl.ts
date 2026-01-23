@@ -22,8 +22,8 @@ class DataDeletionCircularImpl implements IDataDeletionCircular {
 					model.destroy({
 						where: {
 							[columnName]: columnId,
-						},
-					}),
+						}
+					} as Parameters<typeof model.destroy>[0]),
 				),
 			);
 

@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { AppConfig } from "@/src/entities/config/AppConfig";
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
-import { CommunityAndUserDeleteHandler } from "@/src/handlers/discord.js/events/CommunityAndUserDeleteHandler";
+import { DataDeletionCircularHandler } from "@/src/handlers/discord.js/events/DataDeletionCircularHandler";
 import { ReminderNotifyHandler } from "@/src/handlers/discord.js/events/ReminderNotifyHandler";
 import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 import type { MysqlSchedulerConnector } from "@/src/repositories/sequelize-mysql/MysqlSchedulerConnector";
@@ -57,11 +57,9 @@ cron.schedule("* * * * *", () => {
 	runInNamespace("reminder notification", () => ReminderNotifyHandler(client));
 });
 
-// コミュニティとユーザーの同期
-cron.schedule("0 0 * * *", () => {
-	runInNamespace("community and user sync", () =>
-		CommunityAndUserDeleteHandler(client),
-	);
+// 削除されたclientデータに関連するDBデータを削除
+cron.schedule("0 12 * * *", () => {
+	runInNamespace("delete data sync", () => DataDeletionCircularHandler(client));
 });
 
 // Discordにログイン

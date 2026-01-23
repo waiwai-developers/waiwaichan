@@ -3,10 +3,12 @@ import {
 	RepoTypes,
 } from "@/src/entities/constants/DIContainerTypes";
 import { CommunityDto } from "@/src/entities/dto/CommunityDto";
+import { ChannelCommunityId } from "@/src/entities/vo/ChannelCommunityId";
 import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
 import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
 import { UserCommunityId } from "@/src/entities/vo/UserCommunityId";
 import type { DiscordEventHandler } from "@/src/handlers/discord.js/events/DiscordEventHandler";
+import type { IChannelLogic } from "@/src/logics/Interfaces/logics/IChannelLogic";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { IUserLogic } from "@/src/logics/Interfaces/logics/IUserLogic";
 import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
@@ -23,6 +25,9 @@ export class ActionRemoveBotHandler implements DiscordEventHandler<Guild> {
 
 	@inject(LogicTypes.UserLogic)
 	private readonly UserLogic!: IUserLogic;
+
+	@inject(LogicTypes.ChannelLogic)
+	private readonly ChannelLogic!: IChannelLogic;
 
 	async handle(guild: Guild): Promise<void> {
 		try {
@@ -53,6 +58,14 @@ export class ActionRemoveBotHandler implements DiscordEventHandler<Guild> {
 				new UserCommunityId(communityId.getValue()),
 			);
 			if (!isDeletebyCommunityId) {
+				return;
+			}
+
+			const isChannelDeletebyCommunityId =
+				await this.ChannelLogic.deletebyCommunityId(
+					new ChannelCommunityId(communityId.getValue()),
+				);
+			if (!isChannelDeletebyCommunityId) {
 				return;
 			}
 		} catch (error) {

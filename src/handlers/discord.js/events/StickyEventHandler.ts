@@ -1,10 +1,15 @@
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
+import { ChannelDto } from "@/src/entities/dto/ChannelDto";
 import { CommunityDto } from "@/src/entities/dto/CommunityDto";
+import { ChannelCategoryType } from "@/src/entities/vo/ChannelCategoryType";
+import { ChannelClientId } from "@/src/entities/vo/ChannelClientId";
+import { ChannelCommunityId } from "@/src/entities/vo/ChannelCommunityId";
+import { ChannelType } from "@/src/entities/vo/ChannelType";
 import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
 import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
-import { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
 import { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
 import type { DiscordEventHandler } from "@/src/handlers/discord.js/events/DiscordEventHandler";
+import type { IChannelLogic } from "@/src/logics/Interfaces/logics/IChannelLogic";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { IStickyLogic } from "@/src/logics/Interfaces/logics/IStickyLogic";
 import type { Message } from "discord.js";
@@ -18,6 +23,9 @@ export class StickyEventHandler implements DiscordEventHandler<Message> {
 
 	@inject(LogicTypes.CommunityLogic)
 	private readonly CommunityLogic!: ICommunityLogic;
+
+	@inject(LogicTypes.ChannelLogic)
+	private readonly ChannelLogic!: IChannelLogic;
 
 	async handle(message: Message) {
 		if (!message.guildId) {
@@ -36,15 +44,20 @@ export class StickyEventHandler implements DiscordEventHandler<Message> {
 		);
 		if (communityId == null) return;
 
-		const sticky = await this.stickyLogic.find(
-			communityId,
-			new DiscordChannelId(message.channelId),
+		const channelId = await this.ChannelLogic.getId(
+			new ChannelDto(
+				ChannelCategoryType.Discord,
+				new ChannelClientId(BigInt(message.channelId)),
+				ChannelType.DiscordText,
+				new ChannelCommunityId(communityId.getValue()),
+			),
 		);
+		if (channelId == null) return;
+
+		const sticky = await this.stickyLogic.find(communityId, channelId);
 		if (sticky === undefined) return;
 
-		const channel = message.guild?.channels.cache.get(
-			sticky.channelId.getValue(),
-		);
+		const channel = message.guild?.channels.cache.get(message.channelId);
 		if (channel == null) return;
 		if (!(channel instanceof TextChannel)) return;
 
@@ -67,9 +80,19 @@ export class StickyEventHandler implements DiscordEventHandler<Message> {
 		);
 		if (newCommunityId == null) return;
 
+		const newChannelId = await this.ChannelLogic.getId(
+			new ChannelDto(
+				ChannelCategoryType.Discord,
+				new ChannelClientId(BigInt(stickyNewMessage.channelId)),
+				ChannelType.DiscordText,
+				new ChannelCommunityId(newCommunityId.getValue()),
+			),
+		);
+		if (newChannelId == null) return;
+
 		await this.stickyLogic.updateMessageId(
 			communityId,
-			new DiscordChannelId(stickyNewMessage.channelId),
+			newChannelId,
 			new DiscordMessageId(stickyNewMessage.id),
 		);
 	}

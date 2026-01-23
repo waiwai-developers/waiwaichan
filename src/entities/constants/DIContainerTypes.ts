@@ -17,6 +17,7 @@ export const RepoTypes = {
 	StickyRepository: Symbol.for("StickyRepository"),
 	CommunityRepository: Symbol.for("CommunityRepository"),
 	UserRepository: Symbol.for("UserRepository"),
+	ChannelRepository: Symbol.for("ChannelRepository"),
 	DataDeletionCircular: Symbol.for("DataDeletionCircular"),
 	RoomAddChannelRepository: Symbol.for("RoomAddChannelRepository"),
 	RoomNotificationChannelRepository: Symbol.for(
@@ -41,6 +42,7 @@ export const LogicTypes = {
 	UtilityLogic: Symbol.for("UtilityLogic"),
 	CommunityLogic: Symbol.for("CommunityLogic"),
 	UserLogic: Symbol.for("UserLogic"),
+	ChannelLogic: Symbol.for("ChannelLogic"),
 	CrownLogic: Symbol.for("CrownLogic"),
 	dataDeletionCircularLogic: Symbol.for("dataDeletionCircularLogic"),
 	RoomAddChannelLogic: Symbol.for("RoomAddChannelLogic"),
@@ -57,6 +59,8 @@ export const RouteTypes = {
 	ActionRemoveBotRoute: Symbol.for("ActionRemoveBotRoute"),
 	ActionAddUserRoute: Symbol.for("ActionAddUserRoute"),
 	ActionRemoveUserRoute: Symbol.for("ActionRemoveUserRoute"),
+	ActionAddChannelRoute: Symbol.for("ActionAddChannelRoute"),
+	ActionRemoveChannelRoute: Symbol.for("ActionRemoveChannelRoute"),
 	VoiceChannelEventRoute: Symbol.for("VoiceChannelEventRoute"),
 };
 
@@ -72,5 +76,7 @@ export const HandlerTypes = {
 	ActionRemoveBotHandler: Symbol.for("ActionRemoveBotHandler"),
 	ActionAddUserHandler: Symbol.for("ActionAddUserHandler"),
 	ActionRemoveUserHandler: Symbol.for("ActionRemoveUserHandler"),
+	ActionAddChannelHandler: Symbol.for("ActionAddChannelHandler"),
+	ActionRemoveChannelHandler: Symbol.for("ActionRemoveChannelHandler"),
 	VoiceChannelEventHandler: Symbol.for("VoiceChannelEventHandler"),
 };
