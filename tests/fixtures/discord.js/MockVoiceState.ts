@@ -7,7 +7,6 @@ export interface MockVoiceStateResult {
 
 /**
  * VoiceStateのモックを作成する（プロパティを上書き可能な形式）
- * @param predictableCreatedChannelId オプション: 作成されるチャンネルに使用する予測可能なID（テストでChannel事前作成用）
  */
 export function mockVoiceState(
 	oldChannelId: string | null,
