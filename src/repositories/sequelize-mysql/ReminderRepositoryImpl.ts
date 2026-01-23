@@ -1,7 +1,6 @@
 import { ReminderDto } from "@/src/entities/dto/ReminderDto";
+import { ChannelId } from "@/src/entities/vo/ChannelId";
 import { CommunityId } from "@/src/entities/vo/CommunityId";
-import { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
-import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
 import { ReceiveDiscordUserName } from "@/src/entities/vo/ReceiveDiscordUserName";
 import { RemindTime } from "@/src/entities/vo/RemindTime";
 import { ReminderId } from "@/src/entities/vo/ReminderId";
@@ -31,9 +30,9 @@ class ReminderRepositoryImpl extends Model implements IReminderRepository {
 	declare id: number;
 	@Column(DataType.INTEGER)
 	declare communityId: number;
-	@Column(DataType.STRING)
-	declare channelId: string;
-	@Column(DataType.STRING)
+	@Column(DataType.INTEGER)
+	declare channelId: number;
+	@Column(DataType.INTEGER)
 	declare userId: number;
 	@Column(DataType.STRING)
 	declare receiveUserName: string;
@@ -83,7 +82,7 @@ class ReminderRepositoryImpl extends Model implements IReminderRepository {
 		return new ReminderDto(
 			new ReminderId(this.id),
 			new CommunityId(this.communityId),
-			new DiscordChannelId(this.channelId),
+			new ChannelId(this.channelId),
 			new UserId(this.userId),
 			new ReceiveDiscordUserName(this.receiveUserName),
 			new ReminderMessage(this.message),

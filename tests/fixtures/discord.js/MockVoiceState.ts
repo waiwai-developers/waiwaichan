@@ -7,6 +7,7 @@ export interface MockVoiceStateResult {
 
 /**
  * VoiceStateのモックを作成する（プロパティを上書き可能な形式）
+ * @param predictableCreatedChannelId オプション: 作成されるチャンネルに使用する予測可能なID（テストでChannel事前作成用）
  */
 export function mockVoiceState(
 	oldChannelId: string | null,
@@ -14,6 +15,7 @@ export function mockVoiceState(
 	guildId: string,
 	userId: string,
 	displayName = "TestUser",
+	predictableCreatedChannelId: string | null = null,
 ): MockVoiceStateResult {
 	let createdChannelId: string | null = null;
 	const channelCache = new Map<string, any>();
@@ -57,7 +59,8 @@ export function mockVoiceState(
 			},
 		},
 		create: async (options: any) => {
-			createdChannelId = String(Math.floor(Math.random() * 1000000) + 1000);
+			// 予測可能なIDが指定されていればそれを使用、なければランダムID
+			createdChannelId = predictableCreatedChannelId || String(Math.floor(Math.random() * 1000000) + 1000);
 			const newChannel = {
 				id: createdChannelId,
 				guildId: guildId,

@@ -1,10 +1,14 @@
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
+import { ChannelDto } from "@/src/entities/dto/ChannelDto";
 import { CommunityDto } from "@/src/entities/dto/CommunityDto";
 import { ReminderDto } from "@/src/entities/dto/ReminderDto";
 import { UserDto } from "@/src/entities/dto/UserDto";
+import { ChannelCategoryType } from "@/src/entities/vo/ChannelCategoryType";
+import { ChannelClientId } from "@/src/entities/vo/ChannelClientId";
+import { ChannelCommunityId } from "@/src/entities/vo/ChannelCommunityId";
+import { ChannelType } from "@/src/entities/vo/ChannelType";
 import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
 import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
-import { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
 import { ReceiveDiscordUserName } from "@/src/entities/vo/ReceiveDiscordUserName";
 import { RemindTime } from "@/src/entities/vo/RemindTime";
 import { ReminderMessage } from "@/src/entities/vo/ReminderMessage";
@@ -13,6 +17,7 @@ import { UserClientId } from "@/src/entities/vo/UserClientId";
 import { UserCommunityId } from "@/src/entities/vo/UserCommunityId";
 import { UserType } from "@/src/entities/vo/UserType";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
+import type { IChannelLogic } from "@/src/logics/Interfaces/logics/IChannelLogic";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { IReminderLogic } from "@/src/logics/Interfaces/logics/IReminderLogic";
 import type { IUserLogic } from "@/src/logics/Interfaces/logics/IUserLogic";
@@ -31,6 +36,9 @@ export class ReminderSetCommandHandler implements SlashCommandHandler {
 	@inject(LogicTypes.UserLogic)
 	private UserLogic!: IUserLogic;
 
+	@inject(LogicTypes.ChannelLogic)
+	private ChannelLogic!: IChannelLogic;
+
 	isHandle(commandName: string): boolean {
 		return commandName === "reminderset";
 	}
@@ -48,6 +56,7 @@ export class ReminderSetCommandHandler implements SlashCommandHandler {
 			),
 		);
 		if (communityId == null) {
+			await interaction.reply("コミュニティが登録されていなかったよ！っ");
 			return;
 		}
 
@@ -60,6 +69,20 @@ export class ReminderSetCommandHandler implements SlashCommandHandler {
 			),
 		);
 		if (userId == null) {
+			await interaction.reply("ユーザーが登録されていなかったよ！っ");
+			return;
+		}
+
+		const channelId = await this.ChannelLogic.getId(
+			new ChannelDto(
+				ChannelCategoryType.Discord,
+				new ChannelClientId(BigInt(interaction.channelId)),
+				ChannelType.DiscordText,
+				new ChannelCommunityId(communityId.getValue()),
+			),
+		);
+		if (channelId == null) {
+			await interaction.reply("チャンネルが登録されていなかったよ！っ");
 			return;
 		}
 
@@ -68,7 +91,7 @@ export class ReminderSetCommandHandler implements SlashCommandHandler {
 				new ReminderDto(
 					undefined,
 					communityId,
-					new DiscordChannelId(interaction.channelId),
+					channelId,
 					userId,
 					new ReceiveDiscordUserName(
 						interaction.options.getString("username", true),

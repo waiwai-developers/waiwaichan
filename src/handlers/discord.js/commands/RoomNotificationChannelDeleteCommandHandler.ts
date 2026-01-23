@@ -48,6 +48,7 @@ export class RoomNotificationChannelDeleteCommandHandler
 			),
 		);
 		if (communityId == null) {
+			await interaction.reply("コミュニティが登録されていなかったよ！っ");
 			return;
 		}
 

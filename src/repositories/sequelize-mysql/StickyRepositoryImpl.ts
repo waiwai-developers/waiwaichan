@@ -1,8 +1,7 @@
 import { StickyDto } from "@/src/entities/dto/StickyDto";
+import { ChannelId } from "@/src/entities/vo/ChannelId";
 import { CommunityId } from "@/src/entities/vo/CommunityId";
-import { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
 import { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
-import { DiscordUserId } from "@/src/entities/vo/DiscordUserId";
 import { StickyMessage } from "@/src/entities/vo/StickyMessage";
 import { UserId } from "@/src/entities/vo/UserId";
 import type { IStickyRepository } from "@/src/logics/Interfaces/repositories/database/IStickyRepository";
@@ -29,8 +28,8 @@ class StickyRepositoryImpl extends Model implements IStickyRepository {
 	declare id: number;
 	@Column(DataType.INTEGER)
 	declare communityId: number;
-	@Column(DataType.STRING)
-	declare channelId: string;
+	@Column(DataType.INTEGER)
+	declare channelId: number;
 	@Column(DataType.INTEGER)
 	declare userId: number;
 	@Column(DataType.STRING)
@@ -50,7 +49,7 @@ class StickyRepositoryImpl extends Model implements IStickyRepository {
 
 	async delete(
 		communityId: CommunityId,
-		channelId: DiscordChannelId,
+		channelId: ChannelId,
 	): Promise<boolean> {
 		return StickyRepositoryImpl.destroy({
 			where: {
@@ -62,7 +61,7 @@ class StickyRepositoryImpl extends Model implements IStickyRepository {
 
 	async updateForMessageId(
 		communityId: CommunityId,
-		channelId: DiscordChannelId,
+		channelId: ChannelId,
 		messageId: DiscordMessageId,
 	): Promise<boolean> {
 		return StickyRepositoryImpl.findOne({
@@ -77,7 +76,7 @@ class StickyRepositoryImpl extends Model implements IStickyRepository {
 
 	async updateForMessage(
 		communityId: CommunityId,
-		channelId: DiscordChannelId,
+		channelId: ChannelId,
 		message: StickyMessage,
 	): Promise<boolean> {
 		return StickyRepositoryImpl.findOne({
@@ -92,7 +91,7 @@ class StickyRepositoryImpl extends Model implements IStickyRepository {
 
 	async findOne(
 		communityId: CommunityId,
-		channelId: DiscordChannelId,
+		channelId: ChannelId,
 	): Promise<StickyDto | undefined> {
 		return StickyRepositoryImpl.findOne({
 			where: {
@@ -113,7 +112,7 @@ class StickyRepositoryImpl extends Model implements IStickyRepository {
 	toDto(): StickyDto {
 		return new StickyDto(
 			new CommunityId(this.communityId),
-			new DiscordChannelId(this.channelId),
+			new ChannelId(this.channelId),
 			new UserId(this.userId),
 			new DiscordMessageId(this.messageId),
 			new StickyMessage(this.message),

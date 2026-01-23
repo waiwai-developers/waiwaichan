@@ -53,6 +53,7 @@ export class TranslateCommandHandler implements SlashCommandHandler {
 			),
 		);
 		if (communityId == null) {
+			await interaction.reply("コミュニティが登録されていなかったよ！っ");
 			return;
 		}
 

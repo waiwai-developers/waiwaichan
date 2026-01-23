@@ -1,5 +1,9 @@
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
 import { ColumnDto } from "@/src/entities/dto/Column";
+import { ChannelBatchStatus } from "@/src/entities/vo/ChannelBatchStatus";
+import { ChannelClientId } from "@/src/entities/vo/ChannelClientId";
+import { ChannelCommunityId } from "@/src/entities/vo/ChannelCommunityId";
+import { ChannelId } from "@/src/entities/vo/ChannelId";
 import { ColumnId } from "@/src/entities/vo/ColumnId";
 import { ColumnName } from "@/src/entities/vo/ColumnName";
 import { CommunityBatchStatus } from "@/src/entities/vo/CommunityBatchStatus";
@@ -10,10 +14,12 @@ import { UserBatchStatus } from "@/src/entities/vo/UserBatchStatus";
 import { UserClientId } from "@/src/entities/vo/UserClientId";
 import { UserCommunityId } from "@/src/entities/vo/UserCommunityId";
 import { UserId } from "@/src/entities/vo/UserId";
-import { CommunityAndUserDeleteHandler } from "@/src/handlers/discord.js/events/CommunityAndUserDeleteHandler";
+import { DataDeletionCircularHandler } from "@/src/handlers/discord.js/events/DataDeletionCircularHandler";
 import type { DataDeletionCircularLogic } from "@/src/logics/DataDeletionCircularLogic";
+import type { IChannelLogic } from "@/src/logics/Interfaces/logics/IChannelLogic";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { IUserLogic } from "@/src/logics/Interfaces/logics/IUserLogic";
+import { ChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/ChannelRepositoryImpl";
 import { CommunityRepositoryImpl } from "@/src/repositories/sequelize-mysql/CommunityRepositoryImpl";
 import { DataDeletionCircularImpl } from "@/src/repositories/sequelize-mysql/DataDeletionCircularImpl";
 import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnector";
@@ -30,7 +36,13 @@ const createMembers = (ids: string[]) => {
 	return members;
 };
 
-const createFakeClient = (guilds: { id: string; memberIds: string[] }[]) => {
+const createChannels = (ids: string[]) => {
+	const channels = new Map<string, { id: string }>();
+	ids.forEach((id) => channels.set(id, { id }));
+	return channels;
+};
+
+const createFakeClient = (guilds: { id: string; memberIds: string[]; channelIds: string[] }[]) => {
 	const guildStore = new Map(
 		guilds.map((guild) => [
 			guild.id,
@@ -38,6 +50,9 @@ const createFakeClient = (guilds: { id: string; memberIds: string[] }[]) => {
 				id: guild.id,
 				members: {
 					fetch: async () => createMembers(guild.memberIds),
+				},
+				channels: {
+					fetch: async () => createChannels(guild.channelIds),
 				},
 			},
 		]),
@@ -58,12 +73,14 @@ const createFakeClient = (guilds: { id: string; memberIds: string[] }[]) => {
 describe("CommunityAndUserDeleteHandler integration tests", () => {
 	let communityLogicMock: ICommunityLogic;
 	let userLogicMock: IUserLogic;
+	let channelLogicMock: IChannelLogic;
 	let dataDeletionLogicMock: DataDeletionCircularLogic;
 	let originalGet: typeof schedulerContainer.get;
 
 	beforeEach(() => {
 		communityLogicMock = mock<ICommunityLogic>();
 		userLogicMock = mock<IUserLogic>();
+		channelLogicMock = mock<IChannelLogic>();
 		dataDeletionLogicMock = mock<DataDeletionCircularLogic>();
 		originalGet = schedulerContainer.get.bind(schedulerContainer);
 		(schedulerContainer as any).get = (token: symbol) => {
@@ -73,6 +90,9 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 			if (token === LogicTypes.UserLogic) {
 				return instance(userLogicMock);
 			}
+			if (token === LogicTypes.ChannelLogic) {
+				return instance(channelLogicMock);
+			}
 			if (token === LogicTypes.dataDeletionCircularLogic) {
 				return instance(dataDeletionLogicMock);
 			}
@@ -81,6 +101,7 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 		when((communityLogicMock as any).getNotExistClientId(anything(), anything()) as any).thenReturn(Promise.resolve([] as CommunityClientId[]));
 		when((userLogicMock as any).findDeletionTargetsByBatchStatusAndDeletedAt()).thenResolve([] as any);
 		when((communityLogicMock as any).findDeletionTargetsByBatchStatusAndDeletedAt()).thenResolve([] as any);
+		when((channelLogicMock as any).findDeletionTargetsByBatchStatusAndDeletedAt()).thenResolve([] as any);
 	});
 
 	afterEach(() => {
@@ -97,8 +118,8 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 		 */
 		it("Communityが存在しない場合は削除をスキップする", async () => {
 			(when((communityLogicMock as any).getId(anything())) as any).thenResolve(undefined);
-			const client = createFakeClient([{ id: "100", memberIds: ["200"] }]);
-			await CommunityAndUserDeleteHandler(client as any);
+			const client = createFakeClient([{ id: "100", memberIds: ["200"], channelIds: ["300"] }]);
+			await DataDeletionCircularHandler(client as any);
 			verify((userLogicMock as any).deleteNotBelongByCommunityIdAndClientIds(anything(), anything())).never();
 		});
 
@@ -108,8 +129,8 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 		 */
 		it("メンバー一覧が空の場合は削除をスキップする", async () => {
 			(when((communityLogicMock as any).getId(anything())) as any).thenResolve(new CommunityId(1));
-			const client = createFakeClient([{ id: "100", memberIds: [] }]);
-			await CommunityAndUserDeleteHandler(client as any);
+			const client = createFakeClient([{ id: "100", memberIds: [], channelIds: ["300"] }]);
+			await DataDeletionCircularHandler(client as any);
 			verify((userLogicMock as any).deleteNotBelongByCommunityIdAndClientIds(anything(), anything())).never();
 		});
 
@@ -129,9 +150,10 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 					return Promise.resolve(true);
 				},
 			);
+			(when((channelLogicMock as any).deleteNotBelongByCommunityIdAndClientIds(anything(), anything())) as any).thenResolve(true);
 
-			const client = createFakeClient([{ id: "100", memberIds: ["200", "201"] }]);
-			await CommunityAndUserDeleteHandler(client as any);
+			const client = createFakeClient([{ id: "100", memberIds: ["200", "201"], channelIds: ["300"] }]);
+			await DataDeletionCircularHandler(client as any);
 
 			expect((capturedCommunityId as UserCommunityId | null)?.getValue()).to.equal(communityId.getValue());
 			expect(capturedClientIds.map((c) => c.getValue())).to.deep.equal([BigInt("200"), BigInt("201")]);
@@ -161,19 +183,90 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 	});
 
 	/**
+	 * A2. Guild内Channel削除
+	 */
+	describe("A2. Guild内Channel削除", () => {
+		/**
+		 * [Channel空] Guild内Channelが0件の場合は削除が行われない
+		 * - deleteNotBelongByCommunityIdAndClientIdsが呼ばれないことを検証
+		 */
+		it("Channel一覧が空の場合は削除をスキップする", async () => {
+			(when((communityLogicMock as any).getId(anything())) as any).thenResolve(new CommunityId(1));
+			(when((userLogicMock as any).deleteNotBelongByCommunityIdAndClientIds(anything(), anything())) as any).thenResolve(true);
+			const client = createFakeClient([{ id: "100", memberIds: ["200"], channelIds: [] }]);
+			await DataDeletionCircularHandler(client as any);
+			verify((channelLogicMock as any).deleteNotBelongByCommunityIdAndClientIds(anything(), anything())).never();
+		});
+
+		/**
+		 * [削除対象] channelIdsに含まれないChannelだけが削除対象になる
+		 * - deleteNotBelongByCommunityIdAndClientIdsの引数が正しいことを検証
+		 */
+		it("channelIdsがChannel削除に渡される", async () => {
+			const communityId = new CommunityId(10);
+			let capturedCommunityId: ChannelCommunityId | null = null;
+			let capturedClientIds: ChannelClientId[] = [];
+			(when((communityLogicMock as any).getId(anything())) as any).thenResolve(communityId);
+			(when((userLogicMock as any).deleteNotBelongByCommunityIdAndClientIds(anything(), anything())) as any).thenResolve(true);
+			(when((channelLogicMock as any).deleteNotBelongByCommunityIdAndClientIds(anything(), anything())) as any).thenCall(
+				(cid: ChannelCommunityId, ids: ChannelClientId[]) => {
+					capturedCommunityId = cid;
+					capturedClientIds = ids;
+					return Promise.resolve(true);
+				},
+			);
+
+			const client = createFakeClient([{ id: "100", memberIds: ["200"], channelIds: ["300", "301"] }]);
+			await DataDeletionCircularHandler(client as any);
+
+			expect((capturedCommunityId as ChannelCommunityId | null)?.getValue()).to.equal(communityId.getValue());
+			expect(capturedClientIds.map((c) => c.getValue())).to.deep.equal([BigInt("300"), BigInt("301")]);
+			verify((channelLogicMock as any).deleteNotBelongByCommunityIdAndClientIds(anything(), anything())).once();
+		});
+
+		/**
+		 * [Repository条件] communityIdとNOT IN条件が適用される
+		 * - deleteNotBelongByCommunityIdAndClientIdsのwhere条件を検証
+		 */
+		it("ChannelRepositoryImpl.deleteNotBelongByCommunityIdAndClientIdsはcommunityIdとNOT IN条件を持つ", async () => {
+			const originalDestroy = ChannelRepositoryImpl.destroy;
+			let receivedWhere: any = null;
+			(ChannelRepositoryImpl as any).destroy = (options: any) => {
+				receivedWhere = options.where;
+				return Promise.resolve(1);
+			};
+
+			const repo = new ChannelRepositoryImpl();
+			await repo.deleteNotBelongByCommunityIdAndClientIds(new ChannelCommunityId(12), [
+				new ChannelClientId(BigInt(99)),
+				new ChannelClientId(BigInt(100)),
+			]);
+
+			expect(receivedWhere.communityId).to.equal(12);
+			expect(receivedWhere.clientId[Op.notIn]).to.deep.equal([BigInt(99), BigInt(100)]);
+
+			(ChannelRepositoryImpl as any).destroy = originalDestroy;
+		});
+	});
+
+	/**
 	 * B. Bot未所属Community削除
 	 */
 	describe("B. Bot未所属Community削除", () => {
 		/**
-		 * [削除順] User削除後にCommunity削除が行われる
-		 * - 削除順序がUser→Communityであることを検証
+		 * [削除順] User削除→Channel削除→Community削除の順で実行される
+		 * - 削除順序がUser→Channel→Communityであることを検証
 		 */
-		it("User削除→Community削除の順で実行される", async () => {
+		it("User削除→Channel削除→Community削除の順で実行される", async () => {
 			const callOrder: string[] = [];
 			(when((communityLogicMock as any).getNotExistClientId(anything(), anything())) as any).thenResolve([new CommunityClientId(BigInt("200"))]);
 			(when((communityLogicMock as any).getId(anything())) as any).thenResolve(new CommunityId(30));
 			when((userLogicMock as any).deletebyCommunityId(anything())).thenCall(() => {
 				callOrder.push("deleteUsers");
+				return Promise.resolve(true);
+			});
+			when((channelLogicMock as any).deletebyCommunityId(anything())).thenCall(() => {
+				callOrder.push("deleteChannels");
 				return Promise.resolve(true);
 			});
 			when((communityLogicMock as any).delete(anything())).thenCall(() => {
@@ -182,9 +275,9 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 			});
 
 			const client = createFakeClient([]);
-			await CommunityAndUserDeleteHandler(client as any);
+			await DataDeletionCircularHandler(client as any);
 
-			expect(callOrder).to.deep.equal(["deleteUsers", "deleteCommunity"]);
+			expect(callOrder).to.deep.equal(["deleteUsers", "deleteChannels", "deleteCommunity"]);
 		});
 
 		/**
@@ -196,9 +289,10 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 			(when((communityLogicMock as any).getId(anything())) as any).thenResolve(undefined);
 
 			const client = createFakeClient([]);
-			await CommunityAndUserDeleteHandler(client as any);
+			await DataDeletionCircularHandler(client as any);
 
 			verify((userLogicMock as any).deletebyCommunityId(anything())).never();
+			verify((channelLogicMock as any).deletebyCommunityId(anything())).never();
 			verify((communityLogicMock as any).delete(anything())).never();
 		});
 
@@ -222,9 +316,9 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 	});
 
 	/**
-	 * C/D. 論理削除ユーザー・Communityの関連削除
+	 * C/D. 論理削除ユーザー・Community・Channelの関連削除
 	 */
-	describe("C/D. 論理削除ユーザー・Communityの関連削除", () => {
+	describe("C/D. 論理削除ユーザー・Community・Channelの関連削除", () => {
 		/**
 		 * [削除対象ユーザー] batchStatus=Yet && deletedAt!=null のみ取得する
 		 * - findDeletionTargetsByBatchStatusAndDeletedAtのwhere条件を検証
@@ -262,6 +356,24 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 		});
 
 		/**
+		 * [削除対象Channel] batchStatus=Yet && deletedAt!=null のみ取得する
+		 * - findDeletionTargetsByBatchStatusAndDeletedAtのwhere条件を検証
+		 */
+		it("ChannelRepositoryImpl.findDeletionTargetsByBatchStatusAndDeletedAtはbatchStatus=YetとdeletedAt!=nullのみ取得する", async () => {
+			const originalFindAll = ChannelRepositoryImpl.findAll;
+			let receivedWhere: any = null;
+			(ChannelRepositoryImpl as any).findAll = (options: any) => {
+				receivedWhere = options.where;
+				return Promise.resolve([]);
+			};
+			const repo = new ChannelRepositoryImpl();
+			await repo.findDeletionTargetsByBatchStatusAndDeletedAt();
+			expect(receivedWhere.batchStatus).to.equal(ChannelBatchStatus.Yet.getValue());
+			expect(receivedWhere.deletedAt[Op.not]).to.equal(null);
+			(ChannelRepositoryImpl as any).findAll = originalFindAll;
+		});
+
+		/**
 		 * [関連削除] 対象カラムを持つモデルのみ削除される
 		 * - getAttributesの結果に応じてdestroyが呼ばれることを検証
 		 */
@@ -271,7 +383,7 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 
 			const destroyCalls: number[] = [];
 			const targetModel = {
-				getAttributes: () => ({ user: true }),
+				getAttributes: () => ({ userId: true }),
 				destroy: async () => {
 					destroyCalls.push(1);
 					return 0;
@@ -287,6 +399,40 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 
 			const repo = new DataDeletionCircularImpl();
 			const result = await repo.deleteRecordInRelatedTable(new ColumnDto(ColumnName.user, new ColumnId(1)));
+
+			expect(result).to.equal(true);
+			expect(destroyCalls.length).to.equal(1);
+
+			(MysqlConnector as any).models = originalConnectorModels;
+			(MysqlSchedulerConnector as any).models = originalSchedulerModels;
+		});
+
+		/**
+		 * [関連削除 - channel] 対象カラムを持つモデルのみ削除される
+		 * - getAttributesの結果に応じてdestroyが呼ばれることを検証
+		 */
+		it("DataDeletionCircularImplはchannelカラムを持つモデルを削除する", async () => {
+			const originalConnectorModels = MysqlConnector.models;
+			const originalSchedulerModels = MysqlSchedulerConnector.models;
+
+			const destroyCalls: number[] = [];
+			const targetModel = {
+				getAttributes: () => ({ channelId: true }),
+				destroy: async () => {
+					destroyCalls.push(1);
+					return 0;
+				},
+			};
+			const nonTargetModel = {
+				getAttributes: () => ({ other: true }),
+				destroy: async () => 1,
+			};
+
+			(MysqlConnector as any).models = [targetModel, nonTargetModel];
+			(MysqlSchedulerConnector as any).models = [];
+
+			const repo = new DataDeletionCircularImpl();
+			const result = await repo.deleteRecordInRelatedTable(new ColumnDto(ColumnName.channel, new ColumnId(1)));
 
 			expect(result).to.equal(true);
 			expect(destroyCalls.length).to.equal(1);
@@ -331,7 +477,7 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 
 			(MysqlConnector as any).models = [
 				{
-					getAttributes: () => ({ user: true }),
+					getAttributes: () => ({ userId: true }),
 					destroy: async () => {
 						throw new Error("destroy error");
 					},
@@ -360,11 +506,12 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 	describe("E. DB論理削除/バッチ状態", () => {
 		/**
 		 * [論理削除] paranoid=trueで論理削除が有効
-		 * - Community/Userのparanoid設定を検証
+		 * - Community/User/Channelのparanoid設定を検証
 		 */
-		it("Community/Userの削除はparanoid=trueで設定されている", () => {
+		it("Community/User/Channelの削除はparanoid=trueで設定されている", () => {
 			expect((CommunityRepositoryImpl as any).options?.paranoid).to.equal(true);
 			expect((UserRepositoryImpl as any).options?.paranoid).to.equal(true);
+			expect((ChannelRepositoryImpl as any).options?.paranoid).to.equal(true);
 		});
 
 		/**
@@ -374,8 +521,10 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 		it("updatebatchStatusはparanoid=falseで更新する", async () => {
 			const originalCommunityUpdate = CommunityRepositoryImpl.update;
 			const originalUserUpdate = UserRepositoryImpl.update;
+			const originalChannelUpdate = ChannelRepositoryImpl.update;
 			let communityUpdateOptions: any = null;
 			let userUpdateOptions: any = null;
+			let channelUpdateOptions: any = null;
 
 			(CommunityRepositoryImpl as any).update = (values: any, options: any) => {
 				communityUpdateOptions = options;
@@ -385,19 +534,28 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 				userUpdateOptions = options;
 				return Promise.resolve([1]);
 			};
+			(ChannelRepositoryImpl as any).update = (values: any, options: any) => {
+				channelUpdateOptions = options;
+				return Promise.resolve([1]);
+			};
 
 			const communityRepo = new CommunityRepositoryImpl();
 			const userRepo = new UserRepositoryImpl();
+			const channelRepo = new ChannelRepositoryImpl();
 			await communityRepo.updatebatchStatus(new CommunityId(1));
 			await userRepo.updatebatchStatus(new UserId(2));
+			await channelRepo.updatebatchStatus(new ChannelId(3));
 
 			expect(communityUpdateOptions.paranoid).to.equal(false);
 			expect(communityUpdateOptions.where.batchStatus).to.equal(CommunityBatchStatus.Yet.getValue());
 			expect(userUpdateOptions.paranoid).to.equal(false);
 			expect(userUpdateOptions.where.batchStatus).to.equal(UserBatchStatus.Yet.getValue());
+			expect(channelUpdateOptions.paranoid).to.equal(false);
+			expect(channelUpdateOptions.where.batchStatus).to.equal(ChannelBatchStatus.Yet.getValue());
 
 			(CommunityRepositoryImpl as any).update = originalCommunityUpdate;
 			(UserRepositoryImpl as any).update = originalUserUpdate;
+			(ChannelRepositoryImpl as any).update = originalChannelUpdate;
 		});
 	});
 });
