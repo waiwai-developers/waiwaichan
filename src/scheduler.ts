@@ -57,9 +57,9 @@ cron.schedule("* * * * *", () => {
 	runInNamespace("reminder notification", () => ReminderNotifyHandler(client));
 });
 
-// コミュニティとユーザーの同期
-cron.schedule("0 0 * * *", () => {
-	runInNamespace("community and user sync", () =>
+// 削除されたclientデータに関連するDBデータを削除
+cron.schedule("0 12 * * *", () => {
+	runInNamespace("delete data sync", () =>
 		DataDeletionCircularHandler(client),
 	);
 });

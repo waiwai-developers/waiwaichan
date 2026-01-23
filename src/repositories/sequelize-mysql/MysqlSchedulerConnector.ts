@@ -2,10 +2,19 @@ import { DatabaseConfig } from "@/src/entities/config/DatabaseConfig";
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import type { IDataBaseConnector } from "@/src/logics/Interfaces/repositories/database/IDataBaseConnector";
 import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
+import { CandyItemRepositoryImpl } from "@/src/repositories/sequelize-mysql/CandyItemRepositoryImpl";
+import { CandyRepositoryImpl } from "@/src/repositories/sequelize-mysql/CandyRepositoryImpl";
 import { ChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/ChannelRepositoryImpl";
 import { CommunityRepositoryImpl } from "@/src/repositories/sequelize-mysql/CommunityRepositoryImpl";
+import { CrownRepositoryImpl } from "@/src/repositories/sequelize-mysql/CrownRepositoryImpl";
 import { ReminderSchedulerRepositoryImpl } from "@/src/repositories/sequelize-mysql/ReminderSchedulerRepositoryImpl";
+import { RoomAddChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/RoomAddChannelRepositoryImpl";
+import { RoomChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/RoomChannelRepositoryImpl";
+import { RoomNotificationChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/RoomNotificationChannelRepositoryImpl";
 import { SequelizeLogger } from "@/src/repositories/sequelize-mysql/SequelizeLogger";
+import { StickyRepositoryImpl } from "@/src/repositories/sequelize-mysql/StickyRepositoryImpl";
+import { ThreadRepositoryImpl } from "@/src/repositories/sequelize-mysql/ThreadRepositoryImpl";
+import { UserCandyItemRepositoryImpl } from "@/src/repositories/sequelize-mysql/UserCandyItemRepositoryImpl";
 import { UserRepositoryImpl } from "@/src/repositories/sequelize-mysql/UserRepositoryImpl";
 import { inject, injectable } from "inversify";
 import type { Dialect } from "sequelize";
@@ -21,6 +30,17 @@ export class MysqlSchedulerConnector
 		CommunityRepositoryImpl,
 		UserRepositoryImpl,
 		ChannelRepositoryImpl,
+		// userId関連データ削除用
+		CandyRepositoryImpl,
+		CrownRepositoryImpl,
+		CandyItemRepositoryImpl,
+		UserCandyItemRepositoryImpl,
+		// channelId関連データ削除用
+		ThreadRepositoryImpl,
+		StickyRepositoryImpl,
+		RoomAddChannelRepositoryImpl,
+		RoomChannelRepositoryImpl,
+		RoomNotificationChannelRepositoryImpl,
 	];
 	readonly instance: Sequelize;
 
