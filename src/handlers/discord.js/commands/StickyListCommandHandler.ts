@@ -77,9 +77,10 @@ export class StickyListCommandHandler implements SlashCommandHandler {
 		}
 
 		await interaction.reply(
-			["以下のチャンネルにスティッキーが登録されているよ！", ...channelList].join(
-				"\n",
-			),
+			[
+				"以下のチャンネルにスティッキーが登録されているよ！",
+				...channelList,
+			].join("\n"),
 		);
 	}
 }

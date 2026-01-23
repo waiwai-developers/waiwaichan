@@ -185,5 +185,4 @@ describe("Test Reminder Commands", () => {
 			verify(commandMock.reply(InternalErrorMessage)).once();
 		});
 	});
-
 });

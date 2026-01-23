@@ -1,17 +1,17 @@
 import type Mocha from "mocha";
 import {
 	CommunityRepositoryImpl,
+	DISCORD_TEXT_CHANNEL_TYPE,
+	DISCORD_VOICE_CHANNEL_TYPE,
 	RoomAddChannelRepositoryImpl,
 	RoomChannelRepositoryImpl,
 	RoomNotificationChannelRepositoryImpl,
+	TestDiscordServer,
 	createChannelAndGetId,
 	executeVoiceStateTest,
 	expect,
 	roomTestAfterEach,
 	roomTestBeforeEach,
-	TestDiscordServer,
-	DISCORD_VOICE_CHANNEL_TYPE,
-	DISCORD_TEXT_CHANNEL_TYPE,
 } from "./RoomTestHelpers";
 
 describe("Test VoiceChannelConnect Events", () => {
@@ -507,7 +507,7 @@ describe("Test VoiceChannelConnect Events", () => {
 
 			// Communityテーブルのidを取得（beforeEachで作成済み）
 			const community = await CommunityRepositoryImpl.findOne({ where: { clientId: 1 } });
-			const communityDbId = community!.id;
+			const communityDbId = community?.id;
 
 			// 部屋追加チャンネルをChannelテーブルに登録し、IDを取得
 			const roomAddChannelDbId = await createChannelAndGetId(discordRoomAddChannelId, communityDbId, DISCORD_VOICE_CHANNEL_TYPE);
@@ -522,7 +522,14 @@ describe("Test VoiceChannelConnect Events", () => {
 			});
 
 			const { mockVoiceState } = await import("../../fixtures/discord.js/MockVoiceState");
-			const { oldState, newState } = mockVoiceState(null, discordRoomAddChannelId, communityId, userId, displayName, predictableCreatedChannelDiscordId);
+			const { oldState, newState } = mockVoiceState(
+				null,
+				discordRoomAddChannelId,
+				communityId,
+				userId,
+				displayName,
+				predictableCreatedChannelDiscordId,
+			);
 
 			const beforeCount = await RoomChannelRepositoryImpl.count();
 
@@ -555,7 +562,7 @@ describe("Test VoiceChannelConnect Events", () => {
 
 			// Communityテーブルのidを取得（beforeEachで作成済み）
 			const community = await CommunityRepositoryImpl.findOne({ where: { clientId: 1 } });
-			const communityDbId = community!.id;
+			const communityDbId = community?.id;
 
 			// 部屋追加チャンネルと通知チャンネルをChannelテーブルに登録
 			const roomAddChannelDbId = await createChannelAndGetId(discordRoomAddChannelId, communityDbId, DISCORD_VOICE_CHANNEL_TYPE);
@@ -575,7 +582,14 @@ describe("Test VoiceChannelConnect Events", () => {
 			});
 
 			const { mockVoiceState, addMockTextChannel } = await import("../../fixtures/discord.js/MockVoiceState");
-			const { oldState, newState } = mockVoiceState(null, discordRoomAddChannelId, communityId, userId, undefined, predictableCreatedChannelDiscordId);
+			const { oldState, newState } = mockVoiceState(
+				null,
+				discordRoomAddChannelId,
+				communityId,
+				userId,
+				undefined,
+				predictableCreatedChannelDiscordId,
+			);
 
 			let notificationSent = false;
 			let notificationContent = "";
@@ -618,7 +632,7 @@ describe("Test VoiceChannelConnect Events", () => {
 
 			// Communityテーブルのidを取得（beforeEachで作成済み）
 			const community = await CommunityRepositoryImpl.findOne({ where: { clientId: 1 } });
-			const communityDbId = community!.id;
+			const communityDbId = community?.id;
 
 			// 部屋追加チャンネルをChannelテーブルに登録
 			const roomAddChannelDbId = await createChannelAndGetId(discordRoomAddChannelId, communityDbId, DISCORD_VOICE_CHANNEL_TYPE);
@@ -633,7 +647,14 @@ describe("Test VoiceChannelConnect Events", () => {
 			});
 
 			const { mockVoiceState } = await import("../../fixtures/discord.js/MockVoiceState");
-			const { oldState, newState } = mockVoiceState(null, discordRoomAddChannelId, communityId, userId, undefined, predictableCreatedChannelDiscordId);
+			const { oldState, newState } = mockVoiceState(
+				null,
+				discordRoomAddChannelId,
+				communityId,
+				userId,
+				undefined,
+				predictableCreatedChannelDiscordId,
+			);
 
 			// イベント発火（エラーが発生しないことを確認）
 			const TEST_CLIENT = await TestDiscordServer.getClient();

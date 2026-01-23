@@ -23,13 +23,9 @@ export const ReminderNotifyHandler = async (c: Client<boolean>) => {
 		if (remainders.length === 0) return;
 
 		for (const remainder of remainders) {
-			const clientId = await channelLogic.getClientIdById(
-				remainder.channelId,
-			);
-			if (!clientId) return
-			const channel = c.channels.cache.get(
-				clientId.getValue().toString(),
-			);
+			const clientId = await channelLogic.getClientIdById(remainder.channelId);
+			if (!clientId) return;
+			const channel = c.channels.cache.get(clientId.getValue().toString());
 			if (channel != null && channel instanceof TextChannel) {
 				await channel.send(
 					`${remainder.receiveUserName.getValue()}\n${remainder.message.getValue()}`,

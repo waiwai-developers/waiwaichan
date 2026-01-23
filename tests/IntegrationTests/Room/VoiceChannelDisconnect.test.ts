@@ -1,16 +1,16 @@
 import type Mocha from "mocha";
 import {
 	CommunityRepositoryImpl,
+	DISCORD_TEXT_CHANNEL_TYPE,
+	DISCORD_VOICE_CHANNEL_TYPE,
 	RoomAddChannelRepositoryImpl,
 	RoomChannelRepositoryImpl,
 	RoomNotificationChannelRepositoryImpl,
+	TestDiscordServer,
 	createChannelAndGetId,
 	expect,
 	roomTestAfterEach,
 	roomTestBeforeEach,
-	TestDiscordServer,
-	DISCORD_VOICE_CHANNEL_TYPE,
-	DISCORD_TEXT_CHANNEL_TYPE,
 } from "./RoomTestHelpers";
 
 describe("Test VoiceChannelDisconnect Events", () => {
@@ -45,7 +45,7 @@ describe("Test VoiceChannelDisconnect Events", () => {
 
 			// Communityテーブルのidを取得（beforeEachで作成済み）
 			const community = await CommunityRepositoryImpl.findOne({ where: { clientId: 1 } });
-			const communityDbId = community!.id;
+			const communityDbId = community?.id;
 
 			// 各チャンネルをChannelテーブルに登録
 			const roomAddChannelDbId = await createChannelAndGetId(discordRoomAddChannelId, communityDbId, DISCORD_VOICE_CHANNEL_TYPE);
@@ -167,7 +167,7 @@ describe("Test VoiceChannelDisconnect Events", () => {
 
 			// Communityテーブルのidを取得（beforeEachで作成済み）
 			const community = await CommunityRepositoryImpl.findOne({ where: { clientId: 1 } });
-			const communityDbId = community!.id;
+			const communityDbId = community?.id;
 
 			// 各チャンネルをChannelテーブルに登録
 			const roomAddChannelDbId = await createChannelAndGetId(discordRoomAddChannelId, communityDbId, DISCORD_VOICE_CHANNEL_TYPE);
@@ -302,7 +302,7 @@ describe("Test VoiceChannelDisconnect Events", () => {
 
 			// Communityテーブルのidを取得（beforeEachで作成済み）
 			const community = await CommunityRepositoryImpl.findOne({ where: { clientId: 1 } });
-			const communityDbId = community!.id;
+			const communityDbId = community?.id;
 
 			// 各チャンネルをChannelテーブルに登録
 			const roomAddChannelDbId = await createChannelAndGetId(discordRoomAddChannelId, communityDbId, DISCORD_VOICE_CHANNEL_TYPE);
@@ -561,7 +561,7 @@ describe("Test VoiceChannelDisconnect Events", () => {
 
 			// Communityテーブルのidを取得（beforeEachで作成済み）
 			const community = await CommunityRepositoryImpl.findOne({ where: { clientId: 1 } });
-			const communityDbId = community!.id;
+			const communityDbId = community?.id;
 
 			// チャンネルをChannelテーブルに登録
 			const channelDbId = await createChannelAndGetId(discordChannelId, communityDbId, DISCORD_VOICE_CHANNEL_TYPE);
@@ -607,7 +607,7 @@ describe("Test VoiceChannelDisconnect Events", () => {
 
 			// Communityテーブルのidを取得（beforeEachで作成済み）
 			const community = await CommunityRepositoryImpl.findOne({ where: { clientId: 1 } });
-			const communityDbId = community!.id;
+			const communityDbId = community?.id;
 
 			// チャンネルをChannelテーブルに登録
 			const channelDbId = await createChannelAndGetId(discordChannelId, communityDbId, DISCORD_VOICE_CHANNEL_TYPE);
@@ -666,7 +666,7 @@ describe("Test VoiceChannelDisconnect Events", () => {
 
 			// Communityテーブルのidを取得（beforeEachで作成済み）
 			const community = await CommunityRepositoryImpl.findOne({ where: { clientId: 1 } });
-			const communityDbId = community!.id;
+			const communityDbId = community?.id;
 
 			// チャンネルをChannelテーブルに登録
 			const channelDbId = await createChannelAndGetId(discordChannelId, communityDbId, DISCORD_VOICE_CHANNEL_TYPE);
