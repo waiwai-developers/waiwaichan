@@ -110,9 +110,7 @@ export interface RepositoryTestHelper<T extends SoftDeletableEntity> {
 /**
  * 汎用Repositoryテストヘルパーを作成する
  */
-export function createRepositoryTestHelper<T extends SoftDeletableEntity>(
-	repository: BaseRepositoryMethods<T>,
-): RepositoryTestHelper<T> {
+export function createRepositoryTestHelper<T extends SoftDeletableEntity>(repository: BaseRepositoryMethods<T>): RepositoryTestHelper<T> {
 	return {
 		findAll: (options) => repository.findAll(options),
 		count: () => repository.count(),
@@ -167,8 +165,8 @@ export function createChannelIdBasedHelper<T extends SoftDeletableEntity & { cha
 			expect(data.length).to.be.at.least(1);
 			const found = data.find((d) => String(d.channelId) === String(channelId));
 			expect(found).to.not.be.undefined;
-			expect(String(found!.communityId)).to.eq(String(communityId));
-			expect(found!.deletedAt).to.be.null;
+			expect(String(found?.communityId)).to.eq(String(communityId));
+			expect(found?.deletedAt).to.be.null;
 		},
 	};
 }
@@ -183,9 +181,7 @@ export interface LogicalDeleteHelper<T extends SoftDeletableEntity> {
 /**
  * 論理削除ヘルパーを作成する
  */
-export function createLogicalDeleteHelper<T extends SoftDeletableEntity>(
-	repository: BaseRepositoryMethods<T>,
-): LogicalDeleteHelper<T> {
+export function createLogicalDeleteHelper<T extends SoftDeletableEntity>(repository: BaseRepositoryMethods<T>): LogicalDeleteHelper<T> {
 	return {
 		expectLogicallyDeleted: async () => {
 			const activeData = await repository.findAll();
@@ -307,11 +303,7 @@ export type GuildChannelType = "voice" | "text" | "invalid";
 /**
  * ギルドチャンネルモックを設定する
  */
-export function setupGuildChannelMock(
-	commandMock: ReturnType<typeof mockSlashCommand>,
-	channelId: string,
-	channelType: GuildChannelType,
-): void {
+export function setupGuildChannelMock(commandMock: ReturnType<typeof mockSlashCommand>, channelId: string, channelType: GuildChannelType): void {
 	when(commandMock.guild).thenReturn({
 		channels: {
 			cache: {
@@ -349,10 +341,7 @@ export function setupRoleConfig(userId: string, role: "admin" | "user"): void {
 /**
  * コマンドを実行し、応答を待つ
  */
-export async function executeCommandAndWait(
-	commandMock: CommandMockResult,
-	timeout = 1000,
-): Promise<void> {
+export async function executeCommandAndWait(commandMock: CommandMockResult, timeout = 1000): Promise<void> {
 	const TEST_CLIENT = await TestDiscordServer.getClient();
 	TEST_CLIENT.emit("interactionCreate", commandMock.getInstance());
 	await waitUntilReply(commandMock.commandMock, timeout);
@@ -448,10 +437,7 @@ export async function emitVoiceStateUpdateEvent(
  * @param waitTime 待機時間（ミリ秒）
  * @returns セットアップ結果
  */
-export async function executeVoiceStateTest(
-	options: VoiceStateTestOptions,
-	waitTime = 100,
-): Promise<VoiceStateTestSetup> {
+export async function executeVoiceStateTest(options: VoiceStateTestOptions, waitTime = 100): Promise<VoiceStateTestSetup> {
 	const setup = await setupVoiceStateTest(options);
 	await emitVoiceStateUpdateEvent(setup.oldState, setup.newState, waitTime);
 	return setup;

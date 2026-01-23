@@ -111,9 +111,7 @@ interface RepositoryTestHelper<T extends SoftDeletableEntity> {
 /**
  * 汎用Repositoryテストヘルパーを作成する
  */
-function createRepositoryTestHelper<T extends SoftDeletableEntity>(
-	repository: BaseRepositoryMethods<T>,
-): RepositoryTestHelper<T> {
+function createRepositoryTestHelper<T extends SoftDeletableEntity>(repository: BaseRepositoryMethods<T>): RepositoryTestHelper<T> {
 	return {
 		findAll: (options) => repository.findAll(options),
 		count: () => repository.count(),
@@ -168,8 +166,8 @@ function createChannelIdBasedHelper<T extends SoftDeletableEntity & { channelId:
 			expect(data.length).to.be.at.least(1);
 			const found = data.find((d) => String(d.channelId) === String(channelId));
 			expect(found).to.not.be.undefined;
-			expect(String(found!.communityId)).to.eq(String(communityId));
-			expect(found!.deletedAt).to.be.null;
+			expect(String(found?.communityId)).to.eq(String(communityId));
+			expect(found?.deletedAt).to.be.null;
 		},
 	};
 }
@@ -184,9 +182,7 @@ interface LogicalDeleteHelper<T extends SoftDeletableEntity> {
 /**
  * 論理削除ヘルパーを作成する
  */
-function createLogicalDeleteHelper<T extends SoftDeletableEntity>(
-	repository: BaseRepositoryMethods<T>,
-): LogicalDeleteHelper<T> {
+function createLogicalDeleteHelper<T extends SoftDeletableEntity>(repository: BaseRepositoryMethods<T>): LogicalDeleteHelper<T> {
 	return {
 		expectLogicallyDeleted: async () => {
 			const activeData = await repository.findAll();
@@ -308,11 +304,7 @@ type GuildChannelType = "voice" | "text" | "invalid";
 /**
  * ギルドチャンネルモックを設定する
  */
-function setupGuildChannelMock(
-	commandMock: ReturnType<typeof mockSlashCommand>,
-	channelId: string,
-	channelType: GuildChannelType,
-): void {
+function setupGuildChannelMock(commandMock: ReturnType<typeof mockSlashCommand>, channelId: string, channelType: GuildChannelType): void {
 	when(commandMock.guild).thenReturn({
 		channels: {
 			cache: {
@@ -350,10 +342,7 @@ function setupRoleConfig(userId: string, role: "admin" | "user"): void {
 /**
  * コマンドを実行し、応答を待つ
  */
-async function executeCommandAndWait(
-	commandMock: CommandMockResult,
-	timeout = 1000,
-): Promise<void> {
+async function executeCommandAndWait(commandMock: CommandMockResult, timeout = 1000): Promise<void> {
 	const TEST_CLIENT = await TestDiscordServer.getClient();
 	TEST_CLIENT.emit("interactionCreate", commandMock.getInstance());
 	await waitUntilReply(commandMock.commandMock, timeout);
@@ -449,10 +438,7 @@ async function emitVoiceStateUpdateEvent(
  * @param waitTime 待機時間（ミリ秒）
  * @returns セットアップ結果
  */
-async function executeVoiceStateTest(
-	options: VoiceStateTestOptions,
-	waitTime = 100,
-): Promise<VoiceStateTestSetup> {
+async function executeVoiceStateTest(options: VoiceStateTestOptions, waitTime = 100): Promise<VoiceStateTestSetup> {
 	const setup = await setupVoiceStateTest(options);
 	await emitVoiceStateUpdateEvent(setup.oldState, setup.newState, waitTime);
 	return setup;
@@ -2043,7 +2029,7 @@ describe("Test Room Commands", () => {
 
 			// Communityテーブルのidを取得（beforeEachで作成済み）
 			const community = await CommunityRepositoryImpl.findOne({ where: { clientId: 1 } });
-			const communityDbId = community!.id;
+			const communityDbId = community?.id;
 
 			// 部屋追加チャンネルをChannelテーブルに登録し、IDを取得
 			const roomAddChannelDbId = await createChannelAndGetId(discordRoomAddChannelId, communityDbId, DISCORD_VOICE_CHANNEL_TYPE);
@@ -2058,7 +2044,14 @@ describe("Test Room Commands", () => {
 			});
 
 			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
-			const { oldState, newState } = mockVoiceState(null, discordRoomAddChannelId, communityId, userId, displayName, predictableCreatedChannelDiscordId);
+			const { oldState, newState } = mockVoiceState(
+				null,
+				discordRoomAddChannelId,
+				communityId,
+				userId,
+				displayName,
+				predictableCreatedChannelDiscordId,
+			);
 
 			const beforeCount = await RoomChannelRepositoryImpl.count();
 
@@ -2091,7 +2084,7 @@ describe("Test Room Commands", () => {
 
 			// Communityテーブルのidを取得（beforeEachで作成済み）
 			const community = await CommunityRepositoryImpl.findOne({ where: { clientId: 1 } });
-			const communityDbId = community!.id;
+			const communityDbId = community?.id;
 
 			// 部屋追加チャンネルと通知チャンネルをChannelテーブルに登録
 			const roomAddChannelDbId = await createChannelAndGetId(discordRoomAddChannelId, communityDbId, DISCORD_VOICE_CHANNEL_TYPE);
@@ -2111,7 +2104,14 @@ describe("Test Room Commands", () => {
 			});
 
 			const { mockVoiceState, addMockTextChannel } = await import("../fixtures/discord.js/MockVoiceState");
-			const { oldState, newState } = mockVoiceState(null, discordRoomAddChannelId, communityId, userId, undefined, predictableCreatedChannelDiscordId);
+			const { oldState, newState } = mockVoiceState(
+				null,
+				discordRoomAddChannelId,
+				communityId,
+				userId,
+				undefined,
+				predictableCreatedChannelDiscordId,
+			);
 
 			let notificationSent = false;
 			let notificationContent = "";
@@ -2154,7 +2154,7 @@ describe("Test Room Commands", () => {
 
 			// Communityテーブルのidを取得（beforeEachで作成済み）
 			const community = await CommunityRepositoryImpl.findOne({ where: { clientId: 1 } });
-			const communityDbId = community!.id;
+			const communityDbId = community?.id;
 
 			// 部屋追加チャンネルをChannelテーブルに登録
 			const roomAddChannelDbId = await createChannelAndGetId(discordRoomAddChannelId, communityDbId, DISCORD_VOICE_CHANNEL_TYPE);
@@ -2169,7 +2169,14 @@ describe("Test Room Commands", () => {
 			});
 
 			const { mockVoiceState } = await import("../fixtures/discord.js/MockVoiceState");
-			const { oldState, newState } = mockVoiceState(null, discordRoomAddChannelId, communityId, userId, undefined, predictableCreatedChannelDiscordId);
+			const { oldState, newState } = mockVoiceState(
+				null,
+				discordRoomAddChannelId,
+				communityId,
+				userId,
+				undefined,
+				predictableCreatedChannelDiscordId,
+			);
 
 			// イベント発火（エラーが発生しないことを確認）
 			const TEST_CLIENT = await TestDiscordServer.getClient();
@@ -2206,7 +2213,7 @@ describe("Test Room Commands", () => {
 
 			// Communityテーブルのidを取得（beforeEachで作成済み）
 			const community = await CommunityRepositoryImpl.findOne({ where: { clientId: 1 } });
-			const communityDbId = community!.id;
+			const communityDbId = community?.id;
 
 			// 各チャンネルをChannelテーブルに登録
 			const roomAddChannelDbId = await createChannelAndGetId(discordRoomAddChannelId, communityDbId, DISCORD_VOICE_CHANNEL_TYPE);
@@ -2328,7 +2335,7 @@ describe("Test Room Commands", () => {
 
 			// Communityテーブルのidを取得（beforeEachで作成済み）
 			const community = await CommunityRepositoryImpl.findOne({ where: { clientId: 1 } });
-			const communityDbId = community!.id;
+			const communityDbId = community?.id;
 
 			// 各チャンネルをChannelテーブルに登録
 			const roomAddChannelDbId = await createChannelAndGetId(discordRoomAddChannelId, communityDbId, DISCORD_VOICE_CHANNEL_TYPE);
@@ -2463,7 +2470,7 @@ describe("Test Room Commands", () => {
 
 			// Communityテーブルのidを取得（beforeEachで作成済み）
 			const community = await CommunityRepositoryImpl.findOne({ where: { clientId: 1 } });
-			const communityDbId = community!.id;
+			const communityDbId = community?.id;
 
 			// 各チャンネルをChannelテーブルに登録
 			const roomAddChannelDbId = await createChannelAndGetId(discordRoomAddChannelId, communityDbId, DISCORD_VOICE_CHANNEL_TYPE);
@@ -2722,7 +2729,7 @@ describe("Test Room Commands", () => {
 
 			// Communityテーブルのidを取得（beforeEachで作成済み）
 			const community = await CommunityRepositoryImpl.findOne({ where: { clientId: 1 } });
-			const communityDbId = community!.id;
+			const communityDbId = community?.id;
 
 			// チャンネルをChannelテーブルに登録
 			const channelDbId = await createChannelAndGetId(discordChannelId, communityDbId, DISCORD_VOICE_CHANNEL_TYPE);
@@ -2768,7 +2775,7 @@ describe("Test Room Commands", () => {
 
 			// Communityテーブルのidを取得（beforeEachで作成済み）
 			const community = await CommunityRepositoryImpl.findOne({ where: { clientId: 1 } });
-			const communityDbId = community!.id;
+			const communityDbId = community?.id;
 
 			// チャンネルをChannelテーブルに登録
 			const channelDbId = await createChannelAndGetId(discordChannelId, communityDbId, DISCORD_VOICE_CHANNEL_TYPE);
@@ -2827,7 +2834,7 @@ describe("Test Room Commands", () => {
 
 			// Communityテーブルのidを取得（beforeEachで作成済み）
 			const community = await CommunityRepositoryImpl.findOne({ where: { clientId: 1 } });
-			const communityDbId = community!.id;
+			const communityDbId = community?.id;
 
 			// チャンネルをChannelテーブルに登録
 			const channelDbId = await createChannelAndGetId(discordChannelId, communityDbId, DISCORD_VOICE_CHANNEL_TYPE);
