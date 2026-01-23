@@ -1607,7 +1607,7 @@ describe("Test Room Commands", () => {
 				oldChannelId: null,
 				newChannelId: discordRoomAddChannelId,
 				displayName,
-				notificationChannelId: String(notificationChannelDbId),
+				notificationChannelId: discordNotificationChannelId,
 				predictableCreatedChannelId: predictableCreatedChannelDiscordId,
 			});
 
@@ -1662,14 +1662,14 @@ describe("Test Room Commands", () => {
 
 			const beforeCount = await RoomChannelRepositoryImpl.count();
 
-			// ヘルパー関数を使用してテスト実行（通知チャンネルはDBのIDを使用）
+			// ヘルパー関数を使用してテスト実行
 			const { newState, notificationCapture } = await executeVoiceStateTest({
 				communityId: discordGuildId,
 				userId,
 				oldChannelId,
 				newChannelId: discordRoomAddChannelId,
 				displayName,
-				notificationChannelId: String(notificationChannelDbId),
+				notificationChannelId: discordNotificationChannelId,
 				predictableCreatedChannelId: predictableCreatedChannelDiscordId,
 			});
 
