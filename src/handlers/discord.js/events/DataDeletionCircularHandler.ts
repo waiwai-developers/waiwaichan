@@ -53,15 +53,14 @@ export const DataDeletionCircularHandler = async (c: Client<boolean>) => {
 		members.forEach((member) => {
 			memberIds.push(new UserClientId(BigInt(member.user.id)));
 		});
-		if (memberIds.length === 0) {
-			continue;
-		}
 
 		//Userの削除
-		await userLogic.deleteNotBelongByCommunityIdAndClientIds(
-			communityId,
-			memberIds,
-		);
+		if (memberIds.length > 0) {
+			await userLogic.deleteNotBelongByCommunityIdAndClientIds(
+				new UserCommunityId(communityId.getValue()),
+				memberIds,
+			);
+		}
 
 		//ChannelのclientIdの配列の取得
 		const channelIds: ChannelClientId[] = [];
@@ -70,15 +69,14 @@ export const DataDeletionCircularHandler = async (c: Client<boolean>) => {
 				channelIds.push(new ChannelClientId(BigInt(channel.id)));
 			}
 		});
-		if (channelIds.length === 0) {
-			continue;
-		}
 
 		//Channelの削除
-		await channelLogic.deleteNotBelongByCommunityIdAndClientIds(
-			new ChannelCommunityId(communityId.getValue()),
-			channelIds,
-		);
+		if (channelIds.length > 0) {
+			await channelLogic.deleteNotBelongByCommunityIdAndClientIds(
+				new ChannelCommunityId(communityId.getValue()),
+				channelIds,
+			);
+		}
 	}
 
 	//Botが所属してないCommunityとCommunityのUserとChannel削除
@@ -110,6 +108,7 @@ export const DataDeletionCircularHandler = async (c: Client<boolean>) => {
 		);
 	}
 
+	//削除されたCommunityやUserやChannelに関連するすべてのデータの削除
 	//削除されたUserに関連するデータの削除
 	const userTargets =
 		await userLogic.findDeletionTargetsByBatchStatusAndDeletedAt();
@@ -117,17 +116,6 @@ export const DataDeletionCircularHandler = async (c: Client<boolean>) => {
 		const userId = new UserId(target.id.getValue());
 		await dataDeletionCircularLogic.deleteRecordInRelatedTableUserId(userId);
 		await userLogic.updatebatchStatus(userId);
-	}
-
-	//削除されたCommunityに関連するデータの削除
-	const communityTargets =
-		await communityLogic.findDeletionTargetsByBatchStatusAndDeletedAt();
-	for (const target of communityTargets) {
-		const communityId = new CommunityId(target.id.getValue());
-		await dataDeletionCircularLogic.deleteRecordInRelatedTableCommunityId(
-			communityId,
-		);
-		await communityLogic.updatebatchStatus(communityId);
 	}
 
 	//削除されたChannelに関連するデータの削除
@@ -139,5 +127,16 @@ export const DataDeletionCircularHandler = async (c: Client<boolean>) => {
 			channelId,
 		);
 		await channelLogic.updatebatchStatus(channelId);
+	}
+
+	//削除されたCommunityに関連するデータの削除
+	const communityTargets =
+		await communityLogic.findDeletionTargetsByBatchStatusAndDeletedAt();
+	for (const target of communityTargets) {
+		const communityId = new CommunityId(target.id.getValue());
+		await dataDeletionCircularLogic.deleteRecordInRelatedTableCommunityId(
+			communityId,
+		);
+		await communityLogic.updatebatchStatus(communityId);
 	}
 };

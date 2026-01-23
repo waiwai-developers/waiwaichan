@@ -37,10 +37,7 @@ class DataDeletionCircularImpl implements IDataDeletionCircular {
 	private getRelatedModels(columnNames: string[]): Array<ModelStatic<Model>> {
 		const mysqlSchedulerConnectorModels =
 			MysqlSchedulerConnector.models as Array<ModelStatic<Model>>;
-		const mysqlConnectorModels = MysqlConnector.models as Array<
-			ModelStatic<Model>
-		>;
-		const models = [...mysqlSchedulerConnectorModels, ...mysqlConnectorModels];
+		const models = [...mysqlSchedulerConnectorModels];
 
 		return models.filter((model) => {
 			try {
