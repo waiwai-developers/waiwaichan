@@ -26,9 +26,9 @@ class RoomChannelRepositoryImpl
 	@AutoIncrement
 	@Column(DataType.INTEGER)
 	declare id: number;
-	@Column(DataType.BIGINT)
+	@Column(DataType.INTEGER)
 	declare communityId: number;
-	@Column(DataType.BIGINT)
+	@Column(DataType.INTEGER)
 	declare channelId: number;
 
 	async create(data: RoomChannelDto): Promise<boolean> {
