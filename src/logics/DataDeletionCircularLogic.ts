@@ -15,18 +15,16 @@ export class DataDeletionCircularLogic implements IDataDeletionCircularLogic {
 	private readonly dataDeletionCircular!: IDataDeletionCircular;
 
 	async deleteRecordInRelatedTableCommunityId(
-		userId: UserId,
-	): Promise<boolean> {
-		return await this.dataDeletionCircular.deleteRecordInRelatedTable(
-			new ColumnDto(ColumnName.user, new ColumnId(userId.getValue())),
-		);
-	}
-
-	async deleteRecordInRelatedTableUserId(
 		communityId: CommunityId,
 	): Promise<boolean> {
 		return await this.dataDeletionCircular.deleteRecordInRelatedTable(
 			new ColumnDto(ColumnName.community, new ColumnId(communityId.getValue())),
+		);
+	}
+
+	async deleteRecordInRelatedTableUserId(userId: UserId): Promise<boolean> {
+		return await this.dataDeletionCircular.deleteRecordInRelatedTable(
+			new ColumnDto(ColumnName.user, new ColumnId(userId.getValue())),
 		);
 	}
 

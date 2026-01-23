@@ -114,26 +114,30 @@ export const DataDeletionCircularHandler = async (c: Client<boolean>) => {
 	const userTargets =
 		await userLogic.findDeletionTargetsByBatchStatusAndDeletedAt();
 	for (const target of userTargets) {
-		await dataDeletionCircularLogic.deleteRecordInRelatedTableUserId(
-			new UserId(target.id.getValue()),
-		);
+		const userId = new UserId(target.id.getValue());
+		await dataDeletionCircularLogic.deleteRecordInRelatedTableUserId(userId);
+		await userLogic.updatebatchStatus(userId);
 	}
 
 	//削除されたCommunityに関連するデータの削除
 	const communityTargets =
 		await communityLogic.findDeletionTargetsByBatchStatusAndDeletedAt();
 	for (const target of communityTargets) {
+		const communityId = new CommunityId(target.id.getValue());
 		await dataDeletionCircularLogic.deleteRecordInRelatedTableCommunityId(
-			new CommunityId(target.id.getValue()),
+			communityId,
 		);
+		await communityLogic.updatebatchStatus(communityId);
 	}
 
 	//削除されたChannelに関連するデータの削除
 	const channelTargets =
 		await channelLogic.findDeletionTargetsByBatchStatusAndDeletedAt();
 	for (const target of channelTargets) {
+		const channelId = new ChannelId(target.id.getValue());
 		await dataDeletionCircularLogic.deleteRecordInRelatedTableChannelId(
-			new ChannelId(target.id.getValue()),
+			channelId,
 		);
+		await channelLogic.updatebatchStatus(channelId);
 	}
 };
