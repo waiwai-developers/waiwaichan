@@ -95,6 +95,15 @@ class ChannelRepositoryImpl extends Model implements IChannelRepository {
 		}).then((res) => (res ? new ChannelId(res.id) : undefined));
 	}
 
+	async getClientIdById(id: ChannelId): Promise<ChannelClientId | undefined> {
+		return ChannelRepositoryImpl.findOne({
+			attributes: ["clientId"],
+			where: {
+				id: id.getValue(),
+			},
+		}).then((res) => (res ? new ChannelClientId(res.clientId) : undefined));
+	}
+
 	async findByBatchStatusAndDeletedAt(): Promise<ChannelId[]> {
 		return ChannelRepositoryImpl.findAll({
 			where: {
