@@ -191,8 +191,8 @@ describe("Test StickyListCommandHandler", () => {
 
 		return (async () => {
 			// 管理者ユーザーIDを設定
-			const channelId1 = "2";
-			const channelId2 = "3";
+			const channelClientId1 = BigInt("123456789012345678");
+			const channelClientId2 = BigInt("223456789012345678");
 			const messageId = "5";
 			const message = "スティッキーのメッセージ";
 
@@ -201,10 +201,27 @@ describe("Test StickyListCommandHandler", () => {
 				{ discordId: TEST_USER_ID, role: "admin" }, // 管理者として設定
 			];
 
-			// スティッキーをデータベースに作成
+			// チャンネルをデータベースに作成
+			const channel1 = await ChannelRepositoryImpl.create({
+				categoryType: 0, // Discord
+				communityId: testCommunityId,
+				clientId: channelClientId1,
+				channelType: 0, // テキストチャンネル
+				batchStatus: 0,
+			});
+
+			const channel2 = await ChannelRepositoryImpl.create({
+				categoryType: 0, // Discord
+				communityId: testCommunityId,
+				clientId: channelClientId2,
+				channelType: 0, // テキストチャンネル
+				batchStatus: 0,
+			});
+
+			// スティッキーをデータベースに作成（channelIdはchannelsテーブルのidを使用）
 			await StickyRepositoryImpl.create({
 				communityId: testCommunityId,
-				channelId: channelId1,
+				channelId: channel1.id,
 				userId: testUserId,
 				messageId: messageId,
 				message: message,
@@ -212,7 +229,7 @@ describe("Test StickyListCommandHandler", () => {
 
 			await StickyRepositoryImpl.create({
 				communityId: testCommunityId,
-				channelId: channelId2,
+				channelId: channel2.id,
 				userId: testUserId,
 				messageId: messageId,
 				message: message,
@@ -247,9 +264,9 @@ describe("Test StickyListCommandHandler", () => {
 			// 1. 適切なフォーマットで表示されていることを検証
 			expect(replyValue).to.include("以下のチャンネルにスティッキーが登録されているよ！");
 
-			// 2. チャンネルIDが正しくDiscordのメンション形式（<#ID>）で表示されていることを検証
-			expect(replyValue).to.include(`<#${channelId1}>`);
-			expect(replyValue).to.include(`<#${channelId2}>`);
+			// 2. チャンネルのclientIdが正しくDiscordのメンション形式（<#ID>）で表示されていることを検証
+			expect(replyValue).to.include(`<#${channelClientId1}>`);
+			expect(replyValue).to.include(`<#${channelClientId2}>`);
 
 			// 3. 返されたスティッキーリストが適切にフォーマットされていることを検証
 			// 各チャンネルが箇条書き（- で始まる行）で表示されていることを確認
