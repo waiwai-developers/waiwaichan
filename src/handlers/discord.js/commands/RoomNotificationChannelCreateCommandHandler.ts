@@ -59,6 +59,7 @@ export class RoomNotificationChannelCreateCommandHandler
 			),
 		);
 		if (communityId == null) {
+			await interaction.reply("コミュニティが登録されていなかったよ！っ");
 			return;
 		}
 
@@ -87,6 +88,7 @@ export class RoomNotificationChannelCreateCommandHandler
 			),
 		);
 		if (channelId == null) {
+			await interaction.reply("チャンネルが登録されていなかったよ！っ");
 			return;
 		}
 

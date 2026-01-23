@@ -56,6 +56,7 @@ export class ReminderSetCommandHandler implements SlashCommandHandler {
 			),
 		);
 		if (communityId == null) {
+			await interaction.reply("コミュニティが登録されていなかったよ！っ");
 			return;
 		}
 
@@ -68,6 +69,7 @@ export class ReminderSetCommandHandler implements SlashCommandHandler {
 			),
 		);
 		if (userId == null) {
+			await interaction.reply("ユーザーが登録されていなかったよ！っ");
 			return;
 		}
 
@@ -80,6 +82,7 @@ export class ReminderSetCommandHandler implements SlashCommandHandler {
 			),
 		);
 		if (channelId == null) {
+			await interaction.reply("チャンネルが登録されていなかったよ！っ");
 			return;
 		}
 
