@@ -2,6 +2,7 @@ import { DatabaseConfig } from "@/src/entities/config/DatabaseConfig";
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import type { IDataBaseConnector } from "@/src/logics/Interfaces/repositories/database/IDataBaseConnector";
 import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
+import { ChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/ChannelRepositoryImpl";
 import { CommunityRepositoryImpl } from "@/src/repositories/sequelize-mysql/CommunityRepositoryImpl";
 import { ReminderSchedulerRepositoryImpl } from "@/src/repositories/sequelize-mysql/ReminderSchedulerRepositoryImpl";
 import { SequelizeLogger } from "@/src/repositories/sequelize-mysql/SequelizeLogger";
@@ -19,6 +20,7 @@ export class MysqlSchedulerConnector
 		ReminderSchedulerRepositoryImpl,
 		CommunityRepositoryImpl,
 		UserRepositoryImpl,
+		ChannelRepositoryImpl,
 	];
 	readonly instance: Sequelize;
 
