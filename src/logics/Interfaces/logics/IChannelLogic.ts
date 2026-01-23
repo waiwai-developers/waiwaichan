@@ -16,6 +16,7 @@ export interface IChannelLogic {
 		clientId: ChannelClientId,
 	): Promise<boolean>;
 	getId(data: ChannelDto): Promise<ChannelId | undefined>;
+	getClientIdById(id: ChannelId): Promise<ChannelClientId | undefined>;
 	deleteNotBelongByCommunityIdAndClientIds(
 		communityId: ChannelCommunityId,
 		clientIds: ChannelClientId[],

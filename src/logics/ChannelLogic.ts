@@ -72,6 +72,12 @@ export class ChannelLogic implements IChannelLogic {
 		});
 	}
 
+	async getClientIdById(id: ChannelId): Promise<ChannelClientId | undefined> {
+		return this.transaction.startTransaction(async () => {
+			return await this.ChannelRepository.getClientIdById(id);
+		});
+	}
+
 	async findByBatchStatusAndDeletedAt(): Promise<ChannelId[]> {
 		return this.transaction.startTransaction(async () => {
 			return await this.ChannelRepository.findByBatchStatusAndDeletedAt();
