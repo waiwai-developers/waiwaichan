@@ -74,8 +74,8 @@ describe("Test VoiceChannelDisconnect Events", () => {
 			let notificationSent = false;
 			let notificationContent = "";
 
-			// テキストチャンネルのモックを追加（ChannelテーブルのIDを文字列で渡す）
-			addMockTextChannel(oldState, String(roomNotificationChannelDbId), async (options: any) => {
+			// テキストチャンネルのモックを追加（DiscordのチャンネルIDを渡す）
+			addMockTextChannel(oldState, discordRoomNotificationChannelId, async (options: any) => {
 				notificationSent = true;
 				if (options.embeds?.[0]) {
 					const embed = options.embeds[0];
@@ -332,8 +332,8 @@ describe("Test VoiceChannelDisconnect Events", () => {
 			let notificationSent = false;
 			let notificationContent = "";
 
-			// テキストチャンネルのモックを追加（ChannelテーブルのIDを文字列で渡す）
-			addMockTextChannel(oldState, String(roomNotificationChannelDbId), async (options: any) => {
+			// テキストチャンネルのモックを追加（DiscordのチャンネルIDを渡す）
+			addMockTextChannel(oldState, discordRoomNotificationChannelId, async (options: any) => {
 				notificationSent = true;
 				if (options.embeds?.[0]) {
 					const embed = options.embeds[0];
@@ -629,8 +629,8 @@ describe("Test VoiceChannelDisconnect Events", () => {
 			let notificationSent = false;
 			let notificationContent = "";
 
-			// テキストチャンネルのモックを追加（ChannelテーブルのIDを文字列で渡す）
-			addMockTextChannel(oldState, String(notificationChannelDbId), async (options: any) => {
+			// テキストチャンネルのモックを追加（DiscordのチャンネルIDを渡す）
+			addMockTextChannel(oldState, discordNotificationChannelId, async (options: any) => {
 				notificationSent = true;
 				if (options.embeds?.[0]) {
 					const embed = options.embeds[0];

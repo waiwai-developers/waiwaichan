@@ -64,13 +64,14 @@ describe("Test VoiceChannelConnect Events", () => {
 			const beforeCount = await RoomChannelRepositoryImpl.count();
 
 			// ヘルパー関数を使用してテスト実行
+			// 注意: notificationChannelIdにはDiscordのチャンネルID（clientId）を渡す
 			const { newState, notificationCapture } = await executeVoiceStateTest({
 				communityId: discordGuildId,
 				userId,
 				oldChannelId: null,
 				newChannelId: discordRoomAddChannelId,
 				displayName,
-				notificationChannelId: String(notificationChannelDbId),
+				notificationChannelId: discordNotificationChannelId,
 				predictableCreatedChannelId: predictableCreatedChannelDiscordId,
 			});
 
@@ -125,14 +126,14 @@ describe("Test VoiceChannelConnect Events", () => {
 
 			const beforeCount = await RoomChannelRepositoryImpl.count();
 
-			// ヘルパー関数を使用してテスト実行（通知チャンネルはDBのIDを使用）
+			// ヘルパー関数を使用してテスト実行（通知チャンネルはDiscordのchannelIdを使用）
 			const { newState, notificationCapture } = await executeVoiceStateTest({
 				communityId: discordGuildId,
 				userId,
 				oldChannelId,
 				newChannelId: discordRoomAddChannelId,
 				displayName,
-				notificationChannelId: String(notificationChannelDbId),
+				notificationChannelId: discordNotificationChannelId,
 				predictableCreatedChannelId: predictableCreatedChannelDiscordId,
 			});
 
@@ -579,8 +580,8 @@ describe("Test VoiceChannelConnect Events", () => {
 			let notificationSent = false;
 			let notificationContent = "";
 
-			// テキストチャンネルのモックを追加（ChannelテーブルのIDを文字列で渡す）
-			addMockTextChannel(newState, String(roomNotificationChannelDbId), async (options: any) => {
+			// テキストチャンネルのモックを追加（DiscordのチャンネルIDを渡す）
+			addMockTextChannel(newState, discordRoomNotificationChannelId, async (options: any) => {
 				notificationSent = true;
 				if (options.embeds?.[0]) {
 					const embed = options.embeds[0];

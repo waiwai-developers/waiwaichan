@@ -123,8 +123,16 @@ export class VoiceChannelDisconnectHandler
 			this.logger.info("not setting room notification channel");
 			return;
 		}
+		// channelIdからclientId（DiscordのチャンネルID）を取得
+		const notificationChannelClientId = await this.ChannelLogic.getClientIdById(
+			roomNotificationChannel.channelId,
+		);
+		if (notificationChannelClientId === undefined) {
+			this.logger.info("not exist notification channel clientId");
+			return;
+		}
 		const notificationChannel = oldState.guild.channels.cache.get(
-			String(roomNotificationChannel.channelId.getValue()),
+			String(notificationChannelClientId.getValue()),
 		);
 		if (notificationChannel === undefined) {
 			this.logger.info("not exist notification channel");
