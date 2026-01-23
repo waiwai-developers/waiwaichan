@@ -1,4 +1,4 @@
-import type Mocha from "mocha";
+import type { Context } from "mocha";
 import {
 	CommunityRepositoryImpl,
 	DISCORD_TEXT_CHANNEL_TYPE,
@@ -32,7 +32,7 @@ describe("Test VoiceChannelConnect Events", () => {
 	 * - 新しく部屋が作成されユーザーがその部屋に移動しroomchannelsにデータが作成されること
 	 * - 通話を開始したよ！っとroomnotificationchannelsの部屋に投稿されること
 	 */
-	it("should create room and send notification when both channels are configured and user joins room add channel", function (this: Mocha.Context) {
+	it("should create room and send notification when both channels are configured and user joins room add channel", function (this: Context) {
 		this.timeout(10_000);
 
 		return (async () => {
@@ -94,7 +94,7 @@ describe("Test VoiceChannelConnect Events", () => {
 	 * - 新しく部屋が作成されユーザーがその部屋に移動しroomchannelsにデータが作成されること
 	 * - 通話を開始したよ！っとroomnotificationchannelsの部屋に投稿されること
 	 */
-	it("should create room and send notification when user moves from another channel to room add channel", function (this: Mocha.Context) {
+	it("should create room and send notification when user moves from another channel to room add channel", function (this: Context) {
 		this.timeout(10_000);
 
 		return (async () => {
@@ -156,7 +156,7 @@ describe("Test VoiceChannelConnect Events", () => {
 	 * - 新しく部屋が作成されずroomchannelsにデータが作成されないこと
 	 * - 通話を開始したよ！っとroomnotificationchannelsの部屋に投稿されないこと
 	 */
-	it("should not create room nor send notification when both channels are configured but user joins non-room-add channel", function (this: Mocha.Context) {
+	it("should not create room nor send notification when both channels are configured but user joins non-room-add channel", function (this: Context) {
 		this.timeout(10_000);
 
 		return (async () => {
@@ -201,7 +201,7 @@ describe("Test VoiceChannelConnect Events", () => {
 	 * - 新しく部屋が作成されユーザーがその部屋に移動しroomchannelsにデータが作成されること
 	 * - 通話を開始したよ！っとroomnotificationchannelsの部屋に投稿されないこと
 	 */
-	it("should create room but not send notification when only room add channel is configured", function (this: Mocha.Context) {
+	it("should create room but not send notification when only room add channel is configured", function (this: Context) {
 		this.timeout(10_000);
 
 		return (async () => {
@@ -251,7 +251,7 @@ describe("Test VoiceChannelConnect Events", () => {
 	 * - 新しく部屋が作成されずroomchannelsにデータが作成されないこと
 	 * - 通話を開始したよ！っとroomnotificationchannelsの部屋に投稿されないこと
 	 */
-	it("should not create room nor send notification when only room notification channel is configured", function (this: Mocha.Context) {
+	it("should not create room nor send notification when only room notification channel is configured", function (this: Context) {
 		this.timeout(10_000);
 
 		return (async () => {
@@ -299,7 +299,7 @@ describe("Test VoiceChannelConnect Events", () => {
 	 * - 新しく部屋が作成されずroomchannelsにデータが作成されないこと
 	 * - 通話を開始したよ！っとroomnotificationchannelsの部屋に投稿されないこと
 	 */
-	it("should not create room nor send notification when neither channel is configured", function (this: Mocha.Context) {
+	it("should not create room nor send notification when neither channel is configured", function (this: Context) {
 		this.timeout(10_000);
 
 		return (async () => {
@@ -330,7 +330,7 @@ describe("Test VoiceChannelConnect Events", () => {
 	 * - 新規接続でない場合、処理が中断されることを検証
 	 * - チャンネル作成や通知送信が行われないことを確認
 	 */
-	it("should not process when newState.channelId is null", function (this: Mocha.Context) {
+	it("should not process when newState.channelId is null", function (this: Context) {
 		this.timeout(10_000);
 
 		return (async () => {
@@ -361,7 +361,7 @@ describe("Test VoiceChannelConnect Events", () => {
 	 * - メンバーが存在しない場合、処理が中断されることを検証
 	 * - チャンネル作成や通知送信が行われないことを確認
 	 */
-	it("should not process when newState.member is null", function (this: Mocha.Context) {
+	it("should not process when newState.member is null", function (this: Context) {
 		this.timeout(10_000);
 
 		return (async () => {
@@ -394,7 +394,7 @@ describe("Test VoiceChannelConnect Events", () => {
 	 * - チャンネルが存在しない場合、処理が中断されることを検証
 	 * - チャンネル作成や通知送信が行われないことを確認
 	 */
-	it("should not process when newState.channel is null", function (this: Mocha.Context) {
+	it("should not process when newState.channel is null", function (this: Context) {
 		this.timeout(10_000);
 
 		return (async () => {
@@ -427,7 +427,7 @@ describe("Test VoiceChannelConnect Events", () => {
 	 * - 部屋追加チャンネルが存在しない場合、処理が中断されることを検証
 	 * - チャンネル作成や通知送信が行われないことを確認
 	 */
-	it("should not process when room add channel is not registered", function (this: Mocha.Context) {
+	it("should not process when room add channel is not registered", function (this: Context) {
 		this.timeout(10_000);
 
 		return (async () => {
@@ -457,7 +457,7 @@ describe("Test VoiceChannelConnect Events", () => {
 	 * - 接続したチャンネルIDと部屋追加チャンネルIDが一致しない場合、処理が中断されることを検証
 	 * - チャンネル作成や通知送信が行われないことを確認
 	 */
-	it("should not process when connected channel is not room add channel", function (this: Mocha.Context) {
+	it("should not process when connected channel is not room add channel", function (this: Context) {
 		this.timeout(10_000);
 
 		return (async () => {
@@ -494,7 +494,7 @@ describe("Test VoiceChannelConnect Events", () => {
 	 * - 作成されるチャンネル名が「{ユーザー表示名}の部屋」であることを検証
 	 * - データベースにRoomChannelが保存されていることを確認
 	 */
-	it("should create new voice channel and save data when user connects to room add channel", function (this: Mocha.Context) {
+	it("should create new voice channel and save data when user connects to room add channel", function (this: Context) {
 		this.timeout(10_000);
 
 		return (async () => {
@@ -507,7 +507,8 @@ describe("Test VoiceChannelConnect Events", () => {
 
 			// Communityテーブルのidを取得（beforeEachで作成済み）
 			const community = await CommunityRepositoryImpl.findOne({ where: { clientId: 1 } });
-			const communityDbId = community?.id;
+			if (!community?.id) throw new Error("Community not found");
+			const communityDbId = community.id;
 
 			// 部屋追加チャンネルをChannelテーブルに登録し、IDを取得
 			const roomAddChannelDbId = await createChannelAndGetId(discordRoomAddChannelId, communityDbId, DISCORD_VOICE_CHANNEL_TYPE);
@@ -550,7 +551,7 @@ describe("Test VoiceChannelConnect Events", () => {
 	 * - 通知チャンネルが設定されている場合、Embedメッセージが送信されることを検証
 	 * - 通知内容に「通話を開始したよ！っ」が含まれることを確認
 	 */
-	it("should send notification when room notification channel is configured", function (this: Mocha.Context) {
+	it("should send notification when room notification channel is configured", function (this: Context) {
 		this.timeout(10_000);
 
 		return (async () => {
@@ -562,7 +563,8 @@ describe("Test VoiceChannelConnect Events", () => {
 
 			// Communityテーブルのidを取得（beforeEachで作成済み）
 			const community = await CommunityRepositoryImpl.findOne({ where: { clientId: 1 } });
-			const communityDbId = community?.id;
+			if (!community?.id) throw new Error("Community not found");
+			const communityDbId = community.id;
 
 			// 部屋追加チャンネルと通知チャンネルをChannelテーブルに登録
 			const roomAddChannelDbId = await createChannelAndGetId(discordRoomAddChannelId, communityDbId, DISCORD_VOICE_CHANNEL_TYPE);
@@ -621,7 +623,7 @@ describe("Test VoiceChannelConnect Events", () => {
 	 * - 部屋通知チャンネルが未設定の場合、通知送信がスキップされることを検証
 	 * - エラーが発生しないことを確認
 	 */
-	it("should not send notification when room notification channel is not configured", function (this: Mocha.Context) {
+	it("should not send notification when room notification channel is not configured", function (this: Context) {
 		this.timeout(10_000);
 
 		return (async () => {
@@ -632,7 +634,8 @@ describe("Test VoiceChannelConnect Events", () => {
 
 			// Communityテーブルのidを取得（beforeEachで作成済み）
 			const community = await CommunityRepositoryImpl.findOne({ where: { clientId: 1 } });
-			const communityDbId = community?.id;
+			if (!community?.id) throw new Error("Community not found");
+			const communityDbId = community.id;
 
 			// 部屋追加チャンネルをChannelテーブルに登録
 			const roomAddChannelDbId = await createChannelAndGetId(discordRoomAddChannelId, communityDbId, DISCORD_VOICE_CHANNEL_TYPE);
