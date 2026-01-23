@@ -1,20 +1,25 @@
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
+import { ChannelDto } from "@/src/entities/dto/ChannelDto";
 import { CommunityDto } from "@/src/entities/dto/CommunityDto";
 import { RoomChannelDto } from "@/src/entities/dto/RoomChannelDto";
+import { ChannelCategoryType } from "@/src/entities/vo/ChannelCategoryType";
+import { ChannelClientId } from "@/src/entities/vo/ChannelClientId";
+import { ChannelCommunityId } from "@/src/entities/vo/ChannelCommunityId";
+import { ChannelType } from "@/src/entities/vo/ChannelType";
 import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
 import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
-import { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
 import type {
 	VoiceChannelEventHandler,
 	VoiceChannelState,
 } from "@/src/handlers/discord.js/events/VoiceChannelEventHandler";
+import type { IChannelLogic } from "@/src/logics/Interfaces/logics/IChannelLogic";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { IRoomAddChannelLogic } from "@/src/logics/Interfaces/logics/IRoomAddChannelLogic";
 import type { IRoomChannelLogic } from "@/src/logics/Interfaces/logics/IRoomChannelLogic";
 import type { IRoomNotificationChannelLogic } from "@/src/logics/Interfaces/logics/IRoomNotificationChannelLogic";
 import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
-import { ChannelType, EmbedBuilder } from "discord.js";
+import { ChannelType as DiscordChannelType, EmbedBuilder } from "discord.js";
 import { inject, injectable } from "inversify";
 
 @injectable()
@@ -31,6 +36,8 @@ export class VoiceChannelConnectHandler
 	private roomChannelLogic!: IRoomChannelLogic;
 	@inject(LogicTypes.CommunityLogic)
 	private CommunityLogic!: ICommunityLogic;
+	@inject(LogicTypes.ChannelLogic)
+	private ChannelLogic!: IChannelLogic;
 
 	async handle({ newState }: VoiceChannelState): Promise<void> {
 		// 新規接続でない
@@ -64,10 +71,22 @@ export class VoiceChannelConnectHandler
 			this.logger.info("not exist room add channel");
 			return;
 		}
-		//todo: おそらくすべてのguildIdやchannelIdでstringのように見えているが実はBigintで扱われている可能性があるので修正する
-		if (
-			String(roomAddChannel.channelId.getValue()) !== String(newState.channelId)
-		) {
+
+		// 接続したチャンネルのIDを取得
+		const connectedChannelId = await this.ChannelLogic.getId(
+			new ChannelDto(
+				ChannelCategoryType.Discord,
+				new ChannelClientId(BigInt(newState.channelId)),
+				ChannelType.DiscordVoice,
+				new ChannelCommunityId(communityId.getValue()),
+			),
+		);
+		if (connectedChannelId == null) {
+			this.logger.info("not exist connected channel");
+			return;
+		}
+
+		if (roomAddChannel.channelId.getValue() !== connectedChannelId.getValue()) {
 			this.logger.info("not match room add channel");
 			return;
 		}
@@ -75,10 +94,24 @@ export class VoiceChannelConnectHandler
 		//新しく部屋と部屋データを作成しユーザーを移動
 		const newChannel = await newState.guild.channels.create({
 			name: `${newState.member.user.displayName}の部屋`,
-			type: ChannelType.GuildVoice,
+			type: DiscordChannelType.GuildVoice,
 		});
+
+		const newChannelId = await this.ChannelLogic.getId(
+			new ChannelDto(
+				ChannelCategoryType.Discord,
+				new ChannelClientId(BigInt(newChannel.id)),
+				ChannelType.DiscordVoice,
+				new ChannelCommunityId(communityId.getValue()),
+			),
+		);
+		if (newChannelId == null) {
+			this.logger.info("not exist new channel");
+			return;
+		}
+
 		await this.roomChannelLogic.create(
-			new RoomChannelDto(communityId, new DiscordChannelId(newChannel.id)),
+			new RoomChannelDto(communityId, newChannelId),
 		);
 		await newState.member.voice.setChannel(newChannel);
 
@@ -90,7 +123,7 @@ export class VoiceChannelConnectHandler
 			return;
 		}
 		const notificationChannel = newState.guild.channels.cache.get(
-			roomNotificationChannel.channelId.getValue(),
+			String(roomNotificationChannel.channelId.getValue()),
 		);
 		if (notificationChannel === undefined) {
 			this.logger.info("not exist notification channel");
