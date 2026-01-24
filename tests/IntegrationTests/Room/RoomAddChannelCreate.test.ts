@@ -1,5 +1,6 @@
 import type Mocha from "mocha";
 import {
+	DISCORD_VOICE_CHANNEL_TYPE,
 	RoomAddChannelRepositoryImpl,
 	RoomAddChannelTestHelper,
 	createChannelAndGetId,
@@ -10,7 +11,6 @@ import {
 	roomTestBeforeEach,
 	setupGuildChannelMock,
 	setupRoleConfig,
-	DISCORD_VOICE_CHANNEL_TYPE,
 } from "./RoomTestHelpers";
 
 describe("Test RoomAddChannelCreate Commands", () => {

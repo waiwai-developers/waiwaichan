@@ -30,6 +30,12 @@ How to execute test in the environment
 docker compose -f environment/development/docker-compose.yml exec -T backend sh -c 'pnpm test'
 ```
 
+How to execute migrate in the environment
+```
+# development only
+docker compose -f ./environment/development/docker-compose.yml up migrate
+```
+
 How to execute specific test in the environment
 ```
 # development only
