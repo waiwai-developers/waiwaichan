@@ -306,13 +306,49 @@ async function setupAndEmitCandyReaction(
 	return { reaction, user, messageMock };
 }
 
-// Helper function to create community and user for tests
-async function createCommunityAndUser(): Promise<{
+// ============================================================
+// Handler初期化ヘルパー関数
+// ============================================================
+
+/**
+ * テストコンテキストの型定義
+ */
+interface TestContext {
 	communityId: number;
 	userId: number;
 	giveUserId: number;
 	receiverUserId: number;
-}> {
+}
+
+/**
+ * データベース接続を初期化する
+ */
+function initializeDatabase(): void {
+	new MysqlConnector();
+}
+
+/**
+ * すべてのCandy関連テーブルをクリーンアップする
+ */
+async function cleanupAllTables(): Promise<void> {
+	await CandyRepositoryImpl.destroy({ truncate: true, force: true });
+	await UserCandyItemRepositoryImpl.destroy({ truncate: true, force: true });
+	await UserRepositoryImpl.destroy({ truncate: true, force: true });
+	await CommunityRepositoryImpl.destroy({ truncate: true, force: true });
+}
+
+/**
+ * 特定のテーブルのみをクリーンアップする
+ */
+async function cleanupCandyTables(): Promise<void> {
+	await CandyRepositoryImpl.destroy({ truncate: true, force: true });
+	await UserCandyItemRepositoryImpl.destroy({ truncate: true, force: true });
+}
+
+/**
+ * テスト用のコミュニティとユーザーを作成する
+ */
+async function createCommunityAndUser(): Promise<TestContext> {
 	// Create community
 	const community = await CommunityRepositoryImpl.create({
 		categoryType: 0, // Discord
@@ -355,6 +391,23 @@ async function createCommunityAndUser(): Promise<{
 	};
 }
 
+/**
+ * テスト全体のセットアップを行う（beforeEach用）
+ * @returns テストコンテキスト
+ */
+async function setupTestEnvironment(): Promise<TestContext> {
+	initializeDatabase();
+	await cleanupAllTables();
+	return await createCommunityAndUser();
+}
+
+/**
+ * テスト全体のクリーンアップを行う（afterEach用）
+ */
+async function teardownTestEnvironment(): Promise<void> {
+	await cleanupAllTables();
+}
+
 describe("Test Candy Commands", () => {
 	// テスト用のコミュニティとユーザーのID（autoincrement）
 	let testCommunityId: number;
@@ -363,41 +416,21 @@ describe("Test Candy Commands", () => {
 	let testReceiverUserId: number;
 
 	/**
-	 * テスト実行前に毎回実行される共通のセットアップ
+	 * テスト実行前に毎回実行される共通のセットアップ - ヘルパー関数を使用
 	 */
 	beforeEach(async () => {
-		// Initialize database connection first
-		new MysqlConnector();
-		// Clean up existing records
-		await CandyRepositoryImpl.destroy({ truncate: true, force: true });
-		await UserCandyItemRepositoryImpl.destroy({ truncate: true, force: true });
-		await UserRepositoryImpl.destroy({ truncate: true, force: true });
-		await CommunityRepositoryImpl.destroy({ truncate: true, force: true });
-		// Create community and user for each test
-		const { communityId, userId, giveUserId, receiverUserId } = await createCommunityAndUser();
-		testCommunityId = communityId;
-		testUserId = userId;
-		testGiveUserId = giveUserId;
-		testReceiverUserId = receiverUserId;
+		const context = await setupTestEnvironment();
+		testCommunityId = context.communityId;
+		testUserId = context.userId;
+		testGiveUserId = context.giveUserId;
+		testReceiverUserId = context.receiverUserId;
 	});
 
+	/**
+	 * テスト実行後に毎回実行されるクリーンアップ - ヘルパー関数を使用
+	 */
 	afterEach(async () => {
-		await CandyRepositoryImpl.destroy({
-			truncate: true,
-			force: true,
-		});
-		await UserCandyItemRepositoryImpl.destroy({
-			truncate: true,
-			force: true,
-		});
-		await UserRepositoryImpl.destroy({
-			truncate: true,
-			force: true,
-		});
-		await CommunityRepositoryImpl.destroy({
-			truncate: true,
-			force: true,
-		});
+		await teardownTestEnvironment();
 	});
 
 	/**
