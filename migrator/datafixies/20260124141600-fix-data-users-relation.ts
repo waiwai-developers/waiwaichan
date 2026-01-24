@@ -1,8 +1,8 @@
-import type { Datafix } from "@/migrator/umzug";
 import { DatafixCandyModel } from "@/migrator/datafixies/models/DatafixCandyModel";
 import { DatafixReminderModel } from "@/migrator/datafixies/models/DatafixReminderModel";
 import { DatafixUserItemModel } from "@/migrator/datafixies/models/DatafixUserItemModel";
 import { DatafixUserModel } from "@/migrator/datafixies/models/DatafixUserModel";
+import type { Datafix } from "@/migrator/umzug";
 import { Op, QueryTypes } from "sequelize";
 
 /**

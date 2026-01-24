@@ -1,5 +1,5 @@
-import type { Datafix } from "@/migrator/umzug";
 import { DatafixRoomChannelsModel } from "@/migrator/datafixies/models/DatafixRoomChannelsModel";
+import type { Datafix } from "@/migrator/umzug";
 import { Op } from "sequelize";
 
 /**
