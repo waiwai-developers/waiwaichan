@@ -408,6 +408,101 @@ async function teardownTestEnvironment(): Promise<void> {
 	await cleanupAllTables();
 }
 
+// ============================================================
+// Repositoryテストヘルパー関数
+// ============================================================
+
+/**
+ * キャンディをDBに挿入する
+ */
+async function insertCandy(options: CandyDataOptions): Promise<void> {
+	const data = createCandyData(options);
+	await CandyRepositoryImpl.create(data);
+}
+
+/**
+ * 複数のキャンディをDBに一括挿入する
+ */
+async function insertBulkCandies(
+	amount: number,
+	options: Pick<CandyDataOptions, "userId" | "giveUserId" | "communityId" | "categoryType">
+): Promise<void> {
+	const data = createBulkCandyData(amount, options);
+	await CandyRepositoryImpl.bulkCreate(data);
+}
+
+/**
+ * 天井用のキャンディをDBに一括挿入する
+ */
+async function insertPityCandies(
+	totalAmount: number,
+	usedCount: number,
+	options: Pick<CandyDataOptions, "userId" | "giveUserId" | "communityId" | "categoryType">
+): Promise<void> {
+	const data = createPityCandyData(totalAmount, usedCount, options);
+	await CandyRepositoryImpl.bulkCreate(data);
+}
+
+/**
+ * 今年のジャックポットアイテムをDBに挿入する
+ */
+async function insertThisYearJackpot(
+	options: Pick<UserCandyItemDataOptions, "userId" | "communityId" | "candyId">
+): Promise<void> {
+	const data = createThisYearJackpotData(options);
+	await UserCandyItemRepositoryImpl.create(data);
+}
+
+/**
+ * 去年のジャックポットアイテムをDBに挿入する
+ */
+async function insertLastYearJackpot(
+	options: Pick<UserCandyItemDataOptions, "userId" | "communityId" | "candyId">
+): Promise<void> {
+	const data = createLastYearJackpotData(options);
+	await UserCandyItemRepositoryImpl.create(data);
+}
+
+/**
+ * 今年と去年の両方のジャックポットアイテムをDBに挿入する
+ */
+async function insertBothYearsJackpots(
+	options: Pick<UserCandyItemDataOptions, "userId" | "communityId">
+): Promise<void> {
+	await insertLastYearJackpot({ ...options, candyId: 1 });
+	await insertThisYearJackpot({ ...options, candyId: 2 });
+}
+
+/**
+ * キャンディの数を検証する
+ */
+async function verifyCandyCount(expectedCount: number): Promise<void> {
+	const count = await CandyRepositoryImpl.count();
+	expect(count).to.eq(expectedCount);
+}
+
+/**
+ * キャンディの数が変化しないことを検証する
+ */
+async function verifyCandyCountUnchanged(beforeCount: number): Promise<void> {
+	const afterCount = await CandyRepositoryImpl.count();
+	expect(afterCount).to.eq(beforeCount);
+}
+
+/**
+ * すべてのキャンディを取得し、検証用に返す
+ */
+async function getAllCandies() {
+	return await CandyRepositoryImpl.findAll();
+}
+
+/**
+ * 現在のキャンディ数を取得する
+ */
+async function getCandyCount(): Promise<number> {
+	return await CandyRepositoryImpl.count();
+}
+
 describe("Test Candy Commands", () => {
 	// テスト用のコミュニティとユーザーのID（autoincrement）
 	let testCommunityId: number;
