@@ -31,9 +31,12 @@ export const DEFAULT_BATCH_STATUS = 0;
  */
 export async function createChannelAndGetId(
 	discordChannelId: string | number,
-	communityId: number,
+	communityId: number | undefined,
 	channelType = DISCORD_VOICE_CHANNEL_TYPE,
 ): Promise<number> {
+	if (communityId === undefined) {
+		throw new Error("communityId must not be undefined");
+	}
 	const channel = await ChannelRepositoryImpl.create({
 		categoryType: DISCORD_CATEGORY_TYPE,
 		clientId: BigInt(discordChannelId),
@@ -165,8 +168,8 @@ export function createChannelIdBasedHelper<T extends SoftDeletableEntity & { cha
 			expect(data.length).to.be.at.least(1);
 			const found = data.find((d) => String(d.channelId) === String(channelId));
 			expect(found).to.not.be.undefined;
-			expect(String(found!.communityId)).to.eq(String(communityId));
-			expect(found!.deletedAt).to.be.null;
+			expect(String(found?.communityId)).to.eq(String(communityId));
+			expect(found?.deletedAt).to.be.null;
 		},
 	};
 }

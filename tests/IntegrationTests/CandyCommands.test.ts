@@ -12,23 +12,335 @@ import { mockSlashCommand, waitUntilReply as waitSlashUntilReply } from "@/tests
 import { TestDiscordServer } from "@/tests/fixtures/discord.js/TestDiscordServer";
 import { expect } from "chai";
 import dayjs from "dayjs";
-import type { MessageReactionEventDetails } from "discord.js";
+import type { ChatInputCommandInteraction, MessageReactionEventDetails } from "discord.js";
 import type Mocha from "mocha";
 import { anything, instance, mock, verify, when } from "ts-mockito";
 
 // テスト用の定数
-const TEST_GUILD_ID = "1234567890"; // communityのclientId
-const TEST_USER_ID = "1234"; // userのclientId (candy受領者)
-const TEST_GIVE_USER_ID = "12345"; // candy付与者のclientId
-const TEST_RECEIVER_ID = "5678"; // reaction受領者のclientId
+const TEST_GUILD_ID = "1234567890" as const; // communityのclientId
+const TEST_USER_ID = "1234" as const; // userのclientId (candy受領者)
+const TEST_GIVE_USER_ID = "12345" as const; // candy付与者のclientId
+const TEST_RECEIVER_ID = "5678" as const; // reaction受領者のclientId
 
-// Helper function to create community and user for tests
-async function createCommunityAndUser(): Promise<{
+// ドロー結果メッセージ定数
+const JACKPOT_RESULT_MESSAGE = `${ITEM_RECORDS[0].name}が当たったよ👕！っ`;
+const HIT_ITEM_NAME = ITEM_RECORDS[1].name;
+
+// ============================================================
+// モック生成ヘルパー関数
+// ============================================================
+
+/**
+ * キャンディデータ生成用の型定義
+ */
+interface CandyDataOptions {
+	userId: number;
+	giveUserId: number;
+	communityId: number;
+	messageId?: string;
+	expiredAt?: string;
+	deletedAt?: string | null;
+	categoryType?: number;
+	createdAt?: string;
+	updatedAt?: string;
+}
+
+/**
+ * 基本的なキャンディデータを生成する
+ */
+function createCandyData(options: CandyDataOptions): {
+	userId: number;
+	giveUserId: number;
+	messageId: string;
+	expiredAt: string;
+	deletedAt: string | null;
+	communityId: number;
+	categoryType: number;
+	createdAt?: string;
+	updatedAt?: string;
+} {
+	const data: ReturnType<typeof createCandyData> = {
+		userId: options.userId,
+		giveUserId: options.giveUserId,
+		messageId: options.messageId ?? "5678",
+		expiredAt: options.expiredAt ?? "2999/12/31 23:59:59",
+		deletedAt: options.deletedAt ?? null,
+		communityId: options.communityId,
+		categoryType: options.categoryType ?? CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
+	};
+
+	if (options.createdAt) data.createdAt = options.createdAt;
+	if (options.updatedAt) data.updatedAt = options.updatedAt;
+
+	return data;
+}
+
+/**
+ * 複数の未使用キャンディデータを一括生成する
+ */
+function createBulkCandyData(
+	amount: number,
+	options: Pick<CandyDataOptions, "userId" | "giveUserId" | "communityId" | "categoryType">,
+): ReturnType<typeof createCandyData>[] {
+	return Array.from({ length: amount }, () =>
+		createCandyData({
+			...options,
+			messageId: "5678",
+			deletedAt: null,
+		}),
+	);
+}
+
+/**
+ * 天井システム用のキャンディデータを生成する
+ * @param totalAmount 総キャンディ数
+ * @param usedCount 使用済みのキャンディ数
+ */
+function createPityCandyData(
+	totalAmount: number,
+	usedCount: number,
+	options: Pick<CandyDataOptions, "userId" | "giveUserId" | "communityId" | "categoryType">,
+): ReturnType<typeof createCandyData>[] {
+	const insertData: ReturnType<typeof createCandyData>[] = [];
+
+	for (let i = 0; i < totalAmount; i++) {
+		const date = new Date();
+		date.setDate(date.getDate() - (totalAmount - i));
+		insertData.push(
+			createCandyData({
+				...options,
+				messageId: String(10_000 + i),
+				deletedAt: i < usedCount ? date.toISOString() : null,
+				createdAt: date.toISOString(),
+				updatedAt: date.toISOString(),
+			}),
+		);
+	}
+
+	return insertData;
+}
+
+/**
+ * UserCandyItemデータ生成用の型定義
+ */
+interface UserCandyItemDataOptions {
+	userId: number;
+	communityId: number;
+	itemId: number;
+	candyId: number;
+	expiredAt?: string;
+	deletedAt?: string | null;
+	createdAt?: Date;
+	updatedAt?: Date;
+}
+
+/**
+ * 基本的なUserCandyItemデータを生成する
+ */
+function createUserCandyItemData(options: UserCandyItemDataOptions): {
+	userId: number;
+	itemId: number;
+	candyId: number;
+	expiredAt: string;
+	communityId: number;
+	deletedAt?: string | null;
+	createdAt?: Date;
+	updatedAt?: Date;
+} {
+	const data: ReturnType<typeof createUserCandyItemData> = {
+		userId: options.userId,
+		itemId: options.itemId,
+		candyId: options.candyId,
+		expiredAt: options.expiredAt ?? "2999/12/31 23:59:59",
+		communityId: options.communityId,
+	};
+
+	if (options.deletedAt !== undefined) data.deletedAt = options.deletedAt;
+	if (options.createdAt) data.createdAt = options.createdAt;
+	if (options.updatedAt) data.updatedAt = options.updatedAt;
+
+	return data;
+}
+
+/**
+ * 今年のジャックポットアイテムデータを生成する
+ */
+function createThisYearJackpotData(
+	options: Pick<UserCandyItemDataOptions, "userId" | "communityId" | "candyId">,
+): ReturnType<typeof createUserCandyItemData> {
+	const thisYearStart = dayjs().startOf("year").toDate();
+	return createUserCandyItemData({
+		...options,
+		itemId: ID_JACKPOT,
+		createdAt: thisYearStart,
+		updatedAt: thisYearStart,
+	});
+}
+
+/**
+ * 去年のジャックポットアイテムデータを生成する
+ */
+function createLastYearJackpotData(
+	options: Pick<UserCandyItemDataOptions, "userId" | "communityId" | "candyId">,
+): ReturnType<typeof createUserCandyItemData> {
+	const lastYearEnd = dayjs().subtract(1, "year").endOf("year").toDate();
+	return createUserCandyItemData({
+		...options,
+		itemId: ID_JACKPOT,
+		createdAt: lastYearEnd,
+		updatedAt: lastYearEnd,
+	});
+}
+
+/**
+ * スラッシュコマンドモックの応答設定を行うヘルパー
+ * @returns 応答値を取得するためのgetter関数
+ */
+function setupCommandMockReply(commandMock: ChatInputCommandInteraction): {
+	getValue: () => string;
+	getValues: () => string[];
+} {
+	let value = "";
+	const values: string[] = [];
+
+	when(commandMock.reply(anything())).thenCall((args) => {
+		value = args;
+		values.push(args);
+		console.log("Reply received:", args);
+	});
+
+	when(commandMock.guildId).thenReturn(TEST_GUILD_ID);
+
+	return {
+		getValue: () => value,
+		getValues: () => values,
+	};
+}
+
+// ============================================================
+// イベント登録テストヘルパー関数
+// ============================================================
+
+/**
+ * スラッシュコマンドイベントを発火し、応答を待つ
+ */
+async function emitSlashCommand(commandMock: ChatInputCommandInteraction, timeout?: number, expectedCalls?: number): Promise<void> {
+	const TEST_CLIENT = await TestDiscordServer.getClient();
+	TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+	await waitSlashUntilReply(commandMock, timeout, expectedCalls);
+}
+
+/**
+ * リアクションモックのメッセージ設定用オプション
+ */
+interface ReactionMessageOptions {
+	messageId?: string;
+	guildId?: string;
+	url?: string;
+	authorId?: string;
+	authorBot?: boolean;
+}
+
+/**
+ * リアクションモックのメッセージ設定を行うヘルパー
+ */
+function setupReactionMessageMock(messageMock: ReturnType<typeof mockReaction>["messageMock"], options: ReactionMessageOptions = {}): void {
+	const {
+		messageId = "5678",
+		guildId = TEST_GUILD_ID,
+		url = `https://discord.com/channels/${guildId}/${guildId}/${messageId}`,
+		authorId,
+		authorBot,
+	} = options;
+
+	when(messageMock.id).thenReturn(messageId);
+	when(messageMock.guildId).thenReturn(guildId);
+	when(messageMock.url).thenReturn(url);
+
+	if (authorId !== undefined) {
+		when(messageMock.author).thenReturn({
+			id: authorId,
+			bot: authorBot ?? false,
+		} as any);
+	}
+}
+
+/**
+ * リアクションイベントを発火し、処理完了を待つ
+ */
+async function emitReactionEvent(
+	reaction: ReturnType<typeof mockReaction>["reaction"],
+	user: ReturnType<typeof mockReaction>["user"],
+	waitTime = 100,
+): Promise<void> {
+	const TEST_CLIENT = await TestDiscordServer.getClient();
+	TEST_CLIENT.emit("messageReactionAdd", instance(reaction), instance(user), instance(mock<MessageReactionEventDetails>()));
+	// 少し待機してハンドラーの処理が完了するのを待つ
+	await new Promise((resolve) => setTimeout(resolve, waitTime));
+}
+
+/**
+ * キャンディリアクションテスト用のセットアップと発火を行うヘルパー
+ */
+async function setupAndEmitCandyReaction(
+	emoji: string,
+	giverId: string,
+	receiverId: string,
+	messageOptions: ReactionMessageOptions = {},
+): Promise<{
+	reaction: ReturnType<typeof mockReaction>["reaction"];
+	user: ReturnType<typeof mockReaction>["user"];
+	messageMock: ReturnType<typeof mockReaction>["messageMock"];
+}> {
+	const { reaction, user, messageMock } = mockReaction(emoji, giverId, receiverId);
+	setupReactionMessageMock(messageMock, messageOptions);
+	await emitReactionEvent(reaction, user);
+	return { reaction, user, messageMock };
+}
+
+// ============================================================
+// Handler初期化ヘルパー関数
+// ============================================================
+
+/**
+ * テストコンテキストの型定義
+ */
+interface TestContext {
 	communityId: number;
 	userId: number;
 	giveUserId: number;
 	receiverUserId: number;
-}> {
+}
+
+/**
+ * データベース接続を初期化する
+ */
+function initializeDatabase(): void {
+	new MysqlConnector();
+}
+
+/**
+ * すべてのCandy関連テーブルをクリーンアップする
+ */
+async function cleanupAllTables(): Promise<void> {
+	await CandyRepositoryImpl.destroy({ truncate: true, force: true });
+	await UserCandyItemRepositoryImpl.destroy({ truncate: true, force: true });
+	await UserRepositoryImpl.destroy({ truncate: true, force: true });
+	await CommunityRepositoryImpl.destroy({ truncate: true, force: true });
+}
+
+/**
+ * 特定のテーブルのみをクリーンアップする
+ */
+async function cleanupCandyTables(): Promise<void> {
+	await CandyRepositoryImpl.destroy({ truncate: true, force: true });
+	await UserCandyItemRepositoryImpl.destroy({ truncate: true, force: true });
+}
+
+/**
+ * テスト用のコミュニティとユーザーを作成する
+ */
+async function createCommunityAndUser(): Promise<TestContext> {
 	// Create community
 	const community = await CommunityRepositoryImpl.create({
 		categoryType: 0, // Discord
@@ -71,6 +383,112 @@ async function createCommunityAndUser(): Promise<{
 	};
 }
 
+/**
+ * テスト全体のセットアップを行う（beforeEach用）
+ * @returns テストコンテキスト
+ */
+async function setupTestEnvironment(): Promise<TestContext> {
+	initializeDatabase();
+	await cleanupAllTables();
+	return await createCommunityAndUser();
+}
+
+/**
+ * テスト全体のクリーンアップを行う（afterEach用）
+ */
+async function teardownTestEnvironment(): Promise<void> {
+	await cleanupAllTables();
+}
+
+// ============================================================
+// Repositoryテストヘルパー関数
+// ============================================================
+
+/**
+ * キャンディをDBに挿入する
+ */
+async function insertCandy(options: CandyDataOptions): Promise<void> {
+	const data = createCandyData(options);
+	await CandyRepositoryImpl.create(data);
+}
+
+/**
+ * 複数のキャンディをDBに一括挿入する
+ */
+async function insertBulkCandies(
+	amount: number,
+	options: Pick<CandyDataOptions, "userId" | "giveUserId" | "communityId" | "categoryType">,
+): Promise<void> {
+	const data = createBulkCandyData(amount, options);
+	await CandyRepositoryImpl.bulkCreate(data);
+}
+
+/**
+ * 天井用のキャンディをDBに一括挿入する
+ */
+async function insertPityCandies(
+	totalAmount: number,
+	usedCount: number,
+	options: Pick<CandyDataOptions, "userId" | "giveUserId" | "communityId" | "categoryType">,
+): Promise<void> {
+	const data = createPityCandyData(totalAmount, usedCount, options);
+	await CandyRepositoryImpl.bulkCreate(data);
+}
+
+/**
+ * 今年のジャックポットアイテムをDBに挿入する
+ */
+async function insertThisYearJackpot(options: Pick<UserCandyItemDataOptions, "userId" | "communityId" | "candyId">): Promise<void> {
+	const data = createThisYearJackpotData(options);
+	await UserCandyItemRepositoryImpl.create(data);
+}
+
+/**
+ * 去年のジャックポットアイテムをDBに挿入する
+ */
+async function insertLastYearJackpot(options: Pick<UserCandyItemDataOptions, "userId" | "communityId" | "candyId">): Promise<void> {
+	const data = createLastYearJackpotData(options);
+	await UserCandyItemRepositoryImpl.create(data);
+}
+
+/**
+ * 今年と去年の両方のジャックポットアイテムをDBに挿入する
+ */
+async function insertBothYearsJackpots(options: Pick<UserCandyItemDataOptions, "userId" | "communityId">): Promise<void> {
+	await insertLastYearJackpot({ ...options, candyId: 1 });
+	await insertThisYearJackpot({ ...options, candyId: 2 });
+}
+
+/**
+ * キャンディの数を検証する
+ */
+async function verifyCandyCount(expectedCount: number): Promise<void> {
+	const count = await CandyRepositoryImpl.count();
+	expect(count).to.eq(expectedCount);
+}
+
+/**
+ * キャンディの数が変化しないことを検証する
+ */
+async function verifyCandyCountUnchanged(beforeCount: number): Promise<void> {
+	const afterCount = await CandyRepositoryImpl.count();
+	expect(afterCount).to.eq(beforeCount);
+}
+
+/**
+ * すべてのキャンディを取得し、検証用に返す
+ */
+async function getAllCandies() {
+	return await CandyRepositoryImpl.findAll();
+}
+
+/**
+ * 現在のキャンディ数を取得する
+ */
+async function getCandyCount(): Promise<number> {
+	return await CandyRepositoryImpl.count();
+}
+
 describe("Test Candy Commands", () => {
 	// テスト用のコミュニティとユーザーのID（autoincrement）
 	let testCommunityId: number;
@@ -79,41 +497,21 @@ describe("Test Candy Commands", () => {
 	let testReceiverUserId: number;
 
 	/**
-	 * テスト実行前に毎回実行される共通のセットアップ
+	 * テスト実行前に毎回実行される共通のセットアップ - ヘルパー関数を使用
 	 */
 	beforeEach(async () => {
-		// Initialize database connection first
-		new MysqlConnector();
-		// Clean up existing records
-		await CandyRepositoryImpl.destroy({ truncate: true, force: true });
-		await UserCandyItemRepositoryImpl.destroy({ truncate: true, force: true });
-		await UserRepositoryImpl.destroy({ truncate: true, force: true });
-		await CommunityRepositoryImpl.destroy({ truncate: true, force: true });
-		// Create community and user for each test
-		const { communityId, userId, giveUserId, receiverUserId } = await createCommunityAndUser();
-		testCommunityId = communityId;
-		testUserId = userId;
-		testGiveUserId = giveUserId;
-		testReceiverUserId = receiverUserId;
+		const context = await setupTestEnvironment();
+		testCommunityId = context.communityId;
+		testUserId = context.userId;
+		testGiveUserId = context.giveUserId;
+		testReceiverUserId = context.receiverUserId;
 	});
 
+	/**
+	 * テスト実行後に毎回実行されるクリーンアップ - ヘルパー関数を使用
+	 */
 	afterEach(async () => {
-		await CandyRepositoryImpl.destroy({
-			truncate: true,
-			force: true,
-		});
-		await UserCandyItemRepositoryImpl.destroy({
-			truncate: true,
-			force: true,
-		});
-		await UserRepositoryImpl.destroy({
-			truncate: true,
-			force: true,
-		});
-		await CommunityRepositoryImpl.destroy({
-			truncate: true,
-			force: true,
-		});
+		await teardownTestEnvironment();
 	});
 
 	/**
@@ -127,84 +525,27 @@ describe("Test Candy Commands", () => {
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("candycheck");
 
-			// テストデータの作成 - use dynamic IDs from beforeEach
-			const insertData = {
+			// テストデータの作成 - ヘルパー関数を使用
+			const insertData = createCandyData({
 				userId: testUserId,
 				giveUserId: testGiveUserId,
-				messageId: "5678",
-				expiredAt: "2999/12/31 23:59:59",
-				deletedAt: null,
 				communityId: testCommunityId,
-				categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
-			};
+			});
 			await CandyRepositoryImpl.create(insertData);
 
-			let value = "";
-			when(commandMock.reply(anything())).thenCall((args) => {
-				value = args;
-				// 応答を受け取ったことを明示的に記録
-				console.log("Reply received:", args);
-			});
-
-			// guildIdの設定 - use TEST_GUILD_ID constant
-			when(commandMock.guildId).thenReturn(TEST_GUILD_ID);
+			// モック設定 - ヘルパー関数を使用
+			const { getValue } = setupCommandMockReply(commandMock);
 
 			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
-			// 応答を待つ（タイムアウトを短くする）
+			// 応答を待つ
 			await waitSlashUntilReply(commandMock, 1000);
 
 			// 応答の検証
 			verify(commandMock.reply(anything())).once();
-			expect(value).to.eq("キャンディが1個あるよ！期限が2999/12/30に切れるから気を付けてね！っ");
-		})();
-	});
-
-	/**
-	 * キャンディ所持時の/candycheckコマンドをテスト
-	 * キャンディを所持している場合、個数と期限が正しく表示されることを確認する
-	 */
-	it("should display candy count and expiration when candies exist", function (this: Mocha.Context) {
-		this.timeout(10_000);
-
-		return (async () => {
-			// コマンドのモック作成
-			const commandMock = mockSlashCommand("candycheck");
-
-			// テストデータの作成 - use dynamic IDs from beforeEach
-			const insertData = {
-				userId: testUserId,
-				giveUserId: testGiveUserId,
-				messageId: "5678",
-				expiredAt: "2999/12/31 23:59:59",
-				deletedAt: null,
-				communityId: testCommunityId,
-				categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
-			};
-			await CandyRepositoryImpl.create(insertData);
-
-			let value = "";
-			when(commandMock.reply(anything())).thenCall((args) => {
-				value = args;
-				// 応答を受け取ったことを明示的に記録
-				console.log("Reply received:", args);
-			});
-
-			// guildIdの設定 - use TEST_GUILD_ID constant
-			when(commandMock.guildId).thenReturn(TEST_GUILD_ID);
-
-			// コマンド実行
-			const TEST_CLIENT = await TestDiscordServer.getClient();
-			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-
-			// 応答を待つ（タイムアウトを短くする）
-			await waitSlashUntilReply(commandMock, 1000);
-
-			// 応答の検証
-			verify(commandMock.reply(anything())).once();
-			expect(value).to.eq("キャンディが1個あるよ！期限が2999/12/30に切れるから気を付けてね！っ");
+			expect(getValue()).to.eq("キャンディが1個あるよ！期限が2999/12/30に切れるから気を付けてね！っ");
 		})();
 	});
 
@@ -219,26 +560,19 @@ describe("Test Candy Commands", () => {
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("candycheck");
 
-			let value = "";
-			when(commandMock.reply(anything())).thenCall((args) => {
-				value = args;
-				// 応答を受け取ったことを明示的に記録
-				console.log("Reply received:", args);
-			});
-
-			// guildIdの設定
-			when(commandMock.guildId).thenReturn(TEST_GUILD_ID);
+			// モック設定 - ヘルパー関数を使用
+			const { getValue } = setupCommandMockReply(commandMock);
 
 			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
-			// 応答を待つ（タイムアウトを短くする）
+			// 応答を待つ
 			await waitSlashUntilReply(commandMock, 1000);
 
 			// 応答の検証
 			verify(commandMock.reply(anything())).once();
-			expect(value).to.include("キャンディがないよ！っ");
+			expect(getValue()).to.include("キャンディがないよ！っ");
 		})();
 	});
 
@@ -374,26 +708,16 @@ describe("Test Candy Commands", () => {
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("candyboxdraw", {});
 
-			// テストデータの作成（複数回のドローに必要な十分なキャンディ）
-			const candyAmount = 30;
-			const insertData = Array.from({ length: candyAmount }, () => ({
+			// テストデータの作成 - ヘルパー関数を使用
+			const insertData = createBulkCandyData(30, {
 				userId: testUserId,
 				giveUserId: testGiveUserId,
-				messageId: "5678",
-				expiredAt: "2999/12/31 23:59:59",
-				deletedAt: null,
 				communityId: testCommunityId,
-				categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
-			}));
+			});
 			await CandyRepositoryImpl.bulkCreate(insertData);
 
-			let value = "";
-			when(commandMock.reply(anything())).thenCall((args) => {
-				value = args;
-			});
-
-			// guildIdの設定
-			when(commandMock.guildId).thenReturn(TEST_GUILD_ID);
+			// モック設定 - ヘルパー関数を使用
+			const { getValue } = setupCommandMockReply(commandMock);
 
 			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
@@ -405,7 +729,7 @@ describe("Test Candy Commands", () => {
 			verify(commandMock.reply(anything())).once();
 
 			// 結果の行数を確認（10回のドロー結果が表示されることを確認）
-			const lines = value.split("\n");
+			const lines = getValue().split("\n");
 			const resultLines = lines.filter((line) => line.startsWith("- "));
 			expect(resultLines.length).eq(10);
 		})();
@@ -422,26 +746,16 @@ describe("Test Candy Commands", () => {
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("candyboxdraw", {});
 
-			// テストデータの作成
-			const candyAmount = 10;
-			const insertData = Array.from({ length: candyAmount }, () => ({
+			// テストデータの作成 - ヘルパー関数を使用
+			const insertData = createBulkCandyData(10, {
 				userId: testUserId,
 				giveUserId: testGiveUserId,
-				messageId: "5678",
-				expiredAt: "2999/12/31 23:59:59",
-				deletedAt: null,
 				communityId: testCommunityId,
-				categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
-			}));
+			});
 			await CandyRepositoryImpl.bulkCreate(insertData);
 
-			let value = "";
-			when(commandMock.reply(anything())).thenCall((args) => {
-				value = args;
-			});
-
-			// guildIdの設定
-			when(commandMock.guildId).thenReturn(TEST_GUILD_ID);
+			// モック設定 - ヘルパー関数を使用
+			const { getValue } = setupCommandMockReply(commandMock);
 
 			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
@@ -453,7 +767,7 @@ describe("Test Candy Commands", () => {
 			verify(commandMock.reply(anything())).once();
 
 			// 結果に少なくとも1つのヒットがあることを確認
-			const lines = value.split("\n");
+			const lines = getValue().split("\n");
 			const resultLines = lines.filter((line) => line.startsWith("- "));
 			const hitLines = resultLines.filter((line) => line.includes("当たった"));
 			expect(hitLines.length).to.be.at.least(1);
@@ -471,35 +785,16 @@ describe("Test Candy Commands", () => {
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("candyboxdraw", {});
 
-			// PITY_COUNT + 6個のキャンディを用意（PITY_COUNT + 3個は使用済み、残りは未使用）
-			const candyAmount = PITY_COUNT + 6;
-			const insertData = [];
-
-			// 日付を設定して、146個は使用済み、残りは未使用に
-			for (let i = 0; i < candyAmount; i++) {
-				const date = new Date();
-				date.setDate(date.getDate() - (candyAmount - i));
-				insertData.push({
-					userId: testUserId,
-					giveUserId: testGiveUserId,
-					messageId: String(10_000 + i),
-					expiredAt: "2999/12/31 23:59:59",
-					deletedAt: i < 146 ? date.toISOString() : null, // 146個目までは使用済み
-					createdAt: date.toISOString(),
-					updatedAt: date.toISOString(),
-					communityId: testCommunityId,
-					categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
-				});
-			}
+			// テストデータの作成 - ヘルパー関数を使用（146個は使用済み、残りは未使用）
+			const insertData = createPityCandyData(PITY_COUNT + 6, 146, {
+				userId: testUserId,
+				giveUserId: testGiveUserId,
+				communityId: testCommunityId,
+			});
 			await CandyRepositoryImpl.bulkCreate(insertData);
 
-			let value = "";
-			when(commandMock.reply(anything())).thenCall((args) => {
-				value = args;
-			});
-
-			// guildIdの設定
-			when(commandMock.guildId).thenReturn(TEST_GUILD_ID);
+			// モック設定 - ヘルパー関数を使用
+			const { getValue } = setupCommandMockReply(commandMock);
 
 			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
@@ -510,11 +805,10 @@ describe("Test Candy Commands", () => {
 			// 応答の検証
 			verify(commandMock.reply(anything())).once();
 
-			const lines = value.split("\n");
+			const lines = getValue().split("\n");
 			const resultLines = lines.filter((line) => line.startsWith("- "));
 
 			// 結果にジャックポットが含まれることを確認
-			// より広範囲な検索条件を使用
 			const jackpotLines = resultLines.filter((line) => (line.includes("Tシャツ") || line.includes("waiwaiオリジナル")) && line.includes("当たった"));
 			console.log("Jackpot lines:", jackpotLines);
 			expect(jackpotLines.length).to.be.at.least(1);
@@ -532,26 +826,16 @@ describe("Test Candy Commands", () => {
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("candyboxdraw");
 
-			// 連続ドローに必要な数より少ないキャンディを用意（10個必要だが9個しか用意しない）
-			const candyAmount = 9;
-			const insertData = Array.from({ length: candyAmount }, () => ({
+			// テストデータの作成 - ヘルパー関数を使用（10個必要だが9個しか用意しない）
+			const insertData = createBulkCandyData(9, {
 				userId: testUserId,
 				giveUserId: testGiveUserId,
-				messageId: "5678",
-				expiredAt: "2999/12/31 23:59:59",
-				deletedAt: null,
 				communityId: testCommunityId,
-				categoryType: CandyCategoryType.CATEGORY_TYPE_NORMAL.getValue(),
-			}));
+			});
 			await CandyRepositoryImpl.bulkCreate(insertData);
 
-			let value = "";
-			when(commandMock.reply(anything())).thenCall((args) => {
-				value = args;
-			});
-
-			// guildIdの設定
-			when(commandMock.guildId).thenReturn(TEST_GUILD_ID);
+			// モック設定 - ヘルパー関数を使用
+			const { getValue } = setupCommandMockReply(commandMock);
 
 			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
@@ -561,7 +845,7 @@ describe("Test Candy Commands", () => {
 
 			// 応答の検証
 			verify(commandMock.reply(anything())).once();
-			expect(value).to.include("キャンディの数が足りないよ！っ");
+			expect(getValue()).to.include("キャンディの数が足りないよ！っ");
 		})();
 	});
 
