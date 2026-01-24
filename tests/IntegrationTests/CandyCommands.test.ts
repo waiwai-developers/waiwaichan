@@ -585,45 +585,50 @@ describe("Test Candy Commands", () => {
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("candyitem");
 
-			// テストデータの作成
-			const insertData = [
-				{
-					userId: testUserId,
-					itemId: ID_HIT,
-					expiredAt: "2999/12/31 23:59:59",
-					deletedAt: null, // 有効なアイテム
-					communityId: testCommunityId,
-				},
-				{
-					userId: testUserId,
-					itemId: ID_HIT,
-					expiredAt: "2999/12/31 23:59:59",
-					deletedAt: null, // 有効なアイテム
-					communityId: testCommunityId,
-				},
-				{
-					userId: testUserId,
-					itemId: ID_JACKPOT,
-					expiredAt: "2999/12/31 23:59:59",
-					deletedAt: "1970/01/01 00:00:00", // 削除済みアイテム
-					communityId: testCommunityId,
-				},
-				{
-					userId: testUserId,
-					itemId: ID_JACKPOT,
-					expiredAt: "2999/12/31 23:59:59",
-					deletedAt: "1970/01/01 00:00:00", // 削除済みアイテム
-					communityId: testCommunityId,
-				},
-				{
-					userId: testUserId,
-					itemId: ID_JACKPOT,
-					expiredAt: "2999/12/31 23:59:59",
-					deletedAt: null, // 有効なアイテム
-					communityId: testCommunityId,
-				},
-			];
-			const inserted = await UserCandyItemRepositoryImpl.bulkCreate(insertData);
+		// テストデータの作成
+		const insertData = [
+			{
+				userId: testUserId,
+				itemId: ID_HIT,
+				candyId: 1,
+				expiredAt: "2999/12/31 23:59:59",
+				deletedAt: null, // 有効なアイテム
+				communityId: testCommunityId,
+			},
+			{
+				userId: testUserId,
+				itemId: ID_HIT,
+				candyId: 2,
+				expiredAt: "2999/12/31 23:59:59",
+				deletedAt: null, // 有効なアイテム
+				communityId: testCommunityId,
+			},
+			{
+				userId: testUserId,
+				itemId: ID_JACKPOT,
+				candyId: 3,
+				expiredAt: "2999/12/31 23:59:59",
+				deletedAt: "1970/01/01 00:00:00", // 削除済みアイテム
+				communityId: testCommunityId,
+			},
+			{
+				userId: testUserId,
+				itemId: ID_JACKPOT,
+				candyId: 4,
+				expiredAt: "2999/12/31 23:59:59",
+				deletedAt: "1970/01/01 00:00:00", // 削除済みアイテム
+				communityId: testCommunityId,
+			},
+			{
+				userId: testUserId,
+				itemId: ID_JACKPOT,
+				candyId: 5,
+				expiredAt: "2999/12/31 23:59:59",
+				deletedAt: null, // 有効なアイテム
+				communityId: testCommunityId,
+			},
+		];
+		const inserted = await UserCandyItemRepositoryImpl.bulkCreate(insertData);
 
 			let value = "";
 			when(commandMock.reply(anything())).thenCall((args) => {
