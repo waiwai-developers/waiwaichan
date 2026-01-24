@@ -10,7 +10,7 @@ export const up: Migration = async ({ context: sequelize }) => {
 		allowNull: false,
 	});
 
-    // UserItems - communityId → NOT NULL
+	// UserItems - communityId → NOT NULL
 	await queryInterface.changeColumn("UserItems", "communityId", {
 		type: DataTypes.INTEGER,
 		allowNull: false,
