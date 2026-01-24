@@ -10,14 +10,14 @@ import type Mocha from "mocha";
 import { anything, instance, verify, when } from "ts-mockito";
 
 import {
-	TEST_GUILD_ID,
 	HIT_ITEM_NAME,
+	TEST_GUILD_ID,
+	type TestContext,
 	createBulkCandyData,
 	createPityCandyData,
 	setupCommandMockReply,
 	setupTestEnvironment,
 	teardownTestEnvironment,
-	type TestContext,
 } from "./CandyHelper.test";
 
 describe("Test Candy Draw Box Commands", () => {

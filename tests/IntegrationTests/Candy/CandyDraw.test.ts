@@ -11,13 +11,13 @@ import type Mocha from "mocha";
 import { anything, instance, verify, when } from "ts-mockito";
 
 import {
-	TEST_GUILD_ID,
-	JACKPOT_RESULT_MESSAGE,
 	HIT_ITEM_NAME,
+	JACKPOT_RESULT_MESSAGE,
+	TEST_GUILD_ID,
+	type TestContext,
 	createPityCandyData,
 	setupTestEnvironment,
 	teardownTestEnvironment,
-	type TestContext,
 } from "./CandyHelper.test";
 
 describe("Test Candy Draw Commands", () => {

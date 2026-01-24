@@ -6,13 +6,7 @@ import { expect } from "chai";
 import type Mocha from "mocha";
 import { anything, instance, verify } from "ts-mockito";
 
-import {
-	createCandyData,
-	setupCommandMockReply,
-	setupTestEnvironment,
-	teardownTestEnvironment,
-	type TestContext,
-} from "./CandyHelper.test";
+import { type TestContext, createCandyData, setupCommandMockReply, setupTestEnvironment, teardownTestEnvironment } from "./CandyHelper.test";
 
 describe("Test Candy Check Commands", () => {
 	let testCommunityId: number;

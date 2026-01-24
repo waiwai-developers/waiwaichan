@@ -11,12 +11,7 @@ import type { MessageReactionEventDetails } from "discord.js";
 import type Mocha from "mocha";
 import { anything, instance, mock, verify, when } from "ts-mockito";
 
-import {
-	TEST_GUILD_ID,
-	setupTestEnvironment,
-	teardownTestEnvironment,
-	type TestContext,
-} from "./CandyHelper.test";
+import { TEST_GUILD_ID, type TestContext, setupTestEnvironment, teardownTestEnvironment } from "./CandyHelper.test";
 
 describe("Test Candy Add (Reaction)", () => {
 	let testCommunityId: number;

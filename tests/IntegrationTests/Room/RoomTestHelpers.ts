@@ -165,8 +165,8 @@ export function createChannelIdBasedHelper<T extends SoftDeletableEntity & { cha
 			expect(data.length).to.be.at.least(1);
 			const found = data.find((d) => String(d.channelId) === String(channelId));
 			expect(found).to.not.be.undefined;
-			expect(String(found!.communityId)).to.eq(String(communityId));
-			expect(found!.deletedAt).to.be.null;
+			expect(String(found?.communityId)).to.eq(String(communityId));
+			expect(found?.deletedAt).to.be.null;
 		},
 	};
 }

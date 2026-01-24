@@ -80,14 +80,14 @@ function createCandyData(options: CandyDataOptions): {
  */
 function createBulkCandyData(
 	amount: number,
-	options: Pick<CandyDataOptions, "userId" | "giveUserId" | "communityId" | "categoryType">
+	options: Pick<CandyDataOptions, "userId" | "giveUserId" | "communityId" | "categoryType">,
 ): ReturnType<typeof createCandyData>[] {
 	return Array.from({ length: amount }, () =>
 		createCandyData({
 			...options,
 			messageId: "5678",
 			deletedAt: null,
-		})
+		}),
 	);
 }
 
@@ -99,7 +99,7 @@ function createBulkCandyData(
 function createPityCandyData(
 	totalAmount: number,
 	usedCount: number,
-	options: Pick<CandyDataOptions, "userId" | "giveUserId" | "communityId" | "categoryType">
+	options: Pick<CandyDataOptions, "userId" | "giveUserId" | "communityId" | "categoryType">,
 ): ReturnType<typeof createCandyData>[] {
 	const insertData: ReturnType<typeof createCandyData>[] = [];
 
@@ -113,7 +113,7 @@ function createPityCandyData(
 				deletedAt: i < usedCount ? date.toISOString() : null,
 				createdAt: date.toISOString(),
 				updatedAt: date.toISOString(),
-			})
+			}),
 		);
 	}
 
@@ -166,7 +166,7 @@ function createUserCandyItemData(options: UserCandyItemDataOptions): {
  * 今年のジャックポットアイテムデータを生成する
  */
 function createThisYearJackpotData(
-	options: Pick<UserCandyItemDataOptions, "userId" | "communityId" | "candyId">
+	options: Pick<UserCandyItemDataOptions, "userId" | "communityId" | "candyId">,
 ): ReturnType<typeof createUserCandyItemData> {
 	const thisYearStart = dayjs().startOf("year").toDate();
 	return createUserCandyItemData({
@@ -181,7 +181,7 @@ function createThisYearJackpotData(
  * 去年のジャックポットアイテムデータを生成する
  */
 function createLastYearJackpotData(
-	options: Pick<UserCandyItemDataOptions, "userId" | "communityId" | "candyId">
+	options: Pick<UserCandyItemDataOptions, "userId" | "communityId" | "candyId">,
 ): ReturnType<typeof createUserCandyItemData> {
 	const lastYearEnd = dayjs().subtract(1, "year").endOf("year").toDate();
 	return createUserCandyItemData({
@@ -224,11 +224,7 @@ function setupCommandMockReply(commandMock: ChatInputCommandInteraction): {
 /**
  * スラッシュコマンドイベントを発火し、応答を待つ
  */
-async function emitSlashCommand(
-	commandMock: ChatInputCommandInteraction,
-	timeout?: number,
-	expectedCalls?: number
-): Promise<void> {
+async function emitSlashCommand(commandMock: ChatInputCommandInteraction, timeout?: number, expectedCalls?: number): Promise<void> {
 	const TEST_CLIENT = await TestDiscordServer.getClient();
 	TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 	await waitSlashUntilReply(commandMock, timeout, expectedCalls);
@@ -248,10 +244,7 @@ interface ReactionMessageOptions {
 /**
  * リアクションモックのメッセージ設定を行うヘルパー
  */
-function setupReactionMessageMock(
-	messageMock: ReturnType<typeof mockReaction>["messageMock"],
-	options: ReactionMessageOptions = {}
-): void {
+function setupReactionMessageMock(messageMock: ReturnType<typeof mockReaction>["messageMock"], options: ReactionMessageOptions = {}): void {
 	const {
 		messageId = "5678",
 		guildId = TEST_GUILD_ID,
@@ -278,15 +271,10 @@ function setupReactionMessageMock(
 async function emitReactionEvent(
 	reaction: ReturnType<typeof mockReaction>["reaction"],
 	user: ReturnType<typeof mockReaction>["user"],
-	waitTime = 100
+	waitTime = 100,
 ): Promise<void> {
 	const TEST_CLIENT = await TestDiscordServer.getClient();
-	TEST_CLIENT.emit(
-		"messageReactionAdd",
-		instance(reaction),
-		instance(user),
-		instance(mock<MessageReactionEventDetails>())
-	);
+	TEST_CLIENT.emit("messageReactionAdd", instance(reaction), instance(user), instance(mock<MessageReactionEventDetails>()));
 	// 少し待機してハンドラーの処理が完了するのを待つ
 	await new Promise((resolve) => setTimeout(resolve, waitTime));
 }
@@ -298,7 +286,7 @@ async function setupAndEmitCandyReaction(
 	emoji: string,
 	giverId: string,
 	receiverId: string,
-	messageOptions: ReactionMessageOptions = {}
+	messageOptions: ReactionMessageOptions = {},
 ): Promise<{
 	reaction: ReturnType<typeof mockReaction>["reaction"];
 	user: ReturnType<typeof mockReaction>["user"];
@@ -429,7 +417,7 @@ async function insertCandy(options: CandyDataOptions): Promise<void> {
  */
 async function insertBulkCandies(
 	amount: number,
-	options: Pick<CandyDataOptions, "userId" | "giveUserId" | "communityId" | "categoryType">
+	options: Pick<CandyDataOptions, "userId" | "giveUserId" | "communityId" | "categoryType">,
 ): Promise<void> {
 	const data = createBulkCandyData(amount, options);
 	await CandyRepositoryImpl.bulkCreate(data);
@@ -441,7 +429,7 @@ async function insertBulkCandies(
 async function insertPityCandies(
 	totalAmount: number,
 	usedCount: number,
-	options: Pick<CandyDataOptions, "userId" | "giveUserId" | "communityId" | "categoryType">
+	options: Pick<CandyDataOptions, "userId" | "giveUserId" | "communityId" | "categoryType">,
 ): Promise<void> {
 	const data = createPityCandyData(totalAmount, usedCount, options);
 	await CandyRepositoryImpl.bulkCreate(data);
@@ -450,9 +438,7 @@ async function insertPityCandies(
 /**
  * 今年のジャックポットアイテムをDBに挿入する
  */
-async function insertThisYearJackpot(
-	options: Pick<UserCandyItemDataOptions, "userId" | "communityId" | "candyId">
-): Promise<void> {
+async function insertThisYearJackpot(options: Pick<UserCandyItemDataOptions, "userId" | "communityId" | "candyId">): Promise<void> {
 	const data = createThisYearJackpotData(options);
 	await UserCandyItemRepositoryImpl.create(data);
 }
@@ -460,9 +446,7 @@ async function insertThisYearJackpot(
 /**
  * 去年のジャックポットアイテムをDBに挿入する
  */
-async function insertLastYearJackpot(
-	options: Pick<UserCandyItemDataOptions, "userId" | "communityId" | "candyId">
-): Promise<void> {
+async function insertLastYearJackpot(options: Pick<UserCandyItemDataOptions, "userId" | "communityId" | "candyId">): Promise<void> {
 	const data = createLastYearJackpotData(options);
 	await UserCandyItemRepositoryImpl.create(data);
 }
@@ -470,9 +454,7 @@ async function insertLastYearJackpot(
 /**
  * 今年と去年の両方のジャックポットアイテムをDBに挿入する
  */
-async function insertBothYearsJackpots(
-	options: Pick<UserCandyItemDataOptions, "userId" | "communityId">
-): Promise<void> {
+async function insertBothYearsJackpots(options: Pick<UserCandyItemDataOptions, "userId" | "communityId">): Promise<void> {
 	await insertLastYearJackpot({ ...options, candyId: 1 });
 	await insertThisYearJackpot({ ...options, candyId: 2 });
 }

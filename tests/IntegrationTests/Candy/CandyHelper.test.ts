@@ -5,12 +5,12 @@ import { CandyCategoryType } from "@/src/entities/vo/CandyCategoryType";
 import { CandyRepositoryImpl, CommunityRepositoryImpl, UserCandyItemRepositoryImpl, UserRepositoryImpl } from "@/src/repositories/sequelize-mysql";
 import { MysqlConnector } from "@/tests/fixtures/database/MysqlConnector";
 import { mockReaction } from "@/tests/fixtures/discord.js/MockReaction";
+import { waitUntilReply as waitSlashUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { TestDiscordServer } from "@/tests/fixtures/discord.js/TestDiscordServer";
 import { expect } from "chai";
 import dayjs from "dayjs";
 import type { ChatInputCommandInteraction, MessageReactionEventDetails } from "discord.js";
 import { anything, instance, mock, when } from "ts-mockito";
-import { waitUntilReply as waitSlashUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 
 // テスト用の定数
 export const TEST_GUILD_ID = "1234567890" as const;
@@ -67,21 +67,21 @@ export function createCandyData(options: CandyDataOptions): {
 
 export function createBulkCandyData(
 	amount: number,
-	options: Pick<CandyDataOptions, "userId" | "giveUserId" | "communityId" | "categoryType">
+	options: Pick<CandyDataOptions, "userId" | "giveUserId" | "communityId" | "categoryType">,
 ): ReturnType<typeof createCandyData>[] {
 	return Array.from({ length: amount }, () =>
 		createCandyData({
 			...options,
 			messageId: "5678",
 			deletedAt: null,
-		})
+		}),
 	);
 }
 
 export function createPityCandyData(
 	totalAmount: number,
 	usedCount: number,
-	options: Pick<CandyDataOptions, "userId" | "giveUserId" | "communityId" | "categoryType">
+	options: Pick<CandyDataOptions, "userId" | "giveUserId" | "communityId" | "categoryType">,
 ): ReturnType<typeof createCandyData>[] {
 	const insertData: ReturnType<typeof createCandyData>[] = [];
 
@@ -95,7 +95,7 @@ export function createPityCandyData(
 				deletedAt: i < usedCount ? date.toISOString() : null,
 				createdAt: date.toISOString(),
 				updatedAt: date.toISOString(),
-			})
+			}),
 		);
 	}
 
@@ -139,7 +139,7 @@ export function createUserCandyItemData(options: UserCandyItemDataOptions): {
 }
 
 export function createThisYearJackpotData(
-	options: Pick<UserCandyItemDataOptions, "userId" | "communityId" | "candyId">
+	options: Pick<UserCandyItemDataOptions, "userId" | "communityId" | "candyId">,
 ): ReturnType<typeof createUserCandyItemData> {
 	const thisYearStart = dayjs().startOf("year").toDate();
 	return createUserCandyItemData({
@@ -151,7 +151,7 @@ export function createThisYearJackpotData(
 }
 
 export function createLastYearJackpotData(
-	options: Pick<UserCandyItemDataOptions, "userId" | "communityId" | "candyId">
+	options: Pick<UserCandyItemDataOptions, "userId" | "communityId" | "candyId">,
 ): ReturnType<typeof createUserCandyItemData> {
 	const lastYearEnd = dayjs().subtract(1, "year").endOf("year").toDate();
 	return createUserCandyItemData({
@@ -187,11 +187,7 @@ export function setupCommandMockReply(commandMock: ChatInputCommandInteraction):
 // イベント登録テストヘルパー関数
 // ============================================================
 
-export async function emitSlashCommand(
-	commandMock: ChatInputCommandInteraction,
-	timeout?: number,
-	expectedCalls?: number
-): Promise<void> {
+export async function emitSlashCommand(commandMock: ChatInputCommandInteraction, timeout?: number, expectedCalls?: number): Promise<void> {
 	const TEST_CLIENT = await TestDiscordServer.getClient();
 	TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 	await waitSlashUntilReply(commandMock, timeout, expectedCalls);
@@ -205,10 +201,7 @@ export interface ReactionMessageOptions {
 	authorBot?: boolean;
 }
 
-export function setupReactionMessageMock(
-	messageMock: ReturnType<typeof mockReaction>["messageMock"],
-	options: ReactionMessageOptions = {}
-): void {
+export function setupReactionMessageMock(messageMock: ReturnType<typeof mockReaction>["messageMock"], options: ReactionMessageOptions = {}): void {
 	const {
 		messageId = "5678",
 		guildId = TEST_GUILD_ID,
@@ -232,15 +225,10 @@ export function setupReactionMessageMock(
 export async function emitReactionEvent(
 	reaction: ReturnType<typeof mockReaction>["reaction"],
 	user: ReturnType<typeof mockReaction>["user"],
-	waitTime = 100
+	waitTime = 100,
 ): Promise<void> {
 	const TEST_CLIENT = await TestDiscordServer.getClient();
-	TEST_CLIENT.emit(
-		"messageReactionAdd",
-		instance(reaction),
-		instance(user),
-		instance(mock<MessageReactionEventDetails>())
-	);
+	TEST_CLIENT.emit("messageReactionAdd", instance(reaction), instance(user), instance(mock<MessageReactionEventDetails>()));
 	await new Promise((resolve) => setTimeout(resolve, waitTime));
 }
 
@@ -248,7 +236,7 @@ export async function setupAndEmitCandyReaction(
 	emoji: string,
 	giverId: string,
 	receiverId: string,
-	messageOptions: ReactionMessageOptions = {}
+	messageOptions: ReactionMessageOptions = {},
 ): Promise<{
 	reaction: ReturnType<typeof mockReaction>["reaction"];
 	user: ReturnType<typeof mockReaction>["user"];
@@ -347,7 +335,7 @@ export async function insertCandy(options: CandyDataOptions): Promise<void> {
 
 export async function insertBulkCandies(
 	amount: number,
-	options: Pick<CandyDataOptions, "userId" | "giveUserId" | "communityId" | "categoryType">
+	options: Pick<CandyDataOptions, "userId" | "giveUserId" | "communityId" | "categoryType">,
 ): Promise<void> {
 	const data = createBulkCandyData(amount, options);
 	await CandyRepositoryImpl.bulkCreate(data);
@@ -356,29 +344,23 @@ export async function insertBulkCandies(
 export async function insertPityCandies(
 	totalAmount: number,
 	usedCount: number,
-	options: Pick<CandyDataOptions, "userId" | "giveUserId" | "communityId" | "categoryType">
+	options: Pick<CandyDataOptions, "userId" | "giveUserId" | "communityId" | "categoryType">,
 ): Promise<void> {
 	const data = createPityCandyData(totalAmount, usedCount, options);
 	await CandyRepositoryImpl.bulkCreate(data);
 }
 
-export async function insertThisYearJackpot(
-	options: Pick<UserCandyItemDataOptions, "userId" | "communityId" | "candyId">
-): Promise<void> {
+export async function insertThisYearJackpot(options: Pick<UserCandyItemDataOptions, "userId" | "communityId" | "candyId">): Promise<void> {
 	const data = createThisYearJackpotData(options);
 	await UserCandyItemRepositoryImpl.create(data);
 }
 
-export async function insertLastYearJackpot(
-	options: Pick<UserCandyItemDataOptions, "userId" | "communityId" | "candyId">
-): Promise<void> {
+export async function insertLastYearJackpot(options: Pick<UserCandyItemDataOptions, "userId" | "communityId" | "candyId">): Promise<void> {
 	const data = createLastYearJackpotData(options);
 	await UserCandyItemRepositoryImpl.create(data);
 }
 
-export async function insertBothYearsJackpots(
-	options: Pick<UserCandyItemDataOptions, "userId" | "communityId">
-): Promise<void> {
+export async function insertBothYearsJackpots(options: Pick<UserCandyItemDataOptions, "userId" | "communityId">): Promise<void> {
 	await insertLastYearJackpot({ ...options, candyId: 1 });
 	await insertThisYearJackpot({ ...options, candyId: 2 });
 }
