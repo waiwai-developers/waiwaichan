@@ -17,10 +17,14 @@ import type Mocha from "mocha";
 import { anything, instance, mock, verify, when } from "ts-mockito";
 
 // テスト用の定数
-const TEST_GUILD_ID = "1234567890"; // communityのclientId
-const TEST_USER_ID = "1234"; // userのclientId (candy受領者)
-const TEST_GIVE_USER_ID = "12345"; // candy付与者のclientId
-const TEST_RECEIVER_ID = "5678"; // reaction受領者のclientId
+const TEST_GUILD_ID = "1234567890" as const; // communityのclientId
+const TEST_USER_ID = "1234" as const; // userのclientId (candy受領者)
+const TEST_GIVE_USER_ID = "12345" as const; // candy付与者のclientId
+const TEST_RECEIVER_ID = "5678" as const; // reaction受領者のclientId
+
+// ドロー結果メッセージ定数
+const JACKPOT_RESULT_MESSAGE = `${ITEM_RECORDS[0].name}が当たったよ👕！っ`;
+const HIT_ITEM_NAME = ITEM_RECORDS[1].name;
 
 // ============================================================
 // モック生成ヘルパー関数
