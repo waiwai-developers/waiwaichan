@@ -590,6 +590,7 @@ describe("Test Candy Commands", () => {
 				{
 					userId: testUserId,
 					itemId: ID_HIT,
+					candyId: 1,
 					expiredAt: "2999/12/31 23:59:59",
 					deletedAt: null, // 有効なアイテム
 					communityId: testCommunityId,
@@ -597,6 +598,7 @@ describe("Test Candy Commands", () => {
 				{
 					userId: testUserId,
 					itemId: ID_HIT,
+					candyId: 2,
 					expiredAt: "2999/12/31 23:59:59",
 					deletedAt: null, // 有効なアイテム
 					communityId: testCommunityId,
@@ -604,6 +606,7 @@ describe("Test Candy Commands", () => {
 				{
 					userId: testUserId,
 					itemId: ID_JACKPOT,
+					candyId: 3,
 					expiredAt: "2999/12/31 23:59:59",
 					deletedAt: "1970/01/01 00:00:00", // 削除済みアイテム
 					communityId: testCommunityId,
@@ -611,6 +614,7 @@ describe("Test Candy Commands", () => {
 				{
 					userId: testUserId,
 					itemId: ID_JACKPOT,
+					candyId: 4,
 					expiredAt: "2999/12/31 23:59:59",
 					deletedAt: "1970/01/01 00:00:00", // 削除済みアイテム
 					communityId: testCommunityId,
@@ -618,6 +622,7 @@ describe("Test Candy Commands", () => {
 				{
 					userId: testUserId,
 					itemId: ID_JACKPOT,
+					candyId: 5,
 					expiredAt: "2999/12/31 23:59:59",
 					deletedAt: null, // 有効なアイテム
 					communityId: testCommunityId,
