@@ -213,6 +213,99 @@ function setupCommandMockReply(commandMock: ChatInputCommandInteraction): {
 	};
 }
 
+// ============================================================
+// イベント登録テストヘルパー関数
+// ============================================================
+
+/**
+ * スラッシュコマンドイベントを発火し、応答を待つ
+ */
+async function emitSlashCommand(
+	commandMock: ChatInputCommandInteraction,
+	timeout?: number,
+	expectedCalls?: number
+): Promise<void> {
+	const TEST_CLIENT = await TestDiscordServer.getClient();
+	TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+	await waitSlashUntilReply(commandMock, timeout, expectedCalls);
+}
+
+/**
+ * リアクションモックのメッセージ設定用オプション
+ */
+interface ReactionMessageOptions {
+	messageId?: string;
+	guildId?: string;
+	url?: string;
+	authorId?: string;
+	authorBot?: boolean;
+}
+
+/**
+ * リアクションモックのメッセージ設定を行うヘルパー
+ */
+function setupReactionMessageMock(
+	messageMock: ReturnType<typeof mockReaction>["messageMock"],
+	options: ReactionMessageOptions = {}
+): void {
+	const {
+		messageId = "5678",
+		guildId = TEST_GUILD_ID,
+		url = `https://discord.com/channels/${guildId}/${guildId}/${messageId}`,
+		authorId,
+		authorBot,
+	} = options;
+
+	when(messageMock.id).thenReturn(messageId);
+	when(messageMock.guildId).thenReturn(guildId);
+	when(messageMock.url).thenReturn(url);
+
+	if (authorId !== undefined) {
+		when(messageMock.author).thenReturn({
+			id: authorId,
+			bot: authorBot ?? false,
+		} as any);
+	}
+}
+
+/**
+ * リアクションイベントを発火し、処理完了を待つ
+ */
+async function emitReactionEvent(
+	reaction: ReturnType<typeof mockReaction>["reaction"],
+	user: ReturnType<typeof mockReaction>["user"],
+	waitTime = 100
+): Promise<void> {
+	const TEST_CLIENT = await TestDiscordServer.getClient();
+	TEST_CLIENT.emit(
+		"messageReactionAdd",
+		instance(reaction),
+		instance(user),
+		instance(mock<MessageReactionEventDetails>())
+	);
+	// 少し待機してハンドラーの処理が完了するのを待つ
+	await new Promise((resolve) => setTimeout(resolve, waitTime));
+}
+
+/**
+ * キャンディリアクションテスト用のセットアップと発火を行うヘルパー
+ */
+async function setupAndEmitCandyReaction(
+	emoji: string,
+	giverId: string,
+	receiverId: string,
+	messageOptions: ReactionMessageOptions = {}
+): Promise<{
+	reaction: ReturnType<typeof mockReaction>["reaction"];
+	user: ReturnType<typeof mockReaction>["user"];
+	messageMock: ReturnType<typeof mockReaction>["messageMock"];
+}> {
+	const { reaction, user, messageMock } = mockReaction(emoji, giverId, receiverId);
+	setupReactionMessageMock(messageMock, messageOptions);
+	await emitReactionEvent(reaction, user);
+	return { reaction, user, messageMock };
+}
+
 // Helper function to create community and user for tests
 async function createCommunityAndUser(): Promise<{
 	communityId: number;
