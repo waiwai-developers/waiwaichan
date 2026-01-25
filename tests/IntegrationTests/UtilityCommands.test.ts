@@ -9,18 +9,36 @@ import { mockSlashCommand, waitUntilReply } from "@/tests/fixtures/discord.js/Mo
 import { TestDiscordServer } from "@/tests/fixtures/discord.js/TestDiscordServer";
 import { expect } from "chai";
 import { anything, instance, verify, when } from "ts-mockito";
-import type { ChatInputCommandInteraction } from "discord.js";
+import type { ChatInputCommandInteraction, BaseMessageOptions, APIEmbed } from "discord.js";
 
 // ========================================
-// Handler Initialization Helper Functions
+// Type Definitions
 // ========================================
+
+/**
+ * Command options type for strongly-typed command parameters
+ */
+type CommandOptions = Record<string, string | number | boolean | null | undefined>;
+
+/**
+ * Discord client type alias for better readability
+ */
+type DiscordClient = Awaited<ReturnType<typeof TestDiscordServer.getClient>>;
+
+/**
+ * Embed data structure extracted from Discord API
+ */
+type EmbedData = {
+	title: string;
+	description: string;
+};
 
 /**
  * Base handler context type
  */
 type HandlerContext = {
 	commandMock: ChatInputCommandInteraction;
-	client: Awaited<ReturnType<typeof TestDiscordServer.getClient>>;
+	client: DiscordClient;
 };
 
 /**
@@ -34,7 +52,7 @@ type HandlerContextWithReplyCapture = HandlerContext & {
  * Handler context with embed capture
  */
 type HandlerContextWithEmbedCapture = HandlerContext & {
-	getEmbedReply: () => any;
+	getEmbedReply: () => BaseMessageOptions | undefined;
 };
 
 /**
@@ -45,7 +63,7 @@ type HandlerContextWithEmbedCapture = HandlerContext & {
  */
 const initializeHandler = async (
 	commandName: string,
-	options?: Record<string, any>
+	options?: CommandOptions
 ): Promise<HandlerContext> => {
 	const commandMock = mockSlashCommand(commandName, options);
 	const client = await TestDiscordServer.getClient();
@@ -60,12 +78,12 @@ const initializeHandler = async (
  */
 const initializeHandlerWithReplyCapture = async (
 	commandName: string,
-	options?: Record<string, any>
+	options?: CommandOptions
 ): Promise<HandlerContextWithReplyCapture> => {
 	const { commandMock, client } = await initializeHandler(commandName, options);
 	let capturedValue = "";
-	when(commandMock.reply(anything())).thenCall((args) => {
-		capturedValue = args;
+	when(commandMock.reply(anything())).thenCall((args: string | BaseMessageOptions) => {
+		capturedValue = typeof args === "string" ? args : "";
 	});
 
 	return {
@@ -83,12 +101,12 @@ const initializeHandlerWithReplyCapture = async (
  */
 const initializeHandlerWithEmbedCapture = async (
 	commandName: string,
-	options?: Record<string, any>
+	options?: CommandOptions
 ): Promise<HandlerContextWithEmbedCapture> => {
 	const { commandMock, client } = await initializeHandler(commandName, options);
-	let capturedReply: any;
-	when(commandMock.reply(anything())).thenCall((args) => {
-		capturedReply = args;
+	let capturedReply: BaseMessageOptions | undefined;
+	when(commandMock.reply(anything())).thenCall((args: string | BaseMessageOptions) => {
+		capturedReply = typeof args === "string" ? undefined : args;
 	});
 
 	return {
@@ -104,7 +122,7 @@ const initializeHandlerWithEmbedCapture = async (
  * @param commandMock - The mocked command
  */
 const executeHandler = async (
-	client: Awaited<ReturnType<typeof TestDiscordServer.getClient>>,
+	client: DiscordClient,
 	commandMock: ChatInputCommandInteraction
 ): Promise<void> => {
 	client.emit("interactionCreate", instance(commandMock));
@@ -123,7 +141,7 @@ const executeHandler = async (
  */
 const executeCommandTest = async (
 	commandName: string,
-	options?: Record<string, any>
+	options?: CommandOptions
 ): Promise<HandlerContext> => {
 	const context = await initializeHandler(commandName, options);
 	await executeHandler(context.client, context.commandMock);
@@ -138,7 +156,7 @@ const executeCommandTest = async (
  */
 const executeCommandTestWithReplyCapture = async (
 	commandName: string,
-	options?: Record<string, any>
+	options?: CommandOptions
 ): Promise<HandlerContextWithReplyCapture> => {
 	const context = await initializeHandlerWithReplyCapture(commandName, options);
 	await executeHandler(context.client, context.commandMock);
@@ -153,7 +171,7 @@ const executeCommandTestWithReplyCapture = async (
  */
 const executeCommandTestWithEmbedCapture = async (
 	commandName: string,
-	options?: Record<string, any>
+	options?: CommandOptions
 ): Promise<HandlerContextWithEmbedCapture> => {
 	const context = await initializeHandlerWithEmbedCapture(commandName, options);
 	await executeHandler(context.client, context.commandMock);
@@ -486,12 +504,15 @@ describe("Test UtilityCommand", () => {
 		 * @param options - The embed reply options
 		 * @returns Object containing title and description
 		 */
-		const extractEmbedData = (options: any): { title: string; description: string } => {
-			const embed = options?.embeds?.[0];
-			const data = embed?.data ?? embed;
+		const extractEmbedData = (options: BaseMessageOptions | undefined): EmbedData => {
+			if (!options || !options.embeds || options.embeds.length === 0) {
+				return { title: "", description: "" };
+			}
+			
+			const embed = options.embeds[0] as APIEmbed;
 			return {
-				title: data?.title ?? "",
-				description: data?.description ?? "",
+				title: embed.title ?? "",
+				description: embed.description ?? "",
 			};
 		};
 
@@ -516,7 +537,7 @@ describe("Test UtilityCommand", () => {
 			details = true
 		): Promise<{
 			commandMock: ChatInputCommandInteraction;
-			embedData: { title: string; description: string };
+			embedData: EmbedData;
 		}> => {
 			const { commandMock, getEmbedReply } = await executeCommandTestWithEmbedCapture("dice", {
 				source,
