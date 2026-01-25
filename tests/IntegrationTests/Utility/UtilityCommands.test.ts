@@ -1,19 +1,19 @@
-import { expect } from "chai";
-import { anything, verify } from "ts-mockito";
 import {
+	evaluateDice,
 	executeCommandTest,
 	executeCommandTestWithReplyCapture,
-	verifySuccessfulReply,
-	verifyInternalErrorReply,
-	evaluateDice,
-	getLastLine,
-	expectDiceSuccess,
-	expectDiceError,
 	expectBooleanResult,
-	verifyDiceRange,
-	verifyDiceExactValue,
+	expectDiceError,
+	expectDiceSuccess,
+	getLastLine,
 	verifyDiceError,
+	verifyDiceExactValue,
+	verifyDiceRange,
+	verifyInternalErrorReply,
+	verifySuccessfulReply,
 } from "@/tests/IntegrationTests/Utility/UtilityHelper.test";
+import { expect } from "chai";
+import { anything, verify } from "ts-mockito";
 
 describe("Test UtilityCommand", () => {
 	/**
@@ -44,7 +44,7 @@ describe("Test UtilityCommand", () => {
 				category: "utilityカテゴリー",
 			});
 			verifySuccessfulReply(commandMock);
-			
+
 			const value = getReplyValue();
 			expect(value).to.include("utilityカテゴリー");
 			expect(value).to.include("/help");
@@ -65,7 +65,7 @@ describe("Test UtilityCommand", () => {
 				category: "chatカテゴリー",
 			});
 			verifySuccessfulReply(commandMock);
-			
+
 			const value = getReplyValue();
 			expect(value).to.include("chatカテゴリー");
 			expect(value).to.include("/translate");
@@ -83,7 +83,7 @@ describe("Test UtilityCommand", () => {
 				category: "reminderカテゴリー",
 			});
 			verifySuccessfulReply(commandMock);
-			
+
 			const value = getReplyValue();
 			expect(value).to.include("reminderカテゴリー");
 			expect(value).to.include("/reminderset");
@@ -102,7 +102,7 @@ describe("Test UtilityCommand", () => {
 				category: "candyカテゴリー",
 			});
 			verifySuccessfulReply(commandMock);
-			
+
 			const value = getReplyValue();
 			expect(value).to.include("candyカテゴリー");
 			expect(value).to.include("/candycheck");
@@ -120,7 +120,7 @@ describe("Test UtilityCommand", () => {
 				category: "reviewカテゴリー",
 			});
 			verifySuccessfulReply(commandMock);
-			
+
 			const value = getReplyValue();
 			expect(value).to.include("reviewカテゴリー");
 			expect(value).to.include("/reviewgacha");
@@ -138,7 +138,7 @@ describe("Test UtilityCommand", () => {
 				category: "stickyカテゴリー",
 			});
 			verifySuccessfulReply(commandMock);
-			
+
 			const value = getReplyValue();
 			expect(value).to.include("stickyカテゴリー");
 			expect(value).to.include("/stickycreate");

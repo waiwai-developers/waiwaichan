@@ -8,8 +8,8 @@ import { DiceLogic } from "@/src/logics/DiceLogic";
 import { mockSlashCommand, waitUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { TestDiscordServer } from "@/tests/fixtures/discord.js/TestDiscordServer";
 import { expect } from "chai";
-import { anything, instance, when, verify } from "ts-mockito";
-import type { ChatInputCommandInteraction, BaseMessageOptions, APIEmbed } from "discord.js";
+import type { APIEmbed, BaseMessageOptions, ChatInputCommandInteraction } from "discord.js";
+import { anything, instance, verify, when } from "ts-mockito";
 
 // ========================================
 // Type Definitions
@@ -61,10 +61,7 @@ export type HandlerContextWithEmbedCapture = HandlerContext & {
  * @param options - Optional parameters for the command
  * @returns Handler context with mock and client
  */
-export const initializeHandler = async (
-	commandName: string,
-	options?: CommandOptions
-): Promise<HandlerContext> => {
+export const initializeHandler = async (commandName: string, options?: CommandOptions): Promise<HandlerContext> => {
 	const commandMock = mockSlashCommand(commandName, options);
 	const client = await TestDiscordServer.getClient();
 	return { commandMock, client };
@@ -76,10 +73,7 @@ export const initializeHandler = async (
  * @param options - Optional parameters for the command
  * @returns Handler context with reply capture
  */
-export const initializeHandlerWithReplyCapture = async (
-	commandName: string,
-	options?: CommandOptions
-): Promise<HandlerContextWithReplyCapture> => {
+export const initializeHandlerWithReplyCapture = async (commandName: string, options?: CommandOptions): Promise<HandlerContextWithReplyCapture> => {
 	const { commandMock, client } = await initializeHandler(commandName, options);
 	let capturedValue = "";
 	when(commandMock.reply(anything())).thenCall((args: string | BaseMessageOptions) => {
@@ -99,10 +93,7 @@ export const initializeHandlerWithReplyCapture = async (
  * @param options - Optional parameters for the command
  * @returns Handler context with embed capture
  */
-export const initializeHandlerWithEmbedCapture = async (
-	commandName: string,
-	options?: CommandOptions
-): Promise<HandlerContextWithEmbedCapture> => {
+export const initializeHandlerWithEmbedCapture = async (commandName: string, options?: CommandOptions): Promise<HandlerContextWithEmbedCapture> => {
 	const { commandMock, client } = await initializeHandler(commandName, options);
 	let capturedReply: BaseMessageOptions | undefined;
 	when(commandMock.reply(anything())).thenCall((args: string | BaseMessageOptions) => {
@@ -121,10 +112,7 @@ export const initializeHandlerWithEmbedCapture = async (
  * @param client - The Discord client
  * @param commandMock - The mocked command
  */
-export const executeHandler = async (
-	client: DiscordClient,
-	commandMock: ChatInputCommandInteraction
-): Promise<void> => {
+export const executeHandler = async (client: DiscordClient, commandMock: ChatInputCommandInteraction): Promise<void> => {
 	client.emit("interactionCreate", instance(commandMock));
 	await waitUntilReply(commandMock);
 };
@@ -139,10 +127,7 @@ export const executeHandler = async (
  * @param options - Optional parameters for the command
  * @returns Handler context
  */
-export const executeCommandTest = async (
-	commandName: string,
-	options?: CommandOptions
-): Promise<HandlerContext> => {
+export const executeCommandTest = async (commandName: string, options?: CommandOptions): Promise<HandlerContext> => {
 	const context = await initializeHandler(commandName, options);
 	await executeHandler(context.client, context.commandMock);
 	return context;
@@ -154,10 +139,7 @@ export const executeCommandTest = async (
  * @param options - Optional parameters for the command
  * @returns Handler context with reply capture
  */
-export const executeCommandTestWithReplyCapture = async (
-	commandName: string,
-	options?: CommandOptions
-): Promise<HandlerContextWithReplyCapture> => {
+export const executeCommandTestWithReplyCapture = async (commandName: string, options?: CommandOptions): Promise<HandlerContextWithReplyCapture> => {
 	const context = await initializeHandlerWithReplyCapture(commandName, options);
 	await executeHandler(context.client, context.commandMock);
 	return context;
@@ -169,10 +151,7 @@ export const executeCommandTestWithReplyCapture = async (
  * @param options - Optional parameters for the command
  * @returns Handler context with embed capture
  */
-export const executeCommandTestWithEmbedCapture = async (
-	commandName: string,
-	options?: CommandOptions
-): Promise<HandlerContextWithEmbedCapture> => {
+export const executeCommandTestWithEmbedCapture = async (commandName: string, options?: CommandOptions): Promise<HandlerContextWithEmbedCapture> => {
 	const context = await initializeHandlerWithEmbedCapture(commandName, options);
 	await executeHandler(context.client, context.commandMock);
 	return context;
@@ -292,7 +271,7 @@ export const extractEmbedData = (options: BaseMessageOptions | undefined): Embed
 	if (!options || !options.embeds || options.embeds.length === 0) {
 		return { title: "", description: "" };
 	}
-	
+
 	const embedObject = options.embeds[0];
 	// Handle both EmbedBuilder and APIEmbed objects
 	const embed = (embedObject as any).data ? (embedObject as any).data : (embedObject as APIEmbed);
@@ -320,7 +299,7 @@ export const parseEmbedValue = (description: string): number => {
  */
 export const executeDiceCommand = async (
 	source: string,
-	details = true
+	details = true,
 ): Promise<{
 	commandMock: ChatInputCommandInteraction;
 	embedData: EmbedData;
