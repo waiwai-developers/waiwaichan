@@ -1462,111 +1462,34 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 	 * - 入力検出直後などタイミング的に妥当な場所で動くか
 	 */
 	it("test typing indicator is shown at appropriate timing", async function (this: Mocha.Context) {
-		// 個別のテストのタイムアウト時間を延長（10秒）
 		this.timeout(10_000);
 
-		// テスト用のパラメータ
-		const testGuildId = "12345";
-		const testThreadId = "67890";
-		const testUserId = "98765";
-		const testBotId = AppConfig.discord.clientId;
-
 		// テスト用のスレッドデータを作成
-		await ThreadRepositoryImpl.create({
-			communityId: 1,
-			messageId: testThreadId,
-			categoryType: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
-			metadata: {
-				persona_role: "テスト役割",
-				speaking_style_rules: "テストスタイル",
-				response_directives: "テスト指示",
-				emotion_model: "テスト感情",
-				notes: "テスト注釈",
-				input_scope: "テスト範囲",
-			},
+		await createTestThread();
+
+		// ヘルパー関数を使用してAIReplyHandlerとモックを作成
+		const { handler, threadLogicMock, chatAILogicMock } = createAIReplyHandlerWithMocks({
+			threadDto: createTestThreadDto(),
+			replyResponse: "テスト応答",
 		});
 
-		// AIReplyHandlerのインスタンスを作成
-		const aiReplyHandler = new AIReplyHandler();
-		const communityLogicMock = mock<ICommunityLogic>();
-		// @ts-ignore - privateフィールドにアクセスするため
-		aiReplyHandler.CommunityLogic = instance(communityLogicMock);
-		when(communityLogicMock.getId(anything())).thenResolve(new CommunityId(1));
+		// メッセージ履歴のモック
+		const messageHistory = [{ id: "msg1", author: { bot: false, id: TEST_USER_ID }, content: "こんにちは" }];
 
-		// ThreadLogicのモックを作成
-		const threadLogicMockForAI = mock<ThreadLogic>();
-		// @ts-ignore - privateフィールドにアクセスするため
-		aiReplyHandler.threadLogic = instance(threadLogicMockForAI);
-
-		// ChatAILogicのモックを作成
-		const chatAILogicMock = mock<IChatAILogic>();
-		// @ts-ignore - privateフィールドにアクセスするため
-		aiReplyHandler.chatAILogic = instance(chatAILogicMock);
-
-		// ThreadLogic.findメソッドのモック
-		when(threadLogicMockForAI.find(anything(), anything())).thenResolve(
-			new ThreadDto(
-				new CommunityId(1),
-				new ThreadMessageId(testThreadId),
-				ThreadCategoryType.CATEGORY_TYPE_CHATGPT,
-				new ThreadMetadata({
-					persona_role: "テスト役割",
-					speaking_style_rules: "テストスタイル",
-					response_directives: "テスト指示",
-					emotion_model: "テスト感情",
-					notes: "テスト注釈",
-					input_scope: "テスト範囲",
-				} as unknown as JSON),
-			),
-		);
-
-		// ChatAILogic.replyTalkメソッドのモック
-		when(chatAILogicMock.replyTalk(anything(), anything())).thenResolve("テスト応答");
-
-		// メッセージのモックを作成
-		const messageMock = mockMessage(testUserId);
-
-		// チャンネルのモックを作成
-		const channelMock = mock<any>();
-		when(channelMock.isThread()).thenReturn(true);
-		when(channelMock.guildId).thenReturn(testGuildId);
-		when(channelMock.id).thenReturn(testThreadId);
-		when(channelMock.ownerId).thenReturn(testBotId);
-		when(channelMock.sendTyping()).thenResolve();
-		when(channelMock.messages).thenReturn({
-			fetch: () =>
-				Promise.resolve([
-					{
-						author: { bot: false },
-						content: "こんにちは",
-						reverse: () => [{ author: { bot: false }, content: "こんにちは" }],
-					},
-				]),
+		// メッセージとチャンネルを設定
+		const { messageMock, channelMock } = setupMessageWithChannel({
+			messageCollection: createMessageCollectionMock(messageHistory),
 		});
-
-		// メッセージのチャンネルをモックに設定
-		when(messageMock.channel).thenReturn(instance(channelMock));
-
-		// メッセージ応答のモック
-		when(messageMock.reply(anything())).thenResolve();
 
 		// AIReplyHandlerのhandleメソッドを呼び出し
-		await aiReplyHandler.handle(instance(messageMock));
+		await handleAIReplyEvent(handler, messageMock);
 
-		// sendTypingが呼ばれることを確認（ts-mockitoを使用して検証）
-		// チャンネルのsendTypingメソッドが呼ばれたことを確認
+		// sendTypingが呼ばれることを確認
 		verify(channelMock.sendTyping()).once();
 
 		// 処理の順序を検証
-		// 1. ThreadLogic.findが呼ばれる
-		verify(threadLogicMockForAI.find(anything(), anything())).once();
-
-		// 2. sendTypingが呼ばれる（スパイで確認済み）
-
-		// 3. ChatAILogic.replyTalkが呼ばれる
+		verify(threadLogicMock.find(anything(), anything())).once();
 		verify(chatAILogicMock.replyTalk(anything(), anything())).once();
-
-		// 4. message.replyが呼ばれる
 		verify(messageMock.reply(anything())).once();
 	});
 
