@@ -61,15 +61,120 @@ async function setupTranslateCommand(
 	return { commandMock, message, client, capturedResult };
 }
 
+// ============================================================
+// イベント登録テスト用ヘルパー関数
+// ============================================================
+
 /**
- * translateコマンドを実行して結果を取得する共通関数
+ * Discord interactionイベントを発行する
+ * @param client - Discordクライアント
+ * @param commandMock - コマンドモック
  */
-async function executeTranslateCommand(
+async function emitTranslateInteractionEvent(
 	client: Client,
 	commandMock: any,
 ): Promise<void> {
 	client.emit("interactionCreate", instance(commandMock));
+}
+
+/**
+ * translateコマンドのreply完了を待つ
+ * @param commandMock - コマンドモック
+ */
+async function waitForTranslateReply(commandMock: any): Promise<void> {
 	await waitUntilReply(commandMock);
+}
+
+/**
+ * replyが1回呼ばれたことを検証する
+ * @param commandMock - コマンドモック
+ */
+function verifyReplyCalledOnce(commandMock: any): void {
+	verify(commandMock.reply(anything())).once();
+}
+
+/**
+ * replyが呼ばれなかったことを検証する
+ * @param commandMock - コマンドモック
+ */
+function verifyReplyNotCalled(commandMock: any): void {
+	verify(commandMock.reply(anything())).never();
+}
+
+/**
+ * replyの内容を検証する
+ * @param capturedResult - キャプチャされた結果
+ * @param expected - 期待する文字列
+ * @param matchType - マッチタイプ（'include' または 'equal'）デフォルトは 'include'
+ */
+function verifyReplyContent(
+	capturedResult: { content: string },
+	expected: string,
+	matchType: "include" | "equal" = "include",
+): void {
+	if (matchType === "equal") {
+		expect(capturedResult.content).to.equal(expected);
+	} else {
+		expect(capturedResult.content).to.include(expected);
+	}
+}
+
+/**
+ * executeAndVerifyTranslateCommandのオプション型定義
+ */
+interface ExecuteAndVerifyOptions {
+	/** チャンネルを含めるか */
+	withChannel?: boolean;
+	/** 期待するレスポンス内容 */
+	expectedContent?: string;
+	/** マッチタイプ（'include' または 'equal'） */
+	expectedMatchType?: "include" | "equal";
+	/** replyが呼ばれるべきか */
+	shouldReply?: boolean;
+}
+
+/**
+ * translateコマンドの実行と検証を一括で行うヘルパー
+ * セットアップ→実行→検証を一括実行
+ * @param params - translateコマンドのパラメータ
+ * @param options - 実行オプション
+ * @returns セットアップ結果
+ */
+async function executeAndVerifyTranslateCommand(
+	params: TranslateCommandParams,
+	options: ExecuteAndVerifyOptions = {},
+): Promise<SetupTranslateCommandResult> {
+	const {
+		withChannel = true,
+		expectedContent,
+		expectedMatchType = "include",
+		shouldReply = true,
+	} = options;
+
+	// セットアップ
+	const result = await setupTranslateCommand(params, { withChannel });
+
+	// イベント発行
+	await emitTranslateInteractionEvent(result.client, result.commandMock);
+
+	// shouldReplyがfalseの場合は早期リターン前の待機のみ
+	if (!shouldReply) {
+		await new Promise((resolve) => setTimeout(resolve, 500));
+		verifyReplyNotCalled(result.commandMock);
+		return result;
+	}
+
+	// reply完了を待つ
+	await waitForTranslateReply(result.commandMock);
+
+	// 検証
+	verifyReplyCalledOnce(result.commandMock);
+
+	if (expectedContent !== undefined) {
+		verifyReplyContent(result.capturedResult, expectedContent, expectedMatchType);
+	}
+
+	return result;
 }
 
 describe("Test Translate Command", () => {
@@ -103,15 +208,16 @@ describe("Test Translate Command", () => {
 		 * - 翻訳場の案内メッセージが返されることを検証
 		 */
 		it("Test /translate title:テスト source:EN target:JA", async () => {
-			const { commandMock, client, capturedResult } = await setupTranslateCommand({
-				title: "テスト翻訳スレッド",
-				source: ENGLISH_SOURCE,
-				target: JAPANESE_TARGET,
-			});
-
-			await executeTranslateCommand(client, commandMock);
-			verify(commandMock.reply(anything())).once();
-			expect(capturedResult.content).to.include("ENからJAに翻訳する場を用意したよ！っ");
+			await executeAndVerifyTranslateCommand(
+				{
+					title: "テスト翻訳スレッド",
+					source: ENGLISH_SOURCE,
+					target: JAPANESE_TARGET,
+				},
+				{
+					expectedContent: "ENからJAに翻訳する場を用意したよ！っ",
+				},
+			);
 		});
 
 		/**
@@ -120,15 +226,16 @@ describe("Test Translate Command", () => {
 		 * - 翻訳場の案内メッセージが返されることを検証
 		 */
 		it("Test /translate title:テスト source:JA target:EN-US", async () => {
-			const { commandMock, client, capturedResult } = await setupTranslateCommand({
-				title: "日英翻訳スレッド",
-				source: JAPANESE_SOURCE,
-				target: ENGLISH_TARGET,
-			});
-
-			await executeTranslateCommand(client, commandMock);
-			verify(commandMock.reply(anything())).once();
-			expect(capturedResult.content).to.include("JAからEN-USに翻訳する場を用意したよ！っ");
+			await executeAndVerifyTranslateCommand(
+				{
+					title: "日英翻訳スレッド",
+					source: JAPANESE_SOURCE,
+					target: ENGLISH_TARGET,
+				},
+				{
+					expectedContent: "JAからEN-USに翻訳する場を用意したよ！っ",
+				},
+			);
 		});
 
 		/**
@@ -136,15 +243,17 @@ describe("Test Translate Command", () => {
 		 * - sourceとtargetが同じ場合にエラーメッセージが返されることを検証
 		 */
 		it("Test /translate source:JA target:JA (same source and target)", async () => {
-			const { commandMock, client, capturedResult } = await setupTranslateCommand({
-				title: "同一言語テスト",
-				source: JAPANESE_SOURCE,
-				target: JAPANESE_TARGET,
-			});
-
-			await executeTranslateCommand(client, commandMock);
-			verify(commandMock.reply(anything())).once();
-			expect(capturedResult.content).to.equal("sourceとtargetが同じだよ！っ");
+			await executeAndVerifyTranslateCommand(
+				{
+					title: "同一言語テスト",
+					source: JAPANESE_SOURCE,
+					target: JAPANESE_TARGET,
+				},
+				{
+					expectedContent: "sourceとtargetが同じだよ！っ",
+					expectedMatchType: "equal",
+				},
+			);
 		});
 
 		/**
@@ -153,19 +262,17 @@ describe("Test Translate Command", () => {
 		 * - replyが呼ばれないことを検証
 		 */
 		it("Test /translate with null channel", async () => {
-			const { commandMock, client } = await setupTranslateCommand(
+			await executeAndVerifyTranslateCommand(
 				{
 					title: "テスト",
 					source: ENGLISH_SOURCE,
 					target: JAPANESE_TARGET,
 				},
-				{ withChannel: false },
+				{
+					withChannel: false,
+					shouldReply: false,
+				},
 			);
-
-			client.emit("interactionCreate", instance(commandMock));
-			// channelがnullの場合は早期リターンするため、少し待ってからverifyする
-			await new Promise((resolve) => setTimeout(resolve, 500));
-			verify(commandMock.reply(anything())).never();
 		});
 
 		/**
@@ -173,14 +280,17 @@ describe("Test Translate Command", () => {
 		 * - titleが指定されていない場合に内部エラーメッセージが返されることを検証
 		 */
 		it("Test /translate title:null", async () => {
-			const { commandMock, client } = await setupTranslateCommand({
-				title: null,
-				source: ENGLISH_SOURCE,
-				target: JAPANESE_TARGET,
-			});
-
-			await executeTranslateCommand(client, commandMock);
-			verify(commandMock.reply(InternalErrorMessage)).once();
+			await executeAndVerifyTranslateCommand(
+				{
+					title: null,
+					source: ENGLISH_SOURCE,
+					target: JAPANESE_TARGET,
+				},
+				{
+					expectedContent: InternalErrorMessage,
+					expectedMatchType: "equal",
+				},
+			);
 		});
 
 		/**
@@ -188,14 +298,17 @@ describe("Test Translate Command", () => {
 		 * - sourceが指定されていない場合に内部エラーメッセージが返されることを検証
 		 */
 		it("Test /translate source:null", async () => {
-			const { commandMock, client } = await setupTranslateCommand({
-				title: "テスト",
-				source: null,
-				target: JAPANESE_TARGET,
-			});
-
-			await executeTranslateCommand(client, commandMock);
-			verify(commandMock.reply(InternalErrorMessage)).once();
+			await executeAndVerifyTranslateCommand(
+				{
+					title: "テスト",
+					source: null,
+					target: JAPANESE_TARGET,
+				},
+				{
+					expectedContent: InternalErrorMessage,
+					expectedMatchType: "equal",
+				},
+			);
 		});
 
 		/**
@@ -203,14 +316,17 @@ describe("Test Translate Command", () => {
 		 * - targetが指定されていない場合に内部エラーメッセージが返されることを検証
 		 */
 		it("Test /translate target:null", async () => {
-			const { commandMock, client } = await setupTranslateCommand({
-				title: "テスト",
-				source: ENGLISH_SOURCE,
-				target: null,
-			});
-
-			await executeTranslateCommand(client, commandMock);
-			verify(commandMock.reply(InternalErrorMessage)).once();
+			await executeAndVerifyTranslateCommand(
+				{
+					title: "テスト",
+					source: ENGLISH_SOURCE,
+					target: null,
+				},
+				{
+					expectedContent: InternalErrorMessage,
+					expectedMatchType: "equal",
+				},
+			);
 		});
 
 		/**
@@ -218,14 +334,17 @@ describe("Test Translate Command", () => {
 		 * - 全パラメータがnullの場合に内部エラーメッセージが返されることを検証
 		 */
 		it("Test /translate all params null", async () => {
-			const { commandMock, client } = await setupTranslateCommand({
-				title: null,
-				source: null,
-				target: null,
-			});
-
-			await executeTranslateCommand(client, commandMock);
-			verify(commandMock.reply(InternalErrorMessage)).once();
+			await executeAndVerifyTranslateCommand(
+				{
+					title: null,
+					source: null,
+					target: null,
+				},
+				{
+					expectedContent: InternalErrorMessage,
+					expectedMatchType: "equal",
+				},
+			);
 		});
 	});
 });
