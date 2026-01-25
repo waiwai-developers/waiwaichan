@@ -10,13 +10,13 @@ import type { CacheType, ChatInputCommandInteraction, Client, Message } from "di
 import { anything, instance, verify, when } from "ts-mockito";
 
 // 型安全な定数定義（Non-null assertion）
-const JAPANESE_SOURCE = TranslateConst.source.find((it) => it.value === "JA")?.value as string;
-const JAPANESE_TARGET = TranslateConst.target.find((it) => it.value === "JA")?.value as string;
-const ENGLISH_SOURCE = TranslateConst.source.find((it) => it.value === "EN")?.value as string;
-const ENGLISH_TARGET = TranslateConst.target.find((it) => it.value === "EN-US")?.value as string;
+export const JAPANESE_SOURCE = TranslateConst.source.find((it) => it.value === "JA")?.value as string;
+export const JAPANESE_TARGET = TranslateConst.target.find((it) => it.value === "JA")?.value as string;
+export const ENGLISH_SOURCE = TranslateConst.source.find((it) => it.value === "EN")?.value as string;
+export const ENGLISH_TARGET = TranslateConst.target.find((it) => it.value === "EN-US")?.value as string;
 
 // テスト用のguildId（MockSlashCommandで使用される値と一致させる）
-const TEST_GUILD_ID = "9999";
+export const TEST_GUILD_ID = "9999";
 
 // ============================================================
 // 型定義
@@ -25,7 +25,7 @@ const TEST_GUILD_ID = "9999";
 /**
  * translateコマンドのパラメータ型
  */
-interface TranslateCommandParams {
+export interface TranslateCommandParams {
 	readonly title: string | null;
 	readonly source: string | null | undefined;
 	readonly target: string | null | undefined;
@@ -34,7 +34,7 @@ interface TranslateCommandParams {
 /**
  * モックスラッシュコマンドのオプション型
  */
-interface MockSlashCommandOptions {
+export interface MockSlashCommandOptions {
 	readonly withChannel?: boolean;
 	readonly replyMessage?: Message;
 }
@@ -42,14 +42,14 @@ interface MockSlashCommandOptions {
 /**
  * Reply結果をキャプチャする型
  */
-interface ReplyCapture {
+export interface ReplyCapture {
 	content: string;
 }
 
 /**
  * translateコマンドのセットアップ結果型
  */
-interface SetupTranslateCommandResult {
+export interface SetupTranslateCommandResult {
 	readonly commandMock: ChatInputCommandInteraction<CacheType>;
 	readonly message: Message;
 	readonly client: Client;
@@ -63,7 +63,7 @@ interface SetupTranslateCommandResult {
 /**
  * データベース接続を初期化し、ログを無効化する
  */
-function initializeDatabaseWithoutLogging(): void {
+export function initializeDatabaseWithoutLogging(): void {
 	const connector = new MysqlConnector();
 	// プライベートフィールドへのアクセス（テスト用途のため許容）
 	// biome-ignore lint/suspicious/noExplicitAny: テスト用のプライベートフィールドアクセス
@@ -73,7 +73,7 @@ function initializeDatabaseWithoutLogging(): void {
 /**
  * CommunityRepositoryのデータをクリーンアップする
  */
-async function cleanupCommunityRepository(): Promise<void> {
+export async function cleanupCommunityRepository(): Promise<void> {
 	await CommunityRepositoryImpl.destroy({
 		truncate: true,
 		force: true,
@@ -86,7 +86,7 @@ async function cleanupCommunityRepository(): Promise<void> {
  * @param categoryType - カテゴリタイプ（デフォルト: Discord）
  * @returns 作成されたコミュニティモデルインスタンス
  */
-async function createTestCommunity(
+export async function createTestCommunity(
 	clientId: string = TEST_GUILD_ID,
 	categoryType: CommunityCategoryType = CommunityCategoryType.Discord,
 ): Promise<InstanceType<typeof CommunityRepositoryImpl>> {
@@ -102,7 +102,7 @@ async function createTestCommunity(
  * @param clientId - クライアントID
  * @returns コミュニティまたはnull
  */
-async function findCommunityByClientId(
+export async function findCommunityByClientId(
 	clientId: string,
 ): Promise<InstanceType<typeof CommunityRepositoryImpl> | null> {
 	return await CommunityRepositoryImpl.findOne({
@@ -116,14 +116,14 @@ async function findCommunityByClientId(
  * 全コミュニティを取得する（型安全版）
  * @returns コミュニティの配列
  */
-async function findAllCommunities(): Promise<InstanceType<typeof CommunityRepositoryImpl>[]> {
+export async function findAllCommunities(): Promise<InstanceType<typeof CommunityRepositoryImpl>[]> {
 	return await CommunityRepositoryImpl.findAll();
 }
 
 /**
  * コミュニティが作成されていないことを検証する
  */
-async function assertNoCommunityCreated(): Promise<void> {
+export async function assertNoCommunityCreated(): Promise<void> {
 	const communities = await findAllCommunities();
 	expect(communities.length).to.eq(0);
 }
@@ -132,7 +132,7 @@ async function assertNoCommunityCreated(): Promise<void> {
  * コミュニティ数を検証する
  * @param expectedCount - 期待するコミュニティ数
  */
-async function assertCommunityCount(expectedCount: number): Promise<void> {
+export async function assertCommunityCount(expectedCount: number): Promise<void> {
 	const communities = await findAllCommunities();
 	expect(communities.length).to.eq(expectedCount);
 }
@@ -141,7 +141,7 @@ async function assertCommunityCount(expectedCount: number): Promise<void> {
  * コミュニティが存在することを検証する
  * @param clientId - クライアントID
  */
-async function assertCommunityExists(clientId: string): Promise<void> {
+export async function assertCommunityExists(clientId: string): Promise<void> {
 	const community = await findCommunityByClientId(clientId);
 	expect(community).to.not.be.null;
 }
@@ -150,7 +150,7 @@ async function assertCommunityExists(clientId: string): Promise<void> {
  * コミュニティが存在しないことを検証する
  * @param clientId - クライアントID
  */
-async function assertCommunityNotExists(clientId: string): Promise<void> {
+export async function assertCommunityNotExists(clientId: string): Promise<void> {
 	const community = await findCommunityByClientId(clientId);
 	expect(community).to.be.null;
 }
@@ -160,7 +160,7 @@ async function assertCommunityNotExists(clientId: string): Promise<void> {
  * ログ無効化、クリーンアップ、テストデータ作成を実行
  * @param clientId - クライアントID（デフォルト: TEST_GUILD_ID）
  */
-async function setupTestDatabase(clientId: string = TEST_GUILD_ID): Promise<void> {
+export async function setupTestDatabase(clientId: string = TEST_GUILD_ID): Promise<void> {
 	initializeDatabaseWithoutLogging();
 	await cleanupCommunityRepository();
 	await createTestCommunity(clientId);
@@ -174,7 +174,7 @@ async function setupTestDatabase(clientId: string = TEST_GUILD_ID): Promise<void
  * Discordクライアントを取得する
  * @returns Discordクライアント
  */
-async function getDiscordClient(): Promise<Client> {
+export async function getDiscordClient(): Promise<Client> {
 	return await TestDiscordServer.getClient();
 }
 
@@ -184,7 +184,7 @@ async function getDiscordClient(): Promise<Client> {
  * @param withChannel - チャンネルを含めるか（デフォルト: true）
  * @returns コマンドモック
  */
-function createTranslateCommandMock(
+export function createTranslateCommandMock(
 	params: TranslateCommandParams,
 	withChannel = true,
 ): ChatInputCommandInteraction<CacheType> {
@@ -197,7 +197,7 @@ function createTranslateCommandMock(
  * @param message - レスポンスメッセージ
  * @returns キャプチャ結果を格納するオブジェクト
  */
-function setupReplyCapture(
+export function setupReplyCapture(
 	commandMock: ChatInputCommandInteraction<CacheType>,
 	message: Message,
 ): ReplyCapture {
@@ -218,7 +218,7 @@ function setupReplyCapture(
  * @param options - モックオプション
  * @returns セットアップ結果
  */
-async function setupTranslateCommand(
+export async function setupTranslateCommand(
 	params: TranslateCommandParams,
 	options: MockSlashCommandOptions = {},
 ): Promise<SetupTranslateCommandResult> {
@@ -239,7 +239,7 @@ async function setupTranslateCommand(
  * @param client - Discordクライアント
  * @param commandMock - コマンドモック
  */
-async function emitTranslateInteractionEvent(
+export async function emitTranslateInteractionEvent(
 	client: Client,
 	commandMock: ChatInputCommandInteraction<CacheType>,
 ): Promise<void> {
@@ -250,7 +250,7 @@ async function emitTranslateInteractionEvent(
  * translateコマンドのreply完了を待つ（型安全版）
  * @param commandMock - コマンドモック
  */
-async function waitForTranslateReply(
+export async function waitForTranslateReply(
 	commandMock: ChatInputCommandInteraction<CacheType>,
 ): Promise<void> {
 	await waitUntilReply(commandMock);
@@ -260,7 +260,7 @@ async function waitForTranslateReply(
  * replyが1回呼ばれたことを検証する（型安全版）
  * @param commandMock - コマンドモック
  */
-function verifyReplyCalledOnce(
+export function verifyReplyCalledOnce(
 	commandMock: ChatInputCommandInteraction<CacheType>,
 ): void {
 	verify(commandMock.reply(anything())).once();
@@ -270,7 +270,7 @@ function verifyReplyCalledOnce(
  * replyが呼ばれなかったことを検証する（型安全版）
  * @param commandMock - コマンドモック
  */
-function verifyReplyNotCalled(
+export function verifyReplyNotCalled(
 	commandMock: ChatInputCommandInteraction<CacheType>,
 ): void {
 	verify(commandMock.reply(anything())).never();
@@ -279,7 +279,7 @@ function verifyReplyNotCalled(
 /**
  * マッチタイプの型定義
  */
-type MatchType = "include" | "equal";
+export type MatchType = "include" | "equal";
 
 /**
  * replyの内容を検証する（型安全版）
@@ -287,7 +287,7 @@ type MatchType = "include" | "equal";
  * @param expected - 期待する文字列
  * @param matchType - マッチタイプ（'include' または 'equal'）デフォルトは 'include'
  */
-function verifyReplyContent(
+export function verifyReplyContent(
 	capturedResult: ReplyCapture,
 	expected: string,
 	matchType: MatchType = "include",
@@ -302,7 +302,7 @@ function verifyReplyContent(
 /**
  * executeAndVerifyTranslateCommandのオプション型定義
  */
-interface ExecuteAndVerifyOptions {
+export interface ExecuteAndVerifyOptions {
 	/** チャンネルを含めるか（デフォルト: true） */
 	readonly withChannel?: boolean;
 	/** 期待するレスポンス内容 */
@@ -316,7 +316,7 @@ interface ExecuteAndVerifyOptions {
 /**
  * タイムアウト定数
  */
-const WAIT_TIMEOUT_MS = 500 as const;
+export const WAIT_TIMEOUT_MS = 500 as const;
 
 /**
  * translateコマンドの実行と検証を一括で行うヘルパー（型安全版）
@@ -325,7 +325,7 @@ const WAIT_TIMEOUT_MS = 500 as const;
  * @param options - 実行オプション
  * @returns セットアップ結果
  */
-async function executeAndVerifyTranslateCommand(
+export async function executeAndVerifyTranslateCommand(
 	params: TranslateCommandParams,
 	options: ExecuteAndVerifyOptions = {},
 ): Promise<SetupTranslateCommandResult> {
@@ -361,159 +361,3 @@ async function executeAndVerifyTranslateCommand(
 
 	return result;
 }
-
-describe("Test Translate Command", () => {
-	beforeEach(async () => {
-		await setupTestDatabase();
-	});
-	/**
-	 * TranslateCommandHandlerのテスト
-	 */
-	describe("Test /translate command", () => {
-		/**
-		 * [正常系] title、source、targetを指定して翻訳スレッドを作成
-		 * - コマンドが正常に実行されることを検証
-		 * - replyが呼ばれることを検証
-		 * - 翻訳場の案内メッセージが返されることを検証
-		 */
-		it("Test /translate title:テスト source:EN target:JA", async () => {
-			await executeAndVerifyTranslateCommand(
-				{
-					title: "テスト翻訳スレッド",
-					source: ENGLISH_SOURCE,
-					target: JAPANESE_TARGET,
-				},
-				{
-					expectedContent: "ENからJAに翻訳する場を用意したよ！っ",
-				},
-			);
-		});
-
-		/**
-		 * [正常系] 日本語から英語への翻訳スレッド作成
-		 * - コマンドが正常に実行されることを検証
-		 * - 翻訳場の案内メッセージが返されることを検証
-		 */
-		it("Test /translate title:テスト source:JA target:EN-US", async () => {
-			await executeAndVerifyTranslateCommand(
-				{
-					title: "日英翻訳スレッド",
-					source: JAPANESE_SOURCE,
-					target: ENGLISH_TARGET,
-				},
-				{
-					expectedContent: "JAからEN-USに翻訳する場を用意したよ！っ",
-				},
-			);
-		});
-
-		/**
-		 * [エラー系] sourceとtargetが同じ場合
-		 * - sourceとtargetが同じ場合にエラーメッセージが返されることを検証
-		 */
-		it("Test /translate source:JA target:JA (same source and target)", async () => {
-			await executeAndVerifyTranslateCommand(
-				{
-					title: "同一言語テスト",
-					source: JAPANESE_SOURCE,
-					target: JAPANESE_TARGET,
-				},
-				{
-					expectedContent: "sourceとtargetが同じだよ！っ",
-					expectedMatchType: "equal",
-				},
-			);
-		});
-
-		/**
-		 * [エラー系] channelがnullの場合
-		 * - channelがnullの場合は何も返さずに早期リターンすることを検証
-		 * - replyが呼ばれないことを検証
-		 */
-		it("Test /translate with null channel", async () => {
-			await executeAndVerifyTranslateCommand(
-				{
-					title: "テスト",
-					source: ENGLISH_SOURCE,
-					target: JAPANESE_TARGET,
-				},
-				{
-					withChannel: false,
-					shouldReply: false,
-				},
-			);
-		});
-
-		/**
-		 * [エラー系] titleがnullの場合
-		 * - titleが指定されていない場合に内部エラーメッセージが返されることを検証
-		 */
-		it("Test /translate title:null", async () => {
-			await executeAndVerifyTranslateCommand(
-				{
-					title: null,
-					source: ENGLISH_SOURCE,
-					target: JAPANESE_TARGET,
-				},
-				{
-					expectedContent: InternalErrorMessage,
-					expectedMatchType: "equal",
-				},
-			);
-		});
-
-		/**
-		 * [エラー系] sourceがnullの場合
-		 * - sourceが指定されていない場合に内部エラーメッセージが返されることを検証
-		 */
-		it("Test /translate source:null", async () => {
-			await executeAndVerifyTranslateCommand(
-				{
-					title: "テスト",
-					source: null,
-					target: JAPANESE_TARGET,
-				},
-				{
-					expectedContent: InternalErrorMessage,
-					expectedMatchType: "equal",
-				},
-			);
-		});
-
-		/**
-		 * [エラー系] targetがnullの場合
-		 * - targetが指定されていない場合に内部エラーメッセージが返されることを検証
-		 */
-		it("Test /translate target:null", async () => {
-			await executeAndVerifyTranslateCommand(
-				{
-					title: "テスト",
-					source: ENGLISH_SOURCE,
-					target: null,
-				},
-				{
-					expectedContent: InternalErrorMessage,
-					expectedMatchType: "equal",
-				},
-			);
-		});
-
-		/**
-		 * [エラー系] 全パラメータがnullの場合
-		 * - 全パラメータがnullの場合に内部エラーメッセージが返されることを検証
-		 */
-		it("Test /translate all params null", async () => {
-			await executeAndVerifyTranslateCommand(
-				{
-					title: null,
-					source: null,
-					target: null,
-				},
-				{
-					expectedContent: InternalErrorMessage,
-					expectedMatchType: "equal",
-				},
-			);
-		});
-	});
-});
