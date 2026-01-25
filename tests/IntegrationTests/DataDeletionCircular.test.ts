@@ -30,6 +30,10 @@ import { expect } from "chai";
 import { Op } from "sequelize";
 import { anything, instance, mock, verify, when } from "ts-mockito";
 
+// ===================================
+// Helper Functions: Mock Creation
+// ===================================
+
 const createMembers = (ids: string[]) => {
 	const members = new Map<string, { user: { id: string } }>();
 	ids.forEach((id) => members.set(id, { user: { id } }));
@@ -67,6 +71,75 @@ const createFakeClient = (guilds: { id: string; memberIds: string[]; channelIds:
 			cache: collection,
 			fetch: async (id: string) => guildStore.get(id),
 		},
+	};
+};
+
+/**
+ * Repositoryメソッドをモック化し、where条件をキャプチャするヘルパー
+ * @param repository モック対象のRepository
+ * @param methodName モック対象のメソッド名
+ * @param captureCallback where条件をキャプチャするコールバック
+ * @returns クリーンアップ関数
+ */
+const mockRepositoryMethod = <T extends Record<string, any>>(
+	repository: T,
+	methodName: keyof T,
+	captureCallback: (options: any) => void,
+): (() => void) => {
+	const originalMethod = repository[methodName];
+	(repository as any)[methodName] = (optionsOrValues: any, options?: any) => {
+		// update メソッドの場合は第2引数、それ以外は第1引数
+		const targetOptions = options !== undefined ? options : optionsOrValues;
+		captureCallback(targetOptions);
+		// メソッドに応じた適切な戻り値を返す
+		if (methodName === "update") {
+			return Promise.resolve([1]);
+		}
+		if (methodName === "destroy") {
+			return Promise.resolve(1);
+		}
+		if (methodName === "findAll") {
+			return Promise.resolve([]);
+		}
+		return Promise.resolve([]);
+	};
+	return () => {
+		(repository as any)[methodName] = originalMethod;
+	};
+};
+
+/**
+ * MysqlConnector/MysqlSchedulerConnectorのmodelsをモック化するヘルパー
+ * @param connectorModels MysqlConnector用のモデル配列
+ * @param schedulerModels MysqlSchedulerConnector用のモデル配列
+ * @returns クリーンアップ関数
+ */
+const mockConnectorModels = (
+	connectorModels: any[],
+	schedulerModels: any[] = [],
+): (() => void) => {
+	const originalConnectorModels = MysqlConnector.models;
+	const originalSchedulerModels = MysqlSchedulerConnector.models;
+	(MysqlConnector as any).models = connectorModels;
+	(MysqlSchedulerConnector as any).models = schedulerModels;
+	return () => {
+		(MysqlConnector as any).models = originalConnectorModels;
+		(MysqlSchedulerConnector as any).models = originalSchedulerModels;
+	};
+};
+
+/**
+ * console.errorをモック化するヘルパー
+ * @param captureCallback エラーメッセージをキャプチャするコールバック
+ * @returns クリーンアップ関数
+ */
+const mockConsoleError = (captureCallback: (message: string) => void): (() => void) => {
+	const originalConsoleError = console.error;
+	console.error = (message?: any) => {
+		captureCallback(String(message));
+	};
+	return () => {
+		console.error = originalConsoleError;
 	};
 };
 
@@ -165,12 +238,10 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 		 * - deleteNotBelongByCommunityIdAndClientIdsのwhere条件を検証
 		 */
 		it("UserRepositoryImpl.deleteNotBelongByCommunityIdAndClientIdsはcommunityIdとNOT IN条件を持つ", async () => {
-			const originalDestroy = UserRepositoryImpl.destroy;
 			let receivedWhere: any = null;
-			(UserRepositoryImpl as any).destroy = (options: any) => {
+			const cleanup = mockRepositoryMethod(UserRepositoryImpl, "destroy", (options) => {
 				receivedWhere = options.where;
-				return Promise.resolve(1);
-			};
+			});
 
 			const repo = new UserRepositoryImpl();
 			await repo.deleteNotBelongByCommunityIdAndClientIds(new UserCommunityId(12), [new UserClientId(BigInt(99)), new UserClientId(BigInt(100))]);
@@ -178,7 +249,7 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 			expect(receivedWhere.communityId).to.equal(12);
 			expect(receivedWhere.clientId[Op.notIn]).to.deep.equal([BigInt(99), BigInt(100)]);
 
-			(UserRepositoryImpl as any).destroy = originalDestroy;
+			cleanup();
 		});
 	});
 
@@ -229,12 +300,10 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 		 * - deleteNotBelongByCommunityIdAndClientIdsのwhere条件を検証
 		 */
 		it("ChannelRepositoryImpl.deleteNotBelongByCommunityIdAndClientIdsはcommunityIdとNOT IN条件を持つ", async () => {
-			const originalDestroy = ChannelRepositoryImpl.destroy;
 			let receivedWhere: any = null;
-			(ChannelRepositoryImpl as any).destroy = (options: any) => {
+			const cleanup = mockRepositoryMethod(ChannelRepositoryImpl, "destroy", (options) => {
 				receivedWhere = options.where;
-				return Promise.resolve(1);
-			};
+			});
 
 			const repo = new ChannelRepositoryImpl();
 			await repo.deleteNotBelongByCommunityIdAndClientIds(new ChannelCommunityId(12), [
@@ -245,7 +314,7 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 			expect(receivedWhere.communityId).to.equal(12);
 			expect(receivedWhere.clientId[Op.notIn]).to.deep.equal([BigInt(99), BigInt(100)]);
 
-			(ChannelRepositoryImpl as any).destroy = originalDestroy;
+			cleanup();
 		});
 	});
 
@@ -301,17 +370,18 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 		 * - categoryType / clientIdの条件を検証
 		 */
 		it("CommunityRepositoryImpl.getNotExistClientIdはNOT IN条件で検索する", async () => {
-			const originalFindAll = CommunityRepositoryImpl.findAll;
 			let receivedWhere: any = null;
-			(CommunityRepositoryImpl as any).findAll = (options: any) => {
+			const cleanup = mockRepositoryMethod(CommunityRepositoryImpl, "findAll", (options) => {
 				receivedWhere = options.where;
-				return Promise.resolve([]);
-			};
+			});
+
 			const repo = new CommunityRepositoryImpl();
 			await repo.getNotExistClientId(CommunityCategoryType.Discord, [new CommunityClientId(BigInt(1)), new CommunityClientId(BigInt(2))]);
+
 			expect(receivedWhere.categoryType).to.equal(CommunityCategoryType.Discord.getValue());
 			expect(receivedWhere.clientId[Op.notIn]).to.deep.equal([BigInt(1), BigInt(2)]);
-			(CommunityRepositoryImpl as any).findAll = originalFindAll;
+
+			cleanup();
 		});
 	});
 
@@ -324,17 +394,18 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 		 * - findDeletionTargetsByBatchStatusAndDeletedAtのwhere条件を検証
 		 */
 		it("UserRepositoryImpl.findDeletionTargetsByBatchStatusAndDeletedAtはbatchStatus=YetとdeletedAt!=nullのみ取得する", async () => {
-			const originalFindAll = UserRepositoryImpl.findAll;
 			let receivedWhere: any = null;
-			(UserRepositoryImpl as any).findAll = (options: any) => {
+			const cleanup = mockRepositoryMethod(UserRepositoryImpl, "findAll", (options) => {
 				receivedWhere = options.where;
-				return Promise.resolve([]);
-			};
+			});
+
 			const repo = new UserRepositoryImpl();
 			await repo.findDeletionTargetsByBatchStatusAndDeletedAt();
+
 			expect(receivedWhere.batchStatus).to.equal(UserBatchStatus.Yet.getValue());
 			expect(receivedWhere.deletedAt[Op.not]).to.equal(null);
-			(UserRepositoryImpl as any).findAll = originalFindAll;
+
+			cleanup();
 		});
 
 		/**
@@ -342,17 +413,18 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 		 * - findDeletionTargetsByBatchStatusAndDeletedAtのwhere条件を検証
 		 */
 		it("CommunityRepositoryImpl.findDeletionTargetsByBatchStatusAndDeletedAtはbatchStatus=YetとdeletedAt!=nullのみ取得する", async () => {
-			const originalFindAll = CommunityRepositoryImpl.findAll;
 			let receivedWhere: any = null;
-			(CommunityRepositoryImpl as any).findAll = (options: any) => {
+			const cleanup = mockRepositoryMethod(CommunityRepositoryImpl, "findAll", (options) => {
 				receivedWhere = options.where;
-				return Promise.resolve([]);
-			};
+			});
+
 			const repo = new CommunityRepositoryImpl();
 			await repo.findDeletionTargetsByBatchStatusAndDeletedAt();
+
 			expect(receivedWhere.batchStatus).to.equal(CommunityBatchStatus.Yet.getValue());
 			expect(receivedWhere.deletedAt[Op.not]).to.equal(null);
-			(CommunityRepositoryImpl as any).findAll = originalFindAll;
+
+			cleanup();
 		});
 
 		/**
@@ -360,17 +432,18 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 		 * - findDeletionTargetsByBatchStatusAndDeletedAtのwhere条件を検証
 		 */
 		it("ChannelRepositoryImpl.findDeletionTargetsByBatchStatusAndDeletedAtはbatchStatus=YetとdeletedAt!=nullのみ取得する", async () => {
-			const originalFindAll = ChannelRepositoryImpl.findAll;
 			let receivedWhere: any = null;
-			(ChannelRepositoryImpl as any).findAll = (options: any) => {
+			const cleanup = mockRepositoryMethod(ChannelRepositoryImpl, "findAll", (options) => {
 				receivedWhere = options.where;
-				return Promise.resolve([]);
-			};
+			});
+
 			const repo = new ChannelRepositoryImpl();
 			await repo.findDeletionTargetsByBatchStatusAndDeletedAt();
+
 			expect(receivedWhere.batchStatus).to.equal(ChannelBatchStatus.Yet.getValue());
 			expect(receivedWhere.deletedAt[Op.not]).to.equal(null);
-			(ChannelRepositoryImpl as any).findAll = originalFindAll;
+
+			cleanup();
 		});
 
 		/**
@@ -378,9 +451,6 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 		 * - getAttributesの結果に応じてdestroyが呼ばれることを検証
 		 */
 		it("DataDeletionCircularImplは対象カラムを持つモデルを削除する", async () => {
-			const originalConnectorModels = MysqlConnector.models;
-			const originalSchedulerModels = MysqlSchedulerConnector.models;
-
 			const destroyCalls: number[] = [];
 			const targetModel = {
 				getAttributes: () => ({ userId: true }),
@@ -394,8 +464,7 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 				destroy: async () => 1,
 			};
 
-			(MysqlConnector as any).models = [targetModel, nonTargetModel];
-			(MysqlSchedulerConnector as any).models = [];
+			const cleanup = mockConnectorModels([targetModel, nonTargetModel], []);
 
 			const repo = new DataDeletionCircularImpl();
 			const result = await repo.deleteRecordInRelatedTable(new ColumnDto(ColumnName.user, new ColumnId(1)));
@@ -403,8 +472,7 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 			expect(result).to.equal(true);
 			expect(destroyCalls.length).to.equal(1);
 
-			(MysqlConnector as any).models = originalConnectorModels;
-			(MysqlSchedulerConnector as any).models = originalSchedulerModels;
+			cleanup();
 		});
 
 		/**
@@ -412,9 +480,6 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 		 * - getAttributesの結果に応じてdestroyが呼ばれることを検証
 		 */
 		it("DataDeletionCircularImplはchannelカラムを持つモデルを削除する", async () => {
-			const originalConnectorModels = MysqlConnector.models;
-			const originalSchedulerModels = MysqlSchedulerConnector.models;
-
 			const destroyCalls: number[] = [];
 			const targetModel = {
 				getAttributes: () => ({ channelId: true }),
@@ -428,8 +493,7 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 				destroy: async () => 1,
 			};
 
-			(MysqlConnector as any).models = [targetModel, nonTargetModel];
-			(MysqlSchedulerConnector as any).models = [];
+			const cleanup = mockConnectorModels([targetModel, nonTargetModel], []);
 
 			const repo = new DataDeletionCircularImpl();
 			const result = await repo.deleteRecordInRelatedTable(new ColumnDto(ColumnName.channel, new ColumnId(1)));
@@ -437,8 +501,7 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 			expect(result).to.equal(true);
 			expect(destroyCalls.length).to.equal(1);
 
-			(MysqlConnector as any).models = originalConnectorModels;
-			(MysqlSchedulerConnector as any).models = originalSchedulerModels;
+			cleanup();
 		});
 
 		/**
@@ -446,23 +509,19 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 		 * - deleteRecordInRelatedTableがtrueを返すことを検証
 		 */
 		it("DataDeletionCircularImplは対象モデルが0件でも成功扱いにする", async () => {
-			const originalConnectorModels = MysqlConnector.models;
-			const originalSchedulerModels = MysqlSchedulerConnector.models;
-
-			(MysqlConnector as any).models = [
+			const cleanup = mockConnectorModels([
 				{
 					getAttributes: () => ({ other: true }),
 					destroy: async () => 1,
 				},
-			];
-			(MysqlSchedulerConnector as any).models = [];
+			], []);
 
 			const repo = new DataDeletionCircularImpl();
 			const result = await repo.deleteRecordInRelatedTable(new ColumnDto(ColumnName.community, new ColumnId(2)));
+
 			expect(result).to.equal(true);
 
-			(MysqlConnector as any).models = originalConnectorModels;
-			(MysqlSchedulerConnector as any).models = originalSchedulerModels;
+			cleanup();
 		});
 
 		/**
@@ -470,23 +529,20 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 		 * - console.errorが呼ばれることを検証
 		 */
 		it("DataDeletionCircularImplは例外時にfalseを返しログを出力する", async () => {
-			const originalConnectorModels = MysqlConnector.models;
-			const originalSchedulerModels = MysqlSchedulerConnector.models;
-			const originalConsoleError = console.error;
 			let capturedError = "";
 
-			(MysqlConnector as any).models = [
+			const modelsCleanup = mockConnectorModels([
 				{
 					getAttributes: () => ({ userId: true }),
 					destroy: async () => {
 						throw new Error("destroy error");
 					},
 				},
-			];
-			(MysqlSchedulerConnector as any).models = [];
-			console.error = (message?: any) => {
-				capturedError = String(message);
-			};
+			], []);
+
+			const consoleCleanup = mockConsoleError((message) => {
+				capturedError = message;
+			});
 
 			const repo = new DataDeletionCircularImpl();
 			const result = await repo.deleteRecordInRelatedTable(new ColumnDto(ColumnName.user, new ColumnId(3)));
@@ -494,9 +550,8 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 			expect(result).to.equal(false);
 			expect(capturedError).to.include("Error in deleteRecordInRelatedTable");
 
-			console.error = originalConsoleError;
-			(MysqlConnector as any).models = originalConnectorModels;
-			(MysqlSchedulerConnector as any).models = originalSchedulerModels;
+			consoleCleanup();
+			modelsCleanup();
 		});
 	});
 
@@ -519,25 +574,19 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 		 * - updatebatchStatusがparanoid:falseで更新することを検証
 		 */
 		it("updatebatchStatusはparanoid=falseで更新する", async () => {
-			const originalCommunityUpdate = CommunityRepositoryImpl.update;
-			const originalUserUpdate = UserRepositoryImpl.update;
-			const originalChannelUpdate = ChannelRepositoryImpl.update;
 			let communityUpdateOptions: any = null;
 			let userUpdateOptions: any = null;
 			let channelUpdateOptions: any = null;
 
-			(CommunityRepositoryImpl as any).update = (values: any, options: any) => {
+			const communityCleanup = mockRepositoryMethod(CommunityRepositoryImpl, "update", (options) => {
 				communityUpdateOptions = options;
-				return Promise.resolve([1]);
-			};
-			(UserRepositoryImpl as any).update = (values: any, options: any) => {
+			});
+			const userCleanup = mockRepositoryMethod(UserRepositoryImpl, "update", (options) => {
 				userUpdateOptions = options;
-				return Promise.resolve([1]);
-			};
-			(ChannelRepositoryImpl as any).update = (values: any, options: any) => {
+			});
+			const channelCleanup = mockRepositoryMethod(ChannelRepositoryImpl, "update", (options) => {
 				channelUpdateOptions = options;
-				return Promise.resolve([1]);
-			};
+			});
 
 			const communityRepo = new CommunityRepositoryImpl();
 			const userRepo = new UserRepositoryImpl();
@@ -553,9 +602,9 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 			expect(channelUpdateOptions.paranoid).to.equal(false);
 			expect(channelUpdateOptions.where.batchStatus).to.equal(ChannelBatchStatus.Yet.getValue());
 
-			(CommunityRepositoryImpl as any).update = originalCommunityUpdate;
-			(UserRepositoryImpl as any).update = originalUserUpdate;
-			(ChannelRepositoryImpl as any).update = originalChannelUpdate;
+			communityCleanup();
+			userCleanup();
+			channelCleanup();
 		});
 	});
 });
