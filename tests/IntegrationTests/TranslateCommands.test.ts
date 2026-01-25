@@ -6,6 +6,7 @@ import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnecto
 import { createMockMessage, mockSlashCommand, waitUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { TestDiscordServer } from "@/tests/fixtures/discord.js/TestDiscordServer";
 import { expect } from "chai";
+import type { Client, Message } from "discord.js";
 import { anything, instance, verify, when } from "ts-mockito";
 
 const JAPANESE_SOURCE = TranslateConst.source.find((it) => it.value === "JA")?.value;
@@ -15,6 +16,61 @@ const ENGLISH_TARGET = TranslateConst.target.find((it) => it.value === "EN-US")?
 
 // テスト用のguildId（MockSlashCommandで使用される値と一致させる）
 const TEST_GUILD_ID = "9999";
+
+/**
+ * モック生成のヘルパー関数
+ */
+interface TranslateCommandParams {
+	title: string | null;
+	source: string | null | undefined;
+	target: string | null | undefined;
+}
+
+interface MockSlashCommandOptions {
+	withChannel?: boolean;
+	replyMessage?: Message;
+}
+
+interface SetupTranslateCommandResult {
+	commandMock: any;
+	message: Message;
+	client: Client;
+	capturedResult: { content: string };
+}
+
+/**
+ * translateコマンドのモックをセットアップする共通関数
+ */
+async function setupTranslateCommand(
+	params: TranslateCommandParams,
+	options: MockSlashCommandOptions = {},
+): Promise<SetupTranslateCommandResult> {
+	const { message } = createMockMessage();
+	const commandMock = mockSlashCommand("translate", params, {
+		withChannel: options.withChannel ?? true,
+		replyMessage: options.replyMessage ?? message,
+	});
+	const client = await TestDiscordServer.getClient();
+	const capturedResult = { content: "" };
+
+	when(commandMock.reply(anything())).thenCall((arg) => {
+		capturedResult.content = arg.content ?? arg;
+		return Promise.resolve(message);
+	});
+
+	return { commandMock, message, client, capturedResult };
+}
+
+/**
+ * translateコマンドを実行して結果を取得する共通関数
+ */
+async function executeTranslateCommand(
+	client: Client,
+	commandMock: any,
+): Promise<void> {
+	client.emit("interactionCreate", instance(commandMock));
+	await waitUntilReply(commandMock);
+}
 
 describe("Test Translate Command", () => {
 	beforeEach(async () => {
@@ -47,30 +103,15 @@ describe("Test Translate Command", () => {
 		 * - 翻訳場の案内メッセージが返されることを検証
 		 */
 		it("Test /translate title:テスト source:EN target:JA", async () => {
-			const { message } = createMockMessage();
-			const commandMock = mockSlashCommand(
-				"translate",
-				{
-					title: "テスト翻訳スレッド",
-					source: ENGLISH_SOURCE,
-					target: JAPANESE_TARGET,
-				},
-				{
-					withChannel: true,
-					replyMessage: message,
-				},
-			);
-			const TEST_CLIENT = await TestDiscordServer.getClient();
-			let result = "";
-			when(commandMock.reply(anything())).thenCall((arg) => {
-				result = arg.content;
-				return Promise.resolve(message);
+			const { commandMock, client, capturedResult } = await setupTranslateCommand({
+				title: "テスト翻訳スレッド",
+				source: ENGLISH_SOURCE,
+				target: JAPANESE_TARGET,
 			});
 
-			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-			await waitUntilReply(commandMock);
+			await executeTranslateCommand(client, commandMock);
 			verify(commandMock.reply(anything())).once();
-			expect(result).to.include("ENからJAに翻訳する場を用意したよ！っ");
+			expect(capturedResult.content).to.include("ENからJAに翻訳する場を用意したよ！っ");
 		});
 
 		/**
@@ -79,30 +120,15 @@ describe("Test Translate Command", () => {
 		 * - 翻訳場の案内メッセージが返されることを検証
 		 */
 		it("Test /translate title:テスト source:JA target:EN-US", async () => {
-			const { message } = createMockMessage();
-			const commandMock = mockSlashCommand(
-				"translate",
-				{
-					title: "日英翻訳スレッド",
-					source: JAPANESE_SOURCE,
-					target: ENGLISH_TARGET,
-				},
-				{
-					withChannel: true,
-					replyMessage: message,
-				},
-			);
-			const TEST_CLIENT = await TestDiscordServer.getClient();
-			let result = "";
-			when(commandMock.reply(anything())).thenCall((arg) => {
-				result = arg.content;
-				return Promise.resolve(message);
+			const { commandMock, client, capturedResult } = await setupTranslateCommand({
+				title: "日英翻訳スレッド",
+				source: JAPANESE_SOURCE,
+				target: ENGLISH_TARGET,
 			});
 
-			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-			await waitUntilReply(commandMock);
+			await executeTranslateCommand(client, commandMock);
 			verify(commandMock.reply(anything())).once();
-			expect(result).to.include("JAからEN-USに翻訳する場を用意したよ！っ");
+			expect(capturedResult.content).to.include("JAからEN-USに翻訳する場を用意したよ！っ");
 		});
 
 		/**
@@ -110,30 +136,15 @@ describe("Test Translate Command", () => {
 		 * - sourceとtargetが同じ場合にエラーメッセージが返されることを検証
 		 */
 		it("Test /translate source:JA target:JA (same source and target)", async () => {
-			const { message } = createMockMessage();
-			const commandMock = mockSlashCommand(
-				"translate",
-				{
-					title: "同一言語テスト",
-					source: JAPANESE_SOURCE,
-					target: JAPANESE_TARGET,
-				},
-				{
-					withChannel: true,
-					replyMessage: message,
-				},
-			);
-			const TEST_CLIENT = await TestDiscordServer.getClient();
-			let result = "";
-			when(commandMock.reply(anything())).thenCall((arg) => {
-				result = arg.content;
-				return Promise.resolve(message);
+			const { commandMock, client, capturedResult } = await setupTranslateCommand({
+				title: "同一言語テスト",
+				source: JAPANESE_SOURCE,
+				target: JAPANESE_TARGET,
 			});
 
-			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-			await waitUntilReply(commandMock);
+			await executeTranslateCommand(client, commandMock);
 			verify(commandMock.reply(anything())).once();
-			expect(result).to.equal("sourceとtargetが同じだよ！っ");
+			expect(capturedResult.content).to.equal("sourceとtargetが同じだよ！っ");
 		});
 
 		/**
@@ -142,20 +153,16 @@ describe("Test Translate Command", () => {
 		 * - replyが呼ばれないことを検証
 		 */
 		it("Test /translate with null channel", async () => {
-			const commandMock = mockSlashCommand(
-				"translate",
+			const { commandMock, client } = await setupTranslateCommand(
 				{
 					title: "テスト",
 					source: ENGLISH_SOURCE,
 					target: JAPANESE_TARGET,
 				},
-				{
-					withChannel: false,
-				},
+				{ withChannel: false },
 			);
-			const TEST_CLIENT = await TestDiscordServer.getClient();
 
-			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+			client.emit("interactionCreate", instance(commandMock));
 			// channelがnullの場合は早期リターンするため、少し待ってからverifyする
 			await new Promise((resolve) => setTimeout(resolve, 500));
 			verify(commandMock.reply(anything())).never();
@@ -166,21 +173,13 @@ describe("Test Translate Command", () => {
 		 * - titleが指定されていない場合に内部エラーメッセージが返されることを検証
 		 */
 		it("Test /translate title:null", async () => {
-			const commandMock = mockSlashCommand(
-				"translate",
-				{
-					title: null,
-					source: ENGLISH_SOURCE,
-					target: JAPANESE_TARGET,
-				},
-				{
-					withChannel: true,
-				},
-			);
-			const TEST_CLIENT = await TestDiscordServer.getClient();
+			const { commandMock, client } = await setupTranslateCommand({
+				title: null,
+				source: ENGLISH_SOURCE,
+				target: JAPANESE_TARGET,
+			});
 
-			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-			await waitUntilReply(commandMock);
+			await executeTranslateCommand(client, commandMock);
 			verify(commandMock.reply(InternalErrorMessage)).once();
 		});
 
@@ -189,21 +188,13 @@ describe("Test Translate Command", () => {
 		 * - sourceが指定されていない場合に内部エラーメッセージが返されることを検証
 		 */
 		it("Test /translate source:null", async () => {
-			const commandMock = mockSlashCommand(
-				"translate",
-				{
-					title: "テスト",
-					source: null,
-					target: JAPANESE_TARGET,
-				},
-				{
-					withChannel: true,
-				},
-			);
-			const TEST_CLIENT = await TestDiscordServer.getClient();
+			const { commandMock, client } = await setupTranslateCommand({
+				title: "テスト",
+				source: null,
+				target: JAPANESE_TARGET,
+			});
 
-			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-			await waitUntilReply(commandMock);
+			await executeTranslateCommand(client, commandMock);
 			verify(commandMock.reply(InternalErrorMessage)).once();
 		});
 
@@ -212,21 +203,13 @@ describe("Test Translate Command", () => {
 		 * - targetが指定されていない場合に内部エラーメッセージが返されることを検証
 		 */
 		it("Test /translate target:null", async () => {
-			const commandMock = mockSlashCommand(
-				"translate",
-				{
-					title: "テスト",
-					source: ENGLISH_SOURCE,
-					target: null,
-				},
-				{
-					withChannel: true,
-				},
-			);
-			const TEST_CLIENT = await TestDiscordServer.getClient();
+			const { commandMock, client } = await setupTranslateCommand({
+				title: "テスト",
+				source: ENGLISH_SOURCE,
+				target: null,
+			});
 
-			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-			await waitUntilReply(commandMock);
+			await executeTranslateCommand(client, commandMock);
 			verify(commandMock.reply(InternalErrorMessage)).once();
 		});
 
@@ -235,21 +218,13 @@ describe("Test Translate Command", () => {
 		 * - 全パラメータがnullの場合に内部エラーメッセージが返されることを検証
 		 */
 		it("Test /translate all params null", async () => {
-			const commandMock = mockSlashCommand(
-				"translate",
-				{
-					title: null,
-					source: null,
-					target: null,
-				},
-				{
-					withChannel: true,
-				},
-			);
-			const TEST_CLIENT = await TestDiscordServer.getClient();
+			const { commandMock, client } = await setupTranslateCommand({
+				title: null,
+				source: null,
+				target: null,
+			});
 
-			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-			await waitUntilReply(commandMock);
+			await executeTranslateCommand(client, commandMock);
 			verify(commandMock.reply(InternalErrorMessage)).once();
 		});
 	});
