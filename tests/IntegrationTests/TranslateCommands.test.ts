@@ -38,25 +38,63 @@ interface SetupTranslateCommandResult {
 	capturedResult: { content: string };
 }
 
+// ============================================================
+// Handler初期化の共通ヘルパー関数
+// ============================================================
+
+/**
+ * Discordクライアントを取得する
+ * @returns Discordクライアント
+ */
+async function getDiscordClient(): Promise<Client> {
+	return await TestDiscordServer.getClient();
+}
+
+/**
+ * translateコマンドのモックを作成する
+ * @param params - コマンドパラメータ
+ * @param withChannel - チャンネルを含めるか（デフォルト: true）
+ * @returns コマンドモック
+ */
+function createTranslateCommandMock(
+	params: TranslateCommandParams,
+	withChannel = true,
+): any {
+	return mockSlashCommand("translate", params, { withChannel });
+}
+
+/**
+ * Replyキャプチャをセットアップする
+ * @param commandMock - コマンドモック
+ * @param message - レスポンスメッセージ
+ * @returns キャプチャ結果を格納するオブジェクト
+ */
+function setupReplyCapture(commandMock: any, message: Message): { content: string } {
+	const capturedResult = { content: "" };
+	
+	when(commandMock.reply(anything())).thenCall((arg) => {
+		capturedResult.content = arg.content ?? arg;
+		return Promise.resolve(message);
+	});
+	
+	return capturedResult;
+}
+
 /**
  * translateコマンドのモックをセットアップする共通関数
+ * クライアント取得、モック作成、Replyキャプチャの設定を一括実行
+ * @param params - コマンドパラメータ
+ * @param options - モックオプション
+ * @returns セットアップ結果
  */
 async function setupTranslateCommand(
 	params: TranslateCommandParams,
 	options: MockSlashCommandOptions = {},
 ): Promise<SetupTranslateCommandResult> {
 	const { message } = createMockMessage();
-	const commandMock = mockSlashCommand("translate", params, {
-		withChannel: options.withChannel ?? true,
-		replyMessage: options.replyMessage ?? message,
-	});
-	const client = await TestDiscordServer.getClient();
-	const capturedResult = { content: "" };
-
-	when(commandMock.reply(anything())).thenCall((arg) => {
-		capturedResult.content = arg.content ?? arg;
-		return Promise.resolve(message);
-	});
+	const client = await getDiscordClient();
+	const commandMock = createTranslateCommandMock(params, options.withChannel ?? true);
+	const capturedResult = setupReplyCapture(commandMock, message);
 
 	return { commandMock, message, client, capturedResult };
 }
