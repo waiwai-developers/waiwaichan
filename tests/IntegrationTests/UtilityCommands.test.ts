@@ -12,25 +12,57 @@ import { anything, instance, verify, when } from "ts-mockito";
 import type { ChatInputCommandInteraction } from "discord.js";
 
 // ========================================
-// Mock Generation Helper Functions
+// Handler Initialization Helper Functions
 // ========================================
 
 /**
- * Creates a mock command and captures the reply value
+ * Base handler context type
+ */
+type HandlerContext = {
+	commandMock: ChatInputCommandInteraction;
+	client: Awaited<ReturnType<typeof TestDiscordServer.getClient>>;
+};
+
+/**
+ * Handler context with reply capture
+ */
+type HandlerContextWithReplyCapture = HandlerContext & {
+	getReplyValue: () => string;
+};
+
+/**
+ * Handler context with embed capture
+ */
+type HandlerContextWithEmbedCapture = HandlerContext & {
+	getEmbedReply: () => any;
+};
+
+/**
+ * Initializes handler with mock command and client
  * @param commandName - The name of the command to mock
  * @param options - Optional parameters for the command
- * @returns An object containing the mock, captured value getter, and client
+ * @returns Handler context with mock and client
  */
-const createMockCommandWithReplyCapture = async (
+const initializeHandler = async (
 	commandName: string,
 	options?: Record<string, any>
-): Promise<{
-	commandMock: ChatInputCommandInteraction;
-	getReplyValue: () => string;
-	client: Awaited<ReturnType<typeof TestDiscordServer.getClient>>;
-}> => {
+): Promise<HandlerContext> => {
 	const commandMock = mockSlashCommand(commandName, options);
 	const client = await TestDiscordServer.getClient();
+	return { commandMock, client };
+};
+
+/**
+ * Initializes handler with reply capture
+ * @param commandName - The name of the command to mock
+ * @param options - Optional parameters for the command
+ * @returns Handler context with reply capture
+ */
+const initializeHandlerWithReplyCapture = async (
+	commandName: string,
+	options?: Record<string, any>
+): Promise<HandlerContextWithReplyCapture> => {
+	const { commandMock, client } = await initializeHandler(commandName, options);
 	let capturedValue = "";
 	when(commandMock.reply(anything())).thenCall((args) => {
 		capturedValue = args;
@@ -38,27 +70,22 @@ const createMockCommandWithReplyCapture = async (
 
 	return {
 		commandMock,
-		getReplyValue: () => capturedValue,
 		client,
+		getReplyValue: () => capturedValue,
 	};
 };
 
 /**
- * Creates a mock command with embed reply capture
+ * Initializes handler with embed reply capture
  * @param commandName - The name of the command to mock
  * @param options - Optional parameters for the command
- * @returns An object containing the mock, captured embed getter, and client
+ * @returns Handler context with embed capture
  */
-const createMockCommandWithEmbedCapture = async (
+const initializeHandlerWithEmbedCapture = async (
 	commandName: string,
 	options?: Record<string, any>
-): Promise<{
-	commandMock: ChatInputCommandInteraction;
-	getEmbedReply: () => any;
-	client: Awaited<ReturnType<typeof TestDiscordServer.getClient>>;
-}> => {
-	const commandMock = mockSlashCommand(commandName, options);
-	const client = await TestDiscordServer.getClient();
+): Promise<HandlerContextWithEmbedCapture> => {
+	const { commandMock, client } = await initializeHandler(commandName, options);
 	let capturedReply: any;
 	when(commandMock.reply(anything())).thenCall((args) => {
 		capturedReply = args;
@@ -66,17 +93,17 @@ const createMockCommandWithEmbedCapture = async (
 
 	return {
 		commandMock,
-		getEmbedReply: () => capturedReply,
 		client,
+		getEmbedReply: () => capturedReply,
 	};
 };
 
 /**
- * Executes a command and waits for reply
+ * Executes a handler command and waits for reply
  * @param client - The Discord client
  * @param commandMock - The mocked command
  */
-const executeCommand = async (
+const executeHandler = async (
 	client: Awaited<ReturnType<typeof TestDiscordServer.getClient>>,
 	commandMock: ChatInputCommandInteraction
 ): Promise<void> => {
@@ -89,60 +116,48 @@ const executeCommand = async (
 // ========================================
 
 /**
- * Creates a mock command, registers it to the client, and waits for reply
+ * Executes handler and returns context
  * @param commandName - The name of the command to mock
  * @param options - Optional parameters for the command
- * @returns An object containing the mock and client
+ * @returns Handler context
  */
 const executeCommandTest = async (
 	commandName: string,
 	options?: Record<string, any>
-): Promise<{
-	commandMock: ChatInputCommandInteraction;
-	client: Awaited<ReturnType<typeof TestDiscordServer.getClient>>;
-}> => {
-	const commandMock = mockSlashCommand(commandName, options);
-	const client = await TestDiscordServer.getClient();
-	await executeCommand(client, commandMock);
-	return { commandMock, client };
+): Promise<HandlerContext> => {
+	const context = await initializeHandler(commandName, options);
+	await executeHandler(context.client, context.commandMock);
+	return context;
 };
 
 /**
- * Creates a mock command with reply capture, registers it to the client, and waits for reply
+ * Executes handler with reply capture and returns context
  * @param commandName - The name of the command to mock
  * @param options - Optional parameters for the command
- * @returns An object containing the mock, captured value getter, and client
+ * @returns Handler context with reply capture
  */
 const executeCommandTestWithReplyCapture = async (
 	commandName: string,
 	options?: Record<string, any>
-): Promise<{
-	commandMock: ChatInputCommandInteraction;
-	getReplyValue: () => string;
-	client: Awaited<ReturnType<typeof TestDiscordServer.getClient>>;
-}> => {
-	const { commandMock, getReplyValue, client } = await createMockCommandWithReplyCapture(commandName, options);
-	await executeCommand(client, commandMock);
-	return { commandMock, getReplyValue, client };
+): Promise<HandlerContextWithReplyCapture> => {
+	const context = await initializeHandlerWithReplyCapture(commandName, options);
+	await executeHandler(context.client, context.commandMock);
+	return context;
 };
 
 /**
- * Creates a mock command with embed reply capture, registers it to the client, and waits for reply
+ * Executes handler with embed capture and returns context
  * @param commandName - The name of the command to mock
  * @param options - Optional parameters for the command
- * @returns An object containing the mock, captured embed getter, and client
+ * @returns Handler context with embed capture
  */
 const executeCommandTestWithEmbedCapture = async (
 	commandName: string,
 	options?: Record<string, any>
-): Promise<{
-	commandMock: ChatInputCommandInteraction;
-	getEmbedReply: () => any;
-	client: Awaited<ReturnType<typeof TestDiscordServer.getClient>>;
-}> => {
-	const { commandMock, getEmbedReply, client } = await createMockCommandWithEmbedCapture(commandName, options);
-	await executeCommand(client, commandMock);
-	return { commandMock, getEmbedReply, client };
+): Promise<HandlerContextWithEmbedCapture> => {
+	const context = await initializeHandlerWithEmbedCapture(commandName, options);
+	await executeHandler(context.client, context.commandMock);
+	return context;
 };
 
 /**
@@ -629,11 +644,10 @@ describe("Test UtilityCommand", () => {
 		 * - 選択肢が1つの場合、その選択肢がそのまま返されることを検証
 		 */
 		it("Test /choice parameter:single item", async () => {
-			const { commandMock, getReplyValue, client } = await createMockCommandWithReplyCapture("choice", {
+			const { commandMock, getReplyValue } = await executeCommandTestWithReplyCapture("choice", {
 				items: "only_one",
 			});
 
-			await executeCommand(client, commandMock);
 			verify(commandMock.reply(anything())).once();
 			expect(getReplyValue()).to.equal("only_one");
 		});
@@ -643,11 +657,10 @@ describe("Test UtilityCommand", () => {
 		 * - 選択結果がappleまたはorangeのいずれかであることを検証
 		 */
 		it("Test /choice parameter:two items", async () => {
-			const { commandMock, getReplyValue, client } = await createMockCommandWithReplyCapture("choice", {
+			const { commandMock, getReplyValue } = await executeCommandTestWithReplyCapture("choice", {
 				items: "apple orange",
 			});
 
-			await executeCommand(client, commandMock);
 			verify(commandMock.reply(anything())).once();
 			expect(["apple", "orange"]).to.include(getReplyValue());
 		});
@@ -658,11 +671,10 @@ describe("Test UtilityCommand", () => {
 		 */
 		it("Test /choice parameter:english words", async () => {
 			const choices = ["apple", "banana", "cherry"];
-			const { commandMock, getReplyValue, client } = await createMockCommandWithReplyCapture("choice", {
+			const { commandMock, getReplyValue } = await executeCommandTestWithReplyCapture("choice", {
 				items: choices.join(" "),
 			});
 
-			await executeCommand(client, commandMock);
 			verify(commandMock.reply(anything())).once();
 			expect(choices).to.include(getReplyValue());
 		});
