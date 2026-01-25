@@ -312,6 +312,165 @@ function createTalkCommandHandler() {
 	return new TalkCommandHandler();
 }
 
+// ============================================================
+// Repositoryテスト用ヘルパー関数
+// ============================================================
+
+/**
+ * 全スレッドを取得する
+ * @returns スレッドの配列
+ */
+async function findAllThreads() {
+	return await ThreadRepositoryImpl.findAll();
+}
+
+/**
+ * メッセージIDでスレッドを検索する
+ * @param messageId - メッセージID
+ * @param communityId - コミュニティID（デフォルト: 1）
+ * @returns スレッドまたはnull
+ */
+async function findThreadByMessageId(messageId: string, communityId = 1) {
+	return await ThreadRepositoryImpl.findOne({
+		where: {
+			communityId,
+			messageId,
+		},
+	});
+}
+
+/**
+ * スレッドが作成されていないことを検証する
+ */
+async function assertNoThreadsCreated() {
+	const threads = await findAllThreads();
+	expect(threads.length).to.eq(0);
+}
+
+/**
+ * スレッド数を検証する
+ * @param expectedCount - 期待するスレッド数
+ */
+async function assertThreadCount(expectedCount: number) {
+	const threads = await findAllThreads();
+	expect(threads.length).to.eq(expectedCount);
+}
+
+/**
+ * スレッドの基本データを検証する
+ * @param thread - 検証対象のスレッド
+ * @param expected - 期待値
+ */
+function verifyThreadData(
+	thread: any,
+	expected: {
+		communityId?: string;
+		messageId?: string;
+		categoryType?: number;
+	},
+) {
+	if (expected.communityId !== undefined) {
+		expect(thread.communityId.toString()).to.eq(expected.communityId);
+	}
+	if (expected.messageId !== undefined) {
+		expect(thread.messageId.toString()).to.eq(expected.messageId);
+	}
+	if (expected.categoryType !== undefined) {
+		expect(thread.categoryType).to.eq(expected.categoryType);
+	}
+}
+
+/**
+ * スレッドのメタデータを検証する
+ * @param thread - 検証対象のスレッド
+ * @param expectedMetadata - 期待するメタデータ（部分一致）
+ */
+function verifyThreadMetadata(
+	thread: any,
+	expectedMetadata?: Partial<{
+		persona_role: string;
+		speaking_style_rules: string;
+		response_directives: string;
+		emotion_model: string;
+		notes: string;
+		input_scope: string;
+	}>,
+) {
+	const metadata = thread.metadata;
+	expect(metadata).to.not.be.null;
+	expect(metadata).to.be.an("object");
+
+	const metadataObj = JSON.parse(JSON.stringify(metadata));
+
+	// 基本的なプロパティの存在確認
+	expect(metadataObj).to.have.property("persona_role");
+	expect(metadataObj).to.have.property("speaking_style_rules");
+	expect(metadataObj).to.have.property("response_directives");
+	expect(metadataObj).to.have.property("emotion_model");
+	expect(metadataObj).to.have.property("notes");
+	expect(metadataObj).to.have.property("input_scope");
+
+	// 期待値が指定されている場合は値も検証
+	if (expectedMetadata) {
+		if (expectedMetadata.persona_role !== undefined) {
+			expect(metadataObj.persona_role).to.eq(expectedMetadata.persona_role);
+		}
+		if (expectedMetadata.speaking_style_rules !== undefined) {
+			expect(metadataObj.speaking_style_rules).to.eq(expectedMetadata.speaking_style_rules);
+		}
+		if (expectedMetadata.response_directives !== undefined) {
+			expect(metadataObj.response_directives).to.eq(expectedMetadata.response_directives);
+		}
+		if (expectedMetadata.emotion_model !== undefined) {
+			expect(metadataObj.emotion_model).to.eq(expectedMetadata.emotion_model);
+		}
+		if (expectedMetadata.notes !== undefined) {
+			expect(metadataObj.notes).to.eq(expectedMetadata.notes);
+		}
+		if (expectedMetadata.input_scope !== undefined) {
+			expect(metadataObj.input_scope).to.eq(expectedMetadata.input_scope);
+		}
+	}
+}
+
+/**
+ * スレッドが存在し、データが正しいことを検証する
+ * @param messageId - メッセージID
+ * @param expected - 期待値
+ * @param communityId - コミュニティID（デフォルト: 1）
+ */
+async function assertThreadExistsWithData(
+	messageId: string,
+	expected: {
+		communityId?: string;
+		categoryType?: number;
+		metadata?: Partial<{
+			persona_role: string;
+			speaking_style_rules: string;
+			response_directives: string;
+			emotion_model: string;
+			notes: string;
+			input_scope: string;
+		}>;
+	},
+	communityId = 1,
+) {
+	const thread = await findThreadByMessageId(messageId, communityId);
+	expect(thread).to.not.be.null;
+
+	if (thread) {
+		verifyThreadData(thread, {
+			communityId: expected.communityId,
+			messageId,
+			categoryType: expected.categoryType,
+		});
+
+		if (expected.metadata !== undefined) {
+			verifyThreadMetadata(thread, expected.metadata);
+		}
+	}
+}
+
 /**
  * メッセージモックとチャンネルモックを一括設定する
  * @param options - オプションパラメータ
@@ -686,12 +845,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 		// スレッドが作成されていないことを確認
-		const connector = new MysqlConnector();
-		// @ts-ignore - privateフィールドにアクセスするため
-		connector.instance.options.logging = false;
-
-		const threads = await ThreadRepositoryImpl.findAll();
-		expect(threads.length).to.eq(0);
+		await assertNoThreadsCreated();
 	});
 
 	/**
@@ -723,12 +877,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 		// スレッドが作成されていないことを確認
-		const connector = new MysqlConnector();
-		// @ts-ignore - privateフィールドにアクセスするため
-		connector.instance.options.logging = false;
-
-		const threads = await ThreadRepositoryImpl.findAll();
-		expect(threads.length).to.eq(0);
+		await assertNoThreadsCreated();
 	});
 
 	/**
@@ -756,14 +905,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		await new Promise((resolve) => setTimeout(resolve, 100));
 
 		// スレッドが作成されていないことを確認
-		// ロギングを無効化してからfindAllを実行
-
-		const connector = new MysqlConnector();
-		// @ts-ignore - privateフィールドにアクセスするため
-		connector.instance.options.logging = false;
-
-		const threads = await ThreadRepositoryImpl.findAll();
-		expect(threads.length).to.eq(0);
+		await assertNoThreadsCreated();
 
 		// replyが呼ばれていないことを確認
 		verify(commandMock.reply(anything())).never();
@@ -796,14 +938,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		await new Promise((resolve) => setTimeout(resolve, 100));
 
 		// スレッドが作成されていないことを確認
-		// ロギングを無効化してからfindAllを実行
-
-		const connector = new MysqlConnector();
-		// @ts-ignore - privateフィールドにアクセスするため
-		connector.instance.options.logging = false;
-
-		const threads = await ThreadRepositoryImpl.findAll();
-		expect(threads.length).to.eq(0);
+		await assertNoThreadsCreated();
 
 		// replyが呼ばれていないことを確認
 		verify(commandMock.reply(anything())).never();
