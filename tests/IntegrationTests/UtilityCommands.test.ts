@@ -183,14 +183,82 @@ const verifyInternalErrorReply = (commandMock: ChatInputCommandInteraction): voi
 // Dice Logic Helper Functions
 // ========================================
 
+/**
+ * Evaluates a dice expression and returns the result
+ * @param source - The dice expression source string
+ * @param showDetails - Whether to show detailed results
+ * @returns The dice result DTO
+ */
 const evaluateDice = async (source: string, showDetails = true): Promise<DiceResultDto> => {
 	const logic = new DiceLogic();
 	const ctx = new DiceContextDto(new DiceSource(source), new DiceIsSecret(false), new DiceShowDetails(showDetails));
 	return logic.dice(ctx);
 };
 
+/**
+ * Splits the result description into lines
+ * @param result - The dice result DTO
+ * @returns Array of description lines
+ */
 const getDescriptionLines = (result: DiceResultDto): string[] => {
 	return result.description.getValue().split("\n");
+};
+
+/**
+ * Gets the last line of the result description
+ * @param result - The dice result DTO
+ * @returns The last line of the description
+ */
+const getLastLine = (result: DiceResultDto): string => {
+	const lines = getDescriptionLines(result);
+	return lines[lines.length - 1] || "";
+};
+
+/**
+ * Verifies that a dice result is successful
+ * @param result - The dice result DTO
+ */
+const expectDiceSuccess = (result: DiceResultDto): void => {
+	expect(result.ok.getValue()).to.equal(true);
+};
+
+/**
+ * Verifies that a dice result is a failure
+ * @param result - The dice result DTO
+ */
+const expectDiceFailure = (result: DiceResultDto): void => {
+	expect(result.ok.getValue()).to.equal(false);
+};
+
+/**
+ * Verifies that the result contains an error message
+ * @param result - The dice result DTO
+ * @param errorText - The expected error text
+ */
+const expectDiceError = (result: DiceResultDto, errorText: string): void => {
+	expectDiceFailure(result);
+	expect(result.description.getValue()).to.include(errorText);
+};
+
+/**
+ * Verifies that the last line matches the expected pattern
+ * @param result - The dice result DTO
+ * @param expectedPattern - The expected pattern in the last line
+ */
+const expectLastLineIncludes = (result: DiceResultDto, expectedPattern: string): void => {
+	expect(getLastLine(result)).to.include(expectedPattern);
+};
+
+/**
+ * Verifies a successful boolean result
+ * @param result - The dice result DTO
+ * @param expectedValue - The expected boolean value (true or false)
+ */
+const expectBooleanResult = (result: DiceResultDto, expectedValue: boolean): void => {
+	expectDiceSuccess(result);
+	const marker = expectedValue ? "✅" : "❌";
+	const text = expectedValue ? "true" : "false";
+	expectLastLineIncludes(result, `→ ${text} ${marker}`);
 };
 
 describe("Test UtilityCommand", () => {
@@ -413,6 +481,11 @@ describe("Test UtilityCommand", () => {
 	 * DiceCommandHandlerのテスト
 	 */
 	describe("Test /dice command", () => {
+		/**
+		 * Extracts title and description from embed reply
+		 * @param options - The embed reply options
+		 * @returns Object containing title and description
+		 */
 		const extractEmbedData = (options: any): { title: string; description: string } => {
 			const embed = options?.embeds?.[0];
 			const data = embed?.data ?? embed;
@@ -421,54 +494,94 @@ describe("Test UtilityCommand", () => {
 				description: data?.description ?? "",
 			};
 		};
+
+		/**
+		 * Parses numeric value from embed description
+		 * @param description - The embed description
+		 * @returns Parsed numeric value or NaN
+		 */
 		const parseEmbedValue = (description: string): number => {
 			const match = description.match(/→\s*(-?\d+)/);
 			return match ? Number(match[1]) : Number.NaN;
 		};
 
 		/**
+		 * Executes dice command and extracts embed data
+		 * @param source - The dice source expression
+		 * @param details - Whether to show details
+		 * @returns Object containing command mock and embed data
+		 */
+		const executeDiceCommand = async (
+			source: string,
+			details = true
+		): Promise<{
+			commandMock: ChatInputCommandInteraction;
+			embedData: { title: string; description: string };
+		}> => {
+			const { commandMock, getEmbedReply } = await executeCommandTestWithEmbedCapture("dice", {
+				source,
+				details,
+			});
+			const embedData = extractEmbedData(getEmbedReply());
+			return { commandMock, embedData };
+		};
+
+		/**
+		 * Verifies that dice command returned a valid numeric result within range
+		 * @param source - The dice source expression
+		 * @param min - Minimum expected value
+		 * @param max - Maximum expected value
+		 */
+		const verifyDiceRange = async (source: string, min: number, max: number): Promise<void> => {
+			const { commandMock, embedData } = await executeDiceCommand(source);
+			verify(commandMock.reply(anything())).once();
+			const value = parseEmbedValue(embedData.description);
+			expect(value).to.be.within(min, max);
+		};
+
+		/**
+		 * Verifies that dice command returned an exact value
+		 * @param source - The dice source expression
+		 * @param expectedValue - The expected exact value
+		 */
+		const verifyDiceExactValue = async (source: string, expectedValue: number): Promise<void> => {
+			const { commandMock, embedData } = await executeDiceCommand(source);
+			verify(commandMock.reply(anything())).once();
+			const value = parseEmbedValue(embedData.description);
+			expect(value).to.equal(expectedValue);
+		};
+
+		/**
+		 * Verifies that dice command returned an error
+		 * @param source - The dice source expression
+		 * @param expectedErrorText - The expected error text in the description
+		 */
+		const verifyDiceError = async (source: string, expectedErrorText: string): Promise<void> => {
+			const { commandMock, embedData } = await executeDiceCommand(source);
+			verify(commandMock.reply(anything())).once();
+			expect(embedData.title).to.include("エラー:");
+			expect(embedData.description).to.include(expectedErrorText);
+		};
+
+		/**
 		 * [ランダム値] source:1d100で1〜100の範囲で返される
 		 */
 		it("Test /dice source:1d100", async () => {
-			const { commandMock, getEmbedReply } = await executeCommandTestWithEmbedCapture("dice", {
-				source: "1d100",
-				details: true,
-			});
-			verify(commandMock.reply(anything())).once();
-
-			const { description } = extractEmbedData(getEmbedReply());
-			const value = parseEmbedValue(description);
-			expect(value).to.be.within(1, 100);
+			await verifyDiceRange("1d100", 1, 100);
 		});
 
 		/**
 		 * [最小値] source:1d1で常に1を返す
 		 */
 		it("Test /dice source:1d1 (minimum value)", async () => {
-			const { commandMock, getEmbedReply } = await executeCommandTestWithEmbedCapture("dice", {
-				source: "1d1",
-				details: true,
-			});
-			verify(commandMock.reply(anything())).once();
-
-			const { description } = extractEmbedData(getEmbedReply());
-			const value = parseEmbedValue(description);
-			expect(value).to.equal(1);
+			await verifyDiceExactValue("1d1", 1);
 		});
 
 		/**
 		 * [標準ダイス] source:1d6で1〜6の範囲で返される
 		 */
 		it("Test /dice source:1d6 (standard dice)", async () => {
-			const { commandMock, getEmbedReply } = await executeCommandTestWithEmbedCapture("dice", {
-				source: "1d6",
-				details: true,
-			});
-			verify(commandMock.reply(anything())).once();
-
-			const { description } = extractEmbedData(getEmbedReply());
-			const value = parseEmbedValue(description);
-			expect(value).to.be.within(1, 6);
+			await verifyDiceRange("1d6", 1, 6);
 		});
 
 		/**
@@ -485,15 +598,7 @@ describe("Test UtilityCommand", () => {
 		 * [構文エラー] source:1.5でパースエラーが返される
 		 */
 		it("Test /dice source:1.5 (invalid source)", async () => {
-			const { commandMock, getEmbedReply } = await executeCommandTestWithEmbedCapture("dice", {
-				source: "1.5",
-				details: true,
-			});
-			verify(commandMock.reply(anything())).once();
-
-			const { title, description } = extractEmbedData(getEmbedReply());
-			expect(title).to.include("エラー:");
-			expect(description).to.include("入力に誤り");
+			await verifyDiceError("1.5", "入力に誤り");
 		});
 	});
 
@@ -501,114 +606,86 @@ describe("Test UtilityCommand", () => {
 	 * DiceLogic式評価のテスト
 	 */
 	describe("DiceLogic expression tests", () => {
-		const getLastLine = (result: DiceResultDto): string => {
-			const lines = getDescriptionLines(result);
-			return lines[lines.length - 1] || "";
-		};
-
-		const expectSuccess = (result: DiceResultDto): void => {
-			expect(result.ok.getValue()).to.equal(true);
-		};
-
-		const expectFailure = (result: DiceResultDto): void => {
-			expect(result.ok.getValue()).to.equal(false);
-		};
-
 		it("not binds tighter than and/or", async () => {
 			const result = await evaluateDice("!1==1&&1==1");
-			expectSuccess(result);
-			expect(getLastLine(result)).to.include("→ false ❌");
+			expectBooleanResult(result, false);
 		});
 
 		it("supports multiple not operators", async () => {
 			const result = await evaluateDice("!!1==1");
-			expectSuccess(result);
-			expect(getLastLine(result)).to.include("→ true ✅");
+			expectBooleanResult(result, true);
 		});
 
 		it("and/or are left-associative with same precedence", async () => {
 			const result = await evaluateDice("1==1||1==2&&1==2");
-			expectSuccess(result);
-			expect(getLastLine(result)).to.include("→ false ❌");
+			expectBooleanResult(result, false);
 		});
 
 		it("respects arithmetic precedence", async () => {
 			const result = await evaluateDice("1+2*3==7");
-			expectSuccess(result);
-			expect(getLastLine(result)).to.include("→ true ✅");
+			expectBooleanResult(result, true);
 		});
 
 		it("parentheses override precedence", async () => {
 			const result = await evaluateDice("(1+2)*3==9");
-			expectSuccess(result);
-			expect(getLastLine(result)).to.include("→ true ✅");
+			expectBooleanResult(result, true);
 		});
 
 		it("+ and - share the same precedence", async () => {
 			const result = await evaluateDice("5-2+1==4");
-			expectSuccess(result);
-			expect(getLastLine(result)).to.include("→ true ✅");
+			expectBooleanResult(result, true);
 		});
 
 		it("* / // share the same precedence", async () => {
 			const result = await evaluateDice("5//2*2==4");
-			expectSuccess(result);
-			expect(getLastLine(result)).to.include("→ true ✅");
+			expectBooleanResult(result, true);
 		});
 
 		it("throws error when not operand is not boolean", async () => {
 			const result = await evaluateDice("!1");
-			expectFailure(result);
-			expect(result.description.getValue()).to.include("真偽値");
+			expectDiceError(result, "真偽値");
 		});
 
 		it("throws error when and/or operands are not boolean", async () => {
 			const result = await evaluateDice("1&&2");
-			expectFailure(result);
-			expect(result.description.getValue()).to.include("真偽値と真偽値");
+			expectDiceError(result, "真偽値と真偽値");
 		});
 
 		it("reports extra input errors", async () => {
 			const result = await evaluateDice("1a");
-			expectFailure(result);
-			expect(result.description.getValue()).to.include("余計な入力");
+			expectDiceError(result, "余計な入力");
 		});
 
 		it("supports chained comparisons", async () => {
 			const result = await evaluateDice("1<2<3");
-			expectSuccess(result);
+			expectDiceSuccess(result);
 			const lastLine = getLastLine(result);
 			expect(lastLine === "✅" || lastLine.includes("→ true ✅")).to.equal(true);
 		});
 
 		it("combines not with comparisons", async () => {
 			const result = await evaluateDice("!1<2");
-			expectSuccess(result);
-			expect(getLastLine(result)).to.include("→ false ❌");
+			expectBooleanResult(result, false);
 		});
 
 		it("combines dice results with logic", async () => {
 			const result = await evaluateDice("1d1>0&&!(2d1<2)");
-			expectSuccess(result);
-			expect(getLastLine(result)).to.include("→ true ✅");
+			expectBooleanResult(result, true);
 		});
 
 		it("works with arrays, keep, and access", async () => {
 			const result = await evaluateDice("3b1kh2[0]==1&&3b1kl1[0]==1");
-			expectSuccess(result);
-			expect(getLastLine(result)).to.include("→ true ✅");
+			expectBooleanResult(result, true);
 		});
 
 		it("accepts not with parentheses and no space", async () => {
 			const result = await evaluateDice("!(1==1)");
-			expectSuccess(result);
-			expect(getLastLine(result)).to.include("→ false ❌");
+			expectBooleanResult(result, false);
 		});
 
 		it("does not treat note as not keyword", async () => {
 			const result = await evaluateDice("note");
-			expectFailure(result);
-			expect(result.description.getValue()).to.include("数値");
+			expectDiceError(result, "数値");
 		});
 	});
 
