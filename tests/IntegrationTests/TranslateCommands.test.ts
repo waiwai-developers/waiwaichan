@@ -6,36 +6,164 @@ import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnecto
 import { createMockMessage, mockSlashCommand, waitUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { TestDiscordServer } from "@/tests/fixtures/discord.js/TestDiscordServer";
 import { expect } from "chai";
-import type { Client, Message } from "discord.js";
+import type { CacheType, ChatInputCommandInteraction, Client, Message } from "discord.js";
 import { anything, instance, verify, when } from "ts-mockito";
 
-const JAPANESE_SOURCE = TranslateConst.source.find((it) => it.value === "JA")?.value;
-const JAPANESE_TARGET = TranslateConst.target.find((it) => it.value === "JA")?.value;
-const ENGLISH_SOURCE = TranslateConst.source.find((it) => it.value === "EN")?.value;
-const ENGLISH_TARGET = TranslateConst.target.find((it) => it.value === "EN-US")?.value;
+// 型安全な定数定義（Non-null assertion）
+const JAPANESE_SOURCE = TranslateConst.source.find((it) => it.value === "JA")?.value as string;
+const JAPANESE_TARGET = TranslateConst.target.find((it) => it.value === "JA")?.value as string;
+const ENGLISH_SOURCE = TranslateConst.source.find((it) => it.value === "EN")?.value as string;
+const ENGLISH_TARGET = TranslateConst.target.find((it) => it.value === "EN-US")?.value as string;
 
 // テスト用のguildId（MockSlashCommandで使用される値と一致させる）
 const TEST_GUILD_ID = "9999";
 
+// ============================================================
+// 型定義
+// ============================================================
+
 /**
- * モック生成のヘルパー関数
+ * translateコマンドのパラメータ型
  */
 interface TranslateCommandParams {
-	title: string | null;
-	source: string | null | undefined;
-	target: string | null | undefined;
+	readonly title: string | null;
+	readonly source: string | null | undefined;
+	readonly target: string | null | undefined;
 }
 
+/**
+ * モックスラッシュコマンドのオプション型
+ */
 interface MockSlashCommandOptions {
-	withChannel?: boolean;
-	replyMessage?: Message;
+	readonly withChannel?: boolean;
+	readonly replyMessage?: Message;
 }
 
+/**
+ * Reply結果をキャプチャする型
+ */
+interface ReplyCapture {
+	content: string;
+}
+
+/**
+ * translateコマンドのセットアップ結果型
+ */
 interface SetupTranslateCommandResult {
-	commandMock: any;
-	message: Message;
-	client: Client;
-	capturedResult: { content: string };
+	readonly commandMock: ChatInputCommandInteraction<CacheType>;
+	readonly message: Message;
+	readonly client: Client;
+	readonly capturedResult: ReplyCapture;
+}
+
+// ============================================================
+// Repositoryテスト用ヘルパー関数
+// ============================================================
+
+/**
+ * データベース接続を初期化し、ログを無効化する
+ */
+function initializeDatabaseWithoutLogging(): void {
+	const connector = new MysqlConnector();
+	// プライベートフィールドへのアクセス（テスト用途のため許容）
+	// biome-ignore lint/suspicious/noExplicitAny: テスト用のプライベートフィールドアクセス
+	(connector as any).instance.options.logging = false;
+}
+
+/**
+ * CommunityRepositoryのデータをクリーンアップする
+ */
+async function cleanupCommunityRepository(): Promise<void> {
+	await CommunityRepositoryImpl.destroy({
+		truncate: true,
+		force: true,
+	});
+}
+
+/**
+ * テスト用のコミュニティを作成する（型安全版）
+ * @param clientId - クライアントID（デフォルト: TEST_GUILD_ID）
+ * @param categoryType - カテゴリタイプ（デフォルト: Discord）
+ * @returns 作成されたコミュニティモデルインスタンス
+ */
+async function createTestCommunity(
+	clientId: string = TEST_GUILD_ID,
+	categoryType: CommunityCategoryType = CommunityCategoryType.Discord,
+): Promise<InstanceType<typeof CommunityRepositoryImpl>> {
+	return await CommunityRepositoryImpl.create({
+		categoryType: categoryType.getValue(),
+		clientId: BigInt(clientId),
+		batchStatus: 0,
+	});
+}
+
+/**
+ * コミュニティIDでコミュニティを検索する（型安全版）
+ * @param clientId - クライアントID
+ * @returns コミュニティまたはnull
+ */
+async function findCommunityByClientId(
+	clientId: string,
+): Promise<InstanceType<typeof CommunityRepositoryImpl> | null> {
+	return await CommunityRepositoryImpl.findOne({
+		where: {
+			clientId: BigInt(clientId),
+		},
+	});
+}
+
+/**
+ * 全コミュニティを取得する（型安全版）
+ * @returns コミュニティの配列
+ */
+async function findAllCommunities(): Promise<InstanceType<typeof CommunityRepositoryImpl>[]> {
+	return await CommunityRepositoryImpl.findAll();
+}
+
+/**
+ * コミュニティが作成されていないことを検証する
+ */
+async function assertNoCommunityCreated(): Promise<void> {
+	const communities = await findAllCommunities();
+	expect(communities.length).to.eq(0);
+}
+
+/**
+ * コミュニティ数を検証する
+ * @param expectedCount - 期待するコミュニティ数
+ */
+async function assertCommunityCount(expectedCount: number): Promise<void> {
+	const communities = await findAllCommunities();
+	expect(communities.length).to.eq(expectedCount);
+}
+
+/**
+ * コミュニティが存在することを検証する
+ * @param clientId - クライアントID
+ */
+async function assertCommunityExists(clientId: string): Promise<void> {
+	const community = await findCommunityByClientId(clientId);
+	expect(community).to.not.be.null;
+}
+
+/**
+ * コミュニティが存在しないことを検証する
+ * @param clientId - クライアントID
+ */
+async function assertCommunityNotExists(clientId: string): Promise<void> {
+	const community = await findCommunityByClientId(clientId);
+	expect(community).to.be.null;
+}
+
+/**
+ * データベースのセットアップを一括で行う
+ * ログ無効化、クリーンアップ、テストデータ作成を実行
+ * @param clientId - クライアントID（デフォルト: TEST_GUILD_ID）
+ */
+async function setupTestDatabase(clientId: string = TEST_GUILD_ID): Promise<void> {
+	initializeDatabaseWithoutLogging();
+	await cleanupCommunityRepository();
+	await createTestCommunity(clientId);
 }
 
 // ============================================================
@@ -51,7 +179,7 @@ async function getDiscordClient(): Promise<Client> {
 }
 
 /**
- * translateコマンドのモックを作成する
+ * translateコマンドのモックを作成する（型安全版）
  * @param params - コマンドパラメータ
  * @param withChannel - チャンネルを含めるか（デフォルト: true）
  * @returns コマンドモック
@@ -59,21 +187,24 @@ async function getDiscordClient(): Promise<Client> {
 function createTranslateCommandMock(
 	params: TranslateCommandParams,
 	withChannel = true,
-): any {
+): ChatInputCommandInteraction<CacheType> {
 	return mockSlashCommand("translate", params, { withChannel });
 }
 
 /**
- * Replyキャプチャをセットアップする
+ * Replyキャプチャをセットアップする（型安全版）
  * @param commandMock - コマンドモック
  * @param message - レスポンスメッセージ
  * @returns キャプチャ結果を格納するオブジェクト
  */
-function setupReplyCapture(commandMock: any, message: Message): { content: string } {
-	const capturedResult = { content: "" };
+function setupReplyCapture(
+	commandMock: ChatInputCommandInteraction<CacheType>,
+	message: Message,
+): ReplyCapture {
+	const capturedResult: ReplyCapture = { content: "" };
 	
-	when(commandMock.reply(anything())).thenCall((arg) => {
-		capturedResult.content = arg.content ?? arg;
+	when(commandMock.reply(anything())).thenCall((arg: string | { content?: string }) => {
+		capturedResult.content = typeof arg === "string" ? arg : arg.content ?? "";
 		return Promise.resolve(message);
 	});
 	
@@ -104,51 +235,62 @@ async function setupTranslateCommand(
 // ============================================================
 
 /**
- * Discord interactionイベントを発行する
+ * Discord interactionイベントを発行する（型安全版）
  * @param client - Discordクライアント
  * @param commandMock - コマンドモック
  */
 async function emitTranslateInteractionEvent(
 	client: Client,
-	commandMock: any,
+	commandMock: ChatInputCommandInteraction<CacheType>,
 ): Promise<void> {
 	client.emit("interactionCreate", instance(commandMock));
 }
 
 /**
- * translateコマンドのreply完了を待つ
+ * translateコマンドのreply完了を待つ（型安全版）
  * @param commandMock - コマンドモック
  */
-async function waitForTranslateReply(commandMock: any): Promise<void> {
+async function waitForTranslateReply(
+	commandMock: ChatInputCommandInteraction<CacheType>,
+): Promise<void> {
 	await waitUntilReply(commandMock);
 }
 
 /**
- * replyが1回呼ばれたことを検証する
+ * replyが1回呼ばれたことを検証する（型安全版）
  * @param commandMock - コマンドモック
  */
-function verifyReplyCalledOnce(commandMock: any): void {
+function verifyReplyCalledOnce(
+	commandMock: ChatInputCommandInteraction<CacheType>,
+): void {
 	verify(commandMock.reply(anything())).once();
 }
 
 /**
- * replyが呼ばれなかったことを検証する
+ * replyが呼ばれなかったことを検証する（型安全版）
  * @param commandMock - コマンドモック
  */
-function verifyReplyNotCalled(commandMock: any): void {
+function verifyReplyNotCalled(
+	commandMock: ChatInputCommandInteraction<CacheType>,
+): void {
 	verify(commandMock.reply(anything())).never();
 }
 
 /**
- * replyの内容を検証する
+ * マッチタイプの型定義
+ */
+type MatchType = "include" | "equal";
+
+/**
+ * replyの内容を検証する（型安全版）
  * @param capturedResult - キャプチャされた結果
  * @param expected - 期待する文字列
  * @param matchType - マッチタイプ（'include' または 'equal'）デフォルトは 'include'
  */
 function verifyReplyContent(
-	capturedResult: { content: string },
+	capturedResult: ReplyCapture,
 	expected: string,
-	matchType: "include" | "equal" = "include",
+	matchType: MatchType = "include",
 ): void {
 	if (matchType === "equal") {
 		expect(capturedResult.content).to.equal(expected);
@@ -161,18 +303,23 @@ function verifyReplyContent(
  * executeAndVerifyTranslateCommandのオプション型定義
  */
 interface ExecuteAndVerifyOptions {
-	/** チャンネルを含めるか */
-	withChannel?: boolean;
+	/** チャンネルを含めるか（デフォルト: true） */
+	readonly withChannel?: boolean;
 	/** 期待するレスポンス内容 */
-	expectedContent?: string;
-	/** マッチタイプ（'include' または 'equal'） */
-	expectedMatchType?: "include" | "equal";
-	/** replyが呼ばれるべきか */
-	shouldReply?: boolean;
+	readonly expectedContent?: string;
+	/** マッチタイプ（'include' または 'equal'）（デフォルト: 'include'） */
+	readonly expectedMatchType?: MatchType;
+	/** replyが呼ばれるべきか（デフォルト: true） */
+	readonly shouldReply?: boolean;
 }
 
 /**
- * translateコマンドの実行と検証を一括で行うヘルパー
+ * タイムアウト定数
+ */
+const WAIT_TIMEOUT_MS = 500 as const;
+
+/**
+ * translateコマンドの実行と検証を一括で行うヘルパー（型安全版）
  * セットアップ→実行→検証を一括実行
  * @param params - translateコマンドのパラメータ
  * @param options - 実行オプション
@@ -197,7 +344,7 @@ async function executeAndVerifyTranslateCommand(
 
 	// shouldReplyがfalseの場合は早期リターン前の待機のみ
 	if (!shouldReply) {
-		await new Promise((resolve) => setTimeout(resolve, 500));
+		await new Promise<void>((resolve) => setTimeout(resolve, WAIT_TIMEOUT_MS));
 		verifyReplyNotCalled(result.commandMock);
 		return result;
 	}
@@ -217,23 +364,7 @@ async function executeAndVerifyTranslateCommand(
 
 describe("Test Translate Command", () => {
 	beforeEach(async () => {
-		// データベース接続を初期化
-		const connector = new MysqlConnector();
-		// @ts-ignore - privateフィールドにアクセスするため
-		connector.instance.options.logging = false;
-
-		// コミュニティデータをクリーンアップ
-		await CommunityRepositoryImpl.destroy({
-			truncate: true,
-			force: true,
-		});
-
-		// テスト用のコミュニティを作成
-		await CommunityRepositoryImpl.create({
-			categoryType: CommunityCategoryType.Discord.getValue(),
-			clientId: BigInt(TEST_GUILD_ID),
-			batchStatus: 0,
-		});
+		await setupTestDatabase();
 	});
 	/**
 	 * TranslateCommandHandlerのテスト
