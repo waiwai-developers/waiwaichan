@@ -165,10 +165,114 @@ async function executeCommandAndCaptureEditReply(
 }
 
 /**
+ * Repositoryテストのヘルパー関数
+ */
+
+/**
  * PullRequestRepositoryのモックを設定する
  */
 function setupPullRequestRepositoryMock(mockRepo: IPullRequestRepository): void {
 	appContainer.rebind<IPullRequestRepository>(RepoTypes.PullRequestRepository).toConstantValue(mockRepo);
+}
+
+/**
+ * Repository操作の共通エラーシナリオ
+ */
+enum RepositoryErrorScenario {
+	NotFound = "NotFound",
+	Success = "Success",
+}
+
+/**
+ * エラーシナリオに応じたRepositoryモックをセットアップ
+ */
+function setupRepositoryScenario(scenario: RepositoryErrorScenario): void {
+	switch (scenario) {
+		case RepositoryErrorScenario.NotFound:
+			setupPullRequestRepositoryMock(MockNotfoundGithubAPI());
+			break;
+		case RepositoryErrorScenario.Success:
+			setupPullRequestRepositoryMock(MockGithubAPI());
+			break;
+	}
+}
+
+/**
+ * Repositoryエラーシナリオでコマンドを実行し、replyを検証
+ */
+async function executeCommandWithRepositoryScenario<TOptions>(
+	scenario: RepositoryErrorScenario,
+	commandName: string,
+	options: TOptions,
+	userConfig: { userId: string; withChannel: boolean },
+	expectedError: string,
+): Promise<void> {
+	setupRepositoryScenario(scenario);
+	
+	const { client, commandMock, messageMock } = await setupCommandHandlerWithMessage(
+		commandName,
+		options,
+		userConfig,
+	);
+
+	const result = await executeCommandAndCaptureReply(client, commandMock, messageMock);
+
+	expect(result).to.eq(expectedError);
+}
+
+/**
+ * Repositoryエラーシナリオでコマンドを実行し、editReplyを検証
+ */
+async function executeCommandWithRepositoryScenarioEditReply(
+	scenario: RepositoryErrorScenario,
+	commandName: string,
+	options: any,
+	userId: string,
+	expectedError: string,
+): Promise<void> {
+	setupRepositoryScenario(scenario);
+	
+	const { client, commandMock } = await setupCommandHandler(commandName, options, userId);
+
+	const result = await executeCommandAndCaptureEditReply(client, commandMock);
+
+	expect(result).to.eq(expectedError);
+}
+
+/**
+ * PR存在チェックのテストヘルパー
+ * NotFoundシナリオでコマンドを実行し、エラーメッセージを検証
+ */
+async function testPRNotFound<TOptions>(
+	commandName: string,
+	options: TOptions,
+	userConfig: { userId: string; withChannel: boolean },
+): Promise<void> {
+	await executeCommandWithRepositoryScenario(
+		RepositoryErrorScenario.NotFound,
+		commandName,
+		options,
+		userConfig,
+		"pull requestが存在しないよ！っ",
+	);
+}
+
+/**
+ * アサインされているPRがないケースのテストヘルパー
+ * NotFoundシナリオでコマンドを実行し、editReplyでエラーメッセージを検証
+ */
+async function testNoPRsAssigned(
+	commandName: string,
+	options: any,
+	userId: string,
+): Promise<void> {
+	await executeCommandWithRepositoryScenarioEditReply(
+		RepositoryErrorScenario.NotFound,
+		commandName,
+		options,
+		userId,
+		"アサインされているpull reqはないよ！っ",
+	);
 }
 
 describe("Test Review Commands", () => {
@@ -329,16 +433,11 @@ describe("Test Review Commands", () => {
 		 * - 「pull requestが存在しないよ！っ」メッセージが返されることを検証
 		 */
 		it("should return error when PR does not exist", async () => {
-			setupPullRequestRepositoryMock(MockNotfoundGithubAPI());
-
-			const { client, commandMock, messageMock } = await setupReviewGachaCommand(
+			await testPRNotFound(
+				"reviewgacha",
 				{ id: 999 },
 				{ userId: AccountsConfig.users[0].discordId, withChannel: true },
 			);
-
-			const result = await executeCommandAndCaptureReply(client, commandMock, messageMock);
-
-			expect(result).to.eq("pull requestが存在しないよ！っ");
 		});
 
 		/**
@@ -480,14 +579,7 @@ describe("Test Review Commands", () => {
 		 * - 「アサインされているpull reqはないよ！っ」メッセージが返されることを検証
 		 */
 		it("should return error when no PRs are assigned", async () => {
-			setupPullRequestRepositoryMock(MockNotfoundGithubAPI());
-
-			const { client, commandMock } = await setupReviewListCommand(AccountsConfig.users[0].discordId);
-
-			const result = await executeCommandAndCaptureEditReply(client, commandMock);
-
-			verifyEditReplyCalled(commandMock);
-			expect(result).to.eq("アサインされているpull reqはないよ！っ");
+			await testNoPRsAssigned("reviewlist", {}, AccountsConfig.users[0].discordId);
 		});
 
 		/**
