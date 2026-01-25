@@ -76,18 +76,18 @@ const createFakeClient = (guilds: { id: string; memberIds: string[]; channelIds:
 
 /**
  * Repositoryメソッドをモック化し、where条件をキャプチャするヘルパー
- * @param repository モック対象のRepository
+ * @param RepositoryClass モック対象のRepositoryクラス
  * @param methodName モック対象のメソッド名
  * @param captureCallback where条件をキャプチャするコールバック
  * @returns クリーンアップ関数
  */
 const mockRepositoryMethod = <T extends Record<string, any>>(
-	repository: T,
+	RepositoryClass: T,
 	methodName: keyof T,
 	captureCallback: (options: any) => void,
 ): (() => void) => {
-	const originalMethod = repository[methodName];
-	(repository as any)[methodName] = (optionsOrValues: any, options?: any) => {
+	const originalMethod = RepositoryClass[methodName];
+	(RepositoryClass as any)[methodName] = (optionsOrValues: any, options?: any) => {
 		// update メソッドの場合は第2引数、それ以外は第1引数
 		const targetOptions = options !== undefined ? options : optionsOrValues;
 		captureCallback(targetOptions);
@@ -104,7 +104,7 @@ const mockRepositoryMethod = <T extends Record<string, any>>(
 		return Promise.resolve([]);
 	};
 	return () => {
-		(repository as any)[methodName] = originalMethod;
+		(RepositoryClass as any)[methodName] = originalMethod;
 	};
 };
 
@@ -196,6 +196,97 @@ const setupHandlerMocks = () => {
 		dataDeletionLogicMock,
 		cleanup,
 	};
+};
+
+// ===================================
+// Helper Functions: Repository Test
+// ===================================
+
+/**
+ * Repository条件テストのヘルパー（NOT IN条件）
+ * @param RepositoryClass テスト対象のRepositoryクラス
+ * @param methodName テスト対象のメソッド名
+ * @param executeMethod 実行するメソッド（引数を受け取る関数）
+ * @param expectedConditions 期待される条件（communityId, clientIds等）
+ */
+const testRepositoryNotInCondition = async <T>(
+	RepositoryClass: new () => T,
+	methodName: string,
+	executeMethod: (repo: T) => Promise<any>,
+	expectedConditions: {
+		communityId?: number;
+		categoryType?: string | number;
+		clientIds?: bigint[];
+	},
+) => {
+	let receivedWhere: any = null;
+	const cleanup = mockRepositoryMethod(RepositoryClass as any, methodName, (options) => {
+		receivedWhere = options?.where;
+	});
+
+	const repo = new RepositoryClass();
+	await executeMethod(repo);
+
+	if (expectedConditions.communityId !== undefined) {
+		expect(receivedWhere?.communityId).to.equal(expectedConditions.communityId);
+	}
+	if (expectedConditions.categoryType !== undefined) {
+		expect(receivedWhere?.categoryType).to.equal(expectedConditions.categoryType);
+	}
+	if (expectedConditions.clientIds !== undefined) {
+		expect(receivedWhere?.clientId[Op.notIn]).to.deep.equal(expectedConditions.clientIds);
+	}
+
+	cleanup();
+};
+
+/**
+ * Repository削除対象検索テストのヘルパー
+ * @param RepositoryClass テスト対象のRepositoryクラス
+ * @param expectedBatchStatus 期待されるbatchStatus値
+ */
+const testRepositoryFindDeletionTargets = async <T>(
+	RepositoryClass: new () => T,
+	expectedBatchStatus: number | string,
+) => {
+	let receivedWhere: any = null;
+	const cleanup = mockRepositoryMethod(RepositoryClass as any, "findAll", (options) => {
+		receivedWhere = options?.where;
+	});
+
+	const repo = new RepositoryClass();
+	await (repo as any).findDeletionTargetsByBatchStatusAndDeletedAt();
+
+	expect(receivedWhere?.batchStatus).to.equal(expectedBatchStatus);
+	expect(receivedWhere?.deletedAt[Op.not]).to.equal(null);
+
+	cleanup();
+};
+
+/**
+ * Repositoryバッチ更新テストのヘルパー
+ * @param RepositoryClass テスト対象のRepositoryクラス
+ * @param idInstance 更新対象のIDインスタンス
+ * @param expectedBatchStatus 期待されるbatchStatus値
+ */
+const testRepositoryUpdateBatchStatus = async <T, TId>(
+	RepositoryClass: new () => T,
+	idInstance: TId,
+	expectedBatchStatus: number | string,
+) => {
+	let updateOptions: any = null;
+
+	const cleanup = mockRepositoryMethod(RepositoryClass as any, "update", (options) => {
+		updateOptions = options;
+	});
+
+	const repo = new RepositoryClass();
+	await (repo as any).updatebatchStatus(idInstance);
+
+	expect(updateOptions?.paranoid).to.equal(false);
+	expect(updateOptions?.where?.batchStatus).to.equal(expectedBatchStatus);
+
+	cleanup();
 };
 
 // ===================================
@@ -376,18 +467,18 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 		 * - deleteNotBelongByCommunityIdAndClientIdsのwhere条件を検証
 		 */
 		it("UserRepositoryImpl.deleteNotBelongByCommunityIdAndClientIdsはcommunityIdとNOT IN条件を持つ", async () => {
-			let receivedWhere: any = null;
-			const cleanup = mockRepositoryMethod(UserRepositoryImpl, "destroy", (options) => {
-				receivedWhere = options.where;
-			});
-
-			const repo = new UserRepositoryImpl();
-			await repo.deleteNotBelongByCommunityIdAndClientIds(new UserCommunityId(12), [new UserClientId(BigInt(99)), new UserClientId(BigInt(100))]);
-
-			expect(receivedWhere.communityId).to.equal(12);
-			expect(receivedWhere.clientId[Op.notIn]).to.deep.equal([BigInt(99), BigInt(100)]);
-
-			cleanup();
+			await testRepositoryNotInCondition(
+				UserRepositoryImpl,
+				"destroy",
+				(repo) => repo.deleteNotBelongByCommunityIdAndClientIds(
+					new UserCommunityId(12),
+					[new UserClientId(BigInt(99)), new UserClientId(BigInt(100))],
+				),
+				{
+					communityId: 12,
+					clientIds: [BigInt(99), BigInt(100)],
+				},
+			);
 		});
 	});
 
@@ -427,21 +518,18 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 		 * - deleteNotBelongByCommunityIdAndClientIdsのwhere条件を検証
 		 */
 		it("ChannelRepositoryImpl.deleteNotBelongByCommunityIdAndClientIdsはcommunityIdとNOT IN条件を持つ", async () => {
-			let receivedWhere: any = null;
-			const cleanup = mockRepositoryMethod(ChannelRepositoryImpl, "destroy", (options) => {
-				receivedWhere = options.where;
-			});
-
-			const repo = new ChannelRepositoryImpl();
-			await repo.deleteNotBelongByCommunityIdAndClientIds(new ChannelCommunityId(12), [
-				new ChannelClientId(BigInt(99)),
-				new ChannelClientId(BigInt(100)),
-			]);
-
-			expect(receivedWhere.communityId).to.equal(12);
-			expect(receivedWhere.clientId[Op.notIn]).to.deep.equal([BigInt(99), BigInt(100)]);
-
-			cleanup();
+			await testRepositoryNotInCondition(
+				ChannelRepositoryImpl,
+				"destroy",
+				(repo) => repo.deleteNotBelongByCommunityIdAndClientIds(
+					new ChannelCommunityId(12),
+					[new ChannelClientId(BigInt(99)), new ChannelClientId(BigInt(100))],
+				),
+				{
+					communityId: 12,
+					clientIds: [BigInt(99), BigInt(100)],
+				},
+			);
 		});
 	});
 
@@ -485,18 +573,18 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 		 * - categoryType / clientIdの条件を検証
 		 */
 		it("CommunityRepositoryImpl.getNotExistClientIdはNOT IN条件で検索する", async () => {
-			let receivedWhere: any = null;
-			const cleanup = mockRepositoryMethod(CommunityRepositoryImpl, "findAll", (options) => {
-				receivedWhere = options.where;
-			});
-
-			const repo = new CommunityRepositoryImpl();
-			await repo.getNotExistClientId(CommunityCategoryType.Discord, [new CommunityClientId(BigInt(1)), new CommunityClientId(BigInt(2))]);
-
-			expect(receivedWhere.categoryType).to.equal(CommunityCategoryType.Discord.getValue());
-			expect(receivedWhere.clientId[Op.notIn]).to.deep.equal([BigInt(1), BigInt(2)]);
-
-			cleanup();
+			await testRepositoryNotInCondition(
+				CommunityRepositoryImpl,
+				"findAll",
+				(repo) => repo.getNotExistClientId(
+					CommunityCategoryType.Discord,
+					[new CommunityClientId(BigInt(1)), new CommunityClientId(BigInt(2))],
+				),
+				{
+					categoryType: CommunityCategoryType.Discord.getValue(),
+					clientIds: [BigInt(1), BigInt(2)],
+				},
+			);
 		});
 	});
 
@@ -509,18 +597,7 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 		 * - findDeletionTargetsByBatchStatusAndDeletedAtのwhere条件を検証
 		 */
 		it("UserRepositoryImpl.findDeletionTargetsByBatchStatusAndDeletedAtはbatchStatus=YetとdeletedAt!=nullのみ取得する", async () => {
-			let receivedWhere: any = null;
-			const cleanup = mockRepositoryMethod(UserRepositoryImpl, "findAll", (options) => {
-				receivedWhere = options.where;
-			});
-
-			const repo = new UserRepositoryImpl();
-			await repo.findDeletionTargetsByBatchStatusAndDeletedAt();
-
-			expect(receivedWhere.batchStatus).to.equal(UserBatchStatus.Yet.getValue());
-			expect(receivedWhere.deletedAt[Op.not]).to.equal(null);
-
-			cleanup();
+			await testRepositoryFindDeletionTargets(UserRepositoryImpl, UserBatchStatus.Yet.getValue());
 		});
 
 		/**
@@ -528,18 +605,7 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 		 * - findDeletionTargetsByBatchStatusAndDeletedAtのwhere条件を検証
 		 */
 		it("CommunityRepositoryImpl.findDeletionTargetsByBatchStatusAndDeletedAtはbatchStatus=YetとdeletedAt!=nullのみ取得する", async () => {
-			let receivedWhere: any = null;
-			const cleanup = mockRepositoryMethod(CommunityRepositoryImpl, "findAll", (options) => {
-				receivedWhere = options.where;
-			});
-
-			const repo = new CommunityRepositoryImpl();
-			await repo.findDeletionTargetsByBatchStatusAndDeletedAt();
-
-			expect(receivedWhere.batchStatus).to.equal(CommunityBatchStatus.Yet.getValue());
-			expect(receivedWhere.deletedAt[Op.not]).to.equal(null);
-
-			cleanup();
+			await testRepositoryFindDeletionTargets(CommunityRepositoryImpl, CommunityBatchStatus.Yet.getValue());
 		});
 
 		/**
@@ -547,18 +613,7 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 		 * - findDeletionTargetsByBatchStatusAndDeletedAtのwhere条件を検証
 		 */
 		it("ChannelRepositoryImpl.findDeletionTargetsByBatchStatusAndDeletedAtはbatchStatus=YetとdeletedAt!=nullのみ取得する", async () => {
-			let receivedWhere: any = null;
-			const cleanup = mockRepositoryMethod(ChannelRepositoryImpl, "findAll", (options) => {
-				receivedWhere = options.where;
-			});
-
-			const repo = new ChannelRepositoryImpl();
-			await repo.findDeletionTargetsByBatchStatusAndDeletedAt();
-
-			expect(receivedWhere.batchStatus).to.equal(ChannelBatchStatus.Yet.getValue());
-			expect(receivedWhere.deletedAt[Op.not]).to.equal(null);
-
-			cleanup();
+			await testRepositoryFindDeletionTargets(ChannelRepositoryImpl, ChannelBatchStatus.Yet.getValue());
 		});
 
 		/**
@@ -689,37 +744,9 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 		 * - updatebatchStatusがparanoid:falseで更新することを検証
 		 */
 		it("updatebatchStatusはparanoid=falseで更新する", async () => {
-			let communityUpdateOptions: any = null;
-			let userUpdateOptions: any = null;
-			let channelUpdateOptions: any = null;
-
-			const communityCleanup = mockRepositoryMethod(CommunityRepositoryImpl, "update", (options) => {
-				communityUpdateOptions = options;
-			});
-			const userCleanup = mockRepositoryMethod(UserRepositoryImpl, "update", (options) => {
-				userUpdateOptions = options;
-			});
-			const channelCleanup = mockRepositoryMethod(ChannelRepositoryImpl, "update", (options) => {
-				channelUpdateOptions = options;
-			});
-
-			const communityRepo = new CommunityRepositoryImpl();
-			const userRepo = new UserRepositoryImpl();
-			const channelRepo = new ChannelRepositoryImpl();
-			await communityRepo.updatebatchStatus(new CommunityId(1));
-			await userRepo.updatebatchStatus(new UserId(2));
-			await channelRepo.updatebatchStatus(new ChannelId(3));
-
-			expect(communityUpdateOptions.paranoid).to.equal(false);
-			expect(communityUpdateOptions.where.batchStatus).to.equal(CommunityBatchStatus.Yet.getValue());
-			expect(userUpdateOptions.paranoid).to.equal(false);
-			expect(userUpdateOptions.where.batchStatus).to.equal(UserBatchStatus.Yet.getValue());
-			expect(channelUpdateOptions.paranoid).to.equal(false);
-			expect(channelUpdateOptions.where.batchStatus).to.equal(ChannelBatchStatus.Yet.getValue());
-
-			communityCleanup();
-			userCleanup();
-			channelCleanup();
+			await testRepositoryUpdateBatchStatus(CommunityRepositoryImpl, new CommunityId(1), CommunityBatchStatus.Yet.getValue());
+			await testRepositoryUpdateBatchStatus(UserRepositoryImpl, new UserId(2), UserBatchStatus.Yet.getValue());
+			await testRepositoryUpdateBatchStatus(ChannelRepositoryImpl, new ChannelId(3), ChannelBatchStatus.Yet.getValue());
 		});
 	});
 });
