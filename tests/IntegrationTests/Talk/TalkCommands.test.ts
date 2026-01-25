@@ -44,37 +44,6 @@ interface ThreadMetadataContent {
 }
 
 /**
- * メッセージ履歴アイテムの型定義
- */
-interface MessageHistoryItem {
-	id?: string;
-	author: {
-		bot: boolean;
-		id?: string;
-	};
-	content: string;
-}
-
-/**
- * メッセージコレクションのモック型定義
- */
-interface MockMessageCollection {
-	reverse: () => MessageHistoryItem[];
-	map: <T>(callback: (msg: MessageHistoryItem) => T) => T[];
-}
-
-/**
- * チャンネルモックの設定オプション
- */
-interface ChannelMockOptions {
-	isThread?: boolean;
-	guildId?: string;
-	threadId?: string;
-	ownerId?: string;
-	messageCollection?: MockMessageCollection;
-}
-
-/**
  * スレッドデータの型定義（Repositoryから取得したデータ）
  */
 interface ThreadRecord {
@@ -84,11 +53,6 @@ interface ThreadRecord {
 	metadata: ThreadMetadataContent | JSON | null;
 	toDto?: () => ThreadDto;
 }
-
-/**
- * ts-mockitoのモック型を扱うためのユーティリティ型
- */
-type MockInstance<T> = T;
 
 // ============================================================
 // 共通テスト定数
@@ -212,53 +176,6 @@ function createChannelMock(
 		},
 	});
 	return channelMock;
-}
-
-/**
- * AIReplyHandler用のモック設定を行う
- * @param handler - AIReplyHandlerインスタンス
- * @param options - オプションパラメータ
- * @returns 設定されたモックオブジェクト
- */
-function setupAIReplyHandlerMocks(
-	handler: AIReplyHandler,
-	options: {
-		threadDto?: ThreadDto;
-		replyResponse?: string;
-		replyCallback?: (prompt: unknown, context: ChatAIMessageDto[]) => Promise<string>;
-	} = {},
-) {
-	// CommunityLogicのモックを作成
-	const communityLogicMock = mock<ICommunityLogic>();
-	// @ts-ignore - privateフィールドにアクセスするため
-	handler.CommunityLogic = instance(communityLogicMock);
-	when(communityLogicMock.getId(anything())).thenResolve(new CommunityId(1));
-
-	// ThreadLogicのモックを作成
-	const threadLogicMock = mock<ThreadLogic>();
-	// @ts-ignore - privateフィールドにアクセスするため
-	handler.threadLogic = instance(threadLogicMock);
-
-	if (options.threadDto) {
-		when(threadLogicMock.find(anything(), anything())).thenResolve(options.threadDto);
-	}
-
-	// ChatAILogicのモックを作成
-	const chatAILogicMock = mock<IChatAILogic>();
-	// @ts-ignore - privateフィールドにアクセスするため
-	handler.chatAILogic = instance(chatAILogicMock);
-
-	if (options.replyCallback) {
-		when(chatAILogicMock.replyTalk(anything(), anything())).thenCall(options.replyCallback);
-	} else if (options.replyResponse !== undefined) {
-		when(chatAILogicMock.replyTalk(anything(), anything())).thenResolve(options.replyResponse);
-	}
-
-	return {
-		communityLogicMock,
-		threadLogicMock,
-		chatAILogicMock,
-	};
 }
 
 /**
@@ -402,11 +319,11 @@ async function executeTalkCommandTest(
  */
 interface AIReplyTestResult {
 	handler: AIReplyHandler;
-	messageMock: any;
-	channelMock: any;
-	communityLogicMock: any;
-	threadLogicMock: any;
-	chatAILogicMock: any;
+	messageMock: ReturnType<typeof mockMessage>;
+	channelMock: ReturnType<typeof createChannelMock>;
+	communityLogicMock: ICommunityLogic;
+	threadLogicMock: ThreadLogic;
+	chatAILogicMock: IChatAILogic;
 }
 
 /**
@@ -774,28 +691,34 @@ function setupMessageWithChannel(
 }
 
 /**
+ * executeAIReplyTestのオプション型定義
+ */
+interface ExecuteAIReplyTestOptions {
+	/** ユーザーID */
+	userId?: string;
+	/** メッセージ内容 */
+	content?: string;
+	/** メッセージ履歴 */
+	messageHistory?: Array<{
+		id?: string;
+		author: { bot: boolean; id?: string };
+		content: string;
+	}>;
+	/** スレッドDTO */
+	threadDto?: ThreadDto;
+	/** AI応答文字列 */
+	replyResponse?: string;
+	/** AI応答コールバック */
+	replyCallback?: (prompt: unknown, context: ChatAIMessageDto[]) => Promise<string>;
+}
+
+/**
  * AIReplyHandlerのテストを簡略化するためのヘルパー関数
  * Handler作成、メッセージ設定、ハンドル実行を一括で行う
  * @param options - オプションパラメータ
  * @returns テスト結果の検証用オブジェクト
  */
-async function executeAIReplyTest(
-	options: {
-		// メッセージ設定
-		userId?: string;
-		content?: string;
-		messageHistory?: Array<{
-			id?: string;
-			author: { bot: boolean; id?: string };
-			content: string;
-		}>;
-		// スレッド設定
-		threadDto?: ThreadDto;
-		// AI応答設定
-		replyResponse?: string;
-		replyCallback?: (prompt: unknown, context: ChatAIMessageDto[]) => Promise<string>;
-	} = {},
-) {
+async function executeAIReplyTest(options: ExecuteAIReplyTestOptions = {}): Promise<AIReplyTestResult> {
 	// AIReplyHandlerとモックを作成
 	const { handler, communityLogicMock, threadLogicMock, chatAILogicMock } = createAIReplyHandlerWithMocks({
 		threadDto: options.threadDto,
