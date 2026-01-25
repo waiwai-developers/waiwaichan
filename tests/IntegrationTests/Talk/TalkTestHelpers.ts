@@ -9,7 +9,7 @@ import { ThreadMetadata } from "@/src/entities/vo/ThreadMetadata";
 import { AIReplyHandler } from "@/src/handlers/discord.js/events/AIReplyHandler";
 import type { IChatAILogic } from "@/src/logics/Interfaces/logics/IChatAILogic";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
-import { ThreadLogic } from "@/src/logics/ThreadLogic";
+import type { ThreadLogic } from "@/src/logics/ThreadLogic";
 import { ThreadRepositoryImpl } from "@/src/repositories/sequelize-mysql/ThreadRepositoryImpl";
 import { mockMessage } from "@/tests/fixtures/discord.js/MockMessage";
 import { mockSlashCommand } from "@/tests/fixtures/discord.js/MockSlashCommand";
@@ -338,10 +338,7 @@ export function verifyThreadData(
  * @param thread - 検証対象のスレッド
  * @param expectedMetadata - 期待するメタデータ（部分一致）
  */
-export function verifyThreadMetadata(
-	thread: ThreadRecord,
-	expectedMetadata?: Partial<ThreadMetadataContent>,
-): void {
+export function verifyThreadMetadata(thread: ThreadRecord, expectedMetadata?: Partial<ThreadMetadataContent>): void {
 	const metadata = thread.metadata;
 	expect(metadata).to.not.be.null;
 	expect(metadata).to.be.an("object");

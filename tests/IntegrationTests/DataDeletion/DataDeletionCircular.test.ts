@@ -107,10 +107,8 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 			await testRepositoryNotInCondition(
 				UserRepositoryImpl,
 				"destroy",
-				(repo) => repo.deleteNotBelongByCommunityIdAndClientIds(
-					new UserCommunityId(12),
-					[new UserClientId(BigInt(99)), new UserClientId(BigInt(100))],
-				),
+				(repo) =>
+					repo.deleteNotBelongByCommunityIdAndClientIds(new UserCommunityId(12), [new UserClientId(BigInt(99)), new UserClientId(BigInt(100))]),
 				{
 					communityId: 12,
 					clientIds: [BigInt(99), BigInt(100)],
@@ -158,10 +156,11 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 			await testRepositoryNotInCondition(
 				ChannelRepositoryImpl,
 				"destroy",
-				(repo) => repo.deleteNotBelongByCommunityIdAndClientIds(
-					new ChannelCommunityId(12),
-					[new ChannelClientId(BigInt(99)), new ChannelClientId(BigInt(100))],
-				),
+				(repo) =>
+					repo.deleteNotBelongByCommunityIdAndClientIds(new ChannelCommunityId(12), [
+						new ChannelClientId(BigInt(99)),
+						new ChannelClientId(BigInt(100)),
+					]),
 				{
 					communityId: 12,
 					clientIds: [BigInt(99), BigInt(100)],
@@ -213,10 +212,7 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 			await testRepositoryNotInCondition(
 				CommunityRepositoryImpl,
 				"findAll",
-				(repo) => repo.getNotExistClientId(
-					CommunityCategoryType.Discord,
-					[new CommunityClientId(BigInt(1)), new CommunityClientId(BigInt(2))],
-				),
+				(repo) => repo.getNotExistClientId(CommunityCategoryType.Discord, [new CommunityClientId(BigInt(1)), new CommunityClientId(BigInt(2))]),
 				{
 					categoryType: CommunityCategoryType.Discord.getValue(),
 					clientIds: [BigInt(1), BigInt(2)],
@@ -316,12 +312,15 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 		 * - deleteRecordInRelatedTableがtrueを返すことを検証
 		 */
 		it("DataDeletionCircularImplは対象モデルが0件でも成功扱いにする", async () => {
-			const cleanup = mockConnectorModels([
-				{
-					getAttributes: () => ({ other: true }),
-					destroy: async () => 1,
-				},
-			], []);
+			const cleanup = mockConnectorModels(
+				[
+					{
+						getAttributes: () => ({ other: true }),
+						destroy: async () => 1,
+					},
+				],
+				[],
+			);
 
 			const repo = new DataDeletionCircularImpl();
 			const result = await repo.deleteRecordInRelatedTable(new ColumnDto(ColumnName.community, new ColumnId(2)));
@@ -338,14 +337,17 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 		it("DataDeletionCircularImplは例外時にfalseを返しログを出力する", async () => {
 			let capturedError = "";
 
-			const modelsCleanup = mockConnectorModels([
-				{
-					getAttributes: () => ({ userId: true }),
-					destroy: async () => {
-						throw new Error("destroy error");
+			const modelsCleanup = mockConnectorModels(
+				[
+					{
+						getAttributes: () => ({ userId: true }),
+						destroy: async () => {
+							throw new Error("destroy error");
+						},
 					},
-				},
-			], []);
+				],
+				[],
+			);
 
 			const consoleCleanup = mockConsoleError((message) => {
 				capturedError = message;

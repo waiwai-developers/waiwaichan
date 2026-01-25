@@ -11,13 +11,7 @@ import { ThreadRepositoryImpl } from "@/src/repositories/sequelize-mysql/ThreadR
 import { mockSlashCommand, waitUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { expect } from "chai";
 import { anything, instance, verify, when } from "ts-mockito";
-import {
-	TEST_GUILD_ID,
-	assertThreadCount,
-	assertThreadExistsWithData,
-	createTextChannelMock,
-	emitInteractionEvent,
-} from "./TalkTestHelpers";
+import { TEST_GUILD_ID, assertThreadCount, assertThreadExistsWithData, createTextChannelMock, emitInteractionEvent } from "./TalkTestHelpers";
 
 describe("Talk Command Basic Tests", function (this: Mocha.Suite) {
 	this.timeout(60_000);

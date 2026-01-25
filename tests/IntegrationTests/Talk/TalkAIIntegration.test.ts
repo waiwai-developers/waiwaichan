@@ -112,19 +112,17 @@ describe("Talk AI Integration Tests", function (this: Mocha.Suite) {
 			},
 		};
 
-		when(threadRepositoryMock.findByMessageId(anything(), anything())).thenCall(
-			async (communityId: CommunityId, messageId: ThreadMessageId) => {
-				expect(communityId.getValue()).to.equal(1);
-				expect(Number(messageId.getValue())).to.equal(testThreadId);
+		when(threadRepositoryMock.findByMessageId(anything(), anything())).thenCall(async (communityId: CommunityId, messageId: ThreadMessageId) => {
+			expect(communityId.getValue()).to.equal(1);
+			expect(Number(messageId.getValue())).to.equal(testThreadId);
 
-				return await ThreadRepositoryImpl.findOne({
-					where: {
-						communityId: 1,
-						messageId: messageId.getValue(),
-					},
-				}).then((res) => (res ? res.toDto() : undefined));
-			},
-		);
+			return await ThreadRepositoryImpl.findOne({
+				where: {
+					communityId: 1,
+					messageId: messageId.getValue(),
+				},
+			}).then((res) => (res ? res.toDto() : undefined));
+		});
 
 		const foundThread = await threadLogic.find(new CommunityId(1), new ThreadMessageId(testThreadId.toString()));
 
@@ -135,18 +133,13 @@ describe("Talk AI Integration Tests", function (this: Mocha.Suite) {
 			expect(foundThread.categoryType.getValue()).to.equal(ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue());
 		}
 
-		when(threadRepositoryMock.findByMessageId(anything(), anything())).thenCall(
-			async (communityId: CommunityId, messageId: ThreadMessageId) => {
-				expect(communityId.getValue()).to.equal(1);
-				expect(Number(messageId.getValue())).to.equal(testNonExistThreadId);
-				return undefined;
-			},
-		);
+		when(threadRepositoryMock.findByMessageId(anything(), anything())).thenCall(async (communityId: CommunityId, messageId: ThreadMessageId) => {
+			expect(communityId.getValue()).to.equal(1);
+			expect(Number(messageId.getValue())).to.equal(testNonExistThreadId);
+			return undefined;
+		});
 
-		const notFoundThread = await threadLogic.find(
-			new CommunityId(1),
-			new ThreadMessageId(testNonExistThreadId.toString()),
-		);
+		const notFoundThread = await threadLogic.find(new CommunityId(1), new ThreadMessageId(testNonExistThreadId.toString()));
 		expect(notFoundThread).to.be.undefined;
 	});
 
@@ -266,9 +259,7 @@ describe("Talk AI Integration Tests", function (this: Mocha.Suite) {
 		const threadLogicMock = mock<ThreadLogic>();
 		// @ts-ignore
 		aiReplyHandler.threadLogic = instance(threadLogicMock);
-		when(threadLogicMock.find(anything(), anything())).thenResolve(
-			createTestThreadDto({ messageId: TEST_THREAD_ID, metadata: testMetadata }),
-		);
+		when(threadLogicMock.find(anything(), anything())).thenResolve(createTestThreadDto({ messageId: TEST_THREAD_ID, metadata: testMetadata }));
 
 		const chatAILogicMock = mock<IChatAILogic>();
 		// @ts-ignore
@@ -346,9 +337,7 @@ describe("Talk AI Integration Tests", function (this: Mocha.Suite) {
 		const codeBlockTextResult = await DiscordTextPresenter(codeBlockText);
 		expect(codeBlockTextResult).to.be.an("array");
 
-		const hasIntactCodeBlock = codeBlockTextResult.some(
-			(chunk) => chunk.includes("```\nfunction test()") && chunk.includes("}\n```"),
-		);
+		const hasIntactCodeBlock = codeBlockTextResult.some((chunk) => chunk.includes("```\nfunction test()") && chunk.includes("}\n```"));
 		expect(hasIntactCodeBlock).to.be.true;
 	});
 

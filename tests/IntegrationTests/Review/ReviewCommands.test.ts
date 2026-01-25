@@ -11,21 +11,21 @@ import { createMockMessage, mockSlashCommand, waitUntilReply } from "@/tests/fix
 import { TestDiscordServer } from "@/tests/fixtures/discord.js/TestDiscordServer";
 import { DummyPullRequest, MockGithubAPI } from "@/tests/fixtures/repositories/MockGithubAPI";
 import { expect } from "chai";
-import type { Message, Client, ChatInputCommandInteraction } from "discord.js";
+import type { ChatInputCommandInteraction, Client, Message } from "discord.js";
 import { anything, capture, instance, mock, verify, when } from "ts-mockito";
 import {
 	TEST_GUILD_ID,
 	emitInteractionAndWait,
-	verifyReplyNeverCalled,
-	verifyEditReplyNeverCalled,
-	verifyDeferReplyCalled,
-	verifyEditReplyCalled,
+	executeCommandAndCaptureEditReply,
+	executeCommandAndCaptureReply,
 	setupReviewGachaCommand,
 	setupReviewListCommand,
-	executeCommandAndCaptureReply,
-	executeCommandAndCaptureEditReply,
-	testPRNotFound,
 	testNoPRsAssigned,
+	testPRNotFound,
+	verifyDeferReplyCalled,
+	verifyEditReplyCalled,
+	verifyEditReplyNeverCalled,
+	verifyReplyNeverCalled,
 } from "./ReviewHelpers.test";
 
 describe("Test Review Commands", () => {
@@ -71,7 +71,7 @@ describe("Test Review Commands", () => {
 
 			// Wait a bit for processing to complete
 			await new Promise((resolve) => setTimeout(resolve, 500));
-			
+
 			// Verify reply was never called (early return occurred)
 			verifyReplyNeverCalled(commandMock);
 			verifyEditReplyNeverCalled(commandMock);
@@ -187,11 +187,7 @@ describe("Test Review Commands", () => {
 		 * - 「pull requestが存在しないよ！っ」メッセージが返されることを検証
 		 */
 		it("should return error when PR does not exist", async () => {
-			await testPRNotFound(
-				"reviewgacha",
-				{ id: 999 },
-				{ userId: AccountsConfig.users[0].discordId, withChannel: true },
-			);
+			await testPRNotFound("reviewgacha", { id: 999 }, { userId: AccountsConfig.users[0].discordId, withChannel: true });
 		});
 
 		/**
