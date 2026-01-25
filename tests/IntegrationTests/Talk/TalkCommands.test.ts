@@ -243,6 +243,240 @@ async function handleAIReplyEvent(handler: AIReplyHandler, messageMock: any): Pr
 }
 
 /**
+ * コマンド実行結果の期待値オプション
+ */
+interface CommandTestExpectation {
+	/** 応答メッセージの検証 */
+	expectReply?: {
+		/** 応答が呼ばれる回数 (デフォルト: 1) */
+		times?: number;
+		/** 応答が呼ばれないことを期待 */
+		never?: boolean;
+		/** 応答メッセージの内容 */
+		content?: string;
+	};
+	/** スレッド作成の検証 */
+	expectThread?: {
+		/** スレッドが作成されることを期待 */
+		created?: boolean;
+		/** 期待するスレッド数 */
+		count?: number;
+		/** スレッドデータの検証 */
+		data?: {
+			communityId?: string;
+			messageId?: string;
+			categoryType?: number;
+			metadata?: object;
+		};
+	};
+	/** 待機時間（ミリ秒） */
+	waitTime?: number;
+}
+
+/**
+ * TalkCommandのテスト実行ヘルパー関数
+ * コマンド発行からレスポンス検証までを一括で行う
+ * @param commandOptions - コマンドオプション
+ * @param mockSetup - モック設定
+ * @param expectations - 期待値
+ * @returns テスト結果
+ */
+async function executeTalkCommandTest(
+	commandOptions: {
+		title: string | null;
+		type: number;
+	},
+	mockSetup: {
+		guildId?: string;
+		setupChannel?: boolean;
+		replyResponse?: any;
+	} = {},
+	expectations: CommandTestExpectation = {},
+): Promise<{
+	commandMock: any;
+	channelMock: any;
+}> {
+	const guildId = mockSetup.guildId ?? TEST_GUILD_ID;
+
+	// コマンドモックの設定
+	const commandMock = mockSlashCommand("talk", commandOptions, { guildId });
+
+	// チャンネルモックの設定
+	let channelMock: any = null;
+	if (mockSetup.setupChannel !== false) {
+		channelMock = createTextChannelMock();
+		when(commandMock.channel).thenReturn(instance(channelMock));
+	}
+
+	// レスポンスモックの設定
+	if (mockSetup.replyResponse !== undefined) {
+		when(commandMock.reply(anything())).thenResolve(mockSetup.replyResponse);
+	}
+
+	// イベント発行
+	await emitInteractionEvent(commandMock);
+
+	// 待機
+	if (expectations.waitTime) {
+		await new Promise((resolve) => setTimeout(resolve, expectations.waitTime));
+	}
+
+	// 応答の検証
+	if (expectations.expectReply) {
+		if (expectations.expectReply.never) {
+			verify(commandMock.reply(anything())).never();
+		} else if (expectations.expectReply.content) {
+			verify(commandMock.reply(expectations.expectReply.content)).times(expectations.expectReply.times ?? 1);
+		} else {
+			verify(commandMock.reply(anything())).times(expectations.expectReply.times ?? 1);
+		}
+	}
+
+	// スレッド作成の検証
+	if (expectations.expectThread) {
+		if (expectations.expectThread.created === false || expectations.expectThread.count === 0) {
+			await assertNoThreadsCreated();
+		} else if (expectations.expectThread.count !== undefined) {
+			await assertThreadCount(expectations.expectThread.count);
+		}
+	}
+
+	return { commandMock, channelMock };
+}
+
+/**
+ * AIReplyHandlerテスト結果の型定義
+ */
+interface AIReplyTestResult {
+	handler: AIReplyHandler;
+	messageMock: any;
+	channelMock: any;
+	communityLogicMock: any;
+	threadLogicMock: any;
+	chatAILogicMock: any;
+}
+
+/**
+ * AIReplyHandlerの動作検証オプション
+ */
+interface AIReplyTestExpectation {
+	/** AIロジックが呼ばれる回数 */
+	expectAICall?: {
+		times?: number;
+		never?: boolean;
+	};
+	/** 応答の検証 */
+	expectReply?: {
+		times?: number;
+		never?: boolean;
+		content?: string;
+	};
+	/** sendTypingの検証 */
+	expectTyping?: {
+		times?: number;
+		never?: boolean;
+	};
+}
+
+/**
+ * AIReplyHandlerのテストを実行し、結果を検証する
+ * @param options - テストオプション
+ * @param expectations - 期待値
+ * @returns テスト結果
+ */
+async function executeAIReplyTestWithVerification(
+	options: {
+		userId?: string;
+		content?: string;
+		messageHistory?: Array<{
+			id?: string;
+			author: { bot: boolean; id?: string };
+			content: string;
+		}>;
+		threadDto?: ThreadDto;
+		replyResponse?: string;
+		replyCallback?: (prompt: unknown, context: ChatAIMessageDto[]) => Promise<string>;
+		isThread?: boolean;
+		ownerId?: string;
+	} = {},
+	expectations: AIReplyTestExpectation = {},
+): Promise<AIReplyTestResult> {
+	// テストを実行
+	const result = await executeAIReplyTest(options);
+
+	// AIロジック呼び出しの検証
+	if (expectations.expectAICall) {
+		if (expectations.expectAICall.never) {
+			verify(result.chatAILogicMock.replyTalk(anything(), anything())).never();
+		} else {
+			verify(result.chatAILogicMock.replyTalk(anything(), anything())).times(expectations.expectAICall.times ?? 1);
+		}
+	}
+
+	// 応答の検証
+	if (expectations.expectReply) {
+		if (expectations.expectReply.never) {
+			verify(result.messageMock.reply(anything())).never();
+		} else if (expectations.expectReply.content) {
+			verify(result.messageMock.reply(expectations.expectReply.content)).times(expectations.expectReply.times ?? 1);
+		} else {
+			verify(result.messageMock.reply(anything())).times(expectations.expectReply.times ?? 1);
+		}
+	}
+
+	// sendTypingの検証
+	if (expectations.expectTyping) {
+		if (expectations.expectTyping.never) {
+			verify(result.channelMock.sendTyping()).never();
+		} else {
+			verify(result.channelMock.sendTyping()).times(expectations.expectTyping.times ?? 1);
+		}
+	}
+
+	return result;
+}
+
+/**
+ * メッセージフィルタリングテスト用のセットアップヘルパー
+ * @param options - オプション
+ * @returns 設定済みのモックとハンドラー
+ */
+async function setupMessageFilteringTest(
+	options: {
+		isBot?: boolean;
+		isThread?: boolean;
+		ownerId?: string;
+		threadId?: string;
+		categoryType?: ThreadCategoryType;
+	} = {},
+): Promise<{
+	handler: AIReplyHandler;
+	messageMock: any;
+	channelMock: any;
+}> {
+	const { handler } = createAIReplyHandlerWithMocks({
+		threadDto: options.categoryType
+			? createTestThreadDto({
+					messageId: options.threadId ?? TEST_THREAD_ID,
+					categoryType: options.categoryType,
+				})
+			: undefined,
+	});
+
+	const messageMock = mockMessage(TEST_USER_ID, false, options.isBot ?? false);
+	const channelMock = createChannelMock({
+		isThread: options.isThread ?? true,
+		threadId: options.threadId ?? TEST_THREAD_ID,
+		ownerId: options.ownerId ?? TEST_BOT_ID,
+	});
+
+	when(messageMock.channel).thenReturn(instance(channelMock));
+	when(messageMock.reply(anything())).thenResolve();
+
+	return { handler, messageMock, channelMock };
+}
+
+/**
  * AIReplyHandler初期化オプションの型定義
  */
 interface AIReplyHandlerMockOptions {
@@ -821,31 +1055,14 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 	 * - タイトルが null の場合はエラーになるか
 	 */
 	it("test talk command with null title should throw error", async function (this: Mocha.Context) {
-		// 個別のテストのタイムアウト時間を延長（10秒）
 		this.timeout(10_000);
 
-		// テスト用のパラメータ（タイトルをnullに設定）
-		const commandMock = mockSlashCommand("talk", {
-			title: null,
-			type: ThreadCategoryType.CATEGORY_TYPE_CHATGPT,
-		});
-
-		// モックのチャンネル設定
-		const channelMock = mock<TextChannel>();
-		when(commandMock.channel).thenReturn(instance(channelMock));
-		when(channelMock.threads).thenReturn({
-			create: async () => ({}),
-		} as any);
-
-		// エラーメッセージでの応答を期待
-		when(commandMock.reply(InternalErrorMessage)).thenResolve();
-
-		// コマンド実行
-		const TEST_CLIENT = await TestDiscordServer.getClient();
-		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-
-		// スレッドが作成されていないことを確認
-		await assertNoThreadsCreated();
+		// ヘルパー関数を使用してコマンドテストを実行
+		await executeTalkCommandTest(
+			{ title: null, type: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue() },
+			{},
+			{ expectThread: { count: 0 } },
+		);
 	});
 
 	/**
@@ -853,31 +1070,14 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 	 * - type パラメータが想定外の値だった場合、エラーとして処理されるか
 	 */
 	it("test talk command with invalid type should return error", async function (this: Mocha.Context) {
-		// 個別のテストのタイムアウト時間を延長（10秒）
 		this.timeout(10_000);
 
-		// テスト用のパラメータ（存在しないコンテキストタイプを指定）
-		const commandMock = mockSlashCommand("talk", {
-			title: "テストタイトル",
-			type: 99999, // 存在しないIDを使用
-		});
-
-		// モックのチャンネル設定
-		const channelMock = mock<TextChannel>();
-		when(commandMock.channel).thenReturn(instance(channelMock));
-		when(channelMock.threads).thenReturn({
-			create: async () => ({}),
-		} as any);
-
-		// エラーメッセージでの応答を期待
-		when(commandMock.reply(InternalErrorMessage)).thenResolve();
-
-		// コマンド実行
-		const TEST_CLIENT = await TestDiscordServer.getClient();
-		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-
-		// スレッドが作成されていないことを確認
-		await assertNoThreadsCreated();
+		// ヘルパー関数を使用してコマンドテストを実行
+		await executeTalkCommandTest(
+			{ title: "テストタイトル", type: 99999 }, // 存在しないIDを使用
+			{},
+			{ expectThread: { count: 0 } },
+		);
 	});
 
 	/**
@@ -885,21 +1085,17 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 	 * - interaction.channel が null のとき、安全に処理がスキップされるか
 	 */
 	it("test talk command with null channel should skip processing safely", async function (this: Mocha.Context) {
-		// 個別のテストのタイムアウト時間を延長（10秒）
 		this.timeout(10_000);
 
-		// テスト用のパラメータ
+		// コマンドモックを手動で設定（チャンネルがnullの特殊ケース）
 		const commandMock = mockSlashCommand("talk", {
 			title: "テストタイトル",
-			type: ThreadCategoryType.CATEGORY_TYPE_CHATGPT,
+			type: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
 		});
-
-		// channelをnullに設定
 		when(commandMock.channel).thenReturn(null);
 
-		// コマンド実行
-		const TEST_CLIENT = await TestDiscordServer.getClient();
-		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+		// イベント発行
+		await emitInteractionEvent(commandMock);
 
 		// 応答がないことを確認するため少し待機
 		await new Promise((resolve) => setTimeout(resolve, 100));
@@ -916,13 +1112,12 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 	 * - チャンネルがテキストチャンネル以外だった場合の対応
 	 */
 	it("test talk command with non-text channel should skip processing safely", async function (this: Mocha.Context) {
-		// 個別のテストのタイムアウト時間を延長（10秒）
 		this.timeout(10_000);
 
-		// テスト用のパラメータ
+		// コマンドモックを手動で設定（非テキストチャンネルの特殊ケース）
 		const commandMock = mockSlashCommand("talk", {
 			title: "テストタイトル",
-			type: ThreadCategoryType.CATEGORY_TYPE_CHATGPT,
+			type: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
 		});
 
 		// テキストチャンネル以外のチャンネルを設定（threads.createメソッドがない）
@@ -930,9 +1125,8 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		when(nonTextChannelMock.threads).thenReturn({});
 		when(commandMock.channel).thenReturn(instance(nonTextChannelMock));
 
-		// コマンド実行
-		const TEST_CLIENT = await TestDiscordServer.getClient();
-		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+		// イベント発行
+		await emitInteractionEvent(commandMock);
 
 		// 応答がないことを確認するため少し待機
 		await new Promise((resolve) => setTimeout(resolve, 100));
@@ -949,36 +1143,14 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 	 * - PersonalityLogic に対応するパーソナリティが見つからなかったケース
 	 */
 	it("test talk command when personality not found should skip processing safely", async function (this: Mocha.Context) {
-		// 個別のテストのタイムアウト時間を延長（10秒）
 		this.timeout(10_000);
 
-		// テスト用のパラメータ
-		const commandMock = mockSlashCommand("talk", {
-			title: "テストタイトル",
-			type: ThreadCategoryType.CATEGORY_TYPE_CHATGPT,
-		});
-
-		// モックのチャンネル設定
-		const channelMock = mock<TextChannel>();
-		when(commandMock.channel).thenReturn(instance(channelMock));
-		when(channelMock.threads).thenReturn({
-			create: async () => ({}),
-		} as any);
-
-		// エラーメッセージでの応答を期待
-		when(commandMock.reply(InternalErrorMessage)).thenResolve();
-
-		// コマンド実行
-		const TEST_CLIENT = await TestDiscordServer.getClient();
-		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-
-		// スレッドが作成されていないことを確認
-		const connector = new MysqlConnector();
-		// @ts-ignore - privateフィールドにアクセスするため
-		connector.instance.options.logging = false;
-
-		const threads = await ThreadRepositoryImpl.findAll();
-		expect(threads.length).to.eq(0);
+		// ヘルパー関数を使用してコマンドテストを実行
+		await executeTalkCommandTest(
+			{ title: "テストタイトル", type: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue() },
+			{},
+			{ expectThread: { count: 0 } },
+		);
 	});
 
 	/**
@@ -986,36 +1158,14 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 	 * - PersonalityContextLogic で対応するパーソナリティコンテキストが存在しなかったケース
 	 */
 	it("test talk command when personality context not found should skip processing safely", async function (this: Mocha.Context) {
-		// 個別のテストのタイムアウト時間を延長（10秒）
 		this.timeout(10_000);
 
-		// テスト用のパラメータ
-		const commandMock = mockSlashCommand("talk", {
-			title: "テストタイトル",
-			type: ThreadCategoryType.CATEGORY_TYPE_CHATGPT,
-		});
-
-		// モックのチャンネル設定
-		const channelMock = mock<TextChannel>();
-		when(commandMock.channel).thenReturn(instance(channelMock));
-		when(channelMock.threads).thenReturn({
-			create: async () => ({}),
-		} as any);
-
-		// エラーメッセージでの応答を期待
-		when(commandMock.reply(InternalErrorMessage)).thenResolve();
-
-		// コマンド実行
-		const TEST_CLIENT = await TestDiscordServer.getClient();
-		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-
-		// スレッドが作成されていないことを確認
-		const connector = new MysqlConnector();
-		// @ts-ignore - privateフィールドにアクセスするため
-		connector.instance.options.logging = false;
-
-		const threads = await ThreadRepositoryImpl.findAll();
-		expect(threads.length).to.eq(0);
+		// ヘルパー関数を使用してコマンドテストを実行
+		await executeTalkCommandTest(
+			{ title: "テストタイトル", type: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue() },
+			{},
+			{ expectThread: { count: 0 } },
+		);
 	});
 
 	/**
@@ -1023,36 +1173,14 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 	 * - ContextLogic で有効なコンテキストが取得できなかったときのエラー挙動
 	 */
 	it("test talk command when context not found should skip processing safely", async function (this: Mocha.Context) {
-		// 個別のテストのタイムアウト時間を延長（10秒）
 		this.timeout(10_000);
 
-		// モックの設定
-		const commandMock = mockSlashCommand("talk", {
-			title: "テストタイトル",
-			type: ThreadCategoryType.CATEGORY_TYPE_CHATGPT,
-		});
-
-		// モックのチャンネル設定
-		const channelMock = mock<TextChannel>();
-		when(commandMock.channel).thenReturn(instance(channelMock));
-		when(channelMock.threads).thenReturn({
-			create: async () => ({}),
-		} as any);
-
-		// エラーメッセージでの応答を期待
-		when(commandMock.reply(InternalErrorMessage)).thenResolve();
-
-		// コマンド実行
-		const TEST_CLIENT = await TestDiscordServer.getClient();
-		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-
-		// スレッドが作成されていないことを確認
-		const connector = new MysqlConnector();
-		// @ts-ignore - privateフィールドにアクセスするため
-		connector.instance.options.logging = false;
-
-		const threads = await ThreadRepositoryImpl.findAll();
-		expect(threads.length).to.eq(0);
+		// ヘルパー関数を使用してコマンドテストを実行
+		await executeTalkCommandTest(
+			{ title: "テストタイトル", type: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue() },
+			{},
+			{ expectThread: { count: 0 } },
+		);
 	});
 
 	/**
