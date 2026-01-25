@@ -961,7 +961,6 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		// テスト用のパラメータ
 		const testTitle = "テストタイトル";
 		const testContextType = 999; // seedsで使用されていないIDを使用
-		const testGuildId = "12345";
 		const testMessageId = "67890";
 		const expectedThreadTitle = `テストコンテキスト: ${testTitle}`;
 
@@ -972,15 +971,12 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 				title: testTitle,
 				type: testContextType,
 			},
-			{ guildId: testGuildId },
+			{ guildId: TEST_GUILD_ID },
 		);
 
 		// モックのチャンネル設定
-		const channelMock = mock<TextChannel>();
+		const channelMock = createTextChannelMock();
 		when(commandMock.channel).thenReturn(instance(channelMock));
-		when(channelMock.threads).thenReturn({
-			create: async () => ({}),
-		} as any);
 
 		// モックのメッセージ設定
 		when(commandMock.reply(anything())).thenResolve({
@@ -1009,9 +1005,8 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 			},
 		} as any);
 
-		// コマンド実行
-		const TEST_CLIENT = await TestDiscordServer.getClient();
-		TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+		// イベント発行
+		await emitInteractionEvent(commandMock);
 
 		// 応答を待機
 		await waitUntilReply(commandMock);
@@ -1022,32 +1017,16 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		// スレッドが作成されるまで少し待機
 		await new Promise((resolve) => setTimeout(resolve, 5000));
 
-		const threads = await ThreadRepositoryImpl.findAll();
-
-		// スレッドが作成されたことを確認
-		expect(threads.length).to.eq(1);
-
-		// スレッドの内容を検証
-		const thread = threads[0];
-		// communityIdはDBの内部ID（1）なので、testGuildId（Discord guildId）ではなく"1"と比較
-		expect(thread.communityId.toString()).to.eq("1");
-		expect(thread.messageId.toString()).to.eq(testMessageId);
-		expect(thread.categoryType).to.eq(ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue());
-
-		// メタデータが正しく設定されていることを確認
-		const metadata = thread.metadata;
-		expect(metadata).to.not.be.null;
-		expect(metadata).to.be.an("object");
-
-		// メタデータに必要なプロパティが含まれていることを確認
-		const metadataObj = JSON.parse(JSON.stringify(metadata));
-		expect(metadataObj).to.have.property("persona_role");
-		expect(metadataObj).to.have.property("speaking_style_rules");
-		expect(metadataObj).to.have.property("response_directives");
-		expect(metadataObj).to.have.property("emotion_model");
-		expect(metadataObj).to.have.property("emotion_model");
-		expect(metadataObj).to.have.property("notes");
-		expect(metadataObj).to.have.property("input_scope");
+		// ヘルパー関数を使用してスレッド数とデータを検証
+		await assertThreadCount(1);
+		await assertThreadExistsWithData(
+			testMessageId,
+			{
+				communityId: "1",
+				categoryType: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
+				metadata: {}, // メタデータのプロパティ存在確認のみ
+			},
+		);
 	});
 
 	/**
@@ -1338,20 +1317,8 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		const testNonExistThreadId = 99999;
 		const testUserId = 98765;
 
-		// テスト用のスレッドデータを作成
-		await ThreadRepositoryImpl.create({
-			communityId: 1,
-			messageId: testThreadId.toString(),
-			categoryType: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
-			metadata: {
-				persona_role: "テスト役割",
-				speaking_style_rules: "テストスタイル",
-				response_directives: "テスト指示",
-				emotion_model: "テスト感情",
-				notes: "テスト注釈",
-				input_scope: "テスト範囲",
-			},
-		});
+		// ヘルパー関数を使用してテスト用のスレッドデータを作成
+		await createTestThread({ messageId: testThreadId.toString() });
 
 		// ThreadLogicのインスタンスを作成
 		const threadLogic = new ThreadLogic();
@@ -1510,20 +1477,8 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		const testUserId = "98765";
 		const testBotId = AppConfig.discord.clientId;
 
-		// テスト用のスレッドデータを作成
-		await ThreadRepositoryImpl.create({
-			communityId: 1,
-			messageId: testThreadId,
-			categoryType: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
-			metadata: {
-				persona_role: "テスト役割",
-				speaking_style_rules: "テストスタイル",
-				response_directives: "テスト指示",
-				emotion_model: "テスト感情",
-				notes: "テスト注釈",
-				input_scope: "テスト範囲",
-			},
-		});
+		// ヘルパー関数を使用してテスト用のスレッドデータを作成
+		await createTestThread({ messageId: testThreadId });
 
 		// AIReplyHandlerのインスタンスを作成
 		const aiReplyHandler = new AIReplyHandler();
@@ -1647,13 +1602,8 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 			input_scope: "テスト範囲",
 		};
 
-		// ThreadRepositoryImplを使用してテスト用のスレッドデータを作成
-		await ThreadRepositoryImpl.create({
-			communityId: 1,
-			messageId: testThreadId,
-			categoryType: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
-			metadata: testMetadata,
-		});
+		// ヘルパー関数を使用してテスト用のスレッドデータを作成
+		await createTestThread({ messageId: testThreadId, metadata: testMetadata });
 
 		// AIReplyHandlerのインスタンスを作成
 		const aiReplyHandler = new AIReplyHandler();
@@ -1669,12 +1619,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 
 		// ThreadLogic.findメソッドのモック
 		when(threadLogicMockForChatAI.find(anything(), anything())).thenResolve(
-			new ThreadDto(
-				new CommunityId(1),
-				new ThreadMessageId(testThreadId),
-				ThreadCategoryType.CATEGORY_TYPE_CHATGPT,
-				new ThreadMetadata(testMetadata as unknown as JSON),
-			),
+			createTestThreadDto({ messageId: testThreadId, metadata: testMetadata }),
 		);
 
 		// ChatAILogicのモックを作成
@@ -1815,13 +1760,8 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 			input_scope: "テスト範囲",
 		};
 
-		// ThreadRepositoryImplを使用してテスト用のスレッドデータを作成
-		await ThreadRepositoryImpl.create({
-			communityId: 1,
-			messageId: testThreadId,
-			categoryType: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
-			metadata: testMetadata,
-		});
+		// ヘルパー関数を使用してテスト用のスレッドデータを作成
+		await createTestThread({ messageId: testThreadId, metadata: testMetadata });
 
 		// AIReplyHandlerのインスタンスを作成
 		const aiReplyHandler = new AIReplyHandler();
@@ -1988,13 +1928,8 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 			input_scope: "テスト範囲",
 		};
 
-		// テスト用のスレッドデータを作成
-		await ThreadRepositoryImpl.create({
-			communityId: 1,
-			messageId: testThreadId,
-			categoryType: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
-			metadata: testMetadata,
-		});
+		// ヘルパー関数を使用してテスト用のスレッドデータを作成
+		await createTestThread({ messageId: testThreadId, metadata: testMetadata });
 
 		// AIReplyHandlerのインスタンスを作成
 		const aiReplyHandler = new AIReplyHandler();
@@ -2134,13 +2069,8 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 			input_scope: "テスト範囲",
 		};
 
-		// ThreadRepositoryImplを使用してテスト用のスレッドデータを作成
-		await ThreadRepositoryImpl.create({
-			communityId: 1,
-			messageId: testThreadId,
-			categoryType: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
-			metadata: testMetadata,
-		});
+		// ヘルパー関数を使用してテスト用のスレッドデータを作成
+		await createTestThread({ messageId: testThreadId, metadata: testMetadata });
 
 		// AIReplyHandlerのインスタンスを作成
 		const aiReplyHandler = new AIReplyHandler();
@@ -2313,13 +2243,8 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 			input_scope: "テスト範囲",
 		};
 
-		// ThreadRepositoryImplを使用してテスト用のスレッドデータを作成
-		await ThreadRepositoryImpl.create({
-			communityId: 1,
-			messageId: testThreadId,
-			categoryType: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
-			metadata: testMetadata,
-		});
+		// ヘルパー関数を使用してテスト用のスレッドデータを作成
+		await createTestThread({ messageId: testThreadId, metadata: testMetadata });
 
 		// AIReplyHandlerのインスタンスを作成
 		const aiReplyHandler = new AIReplyHandler();
@@ -2339,13 +2264,9 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 			expect(communityId.getValue()).to.equal(1);
 			expect(messageId.getValue()).to.equal(testThreadId);
 
-			// 実際のデータベースからスレッドを取得
-			return await ThreadRepositoryImpl.findOne({
-				where: {
-					communityId: 1,
-					messageId: messageId.getValue(),
-				},
-			}).then((res) => (res ? res.toDto() : undefined));
+			// ヘルパー関数を使用してスレッドを取得
+			const thread = await findThreadByMessageId(messageId.getValue());
+			return thread ? thread.toDto() : undefined;
 		});
 
 		// ChatAILogicのモックを作成
@@ -2600,13 +2521,8 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 			input_scope: "テスト範囲",
 		};
 
-		// ThreadRepositoryImplを使用してテスト用のスレッドデータを作成
-		await ThreadRepositoryImpl.create({
-			communityId: 1,
-			messageId: testThreadId,
-			categoryType: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
-			metadata: testMetadata,
-		});
+		// ヘルパー関数を使用してテスト用のスレッドデータを作成
+		await createTestThread({ messageId: testThreadId, metadata: testMetadata });
 
 		// AIReplyHandlerのインスタンスを作成
 		const aiReplyHandler = new AIReplyHandler();
@@ -2622,12 +2538,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 
 		// ThreadLogic.findメソッドのモック
 		when(threadLogicMock.find(anything(), anything())).thenResolve(
-			new ThreadDto(
-				new CommunityId(Number(testGuildId)),
-				new ThreadMessageId(testThreadId),
-				ThreadCategoryType.CATEGORY_TYPE_CHATGPT,
-				new ThreadMetadata(testMetadata as unknown as JSON),
-			),
+			createTestThreadDto({ messageId: testThreadId, metadata: testMetadata }),
 		);
 
 		// ChatAILogicのモックを作成
@@ -2855,20 +2766,8 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		const testUserId = "98765";
 		const testBotId = AppConfig.discord.clientId;
 
-		// ThreadRepositoryImplを使用してテスト用のスレッドデータを作成
-		await ThreadRepositoryImpl.create({
-			communityId: 1,
-			messageId: testThreadId,
-			categoryType: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
-			metadata: {
-				persona_role: "テスト役割",
-				speaking_style_rules: "テストスタイル",
-				response_directives: "テスト指示",
-				emotion_model: "テスト感情",
-				notes: "テスト注釈",
-				input_scope: "テスト範囲",
-			},
-		});
+		// ヘルパー関数を使用してテスト用のスレッドデータを作成
+		await createTestThread({ messageId: testThreadId });
 
 		// AIReplyHandlerのインスタンスを作成
 		const aiReplyHandler = new AIReplyHandler();
@@ -2888,13 +2787,9 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 			expect(communityId.getValue()).to.equal(1);
 			expect(messageId.getValue()).to.equal(testThreadId);
 
-			// 実際のデータベースからスレッドを取得
-			return await ThreadRepositoryImpl.findOne({
-				where: {
-					communityId: 1,
-					messageId: messageId.getValue(),
-				},
-			}).then((res) => (res ? res.toDto() : undefined));
+			// ヘルパー関数を使用してスレッドを取得
+			const thread = await findThreadByMessageId(messageId.getValue());
+			return thread ? thread.toDto() : undefined;
 		});
 
 		// ChatAILogicのモックを作成
@@ -2958,20 +2853,8 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		const testUserId = "98765";
 		const testBotId = AppConfig.discord.clientId;
 
-		// ThreadRepositoryImplを使用してテスト用のスレッドデータを作成
-		await ThreadRepositoryImpl.create({
-			communityId: 1,
-			messageId: testThreadId,
-			categoryType: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
-			metadata: {
-				persona_role: "テスト役割",
-				speaking_style_rules: "テストスタイル",
-				response_directives: "テスト指示",
-				emotion_model: "テスト感情",
-				notes: "テスト注釈",
-				input_scope: "テスト範囲",
-			},
-		});
+		// ヘルパー関数を使用してテスト用のスレッドデータを作成
+		await createTestThread({ messageId: testThreadId });
 
 		// AIReplyHandlerのインスタンスを作成
 		const aiReplyHandler = new AIReplyHandler();
@@ -2991,13 +2874,9 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 			expect(communityId.getValue()).to.equal(1);
 			expect(messageId.getValue()).to.equal(testThreadId);
 
-			// 実際のデータベースからスレッドを取得
-			return await ThreadRepositoryImpl.findOne({
-				where: {
-					communityId: 1,
-					messageId: messageId.getValue(),
-				},
-			}).then((res) => (res ? res.toDto() : undefined));
+			// ヘルパー関数を使用してスレッドを取得
+			const thread = await findThreadByMessageId(messageId.getValue());
+			return thread ? thread.toDto() : undefined;
 		});
 
 		// ChatAILogicのモックを作成
@@ -3063,20 +2942,8 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		const testUserId = "98765";
 		const testBotId = AppConfig.discord.clientId;
 
-		// ThreadRepositoryImplを使用してテスト用のスレッドデータを作成
-		await ThreadRepositoryImpl.create({
-			communityId: 1,
-			messageId: testThreadId,
-			categoryType: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
-			metadata: {
-				persona_role: "テスト役割",
-				speaking_style_rules: "テストスタイル",
-				response_directives: "テスト指示",
-				emotion_model: "テスト感情",
-				notes: "テスト注釈",
-				input_scope: "テスト範囲",
-			},
-		});
+		// ヘルパー関数を使用してテスト用のスレッドデータを作成
+		await createTestThread({ messageId: testThreadId });
 
 		// AIReplyHandlerのインスタンスを作成
 		const aiReplyHandler = new AIReplyHandler();
@@ -3096,13 +2963,9 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 			expect(communityId.getValue()).to.equal(1);
 			expect(messageId.getValue()).to.equal(testThreadId);
 
-			// 実際のデータベースからスレッドを取得
-			return await ThreadRepositoryImpl.findOne({
-				where: {
-					communityId: 1,
-					messageId: messageId.getValue(),
-				},
-			}).then((res) => (res ? res.toDto() : undefined));
+			// ヘルパー関数を使用してスレッドを取得
+			const thread = await findThreadByMessageId(messageId.getValue());
+			return thread ? thread.toDto() : undefined;
 		});
 
 		// ChatAILogicのモックを作成
