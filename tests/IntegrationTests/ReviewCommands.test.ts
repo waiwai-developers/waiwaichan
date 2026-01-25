@@ -23,6 +23,49 @@ const TEST_GUILD_ID = "9999";
  */
 
 /**
+ * イベント登録テストのヘルパー関数
+ */
+
+/**
+ * interactionCreateイベントを発行し、応答を待つ
+ */
+async function emitInteractionAndWait(
+	client: Client,
+	commandMock: ChatInputCommandInteraction,
+): Promise<void> {
+	client.emit("interactionCreate", instance(commandMock));
+	await waitUntilReply(commandMock);
+}
+
+/**
+ * replyが呼ばれないことを検証する
+ */
+function verifyReplyNeverCalled(commandMock: ChatInputCommandInteraction): void {
+	verify(commandMock.reply(anything())).never();
+}
+
+/**
+ * editReplyが呼ばれないことを検証する
+ */
+function verifyEditReplyNeverCalled(commandMock: ChatInputCommandInteraction): void {
+	verify(commandMock.editReply(anything())).never();
+}
+
+/**
+ * deferReplyが1回呼ばれることを検証する
+ */
+function verifyDeferReplyCalled(commandMock: ChatInputCommandInteraction): void {
+	verify(commandMock.deferReply()).once();
+}
+
+/**
+ * editReplyが1回呼ばれることを検証する
+ */
+function verifyEditReplyCalled(commandMock: ChatInputCommandInteraction): void {
+	verify(commandMock.editReply(anything())).once();
+}
+
+/**
  * reviewgachaコマンドのモックを作成し、実行する
  */
 async function setupReviewGachaCommand(
@@ -138,12 +181,15 @@ describe("Test Review Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			const commandMock = mockSlashCommand("reviewgacha", { id: 1 }, { userId: AccountsConfig.users[0].discordId, withChannel: false });
 
+			// Emit the interaction without waiting for reply since none is expected
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
-			// Wait a bit and verify reply was never called
+			// Wait a bit for processing to complete
 			await new Promise((resolve) => setTimeout(resolve, 500));
-			verify(commandMock.reply(anything())).never();
-			verify(commandMock.editReply(anything())).never();
+			
+			// Verify reply was never called (early return occurred)
+			verifyReplyNeverCalled(commandMock);
+			verifyEditReplyNeverCalled(commandMock);
 		});
 
 		/**
@@ -160,8 +206,7 @@ describe("Test Review Commands", () => {
 
 			when(commandMock.reply(anything())).thenResolve(message as any);
 
-			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-			await waitUntilReply(commandMock);
+			await emitInteractionAndWait(TEST_CLIENT, commandMock);
 
 			const [replyArg] = capture(commandMock.reply).last();
 			expect(replyArg).to.have.property("fetchReply", true);
@@ -195,8 +240,7 @@ describe("Test Review Commands", () => {
 			const message = instance(messageMock);
 			when(commandMock.reply(anything())).thenResolve(message as any);
 
-			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-			await waitUntilReply(commandMock);
+			await emitInteractionAndWait(TEST_CLIENT, commandMock);
 
 			// Wait for async operations with retries
 			for (let i = 0; i < 10 && !startThreadCalled; i++) {
@@ -248,7 +292,7 @@ describe("Test Review Commands", () => {
 
 			const result = await executeCommandAndCaptureReply(client, commandMock);
 
-			verify(commandMock.editReply(anything())).never();
+			verifyEditReplyNeverCalled(commandMock);
 			expect(result).to.eq(InternalErrorMessage);
 		});
 
@@ -291,8 +335,7 @@ describe("Test Review Commands", () => {
 					return Promise.resolve(message);
 				});
 
-				TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-				await waitUntilReply(commandMock);
+				await emitInteractionAndWait(TEST_CLIENT, commandMock);
 
 				// Verify message format
 				expect(result).to.include("#1のpull reqのreview依頼が来たよ！っ");
@@ -329,8 +372,7 @@ describe("Test Review Commands", () => {
 				return Promise.resolve(message);
 			});
 
-			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-			await waitUntilReply(commandMock);
+			await emitInteractionAndWait(TEST_CLIENT, commandMock);
 
 			// Expected format:
 			// <@discordId1> <@discordId2>
@@ -362,10 +404,9 @@ describe("Test Review Commands", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			const commandMock = mockSlashCommand("reviewlist", {}, AccountsConfig.users[0].discordId);
 
-			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-			await waitUntilReply(commandMock);
+			await emitInteractionAndWait(TEST_CLIENT, commandMock);
 
-			verify(commandMock.deferReply()).once();
+			verifyDeferReplyCalled(commandMock);
 		});
 
 		/**
@@ -382,10 +423,9 @@ describe("Test Review Commands", () => {
 				result = args;
 			});
 
-			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-			await waitUntilReply(commandMock);
+			await emitInteractionAndWait(TEST_CLIENT, commandMock);
 
-			verify(commandMock.editReply(anything())).once();
+			verifyEditReplyCalled(commandMock);
 		});
 	});
 
@@ -419,7 +459,7 @@ describe("Test Review Commands", () => {
 
 			const result = await executeCommandAndCaptureEditReply(client, commandMock);
 
-			verify(commandMock.editReply(anything())).once();
+			verifyEditReplyCalled(commandMock);
 			expect(result).to.eq("アサインされているpull reqはないよ！っ");
 		});
 
@@ -435,7 +475,7 @@ describe("Test Review Commands", () => {
 
 			const result = await executeCommandAndCaptureEditReply(client, commandMock);
 
-			verify(commandMock.editReply(anything())).once();
+			verifyEditReplyCalled(commandMock);
 			expect(result).to.eq(
 				[
 					"以下のpull reqのreviewerにアサインされているよ！っ\n",
