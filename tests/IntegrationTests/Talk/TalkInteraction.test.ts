@@ -24,21 +24,21 @@ import { expect } from "chai";
 import { anything, instance, mock, verify, when } from "ts-mockito";
 
 import {
+	TEST_BOT_ID,
 	TEST_GUILD_ID,
 	TEST_THREAD_ID,
 	TEST_USER_ID,
-	TEST_BOT_ID,
+	createAIReplyHandlerWithMocks,
+	createChannelMock,
+	createMessageCollectionMock,
 	createTestMetadata,
 	createTestThread,
 	createTestThreadDto,
-	createMessageCollectionMock,
-	createChannelMock,
-	handleAIReplyEvent,
-	createAIReplyHandlerWithMocks,
+	executeAIReplyTest,
 	findAllThreads,
 	findThreadByMessageId,
+	handleAIReplyEvent,
 	setupMessageWithChannel,
-	executeAIReplyTest,
 } from "./TalkHelper.test";
 
 describe("Test Talk Interactions", function (this: Mocha.Suite) {
@@ -501,9 +501,7 @@ describe("Test Talk Interactions", function (this: Mocha.Suite) {
 		// @ts-ignore
 		aiReplyHandler.threadLogic = instance(threadLogicMockForChatAI);
 
-		when(threadLogicMockForChatAI.find(anything(), anything())).thenResolve(
-			createTestThreadDto({ messageId: testThreadId, metadata: testMetadata }),
-		);
+		when(threadLogicMockForChatAI.find(anything(), anything())).thenResolve(createTestThreadDto({ messageId: testThreadId, metadata: testMetadata }));
 
 		const chatAILogicMock = mock<IChatAILogic>();
 		// @ts-ignore

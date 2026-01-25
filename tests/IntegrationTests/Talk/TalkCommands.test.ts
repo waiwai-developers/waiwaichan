@@ -14,12 +14,12 @@ import { anything, instance, mock, verify, when } from "ts-mockito";
 
 import {
 	TEST_GUILD_ID,
-	createTextChannelMock,
-	emitInteractionEvent,
-	executeTalkCommandTest,
 	assertNoThreadsCreated,
 	assertThreadCount,
 	assertThreadExistsWithData,
+	createTextChannelMock,
+	emitInteractionEvent,
+	executeTalkCommandTest,
 } from "./TalkHelper.test";
 
 describe("Test Talk Commands", function (this: Mocha.Suite) {
@@ -219,14 +219,11 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 
 		// ヘルパー関数を使用してスレッド数とデータを検証
 		await assertThreadCount(1);
-		await assertThreadExistsWithData(
-			testMessageId,
-			{
-				communityId: "1",
-				categoryType: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
-				metadata: {}, // メタデータのプロパティ存在確認のみ
-			},
-		);
+		await assertThreadExistsWithData(testMessageId, {
+			communityId: "1",
+			categoryType: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
+			metadata: {}, // メタデータのプロパティ存在確認のみ
+		});
 	});
 
 	/**
@@ -237,11 +234,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		this.timeout(10_000);
 
 		// ヘルパー関数を使用してコマンドテストを実行
-		await executeTalkCommandTest(
-			{ title: null, type: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue() },
-			{},
-			{ expectThread: { count: 0 } },
-		);
+		await executeTalkCommandTest({ title: null, type: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue() }, {}, { expectThread: { count: 0 } });
 	});
 
 	/**

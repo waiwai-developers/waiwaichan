@@ -1,17 +1,17 @@
+import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
+import type { ChannelClientId } from "@/src/entities/vo/ChannelClientId";
+import type { ChannelCommunityId } from "@/src/entities/vo/ChannelCommunityId";
+import type { CommunityId } from "@/src/entities/vo/CommunityId";
+import type { UserClientId } from "@/src/entities/vo/UserClientId";
+import type { UserCommunityId } from "@/src/entities/vo/UserCommunityId";
+import { DataDeletionCircularHandler } from "@/src/handlers/discord.js/events/DataDeletionCircularHandler";
+import type { DataDeletionCircularLogic } from "@/src/logics/DataDeletionCircularLogic";
 import type { IChannelLogic } from "@/src/logics/Interfaces/logics/IChannelLogic";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { IUserLogic } from "@/src/logics/Interfaces/logics/IUserLogic";
-import { ChannelCommunityId } from "@/src/entities/vo/ChannelCommunityId";
-import { ChannelClientId } from "@/src/entities/vo/ChannelClientId";
-import { CommunityId } from "@/src/entities/vo/CommunityId";
-import { UserCommunityId } from "@/src/entities/vo/UserCommunityId";
-import { UserClientId } from "@/src/entities/vo/UserClientId";
 import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnector";
 import { MysqlSchedulerConnector } from "@/src/repositories/sequelize-mysql/MysqlSchedulerConnector";
-import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
-import type { DataDeletionCircularLogic } from "@/src/logics/DataDeletionCircularLogic";
 import { schedulerContainer } from "@/src/scheduler.di.config";
-import { DataDeletionCircularHandler } from "@/src/handlers/discord.js/events/DataDeletionCircularHandler";
 import { expect } from "chai";
 import { Op } from "sequelize";
 import { anything, instance, mock, verify, when } from "ts-mockito";
@@ -161,10 +161,7 @@ export const mockRepositoryMethod = <T extends Record<string, any>>(
  * @param schedulerModels MysqlSchedulerConnector用のモデル配列
  * @returns クリーンアップ関数
  */
-export const mockConnectorModels = (
-	connectorModels: MockModel[],
-	schedulerModels: MockModel[] = [],
-): (() => void) => {
+export const mockConnectorModels = (connectorModels: MockModel[], schedulerModels: MockModel[] = []): (() => void) => {
 	const originalConnectorModels = MysqlConnector.models;
 	const originalSchedulerModels = MysqlSchedulerConnector.models;
 	(MysqlConnector as any).models = connectorModels;
@@ -224,9 +221,7 @@ export const setupHandlerMocks = () => {
 	};
 
 	// デフォルトの振る舞いを設定
-	when((communityLogicMock as any).getNotExistClientId(anything(), anything()) as any).thenReturn(
-		Promise.resolve([] as any[]),
-	);
+	when((communityLogicMock as any).getNotExistClientId(anything(), anything()) as any).thenReturn(Promise.resolve([] as any[]));
 	when((userLogicMock as any).findDeletionTargetsByBatchStatusAndDeletedAt()).thenResolve([] as any);
 	when((communityLogicMock as any).findDeletionTargetsByBatchStatusAndDeletedAt()).thenResolve([] as any);
 	when((channelLogicMock as any).findDeletionTargetsByBatchStatusAndDeletedAt()).thenResolve([] as any);
@@ -292,10 +287,7 @@ export const testRepositoryNotInCondition = async <T>(
  * @param RepositoryClass テスト対象のRepositoryクラス
  * @param expectedBatchStatus 期待されるbatchStatus値
  */
-export const testRepositoryFindDeletionTargets = async <T>(
-	RepositoryClass: new () => T,
-	expectedBatchStatus: number | string,
-) => {
+export const testRepositoryFindDeletionTargets = async <T>(RepositoryClass: new () => T, expectedBatchStatus: number | string) => {
 	let receivedWhere: any = null;
 	const cleanup = mockRepositoryMethod(RepositoryClass as any, "findAll", (options) => {
 		receivedWhere = options?.where;
@@ -393,11 +385,7 @@ export const setupChannelDeleteArgumentCapture = (channelLogicMock: IChannelLogi
  * @param communityLogicMock モック化されたCommunityLogic
  * @returns 実行順序を記録した配列を返すオブジェクト
  */
-export const setupDeletionOrderTracking = (
-	userLogicMock: IUserLogic,
-	channelLogicMock: IChannelLogic,
-	communityLogicMock: ICommunityLogic,
-) => {
+export const setupDeletionOrderTracking = (userLogicMock: IUserLogic, channelLogicMock: IChannelLogic, communityLogicMock: ICommunityLogic) => {
 	const callOrder: string[] = [];
 
 	when((userLogicMock as any).deletebyCommunityId(anything())).thenCall(() => {

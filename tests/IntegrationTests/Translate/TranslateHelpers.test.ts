@@ -65,8 +65,6 @@ export interface SetupTranslateCommandResult {
  */
 export function initializeDatabaseWithoutLogging(): void {
 	const connector = new MysqlConnector();
-	// プライベートフィールドへのアクセス（テスト用途のため許容）
-	// biome-ignore lint/suspicious/noExplicitAny: テスト用のプライベートフィールドアクセス
 	(connector as any).instance.options.logging = false;
 }
 
@@ -102,9 +100,7 @@ export async function createTestCommunity(
  * @param clientId - クライアントID
  * @returns コミュニティまたはnull
  */
-export async function findCommunityByClientId(
-	clientId: string,
-): Promise<InstanceType<typeof CommunityRepositoryImpl> | null> {
+export async function findCommunityByClientId(clientId: string): Promise<InstanceType<typeof CommunityRepositoryImpl> | null> {
 	return await CommunityRepositoryImpl.findOne({
 		where: {
 			clientId: BigInt(clientId),
@@ -184,10 +180,7 @@ export async function getDiscordClient(): Promise<Client> {
  * @param withChannel - チャンネルを含めるか（デフォルト: true）
  * @returns コマンドモック
  */
-export function createTranslateCommandMock(
-	params: TranslateCommandParams,
-	withChannel = true,
-): ChatInputCommandInteraction<CacheType> {
+export function createTranslateCommandMock(params: TranslateCommandParams, withChannel = true): ChatInputCommandInteraction<CacheType> {
 	return mockSlashCommand("translate", params, { withChannel });
 }
 
@@ -197,17 +190,14 @@ export function createTranslateCommandMock(
  * @param message - レスポンスメッセージ
  * @returns キャプチャ結果を格納するオブジェクト
  */
-export function setupReplyCapture(
-	commandMock: ChatInputCommandInteraction<CacheType>,
-	message: Message,
-): ReplyCapture {
+export function setupReplyCapture(commandMock: ChatInputCommandInteraction<CacheType>, message: Message): ReplyCapture {
 	const capturedResult: ReplyCapture = { content: "" };
-	
+
 	when(commandMock.reply(anything())).thenCall((arg: string | { content?: string }) => {
-		capturedResult.content = typeof arg === "string" ? arg : arg.content ?? "";
+		capturedResult.content = typeof arg === "string" ? arg : (arg.content ?? "");
 		return Promise.resolve(message);
 	});
-	
+
 	return capturedResult;
 }
 
@@ -239,10 +229,7 @@ export async function setupTranslateCommand(
  * @param client - Discordクライアント
  * @param commandMock - コマンドモック
  */
-export async function emitTranslateInteractionEvent(
-	client: Client,
-	commandMock: ChatInputCommandInteraction<CacheType>,
-): Promise<void> {
+export async function emitTranslateInteractionEvent(client: Client, commandMock: ChatInputCommandInteraction<CacheType>): Promise<void> {
 	client.emit("interactionCreate", instance(commandMock));
 }
 
@@ -250,9 +237,7 @@ export async function emitTranslateInteractionEvent(
  * translateコマンドのreply完了を待つ（型安全版）
  * @param commandMock - コマンドモック
  */
-export async function waitForTranslateReply(
-	commandMock: ChatInputCommandInteraction<CacheType>,
-): Promise<void> {
+export async function waitForTranslateReply(commandMock: ChatInputCommandInteraction<CacheType>): Promise<void> {
 	await waitUntilReply(commandMock);
 }
 
@@ -260,9 +245,7 @@ export async function waitForTranslateReply(
  * replyが1回呼ばれたことを検証する（型安全版）
  * @param commandMock - コマンドモック
  */
-export function verifyReplyCalledOnce(
-	commandMock: ChatInputCommandInteraction<CacheType>,
-): void {
+export function verifyReplyCalledOnce(commandMock: ChatInputCommandInteraction<CacheType>): void {
 	verify(commandMock.reply(anything())).once();
 }
 
@@ -270,9 +253,7 @@ export function verifyReplyCalledOnce(
  * replyが呼ばれなかったことを検証する（型安全版）
  * @param commandMock - コマンドモック
  */
-export function verifyReplyNotCalled(
-	commandMock: ChatInputCommandInteraction<CacheType>,
-): void {
+export function verifyReplyNotCalled(commandMock: ChatInputCommandInteraction<CacheType>): void {
 	verify(commandMock.reply(anything())).never();
 }
 
@@ -287,11 +268,7 @@ export type MatchType = "include" | "equal";
  * @param expected - 期待する文字列
  * @param matchType - マッチタイプ（'include' または 'equal'）デフォルトは 'include'
  */
-export function verifyReplyContent(
-	capturedResult: ReplyCapture,
-	expected: string,
-	matchType: MatchType = "include",
-): void {
+export function verifyReplyContent(capturedResult: ReplyCapture, expected: string, matchType: MatchType = "include"): void {
 	if (matchType === "equal") {
 		expect(capturedResult.content).to.equal(expected);
 	} else {
@@ -329,12 +306,7 @@ export async function executeAndVerifyTranslateCommand(
 	params: TranslateCommandParams,
 	options: ExecuteAndVerifyOptions = {},
 ): Promise<SetupTranslateCommandResult> {
-	const {
-		withChannel = true,
-		expectedContent,
-		expectedMatchType = "include",
-		shouldReply = true,
-	} = options;
+	const { withChannel = true, expectedContent, expectedMatchType = "include", shouldReply = true } = options;
 
 	// セットアップ
 	const result = await setupTranslateCommand(params, { withChannel });

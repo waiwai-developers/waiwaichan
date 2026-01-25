@@ -1,12 +1,12 @@
 import { appContainer } from "@/src/app.di.config";
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import type { IPullRequestRepository } from "@/src/logics/Interfaces/repositories/githubapi/IPullRequestRepository";
-import { mockSlashCommand, waitUntilReply, createMockMessage } from "@/tests/fixtures/discord.js/MockSlashCommand";
+import { createMockMessage, mockSlashCommand, waitUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { TestDiscordServer } from "@/tests/fixtures/discord.js/TestDiscordServer";
 import { MockGithubAPI, MockNotfoundGithubAPI } from "@/tests/fixtures/repositories/MockGithubAPI";
 import { expect } from "chai";
-import type { Message, Client, ChatInputCommandInteraction } from "discord.js";
-import { anything, instance, when, verify } from "ts-mockito";
+import type { ChatInputCommandInteraction, Client, Message } from "discord.js";
+import { anything, instance, verify, when } from "ts-mockito";
 
 // テスト用のguildId（MockSlashCommandで使用される値と一致させる）
 export const TEST_GUILD_ID = "9999";
@@ -49,7 +49,7 @@ export async function setupCommandHandler<TOptions>(
 ): Promise<CommandSetupResult<TOptions>> {
 	const client = await TestDiscordServer.getClient();
 	const commandMock = mockSlashCommand(commandName, options, userId);
-	
+
 	return { client, commandMock };
 }
 
@@ -64,7 +64,7 @@ export async function setupCommandHandlerWithMessage<TOptions>(
 	const client = await TestDiscordServer.getClient();
 	const { message } = createMockMessage();
 	const commandMock = mockSlashCommand(commandName, options, userConfig);
-	
+
 	return { client, commandMock, messageMock: message };
 }
 
@@ -75,10 +75,7 @@ export async function setupCommandHandlerWithMessage<TOptions>(
 /**
  * interactionCreateイベントを発行し、応答を待つ
  */
-export async function emitInteractionAndWait(
-	client: Client,
-	commandMock: ChatInputCommandInteraction,
-): Promise<void> {
+export async function emitInteractionAndWait(client: Client, commandMock: ChatInputCommandInteraction): Promise<void> {
 	client.emit("interactionCreate", instance(commandMock));
 	await waitUntilReply(commandMock);
 }
@@ -131,11 +128,7 @@ export async function setupReviewListCommand(userId: string): Promise<CommandSet
 /**
  * コマンドを実行し、replyの結果を取得する
  */
-export async function executeCommandAndCaptureReply(
-	client: Client,
-	commandMock: ChatInputCommandInteraction,
-	message?: Message,
-): Promise<string> {
+export async function executeCommandAndCaptureReply(client: Client, commandMock: ChatInputCommandInteraction, message?: Message): Promise<string> {
 	let result = "";
 	if (message) {
 		when(commandMock.reply(anything())).thenCall((args) => {
@@ -157,10 +150,7 @@ export async function executeCommandAndCaptureReply(
 /**
  * コマンドを実行し、editReplyの結果を取得する
  */
-export async function executeCommandAndCaptureEditReply(
-	client: Client,
-	commandMock: ChatInputCommandInteraction,
-): Promise<string> {
+export async function executeCommandAndCaptureEditReply(client: Client, commandMock: ChatInputCommandInteraction): Promise<string> {
 	let result = "";
 	when(commandMock.editReply(anything())).thenCall((args) => {
 		result = args;
@@ -215,12 +205,8 @@ export async function executeCommandWithRepositoryScenario<TOptions>(
 	expectedError: string,
 ): Promise<void> {
 	setupRepositoryScenario(scenario);
-	
-	const { client, commandMock, messageMock } = await setupCommandHandlerWithMessage(
-		commandName,
-		options,
-		userConfig,
-	);
+
+	const { client, commandMock, messageMock } = await setupCommandHandlerWithMessage(commandName, options, userConfig);
 
 	const result = await executeCommandAndCaptureReply(client, commandMock, messageMock);
 
@@ -238,7 +224,7 @@ export async function executeCommandWithRepositoryScenarioEditReply<TOptions>(
 	expectedError: string,
 ): Promise<void> {
 	setupRepositoryScenario(scenario);
-	
+
 	const { client, commandMock } = await setupCommandHandler(commandName, options, userId);
 
 	const result = await executeCommandAndCaptureEditReply(client, commandMock);
@@ -250,29 +236,15 @@ export async function executeCommandWithRepositoryScenarioEditReply<TOptions>(
  * PR存在チェックのテストヘルパー
  * NotFoundシナリオでコマンドを実行し、エラーメッセージを検証
  */
-export async function testPRNotFound<TOptions>(
-	commandName: string,
-	options: TOptions,
-	userConfig: UserConfig,
-): Promise<void> {
-	await executeCommandWithRepositoryScenario(
-		RepositoryErrorScenario.NotFound,
-		commandName,
-		options,
-		userConfig,
-		"pull requestが存在しないよ！っ",
-	);
+export async function testPRNotFound<TOptions>(commandName: string, options: TOptions, userConfig: UserConfig): Promise<void> {
+	await executeCommandWithRepositoryScenario(RepositoryErrorScenario.NotFound, commandName, options, userConfig, "pull requestが存在しないよ！っ");
 }
 
 /**
  * アサインされているPRがないケースのテストヘルパー
  * NotFoundシナリオでコマンドを実行し、editReplyでエラーメッセージを検証
  */
-export async function testNoPRsAssigned<TOptions>(
-	commandName: string,
-	options: TOptions,
-	userId: string,
-): Promise<void> {
+export async function testNoPRsAssigned<TOptions>(commandName: string, options: TOptions, userId: string): Promise<void> {
 	await executeCommandWithRepositoryScenarioEditReply(
 		RepositoryErrorScenario.NotFound,
 		commandName,

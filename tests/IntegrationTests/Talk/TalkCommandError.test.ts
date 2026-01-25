@@ -9,12 +9,7 @@ import { PersonalityRepositoryImpl } from "@/src/repositories/sequelize-mysql/Pe
 import { ThreadRepositoryImpl } from "@/src/repositories/sequelize-mysql/ThreadRepositoryImpl";
 import { mockSlashCommand } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { anything, instance, mock, verify, when } from "ts-mockito";
-import {
-	TEST_GUILD_ID,
-	assertNoThreadsCreated,
-	createTextChannelMock,
-	emitInteractionEvent,
-} from "./TalkTestHelpers";
+import { TEST_GUILD_ID, assertNoThreadsCreated, createTextChannelMock, emitInteractionEvent } from "./TalkTestHelpers";
 
 describe("Talk Command Error Handling Tests", function (this: Mocha.Suite) {
 	this.timeout(60_000);
@@ -112,11 +107,7 @@ describe("Talk Command Error Handling Tests", function (this: Mocha.Suite) {
 	it("test talk command with invalid type should return error", async function (this: Mocha.Context) {
 		this.timeout(10_000);
 
-		const commandMock = mockSlashCommand(
-			"talk",
-			{ title: "テストタイトル", type: 99999 },
-			{ guildId: TEST_GUILD_ID },
-		);
+		const commandMock = mockSlashCommand("talk", { title: "テストタイトル", type: 99999 }, { guildId: TEST_GUILD_ID });
 
 		const channelMock = createTextChannelMock();
 		when(commandMock.channel).thenReturn(instance(channelMock));
