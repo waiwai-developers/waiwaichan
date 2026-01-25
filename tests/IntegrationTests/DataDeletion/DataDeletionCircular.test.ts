@@ -31,23 +31,84 @@ import { Op } from "sequelize";
 import { anything, instance, mock, verify, when } from "ts-mockito";
 
 // ===================================
+// Type Definitions
+// ===================================
+
+interface MockMember {
+	user: { id: string };
+}
+
+interface MockChannel {
+	id: string;
+}
+
+interface MockGuild {
+	id: string;
+	members: {
+		fetch: () => Promise<Map<string, MockMember>>;
+	};
+	channels: {
+		fetch: () => Promise<Map<string, MockChannel>>;
+	};
+}
+
+interface MockClient {
+	guilds: {
+		cache: {
+			values: () => IterableIterator<{ id: string }>;
+			map: <T>(mapper: (g: { id: string }) => T) => T[];
+		};
+		fetch: (id: string) => Promise<MockGuild | undefined>;
+	};
+}
+
+interface GuildConfig {
+	id: string;
+	memberIds: string[];
+	channelIds: string[];
+}
+
+interface RepositoryWhereConditions {
+	communityId?: number;
+	categoryType?: string | number;
+	batchStatus?: number | string;
+	clientId?: Record<symbol, bigint[]>;
+	deletedAt?: Record<symbol, null>;
+}
+
+interface RepositoryUpdateOptions {
+	where?: RepositoryWhereConditions;
+	paranoid?: boolean;
+}
+
+interface MockModel {
+	getAttributes: () => Record<string, unknown>;
+	destroy: (options?: unknown) => Promise<number>;
+}
+
+interface DeleteArgumentCapture<TCommunityId, TClientId> {
+	getCommunityId: () => TCommunityId | null;
+	getClientIds: () => TClientId[];
+}
+
+// ===================================
 // Helper Functions: Mock Creation
 // ===================================
 
-const createMembers = (ids: string[]) => {
-	const members = new Map<string, { user: { id: string } }>();
+const createMembers = (ids: string[]): Map<string, MockMember> => {
+	const members = new Map<string, MockMember>();
 	ids.forEach((id) => members.set(id, { user: { id } }));
 	return members;
 };
 
-const createChannels = (ids: string[]) => {
-	const channels = new Map<string, { id: string }>();
+const createChannels = (ids: string[]): Map<string, MockChannel> => {
+	const channels = new Map<string, MockChannel>();
 	ids.forEach((id) => channels.set(id, { id }));
 	return channels;
 };
 
-const createFakeClient = (guilds: { id: string; memberIds: string[]; channelIds: string[] }[]) => {
-	const guildStore = new Map(
+const createFakeClient = (guilds: GuildConfig[]): MockClient => {
+	const guildStore = new Map<string, MockGuild>(
 		guilds.map((guild) => [
 			guild.id,
 			{
@@ -64,7 +125,7 @@ const createFakeClient = (guilds: { id: string; memberIds: string[]; channelIds:
 	const guildEntries = guilds.map((guild) => ({ id: guild.id }));
 	const collection = {
 		values: () => guildEntries.values(),
-		map: (mapper: (g: { id: string }) => any) => guildEntries.map(mapper),
+		map: <T>(mapper: (g: { id: string }) => T) => guildEntries.map(mapper),
 	};
 	return {
 		guilds: {
@@ -115,8 +176,8 @@ const mockRepositoryMethod = <T extends Record<string, any>>(
  * @returns クリーンアップ関数
  */
 const mockConnectorModels = (
-	connectorModels: any[],
-	schedulerModels: any[] = [],
+	connectorModels: MockModel[],
+	schedulerModels: MockModel[] = [],
 ): (() => void) => {
 	const originalConnectorModels = MysqlConnector.models;
 	const originalSchedulerModels = MysqlSchedulerConnector.models;
@@ -135,7 +196,7 @@ const mockConnectorModels = (
  */
 const mockConsoleError = (captureCallback: (message: string) => void): (() => void) => {
 	const originalConsoleError = console.error;
-	console.error = (message?: any) => {
+	console.error = (message?: unknown) => {
 		captureCallback(String(message));
 	};
 	return () => {
