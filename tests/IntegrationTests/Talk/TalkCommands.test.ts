@@ -1,4 +1,3 @@
-import { InternalErrorMessage } from "@/src/entities/DiscordErrorMessages";
 import { AppConfig } from "@/src/entities/config/AppConfig";
 import { Thread_Exclude_Prefix, Thread_Fetch_Nom } from "@/src/entities/constants/Thread";
 import type { ChatAIMessageDto } from "@/src/entities/dto/ChatAIMessageDto";
@@ -29,6 +28,69 @@ import type { TextChannel } from "discord.js";
 import { anything, instance, mock, verify, when } from "ts-mockito";
 
 // ============================================================
+// 型定義
+// ============================================================
+
+/**
+ * スレッドメタデータの型定義
+ */
+interface ThreadMetadataContent {
+	persona_role: string;
+	speaking_style_rules: string;
+	response_directives: string;
+	emotion_model: string;
+	notes: string;
+	input_scope: string;
+}
+
+/**
+ * メッセージ履歴アイテムの型定義
+ */
+interface MessageHistoryItem {
+	id?: string;
+	author: {
+		bot: boolean;
+		id?: string;
+	};
+	content: string;
+}
+
+/**
+ * メッセージコレクションのモック型定義
+ */
+interface MockMessageCollection {
+	reverse: () => MessageHistoryItem[];
+	map: <T>(callback: (msg: MessageHistoryItem) => T) => T[];
+}
+
+/**
+ * チャンネルモックの設定オプション
+ */
+interface ChannelMockOptions {
+	isThread?: boolean;
+	guildId?: string;
+	threadId?: string;
+	ownerId?: string;
+	messageCollection?: MockMessageCollection;
+}
+
+/**
+ * スレッドデータの型定義（Repositoryから取得したデータ）
+ */
+interface ThreadRecord {
+	communityId: number | { toString(): string };
+	messageId: string | { toString(): string };
+	categoryType: number;
+	metadata: ThreadMetadataContent | JSON | null;
+	toDto?: () => ThreadDto;
+}
+
+/**
+ * ts-mockitoのモック型を扱うためのユーティリティ型
+ */
+type MockInstance<T> = T;
+
+// ============================================================
 // 共通テスト定数
 // ============================================================
 
@@ -47,16 +109,7 @@ const TEST_BOT_ID = AppConfig.discord.clientId;
  * @param overrides - 上書きするプロパティ
  * @returns スレッドメタデータオブジェクト
  */
-function createTestMetadata(
-	overrides: Partial<{
-		persona_role: string;
-		speaking_style_rules: string;
-		response_directives: string;
-		emotion_model: string;
-		notes: string;
-		input_scope: string;
-	}> = {},
-) {
+function createTestMetadata(overrides: Partial<ThreadMetadataContent> = {}): ThreadMetadataContent {
 	return {
 		persona_role: "テスト役割",
 		speaking_style_rules: "テストスタイル",
@@ -596,13 +649,13 @@ async function assertThreadCount(expectedCount: number) {
  * @param expected - 期待値
  */
 function verifyThreadData(
-	thread: any,
+	thread: ThreadRecord,
 	expected: {
 		communityId?: string;
 		messageId?: string;
 		categoryType?: number;
 	},
-) {
+): void {
 	if (expected.communityId !== undefined) {
 		expect(thread.communityId.toString()).to.eq(expected.communityId);
 	}
@@ -620,21 +673,14 @@ function verifyThreadData(
  * @param expectedMetadata - 期待するメタデータ（部分一致）
  */
 function verifyThreadMetadata(
-	thread: any,
-	expectedMetadata?: Partial<{
-		persona_role: string;
-		speaking_style_rules: string;
-		response_directives: string;
-		emotion_model: string;
-		notes: string;
-		input_scope: string;
-	}>,
-) {
+	thread: ThreadRecord,
+	expectedMetadata?: Partial<ThreadMetadataContent>,
+): void {
 	const metadata = thread.metadata;
 	expect(metadata).to.not.be.null;
 	expect(metadata).to.be.an("object");
 
-	const metadataObj = JSON.parse(JSON.stringify(metadata));
+	const metadataObj = JSON.parse(JSON.stringify(metadata)) as ThreadMetadataContent;
 
 	// 基本的なプロパティの存在確認
 	expect(metadataObj).to.have.property("persona_role");
@@ -646,23 +692,10 @@ function verifyThreadMetadata(
 
 	// 期待値が指定されている場合は値も検証
 	if (expectedMetadata) {
-		if (expectedMetadata.persona_role !== undefined) {
-			expect(metadataObj.persona_role).to.eq(expectedMetadata.persona_role);
-		}
-		if (expectedMetadata.speaking_style_rules !== undefined) {
-			expect(metadataObj.speaking_style_rules).to.eq(expectedMetadata.speaking_style_rules);
-		}
-		if (expectedMetadata.response_directives !== undefined) {
-			expect(metadataObj.response_directives).to.eq(expectedMetadata.response_directives);
-		}
-		if (expectedMetadata.emotion_model !== undefined) {
-			expect(metadataObj.emotion_model).to.eq(expectedMetadata.emotion_model);
-		}
-		if (expectedMetadata.notes !== undefined) {
-			expect(metadataObj.notes).to.eq(expectedMetadata.notes);
-		}
-		if (expectedMetadata.input_scope !== undefined) {
-			expect(metadataObj.input_scope).to.eq(expectedMetadata.input_scope);
+		for (const [key, value] of Object.entries(expectedMetadata)) {
+			if (value !== undefined) {
+				expect(metadataObj[key as keyof ThreadMetadataContent]).to.eq(value);
+			}
 		}
 	}
 }
