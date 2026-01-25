@@ -220,6 +220,162 @@ function createTextChannelMock() {
 	return channelMock;
 }
 
+// ============================================================
+// イベント登録テスト用ヘルパー関数
+// ============================================================
+
+/**
+ * Discord interactionイベントを発行する
+ * @param commandMock - コマンドモック
+ */
+async function emitInteractionEvent(commandMock: any): Promise<void> {
+	const TEST_CLIENT = await TestDiscordServer.getClient();
+	TEST_CLIENT.emit("interactionCreate", instance(commandMock));
+}
+
+/**
+ * AIReplyHandlerでメッセージを処理する
+ * @param handler - AIReplyHandlerインスタンス
+ * @param messageMock - メッセージモック
+ */
+async function handleAIReplyEvent(handler: AIReplyHandler, messageMock: any): Promise<void> {
+	await handler.handle(instance(messageMock));
+}
+
+/**
+ * AIReplyHandlerのインスタンスを作成し、モックを設定する
+ * @param options - オプションパラメータ
+ * @returns 設定済みのAIReplyHandlerとモック
+ */
+function createAIReplyHandlerWithMocks(
+	options: {
+		threadDto?: ThreadDto;
+		replyResponse?: string;
+		replyCallback?: (prompt: unknown, context: ChatAIMessageDto[]) => Promise<string>;
+	} = {},
+) {
+	const handler = new AIReplyHandler();
+	const mocks = setupAIReplyHandlerMocks(handler, options);
+	return { handler, ...mocks };
+}
+
+/**
+ * メッセージモックとチャンネルモックを一括設定する
+ * @param options - オプションパラメータ
+ * @returns 設定済みのメッセージモックとチャンネルモック
+ */
+function setupMessageWithChannel(
+	options: {
+		userId?: string;
+		content?: string;
+		isThread?: boolean;
+		guildId?: string;
+		threadId?: string;
+		ownerId?: string;
+		messageCollection?: ReturnType<typeof createMessageCollectionMock>;
+	} = {},
+) {
+	const messageMock = mockMessage(options.userId ?? TEST_USER_ID);
+	if (options.content !== undefined) {
+		when(messageMock.content).thenReturn(options.content);
+	}
+
+	const channelMock = createChannelMock({
+		isThread: options.isThread,
+		guildId: options.guildId,
+		threadId: options.threadId,
+		ownerId: options.ownerId,
+		messageCollection: options.messageCollection,
+	});
+
+	when(messageMock.channel).thenReturn(instance(channelMock));
+	when(messageMock.reply(anything())).thenResolve();
+
+	return { messageMock, channelMock };
+}
+
+/**
+ * AIReplyHandlerのテストを簡略化するためのヘルパー関数
+ * Handler作成、メッセージ設定、ハンドル実行を一括で行う
+ * @param options - オプションパラメータ
+ * @returns テスト結果の検証用オブジェクト
+ */
+async function executeAIReplyTest(
+	options: {
+		// メッセージ設定
+		userId?: string;
+		content?: string;
+		messageHistory?: Array<{
+			id?: string;
+			author: { bot: boolean; id?: string };
+			content: string;
+		}>;
+		// スレッド設定
+		threadDto?: ThreadDto;
+		// AI応答設定
+		replyResponse?: string;
+		replyCallback?: (prompt: unknown, context: ChatAIMessageDto[]) => Promise<string>;
+	} = {},
+) {
+	// AIReplyHandlerとモックを作成
+	const { handler, communityLogicMock, threadLogicMock, chatAILogicMock } = createAIReplyHandlerWithMocks({
+		threadDto: options.threadDto,
+		replyResponse: options.replyResponse,
+		replyCallback: options.replyCallback,
+	});
+
+	// メッセージとチャンネルを設定
+	const messageCollection = options.messageHistory ? createMessageCollectionMock(options.messageHistory) : undefined;
+
+	const { messageMock, channelMock } = setupMessageWithChannel({
+		userId: options.userId,
+		content: options.content,
+		messageCollection,
+	});
+
+	// ハンドル実行
+	await handleAIReplyEvent(handler, messageMock);
+
+	return {
+		handler,
+		messageMock,
+		channelMock,
+		communityLogicMock,
+		threadLogicMock,
+		chatAILogicMock,
+	};
+}
+
+/**
+ * Commandテストを簡略化するためのヘルパー関数
+ * コマンドモック作成、イベント発行、応答待機を一括で行う
+ * @param commandName - コマンド名
+ * @param commandOptions - コマンドオプション
+ * @param mockOptions - モックオプション
+ * @returns テスト結果の検証用オブジェクト
+ */
+async function executeCommandTest(
+	commandName: string,
+	commandOptions: Record<string, unknown>,
+	mockOptions: {
+		guildId?: string;
+		setupChannel?: boolean;
+	} = {},
+) {
+	const commandMock = mockSlashCommand(commandName, commandOptions, {
+		guildId: mockOptions.guildId ?? TEST_GUILD_ID,
+	});
+
+	if (mockOptions.setupChannel !== false) {
+		const channelMock = createTextChannelMock();
+		when(commandMock.channel).thenReturn(instance(channelMock));
+	}
+
+	await emitInteractionEvent(commandMock);
+
+	return { commandMock };
+}
+
 describe("Test Talk Commands", function (this: Mocha.Suite) {
 	// テストのタイムアウト時間を延長（60秒）
 	this.timeout(60_000);
