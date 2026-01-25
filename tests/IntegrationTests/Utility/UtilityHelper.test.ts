@@ -293,7 +293,9 @@ export const extractEmbedData = (options: BaseMessageOptions | undefined): Embed
 		return { title: "", description: "" };
 	}
 	
-	const embed = options.embeds[0] as APIEmbed;
+	const embedObject = options.embeds[0];
+	// Handle both EmbedBuilder and APIEmbed objects
+	const embed = (embedObject as any).data ? (embedObject as any).data : (embedObject as APIEmbed);
 	return {
 		title: embed.title ?? "",
 		description: embed.description ?? "",
