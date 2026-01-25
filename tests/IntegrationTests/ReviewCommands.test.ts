@@ -11,34 +11,47 @@ import { createMockMessage, mockSlashCommand, waitUntilReply } from "@/tests/fix
 import { TestDiscordServer } from "@/tests/fixtures/discord.js/TestDiscordServer";
 import { DummyPullRequest, MockGithubAPI, MockNotfoundGithubAPI } from "@/tests/fixtures/repositories/MockGithubAPI";
 import { expect } from "chai";
-import { type Message, TextChannel, type ThreadChannel, type Client } from "discord.js";
+import type { Message, TextChannel, ThreadChannel, Client, ChatInputCommandInteraction } from "discord.js";
 import { anything, capture, instance, mock, verify, when } from "ts-mockito";
-import type { ChatInputCommandInteraction } from "discord.js";
 
 // テスト用のguildId（MockSlashCommandで使用される値と一致させる）
 const TEST_GUILD_ID = "9999";
 
 /**
- * モック生成ヘルパー関数
+ * 型定義
  */
 
-/**
- * Handler初期化の共通ヘルパー関数
- */
+/** ReviewGachaコマンドのオプション型 */
+interface ReviewGachaCommandOptions {
+	id: number | null;
+}
 
-/**
- * 汎用的なコマンドハンドラーのセットアップ
- */
-interface CommandSetupResult<TOptions = any> {
+/** ReviewListコマンドのオプション型（オプションなし） */
+type ReviewListCommandOptions = Record<string, never>;
+
+/** ユーザー設定型 */
+interface UserConfig {
+	userId: string;
+	withChannel: boolean;
+}
+
+/** コマンドセットアップの結果型 */
+interface CommandSetupResult<TOptions> {
 	client: Client;
 	commandMock: ChatInputCommandInteraction;
 	messageMock?: Message;
 }
 
+/** メッセージを含むコマンドセットアップの結果型 */
+type CommandSetupResultWithMessage<TOptions> = Required<CommandSetupResult<TOptions>>;
+
+/**
+ * 汎用的なコマンドハンドラーのセットアップ
+ */
 async function setupCommandHandler<TOptions>(
 	commandName: string,
 	options: TOptions,
-	userId: string | { userId: string; withChannel: boolean },
+	userId: string | UserConfig,
 ): Promise<CommandSetupResult<TOptions>> {
 	const client = await TestDiscordServer.getClient();
 	const commandMock = mockSlashCommand(commandName, options, userId);
@@ -52,13 +65,13 @@ async function setupCommandHandler<TOptions>(
 async function setupCommandHandlerWithMessage<TOptions>(
 	commandName: string,
 	options: TOptions,
-	userConfig: { userId: string; withChannel: boolean },
-): Promise<Required<CommandSetupResult<TOptions>>> {
+	userConfig: UserConfig,
+): Promise<CommandSetupResultWithMessage<TOptions>> {
 	const client = await TestDiscordServer.getClient();
 	const { message } = createMockMessage();
 	const commandMock = mockSlashCommand(commandName, options, userConfig);
 	
-	return { client, commandMock, messageMock: message as any };
+	return { client, commandMock, messageMock: message };
 }
 
 /**
@@ -108,17 +121,17 @@ function verifyEditReplyCalled(commandMock: ChatInputCommandInteraction): void {
  * reviewgachaコマンドのモックを作成し、実行する
  */
 async function setupReviewGachaCommand(
-	options: { id: number | null },
-	userConfig: { userId: string; withChannel: boolean },
-): Promise<Required<CommandSetupResult<{ id: number | null }>>> {
+	options: ReviewGachaCommandOptions,
+	userConfig: UserConfig,
+): Promise<CommandSetupResultWithMessage<ReviewGachaCommandOptions>> {
 	return setupCommandHandlerWithMessage("reviewgacha", options, userConfig);
 }
 
 /**
  * reviewlistコマンドのモックを作成し、実行する
  */
-async function setupReviewListCommand(userId: string): Promise<CommandSetupResult<{}>> {
-	return setupCommandHandler("reviewlist", {}, userId);
+async function setupReviewListCommand(userId: string): Promise<CommandSetupResult<ReviewListCommandOptions>> {
+	return setupCommandHandler<ReviewListCommandOptions>("reviewlist", {}, userId);
 }
 
 /**
@@ -204,7 +217,7 @@ async function executeCommandWithRepositoryScenario<TOptions>(
 	scenario: RepositoryErrorScenario,
 	commandName: string,
 	options: TOptions,
-	userConfig: { userId: string; withChannel: boolean },
+	userConfig: UserConfig,
 	expectedError: string,
 ): Promise<void> {
 	setupRepositoryScenario(scenario);
@@ -223,10 +236,10 @@ async function executeCommandWithRepositoryScenario<TOptions>(
 /**
  * Repositoryエラーシナリオでコマンドを実行し、editReplyを検証
  */
-async function executeCommandWithRepositoryScenarioEditReply(
+async function executeCommandWithRepositoryScenarioEditReply<TOptions>(
 	scenario: RepositoryErrorScenario,
 	commandName: string,
-	options: any,
+	options: TOptions,
 	userId: string,
 	expectedError: string,
 ): Promise<void> {
@@ -246,7 +259,7 @@ async function executeCommandWithRepositoryScenarioEditReply(
 async function testPRNotFound<TOptions>(
 	commandName: string,
 	options: TOptions,
-	userConfig: { userId: string; withChannel: boolean },
+	userConfig: UserConfig,
 ): Promise<void> {
 	await executeCommandWithRepositoryScenario(
 		RepositoryErrorScenario.NotFound,
@@ -261,9 +274,9 @@ async function testPRNotFound<TOptions>(
  * アサインされているPRがないケースのテストヘルパー
  * NotFoundシナリオでコマンドを実行し、editReplyでエラーメッセージを検証
  */
-async function testNoPRsAssigned(
+async function testNoPRsAssigned<TOptions>(
 	commandName: string,
-	options: any,
+	options: TOptions,
 	userId: string,
 ): Promise<void> {
 	await executeCommandWithRepositoryScenarioEditReply(
@@ -279,8 +292,9 @@ describe("Test Review Commands", () => {
 	beforeEach(async () => {
 		// データベース接続を初期化
 		const connector = new MysqlConnector();
-		// @ts-ignore - privateフィールドにアクセスするため
-		connector.instance.options.logging = false;
+		// テスト環境でのログ出力を無効化（privateフィールドへのアクセスが必要）
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		(connector.instance.options as any).logging = false;
 
 		// コミュニティデータをクリーンアップ
 		await CommunityRepositoryImpl.destroy({
