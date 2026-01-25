@@ -84,6 +84,67 @@ const executeCommand = async (
 	await waitUntilReply(commandMock);
 };
 
+// ========================================
+// Event Registration Test Helper Functions
+// ========================================
+
+/**
+ * Creates a mock command, registers it to the client, and waits for reply
+ * @param commandName - The name of the command to mock
+ * @param options - Optional parameters for the command
+ * @returns An object containing the mock and client
+ */
+const executeCommandTest = async (
+	commandName: string,
+	options?: Record<string, any>
+): Promise<{
+	commandMock: ChatInputCommandInteraction;
+	client: Awaited<ReturnType<typeof TestDiscordServer.getClient>>;
+}> => {
+	const commandMock = mockSlashCommand(commandName, options);
+	const client = await TestDiscordServer.getClient();
+	await executeCommand(client, commandMock);
+	return { commandMock, client };
+};
+
+/**
+ * Creates a mock command with reply capture, registers it to the client, and waits for reply
+ * @param commandName - The name of the command to mock
+ * @param options - Optional parameters for the command
+ * @returns An object containing the mock, captured value getter, and client
+ */
+const executeCommandTestWithReplyCapture = async (
+	commandName: string,
+	options?: Record<string, any>
+): Promise<{
+	commandMock: ChatInputCommandInteraction;
+	getReplyValue: () => string;
+	client: Awaited<ReturnType<typeof TestDiscordServer.getClient>>;
+}> => {
+	const { commandMock, getReplyValue, client } = await createMockCommandWithReplyCapture(commandName, options);
+	await executeCommand(client, commandMock);
+	return { commandMock, getReplyValue, client };
+};
+
+/**
+ * Creates a mock command with embed reply capture, registers it to the client, and waits for reply
+ * @param commandName - The name of the command to mock
+ * @param options - Optional parameters for the command
+ * @returns An object containing the mock, captured embed getter, and client
+ */
+const executeCommandTestWithEmbedCapture = async (
+	commandName: string,
+	options?: Record<string, any>
+): Promise<{
+	commandMock: ChatInputCommandInteraction;
+	getEmbedReply: () => any;
+	client: Awaited<ReturnType<typeof TestDiscordServer.getClient>>;
+}> => {
+	const { commandMock, getEmbedReply, client } = await createMockCommandWithEmbedCapture(commandName, options);
+	await executeCommand(client, commandMock);
+	return { commandMock, getEmbedReply, client };
+};
+
 /**
  * Verifies that a command replied successfully without errors
  * @param commandMock - The mocked command to verify
@@ -129,16 +190,10 @@ describe("Test UtilityCommand", () => {
 		 * - 内部エラーが発生しないことを検証
 		 */
 		it("Test /help category:all", async () => {
-			const commandMock = mockSlashCommand("help", {
+			const { commandMock } = await executeCommandTest("help", {
 				category: "all",
 			});
-			const TEST_CLIENT = await TestDiscordServer.getClient();
-
-			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-			await waitUntilReply(commandMock);
-			verify(commandMock.reply(anything())).once();
-			verify(commandMock.reply("")).never();
-			verify(commandMock.reply(InternalErrorMessage)).never();
+			verifySuccessfulReply(commandMock);
 		});
 
 		/**
@@ -148,11 +203,9 @@ describe("Test UtilityCommand", () => {
 		 * - 内部エラーが発生しないことを検証
 		 */
 		it("Test /help category:utilityカテゴリー", async () => {
-			const { commandMock, getReplyValue, client } = await createMockCommandWithReplyCapture("help", {
+			const { commandMock, getReplyValue } = await executeCommandTestWithReplyCapture("help", {
 				category: "utilityカテゴリー",
 			});
-
-			await executeCommand(client, commandMock);
 			verifySuccessfulReply(commandMock);
 			
 			const value = getReplyValue();
@@ -171,11 +224,9 @@ describe("Test UtilityCommand", () => {
 		 * - 内部エラーが発生しないことを検証
 		 */
 		it("Test /help category:chatカテゴリー", async () => {
-			const { commandMock, getReplyValue, client } = await createMockCommandWithReplyCapture("help", {
+			const { commandMock, getReplyValue } = await executeCommandTestWithReplyCapture("help", {
 				category: "chatカテゴリー",
 			});
-
-			await executeCommand(client, commandMock);
 			verifySuccessfulReply(commandMock);
 			
 			const value = getReplyValue();
@@ -191,11 +242,9 @@ describe("Test UtilityCommand", () => {
 		 * - 内部エラーが発生しないことを検証
 		 */
 		it("Test /help category:reminderカテゴリー", async () => {
-			const { commandMock, getReplyValue, client } = await createMockCommandWithReplyCapture("help", {
+			const { commandMock, getReplyValue } = await executeCommandTestWithReplyCapture("help", {
 				category: "reminderカテゴリー",
 			});
-
-			await executeCommand(client, commandMock);
 			verifySuccessfulReply(commandMock);
 			
 			const value = getReplyValue();
@@ -212,11 +261,9 @@ describe("Test UtilityCommand", () => {
 		 * - 内部エラーが発生しないことを検証
 		 */
 		it("Test /help category:candyカテゴリー", async () => {
-			const { commandMock, getReplyValue, client } = await createMockCommandWithReplyCapture("help", {
+			const { commandMock, getReplyValue } = await executeCommandTestWithReplyCapture("help", {
 				category: "candyカテゴリー",
 			});
-
-			await executeCommand(client, commandMock);
 			verifySuccessfulReply(commandMock);
 			
 			const value = getReplyValue();
@@ -232,11 +279,9 @@ describe("Test UtilityCommand", () => {
 		 * - 内部エラーが発生しないことを検証
 		 */
 		it("Test /help category:reviewカテゴリー", async () => {
-			const { commandMock, getReplyValue, client } = await createMockCommandWithReplyCapture("help", {
+			const { commandMock, getReplyValue } = await executeCommandTestWithReplyCapture("help", {
 				category: "reviewカテゴリー",
 			});
-
-			await executeCommand(client, commandMock);
 			verifySuccessfulReply(commandMock);
 			
 			const value = getReplyValue();
@@ -252,11 +297,9 @@ describe("Test UtilityCommand", () => {
 		 * - 内部エラーが発生しないことを検証
 		 */
 		it("Test /help category:stickyカテゴリー", async () => {
-			const { commandMock, getReplyValue, client } = await createMockCommandWithReplyCapture("help", {
+			const { commandMock, getReplyValue } = await executeCommandTestWithReplyCapture("help", {
 				category: "stickyカテゴリー",
 			});
-
-			await executeCommand(client, commandMock);
 			verifySuccessfulReply(commandMock);
 			
 			const value = getReplyValue();
@@ -270,11 +313,9 @@ describe("Test UtilityCommand", () => {
 		 * - 存在しないカテゴリを指定した場合に空文字列が返されることを検証
 		 */
 		it("Test /help category:invalid (non-existent category)", async () => {
-			const { commandMock, getReplyValue, client } = await createMockCommandWithReplyCapture("help", {
+			const { commandMock, getReplyValue } = await executeCommandTestWithReplyCapture("help", {
 				category: "invalid_category",
 			});
-
-			await executeCommand(client, commandMock);
 			verify(commandMock.reply(anything())).once();
 			expect(getReplyValue()).to.equal("");
 		});
@@ -284,12 +325,8 @@ describe("Test UtilityCommand", () => {
 		 * - カテゴリが指定されていない場合に内部エラーメッセージが返されることを検証
 		 */
 		it("Test /help category:null", async () => {
-			const commandMock = mockSlashCommand("help");
-			const TEST_CLIENT = await TestDiscordServer.getClient();
-
-			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-			await waitUntilReply(commandMock);
-			verify(commandMock.reply(InternalErrorMessage)).once();
+			const { commandMock } = await executeCommandTest("help");
+			verifyInternalErrorReply(commandMock);
 		});
 	});
 
@@ -397,12 +434,10 @@ describe("Test UtilityCommand", () => {
 		 * [ランダム値] source:1d100で1〜100の範囲で返される
 		 */
 		it("Test /dice source:1d100", async () => {
-			const { commandMock, getEmbedReply, client } = await createMockCommandWithEmbedCapture("dice", {
+			const { commandMock, getEmbedReply } = await executeCommandTestWithEmbedCapture("dice", {
 				source: "1d100",
 				details: true,
 			});
-
-			await executeCommand(client, commandMock);
 			verify(commandMock.reply(anything())).once();
 
 			const { description } = extractEmbedData(getEmbedReply());
@@ -414,12 +449,10 @@ describe("Test UtilityCommand", () => {
 		 * [最小値] source:1d1で常に1を返す
 		 */
 		it("Test /dice source:1d1 (minimum value)", async () => {
-			const { commandMock, getEmbedReply, client } = await createMockCommandWithEmbedCapture("dice", {
+			const { commandMock, getEmbedReply } = await executeCommandTestWithEmbedCapture("dice", {
 				source: "1d1",
 				details: true,
 			});
-
-			await executeCommand(client, commandMock);
 			verify(commandMock.reply(anything())).once();
 
 			const { description } = extractEmbedData(getEmbedReply());
@@ -431,12 +464,10 @@ describe("Test UtilityCommand", () => {
 		 * [標準ダイス] source:1d6で1〜6の範囲で返される
 		 */
 		it("Test /dice source:1d6 (standard dice)", async () => {
-			const { commandMock, getEmbedReply, client } = await createMockCommandWithEmbedCapture("dice", {
+			const { commandMock, getEmbedReply } = await executeCommandTestWithEmbedCapture("dice", {
 				source: "1d6",
 				details: true,
 			});
-
-			await executeCommand(client, commandMock);
 			verify(commandMock.reply(anything())).once();
 
 			const { description } = extractEmbedData(getEmbedReply());
@@ -448,27 +479,20 @@ describe("Test UtilityCommand", () => {
 		 * [必須パラメータなし] source:nullで内部エラーが発生する
 		 */
 		it("Test /dice source:null", async () => {
-			const commandMock = mockSlashCommand("dice", {
+			const { commandMock } = await executeCommandTest("dice", {
 				source: null,
 			});
-			const TEST_CLIENT = await TestDiscordServer.getClient();
-
-			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-			await waitUntilReply(commandMock);
-			verify(commandMock.reply(anything())).once();
-			verify(commandMock.reply(InternalErrorMessage)).once();
+			verifyInternalErrorReply(commandMock);
 		});
 
 		/**
 		 * [構文エラー] source:1.5でパースエラーが返される
 		 */
 		it("Test /dice source:1.5 (invalid source)", async () => {
-			const { commandMock, getEmbedReply, client } = await createMockCommandWithEmbedCapture("dice", {
+			const { commandMock, getEmbedReply } = await executeCommandTestWithEmbedCapture("dice", {
 				source: "1.5",
 				details: true,
 			});
-
-			await executeCommand(client, commandMock);
 			verify(commandMock.reply(anything())).once();
 
 			const { title, description } = extractEmbedData(getEmbedReply());
