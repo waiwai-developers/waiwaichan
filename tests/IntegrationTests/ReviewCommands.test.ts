@@ -23,6 +23,45 @@ const TEST_GUILD_ID = "9999";
  */
 
 /**
+ * Handler初期化の共通ヘルパー関数
+ */
+
+/**
+ * 汎用的なコマンドハンドラーのセットアップ
+ */
+interface CommandSetupResult<TOptions = any> {
+	client: Client;
+	commandMock: ChatInputCommandInteraction;
+	messageMock?: Message;
+}
+
+async function setupCommandHandler<TOptions>(
+	commandName: string,
+	options: TOptions,
+	userId: string | { userId: string; withChannel: boolean },
+): Promise<CommandSetupResult<TOptions>> {
+	const client = await TestDiscordServer.getClient();
+	const commandMock = mockSlashCommand(commandName, options, userId);
+	
+	return { client, commandMock };
+}
+
+/**
+ * メッセージモック付きのコマンドハンドラーセットアップ
+ */
+async function setupCommandHandlerWithMessage<TOptions>(
+	commandName: string,
+	options: TOptions,
+	userConfig: { userId: string; withChannel: boolean },
+): Promise<Required<CommandSetupResult<TOptions>>> {
+	const client = await TestDiscordServer.getClient();
+	const { message } = createMockMessage();
+	const commandMock = mockSlashCommand(commandName, options, userConfig);
+	
+	return { client, commandMock, messageMock: message as any };
+}
+
+/**
  * イベント登録テストのヘルパー関数
  */
 
@@ -71,27 +110,15 @@ function verifyEditReplyCalled(commandMock: ChatInputCommandInteraction): void {
 async function setupReviewGachaCommand(
 	options: { id: number | null },
 	userConfig: { userId: string; withChannel: boolean },
-): Promise<{
-	client: Client;
-	commandMock: ChatInputCommandInteraction;
-	messageMock: Message;
-}> {
-	const client = await TestDiscordServer.getClient();
-	const { message } = createMockMessage();
-	const commandMock = mockSlashCommand("reviewgacha", options, userConfig);
-	return { client, commandMock, messageMock: message as any };
+): Promise<Required<CommandSetupResult<{ id: number | null }>>> {
+	return setupCommandHandlerWithMessage("reviewgacha", options, userConfig);
 }
 
 /**
  * reviewlistコマンドのモックを作成し、実行する
  */
-async function setupReviewListCommand(userId: string): Promise<{
-	client: Client;
-	commandMock: ChatInputCommandInteraction;
-}> {
-	const client = await TestDiscordServer.getClient();
-	const commandMock = mockSlashCommand("reviewlist", {}, userId);
-	return { client, commandMock };
+async function setupReviewListCommand(userId: string): Promise<CommandSetupResult<{}>> {
+	return setupCommandHandler("reviewlist", {}, userId);
 }
 
 /**
