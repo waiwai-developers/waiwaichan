@@ -143,42 +143,191 @@ const mockConsoleError = (captureCallback: (message: string) => void): (() => vo
 	};
 };
 
+// ===================================
+// Helper Functions: Handler Initialization
+// ===================================
+
+/**
+ * Handler用のモックとDIコンテナをセットアップするヘルパー
+ * @returns モックオブジェクトとクリーンアップ関数
+ */
+const setupHandlerMocks = () => {
+	const communityLogicMock = mock<ICommunityLogic>();
+	const userLogicMock = mock<IUserLogic>();
+	const channelLogicMock = mock<IChannelLogic>();
+	const dataDeletionLogicMock = mock<DataDeletionCircularLogic>();
+
+	const originalGet = schedulerContainer.get.bind(schedulerContainer);
+
+	// DIコンテナのgetメソッドをモックに差し替え
+	(schedulerContainer as any).get = (token: symbol) => {
+		if (token === LogicTypes.CommunityLogic) {
+			return instance(communityLogicMock);
+		}
+		if (token === LogicTypes.UserLogic) {
+			return instance(userLogicMock);
+		}
+		if (token === LogicTypes.ChannelLogic) {
+			return instance(channelLogicMock);
+		}
+		if (token === LogicTypes.dataDeletionCircularLogic) {
+			return instance(dataDeletionLogicMock);
+		}
+		return originalGet(token);
+	};
+
+	// デフォルトの振る舞いを設定
+	when((communityLogicMock as any).getNotExistClientId(anything(), anything()) as any).thenReturn(
+		Promise.resolve([] as CommunityClientId[]),
+	);
+	when((userLogicMock as any).findDeletionTargetsByBatchStatusAndDeletedAt()).thenResolve([] as any);
+	when((communityLogicMock as any).findDeletionTargetsByBatchStatusAndDeletedAt()).thenResolve([] as any);
+	when((channelLogicMock as any).findDeletionTargetsByBatchStatusAndDeletedAt()).thenResolve([] as any);
+
+	// クリーンアップ関数
+	const cleanup = () => {
+		(schedulerContainer as any).get = originalGet;
+	};
+
+	return {
+		communityLogicMock,
+		userLogicMock,
+		channelLogicMock,
+		dataDeletionLogicMock,
+		cleanup,
+	};
+};
+
+// ===================================
+// Helper Functions: Event Registration Test
+// ===================================
+
+/**
+ * User削除メソッドの引数をキャプチャするヘルパー
+ * @param userLogicMock モック化されたUserLogic
+ * @returns キャプチャされた引数を返すオブジェクト
+ */
+const setupUserDeleteArgumentCapture = (userLogicMock: IUserLogic) => {
+	let capturedCommunityId: UserCommunityId | null = null;
+	let capturedClientIds: UserClientId[] = [];
+
+	(when((userLogicMock as any).deleteNotBelongByCommunityIdAndClientIds(anything(), anything())) as any).thenCall(
+		(cid: UserCommunityId, ids: UserClientId[]) => {
+			capturedCommunityId = cid;
+			capturedClientIds = ids;
+			return Promise.resolve(true);
+		},
+	);
+
+	return {
+		getCommunityId: () => capturedCommunityId,
+		getClientIds: () => capturedClientIds,
+	};
+};
+
+/**
+ * Channel削除メソッドの引数をキャプチャするヘルパー
+ * @param channelLogicMock モック化されたChannelLogic
+ * @returns キャプチャされた引数を返すオブジェクト
+ */
+const setupChannelDeleteArgumentCapture = (channelLogicMock: IChannelLogic) => {
+	let capturedCommunityId: ChannelCommunityId | null = null;
+	let capturedClientIds: ChannelClientId[] = [];
+
+	(when((channelLogicMock as any).deleteNotBelongByCommunityIdAndClientIds(anything(), anything())) as any).thenCall(
+		(cid: ChannelCommunityId, ids: ChannelClientId[]) => {
+			capturedCommunityId = cid;
+			capturedClientIds = ids;
+			return Promise.resolve(true);
+		},
+	);
+
+	return {
+		getCommunityId: () => capturedCommunityId,
+		getClientIds: () => capturedClientIds,
+	};
+};
+
+/**
+ * 削除処理の実行順序を追跡するヘルパー
+ * @param userLogicMock モック化されたUserLogic
+ * @param channelLogicMock モック化されたChannelLogic
+ * @param communityLogicMock モック化されたCommunityLogic
+ * @returns 実行順序を記録した配列を返すオブジェクト
+ */
+const setupDeletionOrderTracking = (
+	userLogicMock: IUserLogic,
+	channelLogicMock: IChannelLogic,
+	communityLogicMock: ICommunityLogic,
+) => {
+	const callOrder: string[] = [];
+
+	when((userLogicMock as any).deletebyCommunityId(anything())).thenCall(() => {
+		callOrder.push("deleteUsers");
+		return Promise.resolve(true);
+	});
+
+	when((channelLogicMock as any).deletebyCommunityId(anything())).thenCall(() => {
+		callOrder.push("deleteChannels");
+		return Promise.resolve(true);
+	});
+
+	when((communityLogicMock as any).delete(anything())).thenCall(() => {
+		callOrder.push("deleteCommunity");
+		return Promise.resolve(true);
+	});
+
+	return {
+		getCallOrder: () => callOrder,
+	};
+};
+
+/**
+ * ハンドラーを実行し、削除メソッドの引数を検証するヘルパー
+ * @param communityLogicMock モック化されたCommunityLogic
+ * @param expectedCommunityId 期待されるCommunityId
+ * @param client Discordクライアント
+ * @param capture 引数キャプチャオブジェクト
+ * @param expectedClientIds 期待されるClientId配列（文字列形式）
+ */
+const executeAndVerifyDeletionArguments = async <T extends UserClientId | ChannelClientId>(
+	communityLogicMock: ICommunityLogic,
+	expectedCommunityId: CommunityId,
+	client: any,
+	capture: {
+		getCommunityId: () => UserCommunityId | ChannelCommunityId | null;
+		getClientIds: () => T[];
+	},
+	expectedClientIds: string[],
+) => {
+	(when((communityLogicMock as any).getId(anything())) as any).thenResolve(expectedCommunityId);
+	await DataDeletionCircularHandler(client);
+
+	const capturedCommunityId = capture.getCommunityId();
+	const capturedClientIds = capture.getClientIds();
+
+	expect(capturedCommunityId?.getValue()).to.equal(expectedCommunityId.getValue());
+	expect(capturedClientIds.map((c) => c.getValue())).to.deep.equal(expectedClientIds.map((id) => BigInt(id)));
+};
+
 describe("CommunityAndUserDeleteHandler integration tests", () => {
 	let communityLogicMock: ICommunityLogic;
 	let userLogicMock: IUserLogic;
 	let channelLogicMock: IChannelLogic;
 	let dataDeletionLogicMock: DataDeletionCircularLogic;
-	let originalGet: typeof schedulerContainer.get;
+	let cleanupHandlerMocks: () => void;
 
 	beforeEach(() => {
-		communityLogicMock = mock<ICommunityLogic>();
-		userLogicMock = mock<IUserLogic>();
-		channelLogicMock = mock<IChannelLogic>();
-		dataDeletionLogicMock = mock<DataDeletionCircularLogic>();
-		originalGet = schedulerContainer.get.bind(schedulerContainer);
-		(schedulerContainer as any).get = (token: symbol) => {
-			if (token === LogicTypes.CommunityLogic) {
-				return instance(communityLogicMock);
-			}
-			if (token === LogicTypes.UserLogic) {
-				return instance(userLogicMock);
-			}
-			if (token === LogicTypes.ChannelLogic) {
-				return instance(channelLogicMock);
-			}
-			if (token === LogicTypes.dataDeletionCircularLogic) {
-				return instance(dataDeletionLogicMock);
-			}
-			return originalGet(token);
-		};
-		when((communityLogicMock as any).getNotExistClientId(anything(), anything()) as any).thenReturn(Promise.resolve([] as CommunityClientId[]));
-		when((userLogicMock as any).findDeletionTargetsByBatchStatusAndDeletedAt()).thenResolve([] as any);
-		when((communityLogicMock as any).findDeletionTargetsByBatchStatusAndDeletedAt()).thenResolve([] as any);
-		when((channelLogicMock as any).findDeletionTargetsByBatchStatusAndDeletedAt()).thenResolve([] as any);
+		const mocks = setupHandlerMocks();
+		communityLogicMock = mocks.communityLogicMock;
+		userLogicMock = mocks.userLogicMock;
+		channelLogicMock = mocks.channelLogicMock;
+		dataDeletionLogicMock = mocks.dataDeletionLogicMock;
+		cleanupHandlerMocks = mocks.cleanup;
 	});
 
 	afterEach(() => {
-		(schedulerContainer as any).get = originalGet;
+		cleanupHandlerMocks();
 	});
 
 	/**
@@ -213,23 +362,12 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 		 */
 		it("memberIdsがUser削除に渡される", async () => {
 			const communityId = new CommunityId(10);
-			let capturedCommunityId: UserCommunityId | null = null;
-			let capturedClientIds: UserClientId[] = [];
-			(when((communityLogicMock as any).getId(anything())) as any).thenResolve(communityId);
-			(when((userLogicMock as any).deleteNotBelongByCommunityIdAndClientIds(anything(), anything())) as any).thenCall(
-				(cid: UserCommunityId, ids: UserClientId[]) => {
-					capturedCommunityId = cid;
-					capturedClientIds = ids;
-					return Promise.resolve(true);
-				},
-			);
+			const capture = setupUserDeleteArgumentCapture(userLogicMock);
 			(when((channelLogicMock as any).deleteNotBelongByCommunityIdAndClientIds(anything(), anything())) as any).thenResolve(true);
 
 			const client = createFakeClient([{ id: "100", memberIds: ["200", "201"], channelIds: ["300"] }]);
-			await DataDeletionCircularHandler(client as any);
+			await executeAndVerifyDeletionArguments(communityLogicMock, communityId, client, capture, ["200", "201"]);
 
-			expect((capturedCommunityId as UserCommunityId | null)?.getValue()).to.equal(communityId.getValue());
-			expect(capturedClientIds.map((c) => c.getValue())).to.deep.equal([BigInt("200"), BigInt("201")]);
 			verify((userLogicMock as any).deleteNotBelongByCommunityIdAndClientIds(anything(), anything())).once();
 		});
 
@@ -275,23 +413,12 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 		 */
 		it("channelIdsがChannel削除に渡される", async () => {
 			const communityId = new CommunityId(10);
-			let capturedCommunityId: ChannelCommunityId | null = null;
-			let capturedClientIds: ChannelClientId[] = [];
-			(when((communityLogicMock as any).getId(anything())) as any).thenResolve(communityId);
+			const capture = setupChannelDeleteArgumentCapture(channelLogicMock);
 			(when((userLogicMock as any).deleteNotBelongByCommunityIdAndClientIds(anything(), anything())) as any).thenResolve(true);
-			(when((channelLogicMock as any).deleteNotBelongByCommunityIdAndClientIds(anything(), anything())) as any).thenCall(
-				(cid: ChannelCommunityId, ids: ChannelClientId[]) => {
-					capturedCommunityId = cid;
-					capturedClientIds = ids;
-					return Promise.resolve(true);
-				},
-			);
 
 			const client = createFakeClient([{ id: "100", memberIds: ["200"], channelIds: ["300", "301"] }]);
-			await DataDeletionCircularHandler(client as any);
+			await executeAndVerifyDeletionArguments(communityLogicMock, communityId, client, capture, ["300", "301"]);
 
-			expect((capturedCommunityId as ChannelCommunityId | null)?.getValue()).to.equal(communityId.getValue());
-			expect(capturedClientIds.map((c) => c.getValue())).to.deep.equal([BigInt("300"), BigInt("301")]);
 			verify((channelLogicMock as any).deleteNotBelongByCommunityIdAndClientIds(anything(), anything())).once();
 		});
 
@@ -327,26 +454,14 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 		 * - 削除順序がUser→Channel→Communityであることを検証
 		 */
 		it("User削除→Channel削除→Community削除の順で実行される", async () => {
-			const callOrder: string[] = [];
 			(when((communityLogicMock as any).getNotExistClientId(anything(), anything())) as any).thenResolve([new CommunityClientId(BigInt("200"))]);
 			(when((communityLogicMock as any).getId(anything())) as any).thenResolve(new CommunityId(30));
-			when((userLogicMock as any).deletebyCommunityId(anything())).thenCall(() => {
-				callOrder.push("deleteUsers");
-				return Promise.resolve(true);
-			});
-			when((channelLogicMock as any).deletebyCommunityId(anything())).thenCall(() => {
-				callOrder.push("deleteChannels");
-				return Promise.resolve(true);
-			});
-			when((communityLogicMock as any).delete(anything())).thenCall(() => {
-				callOrder.push("deleteCommunity");
-				return Promise.resolve(true);
-			});
+			const tracker = setupDeletionOrderTracking(userLogicMock, channelLogicMock, communityLogicMock);
 
 			const client = createFakeClient([]);
 			await DataDeletionCircularHandler(client as any);
 
-			expect(callOrder).to.deep.equal(["deleteUsers", "deleteChannels", "deleteCommunity"]);
+			expect(tracker.getCallOrder()).to.deep.equal(["deleteUsers", "deleteChannels", "deleteCommunity"]);
 		});
 
 		/**
