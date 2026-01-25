@@ -11,11 +11,95 @@ import { createMockMessage, mockSlashCommand, waitUntilReply } from "@/tests/fix
 import { TestDiscordServer } from "@/tests/fixtures/discord.js/TestDiscordServer";
 import { DummyPullRequest, MockGithubAPI, MockNotfoundGithubAPI } from "@/tests/fixtures/repositories/MockGithubAPI";
 import { expect } from "chai";
-import { type Message, TextChannel, type ThreadChannel } from "discord.js";
+import { type Message, TextChannel, type ThreadChannel, type Client } from "discord.js";
 import { anything, capture, instance, mock, verify, when } from "ts-mockito";
+import type { ChatInputCommandInteraction } from "discord.js";
 
 // テスト用のguildId（MockSlashCommandで使用される値と一致させる）
 const TEST_GUILD_ID = "9999";
+
+/**
+ * モック生成ヘルパー関数
+ */
+
+/**
+ * reviewgachaコマンドのモックを作成し、実行する
+ */
+async function setupReviewGachaCommand(
+	options: { id: number | null },
+	userConfig: { userId: string; withChannel: boolean },
+): Promise<{
+	client: Client;
+	commandMock: ChatInputCommandInteraction;
+	messageMock: Message;
+}> {
+	const client = await TestDiscordServer.getClient();
+	const { message } = createMockMessage();
+	const commandMock = mockSlashCommand("reviewgacha", options, userConfig);
+	return { client, commandMock, messageMock: message as any };
+}
+
+/**
+ * reviewlistコマンドのモックを作成し、実行する
+ */
+async function setupReviewListCommand(userId: string): Promise<{
+	client: Client;
+	commandMock: ChatInputCommandInteraction;
+}> {
+	const client = await TestDiscordServer.getClient();
+	const commandMock = mockSlashCommand("reviewlist", {}, userId);
+	return { client, commandMock };
+}
+
+/**
+ * コマンドを実行し、replyの結果を取得する
+ */
+async function executeCommandAndCaptureReply(
+	client: Client,
+	commandMock: ChatInputCommandInteraction,
+	message?: Message,
+): Promise<string> {
+	let result = "";
+	if (message) {
+		when(commandMock.reply(anything())).thenCall((args) => {
+			result = args.content;
+			return Promise.resolve(message);
+		});
+	} else {
+		when(commandMock.reply(anything())).thenCall((args) => {
+			result = args;
+			return Promise.resolve();
+		});
+	}
+
+	client.emit("interactionCreate", instance(commandMock));
+	await waitUntilReply(commandMock);
+	return result;
+}
+
+/**
+ * コマンドを実行し、editReplyの結果を取得する
+ */
+async function executeCommandAndCaptureEditReply(
+	client: Client,
+	commandMock: ChatInputCommandInteraction,
+): Promise<string> {
+	let result = "";
+	when(commandMock.editReply(anything())).thenCall((args) => {
+		result = args;
+	});
+
+	client.emit("interactionCreate", instance(commandMock));
+	await waitUntilReply(commandMock);
+	return result;
+}
+
+/**
+ * PullRequestRepositoryのモックを設定する
+ */
+function setupPullRequestRepositoryMock(mockRepo: IPullRequestRepository): void {
+	appContainer.rebind<IPullRequestRepository>(RepoTypes.PullRequestRepository).toConstantValue(mockRepo);
+}
 
 describe("Test Review Commands", () => {
 	beforeEach(async () => {
@@ -144,19 +228,12 @@ describe("Test Review Commands", () => {
 		 * - 「pull reqのオーナーじゃないよ！っ」メッセージが返されることを検証
 		 */
 		it("should return error when PR owner is different", async () => {
-			const TEST_CLIENT = await TestDiscordServer.getClient();
-			const { message } = createMockMessage();
+			const { client, commandMock, messageMock } = await setupReviewGachaCommand(
+				{ id: 1 },
+				{ userId: AccountsConfig.users[1].discordId, withChannel: true },
+			);
 
-			const commandMock = mockSlashCommand("reviewgacha", { id: 1 }, { userId: AccountsConfig.users[1].discordId, withChannel: true });
-
-			let result = "";
-			when(commandMock.reply(anything())).thenCall((args) => {
-				result = args.content;
-				return Promise.resolve(message);
-			});
-
-			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-			await waitUntilReply(commandMock);
+			const result = await executeCommandAndCaptureReply(client, commandMock, messageMock);
 
 			expect(result).to.eq("pull reqのオーナーじゃないよ！っ");
 		});
@@ -167,17 +244,9 @@ describe("Test Review Commands", () => {
 		 * - editReplyが呼ばれないことを検証（早期リターンのため）
 		 */
 		it("should return error when id is null", async () => {
-			const TEST_CLIENT = await TestDiscordServer.getClient();
-			const commandMock = mockSlashCommand("reviewgacha", { id: null }, { userId: AccountsConfig.users[0].discordId, withChannel: true });
+			const { client, commandMock } = await setupReviewGachaCommand({ id: null }, { userId: AccountsConfig.users[0].discordId, withChannel: true });
 
-			let result = "";
-			when(commandMock.reply(anything())).thenCall((args) => {
-				result = args;
-				return Promise.resolve();
-			});
-
-			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-			await waitUntilReply(commandMock);
+			const result = await executeCommandAndCaptureReply(client, commandMock);
 
 			verify(commandMock.editReply(anything())).never();
 			expect(result).to.eq(InternalErrorMessage);
@@ -189,21 +258,14 @@ describe("Test Review Commands", () => {
 		 * - 「pull requestが存在しないよ！っ」メッセージが返されることを検証
 		 */
 		it("should return error when PR does not exist", async () => {
-			appContainer.rebind<IPullRequestRepository>(RepoTypes.PullRequestRepository).toConstantValue(MockNotfoundGithubAPI());
+			setupPullRequestRepositoryMock(MockNotfoundGithubAPI());
 
-			const TEST_CLIENT = await TestDiscordServer.getClient();
-			const { message } = createMockMessage();
+			const { client, commandMock, messageMock } = await setupReviewGachaCommand(
+				{ id: 999 },
+				{ userId: AccountsConfig.users[0].discordId, withChannel: true },
+			);
 
-			const commandMock = mockSlashCommand("reviewgacha", { id: 999 }, { userId: AccountsConfig.users[0].discordId, withChannel: true });
-
-			let result = "";
-			when(commandMock.reply(anything())).thenCall((args) => {
-				result = args.content;
-				return Promise.resolve(message);
-			});
-
-			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-			await waitUntilReply(commandMock);
+			const result = await executeCommandAndCaptureReply(client, commandMock, messageMock);
 
 			expect(result).to.eq("pull requestが存在しないよ！っ");
 		});
@@ -338,17 +400,9 @@ describe("Test Review Commands", () => {
 		 * - 「Githubのユーザー情報が紐づいてないよ！っ」メッセージが返されることを検証
 		 */
 		it("should return error when GitHub user is not linked", async () => {
-			const TEST_CLIENT = await TestDiscordServer.getClient();
-			// Use a user ID that is not in AccountsConfig
-			const commandMock = mockSlashCommand("reviewlist", {}, "unknown-user-id");
+			const { client, commandMock } = await setupReviewListCommand("unknown-user-id");
 
-			let result = "";
-			when(commandMock.editReply(anything())).thenCall((args) => {
-				result = args;
-			});
-
-			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-			await waitUntilReply(commandMock);
+			const result = await executeCommandAndCaptureEditReply(client, commandMock);
 
 			expect(result).to.eq("Githubのユーザー情報が紐づいてないよ！っ");
 		});
@@ -359,19 +413,13 @@ describe("Test Review Commands", () => {
 		 * - 「アサインされているpull reqはないよ！っ」メッセージが返されることを検証
 		 */
 		it("should return error when no PRs are assigned", async () => {
-			appContainer.rebind<IPullRequestRepository>(RepoTypes.PullRequestRepository).toConstantValue(MockNotfoundGithubAPI());
-			const TEST_CLIENT = await TestDiscordServer.getClient();
-			const commandMock = mockSlashCommand("reviewlist", {}, AccountsConfig.users[0].discordId);
+			setupPullRequestRepositoryMock(MockNotfoundGithubAPI());
 
-			let result = "";
-			when(commandMock.editReply(anything())).thenCall((args) => {
-				result = args;
-			});
+			const { client, commandMock } = await setupReviewListCommand(AccountsConfig.users[0].discordId);
 
-			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-			await waitUntilReply(commandMock);
+			const result = await executeCommandAndCaptureEditReply(client, commandMock);
+
 			verify(commandMock.editReply(anything())).once();
-
 			expect(result).to.eq("アサインされているpull reqはないよ！っ");
 		});
 
@@ -383,18 +431,11 @@ describe("Test Review Commands", () => {
 		 * - 各PRの情報が正しく表示されることを検証
 		 */
 		it("should return correct message format when PRs are assigned", async () => {
-			const TEST_CLIENT = await TestDiscordServer.getClient();
-			const commandMock = mockSlashCommand("reviewlist", {}, AccountsConfig.users[0].discordId);
+			const { client, commandMock } = await setupReviewListCommand(AccountsConfig.users[0].discordId);
 
-			let result = "";
-			when(commandMock.editReply(anything())).thenCall((args) => {
-				result = args;
-			});
+			const result = await executeCommandAndCaptureEditReply(client, commandMock);
 
-			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-			await waitUntilReply(commandMock);
 			verify(commandMock.editReply(anything())).once();
-
 			expect(result).to.eq(
 				[
 					"以下のpull reqのreviewerにアサインされているよ！っ\n",
