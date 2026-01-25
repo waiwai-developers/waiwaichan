@@ -339,11 +339,7 @@ describe("Test UtilityCommand", () => {
 		 * - コマンド実行時に「waiwai」が返されることを検証
 		 */
 		it("Test /waiwai", async () => {
-			const commandMock = mockSlashCommand("waiwai");
-			const TEST_CLIENT = await TestDiscordServer.getClient();
-
-			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-			await waitUntilReply(commandMock);
+			const { commandMock } = await executeCommandTest("waiwai");
 			verify(commandMock.reply("waiwai")).once();
 		});
 	});
@@ -358,13 +354,9 @@ describe("Test UtilityCommand", () => {
 		 */
 		it("Test /parrot message:あああああ", async () => {
 			const message = "あああああ";
-			const commandMock = mockSlashCommand("parrot", {
+			const { commandMock } = await executeCommandTest("parrot", {
 				message: message,
 			});
-			const TEST_CLIENT = await TestDiscordServer.getClient();
-
-			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-			await waitUntilReply(commandMock);
 			verify(commandMock.reply(message)).once();
 		});
 
@@ -374,13 +366,9 @@ describe("Test UtilityCommand", () => {
 		 */
 		it("Test /parrot message:hello world", async () => {
 			const message = "hello world";
-			const commandMock = mockSlashCommand("parrot", {
+			const { commandMock } = await executeCommandTest("parrot", {
 				message: message,
 			});
-			const TEST_CLIENT = await TestDiscordServer.getClient();
-
-			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-			await waitUntilReply(commandMock);
 			verify(commandMock.reply(message)).once();
 		});
 
@@ -390,13 +378,9 @@ describe("Test UtilityCommand", () => {
 		 */
 		it("Test /parrot message:empty string", async () => {
 			const message = "";
-			const commandMock = mockSlashCommand("parrot", {
+			const { commandMock } = await executeCommandTest("parrot", {
 				message: message,
 			});
-			const TEST_CLIENT = await TestDiscordServer.getClient();
-
-			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-			await waitUntilReply(commandMock);
 			verify(commandMock.reply(message)).once();
 		});
 
@@ -405,10 +389,7 @@ describe("Test UtilityCommand", () => {
 		 * - メッセージが指定されていない場合に内部エラーメッセージが返されることを検証
 		 */
 		it("Test /parrot message:null", async () => {
-			const commandMock = mockSlashCommand("parrot");
-			const TEST_CLIENT = await TestDiscordServer.getClient();
-
-			await executeCommand(TEST_CLIENT, commandMock);
+			const { commandMock } = await executeCommandTest("parrot");
 			verifyInternalErrorReply(commandMock);
 		});
 	});
@@ -629,19 +610,12 @@ describe("Test UtilityCommand", () => {
 			const choices = ["ああああ", "いいいい", "うううう", "ええええ", "おおおお"];
 			let notChoices = choices;
 			do {
-				const commandMock = mockSlashCommand("choice", {
+				const { commandMock, getReplyValue } = await executeCommandTestWithReplyCapture("choice", {
 					items: choices.join(" "),
 				});
-				const TEST_CLIENT = await TestDiscordServer.getClient();
-				let value = "";
-				when(commandMock.reply(anything())).thenCall((args) => {
-					value = args;
-				});
-
-				TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-				await waitUntilReply(commandMock);
 
 				verify(commandMock.reply(anything())).once();
+				const value = getReplyValue();
 				expect(choices).to.be.an("array").that.includes(value);
 				if (notChoices.includes(value)) {
 					notChoices = notChoices.toSpliced(notChoices.indexOf(value), 1);
@@ -698,10 +672,7 @@ describe("Test UtilityCommand", () => {
 		 * - パラメータが指定されていない場合に内部エラーメッセージが返されることを検証
 		 */
 		it("Test /choice parameter:null", async () => {
-			const commandMock = mockSlashCommand("choice");
-			const TEST_CLIENT = await TestDiscordServer.getClient();
-
-			await executeCommand(TEST_CLIENT, commandMock);
+			const { commandMock } = await executeCommandTest("choice");
 			verifyInternalErrorReply(commandMock);
 		});
 	});
