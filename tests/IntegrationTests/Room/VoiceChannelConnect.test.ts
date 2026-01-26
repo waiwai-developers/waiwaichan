@@ -49,7 +49,7 @@ describe("Test VoiceChannelConnect Events", () => {
 			// ChannelsテーブルにChannelレコードを作成
 			const roomAddChannelDbId = await createChannelAndGetId(discordRoomAddChannelId, communityId, DISCORD_VOICE_CHANNEL_TYPE);
 			const notificationChannelDbId = await createChannelAndGetId(discordNotificationChannelId, communityId, DISCORD_TEXT_CHANNEL_TYPE);
-			
+
 			// カテゴリーチャンネルを作成（部屋が作成されるカテゴリー）
 			const categoryChannelDiscordId = "999";
 			const categoryChannelDbId = await createChannelAndGetId(categoryChannelDiscordId, communityId, DISCORD_CATEGORY_TYPE);
@@ -123,7 +123,7 @@ describe("Test VoiceChannelConnect Events", () => {
 			// ChannelsテーブルにChannelレコードを作成
 			const roomAddChannelDbId = await createChannelAndGetId(discordRoomAddChannelId, communityId, DISCORD_VOICE_CHANNEL_TYPE);
 			const notificationChannelDbId = await createChannelAndGetId(discordNotificationChannelId, communityId, DISCORD_TEXT_CHANNEL_TYPE);
-			
+
 			// カテゴリーチャンネルを作成（部屋が作成されるカテゴリー）
 			const categoryChannelDiscordId = "999";
 			const categoryChannelDbId = await createChannelAndGetId(categoryChannelDiscordId, communityId, DISCORD_CATEGORY_TYPE);
@@ -238,7 +238,7 @@ describe("Test VoiceChannelConnect Events", () => {
 
 			// ChannelテーブルにChannelレコードを作成
 			const roomAddChannelDbId = await createChannelAndGetId(discordRoomAddChannelId, communityId, DISCORD_VOICE_CHANNEL_TYPE);
-			
+
 			// カテゴリーチャンネルを作成（部屋が作成されるカテゴリー）
 			const categoryChannelDiscordId = "999";
 			const categoryChannelDbId = await createChannelAndGetId(categoryChannelDiscordId, communityId, DISCORD_CATEGORY_TYPE);
@@ -546,7 +546,7 @@ describe("Test VoiceChannelConnect Events", () => {
 
 			// 部屋追加チャンネルをChannelテーブルに登録し、IDを取得
 			const roomAddChannelDbId = await createChannelAndGetId(discordRoomAddChannelId, communityDbId, DISCORD_VOICE_CHANNEL_TYPE);
-			
+
 			// カテゴリーチャンネルを作成（部屋が作成されるカテゴリー）
 			const categoryChannelDiscordId = "999";
 			const categoryChannelDbId = await createChannelAndGetId(categoryChannelDiscordId, communityDbId, DISCORD_CATEGORY_TYPE);
@@ -610,7 +610,7 @@ describe("Test VoiceChannelConnect Events", () => {
 			// 部屋追加チャンネルと通知チャンネルをChannelテーブルに登録
 			const roomAddChannelDbId = await createChannelAndGetId(discordRoomAddChannelId, communityDbId, DISCORD_VOICE_CHANNEL_TYPE);
 			const roomNotificationChannelDbId = await createChannelAndGetId(discordRoomNotificationChannelId, communityDbId, DISCORD_TEXT_CHANNEL_TYPE);
-			
+
 			// カテゴリーチャンネルを作成（部屋が作成されるカテゴリー）
 			const categoryChannelDiscordId = "999";
 			const categoryChannelDbId = await createChannelAndGetId(categoryChannelDiscordId, communityDbId, DISCORD_CATEGORY_TYPE);
@@ -687,7 +687,7 @@ describe("Test VoiceChannelConnect Events", () => {
 
 			// 部屋追加チャンネルをChannelテーブルに登録
 			const roomAddChannelDbId = await createChannelAndGetId(discordRoomAddChannelId, communityDbId, DISCORD_VOICE_CHANNEL_TYPE);
-			
+
 			// カテゴリーチャンネルを作成（部屋が作成されるカテゴリー）
 			const categoryChannelDiscordId = "999";
 			const categoryChannelDbId = await createChannelAndGetId(categoryChannelDiscordId, communityDbId, DISCORD_CATEGORY_TYPE);

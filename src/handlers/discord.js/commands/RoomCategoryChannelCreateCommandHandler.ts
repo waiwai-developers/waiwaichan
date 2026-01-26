@@ -48,7 +48,9 @@ export class RoomCategoryChannelCreateCommandHandler
 			RoleConfig.users.find((u) => u.discordId === interaction.user.id)
 				?.role !== "admin"
 		) {
-			interaction.reply("カテゴリーチャンネルを登録する権限を持っていないよ！っ");
+			interaction.reply(
+				"カテゴリーチャンネルを登録する権限を持っていないよ！っ",
+			);
 			return;
 		}
 

@@ -7,9 +7,7 @@ import type { ITransaction } from "@/src/logics/Interfaces/repositories/database
 import { inject, injectable } from "inversify";
 
 @injectable()
-export class RoomCategoryChannelLogic
-	implements IRoomCategoryChannelLogic
-{
+export class RoomCategoryChannelLogic implements IRoomCategoryChannelLogic {
 	@inject(RepoTypes.RoomCategoryChannelRepository)
 	private readonly RoomCategoryChannelRepository!: IRoomCategoryChannelRepository;
 

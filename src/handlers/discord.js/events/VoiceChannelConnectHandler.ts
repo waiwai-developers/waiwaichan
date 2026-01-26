@@ -95,17 +95,18 @@ export class VoiceChannelConnectHandler
 		}
 
 		//communityIdから部屋カテゴリーChannelを取得
-		const roomCategoryChannel = await this.roomCategoryChannelLogic.find(communityId);
+		const roomCategoryChannel =
+			await this.roomCategoryChannelLogic.find(communityId);
 		if (roomCategoryChannel === undefined) {
 			this.logger.info("not setting room category channel");
-			return
+			return;
 		}
 		const categoryChannelClientId = await this.ChannelLogic.getClientIdById(
 			roomCategoryChannel.channelId,
 		);
 		if (categoryChannelClientId === undefined) {
 			this.logger.info("not exist category channel clientId");
-			return
+			return;
 		}
 
 		//新しく部屋と部屋データを作成しユーザーを移動

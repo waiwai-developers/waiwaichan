@@ -37,7 +37,9 @@ export class RoomCategoryChannelDeleteCommandHandler
 			RoleConfig.users.find((u) => u.discordId === interaction.user.id)
 				?.role !== "admin"
 		) {
-			interaction.reply("カテゴリーチャンネルを登録する権限を持っていないよ！っ");
+			interaction.reply(
+				"カテゴリーチャンネルを登録する権限を持っていないよ！っ",
+			);
 			return;
 		}
 
@@ -55,7 +57,9 @@ export class RoomCategoryChannelDeleteCommandHandler
 		const roomCategoryChannel =
 			await this.roomCategoryChannelLogic.find(communityId);
 		if (roomCategoryChannel === undefined) {
-			await interaction.reply("カテゴリーチャンネルが登録されていなかったよ！っ");
+			await interaction.reply(
+				"カテゴリーチャンネルが登録されていなかったよ！っ",
+			);
 			return;
 		}
 
