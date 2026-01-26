@@ -3,6 +3,7 @@ import {
 	ChannelRepositoryImpl,
 	CommunityRepositoryImpl,
 	RoomAddChannelRepositoryImpl,
+	RoomCategoryChannelRepositoryImpl,
 	RoomChannelRepositoryImpl,
 	RoomNotificationChannelRepositoryImpl,
 } from "@/src/repositories/sequelize-mysql";
@@ -460,6 +461,10 @@ export async function roomTestBeforeEach(): Promise<void> {
 		truncate: true,
 		force: true,
 	});
+	await RoomCategoryChannelRepositoryImpl.destroy({
+		truncate: true,
+		force: true,
+	});
 	await RoomNotificationChannelRepositoryImpl.destroy({
 		truncate: true,
 		force: true,
@@ -493,6 +498,10 @@ export async function roomTestAfterEach(): Promise<void> {
 		truncate: true,
 		force: true,
 	});
+	await RoomCategoryChannelRepositoryImpl.destroy({
+		truncate: true,
+		force: true,
+	});
 	await RoomNotificationChannelRepositoryImpl.destroy({
 		truncate: true,
 		force: true,
@@ -514,6 +523,7 @@ export async function roomTestAfterEach(): Promise<void> {
 // Re-export for convenience
 export {
 	RoomAddChannelRepositoryImpl,
+	RoomCategoryChannelRepositoryImpl,
 	RoomNotificationChannelRepositoryImpl,
 	RoomChannelRepositoryImpl,
 	ChannelRepositoryImpl,
