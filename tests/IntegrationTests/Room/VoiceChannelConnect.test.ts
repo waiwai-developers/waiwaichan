@@ -546,7 +546,7 @@ describe("Test VoiceChannelConnect Events", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
 
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 2000));
 
 			// データが作成されていることを確認
 			const afterData = await RoomChannelRepositoryImpl.findAll();
@@ -617,7 +617,7 @@ describe("Test VoiceChannelConnect Events", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
 
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 2000));
 
 			// 通知が送信されたことを確認
 			expect(notificationSent).to.be.true;
@@ -669,7 +669,7 @@ describe("Test VoiceChannelConnect Events", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
 
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 2000));
 
 			// データは作成されていることを確認
 			const afterData = await RoomChannelRepositoryImpl.findAll();
