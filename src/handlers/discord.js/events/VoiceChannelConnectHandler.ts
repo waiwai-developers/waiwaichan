@@ -97,6 +97,10 @@ export class VoiceChannelConnectHandler
 			type: DiscordChannelType.GuildVoice,
 		});
 
+		//部屋作成後ChannelsにINSERTされるまで少し待つ
+		this.logger.info("Waiting for channel to be inserted into database");
+		await new Promise<void>((resolve) => setTimeout(resolve, 1000));
+
 		const newChannelId = await this.ChannelLogic.getId(
 			new ChannelDto(
 				ChannelCategoryType.Discord,
