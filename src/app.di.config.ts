@@ -19,6 +19,8 @@ import {
 	RoomAddChannelDeleteCommandHandler,
 	RoomNotificationChannelCreateCommandHandler,
 	RoomNotificationChannelDeleteCommandHandler,
+	RoomCategoryChannelCreateCommandHandler,
+	RoomCategoryChannelDeleteCommandHandler,
 	StickyCreateCommandHandler,
 	StickyDeleteCommandHandler,
 	StickyListCommandHandler,
@@ -63,6 +65,7 @@ import type { IReminderLogic } from "@/src/logics/Interfaces/logics/IReminderLog
 import type { IRoomAddChannelLogic } from "@/src/logics/Interfaces/logics/IRoomAddChannelLogic";
 import type { IRoomChannelLogic } from "@/src/logics/Interfaces/logics/IRoomChannelLogic";
 import type { IRoomNotificationChannelLogic } from "@/src/logics/Interfaces/logics/IRoomNotificationChannelLogic";
+import type { IRoomCategoryChannelLogic } from "@/src/logics/Interfaces/logics/IRoomCategoryChannelLogic";
 import type { IStickyLogic } from "@/src/logics/Interfaces/logics/IStickyLogic";
 import type { IThreadLogic } from "@/src/logics/Interfaces/logics/IThreadLogic";
 import type { ITranslatorLogic } from "@/src/logics/Interfaces/logics/ITranslatorLogic";
@@ -83,6 +86,7 @@ import type { IReminderRepository } from "@/src/logics/Interfaces/repositories/d
 import type { IRoomAddChannelRepository } from "@/src/logics/Interfaces/repositories/database/IRoomAddChannelRepository";
 import type { IRoomChannelRepository } from "@/src/logics/Interfaces/repositories/database/IRoomChannelRepository";
 import type { IRoomNotificationChannelRepository } from "@/src/logics/Interfaces/repositories/database/IRoomNotificationChannelRepository";
+import type { IRoomCategoryChannelRepository } from "@/src/logics/Interfaces/repositories/database/IRoomCategoryChannelRepository";
 import type { IStickyRepository } from "@/src/logics/Interfaces/repositories/database/IStickyRepository";
 import type { IThreadRepository } from "@/src/logics/Interfaces/repositories/database/IThreadRepository";
 import type { ITransaction } from "@/src/logics/Interfaces/repositories/database/ITransaction";
@@ -99,6 +103,7 @@ import { ReminderLogic } from "@/src/logics/ReminderLogic";
 import { RoomAddChannelLogic } from "@/src/logics/RoomAddChannelLogic";
 import { RoomChannelLogic } from "@/src/logics/RoomChannelLogic";
 import { RoomNotificationChannelLogic } from "@/src/logics/RoomNotificationChannelLogic";
+import { RoomCategoryChannelLogic } from "@/src/logics/RoomCategoryChannelLogic";
 import { StickyLogic } from "@/src/logics/StickyLogic";
 import { ThreadLogic } from "@/src/logics/ThreadLogic";
 import { TranslatorLogic } from "@/src/logics/TranslatorLogic";
@@ -123,6 +128,7 @@ import {
 	RoomAddChannelRepositoryImpl,
 	RoomChannelRepositoryImpl,
 	RoomNotificationChannelRepositoryImpl,
+	RoomCategoryChannelRepositoryImpl,
 	StickyRepositoryImpl,
 	ThreadRepositoryImpl,
 	UserCandyItemRepositoryImpl,
@@ -168,6 +174,7 @@ appContainer.bind<IPersonalityContextRepository>(RepoTypes.PersonalityContextRep
 appContainer.bind<IRoomAddChannelRepository>(RepoTypes.RoomAddChannelRepository).to(RoomAddChannelRepositoryImpl);
 appContainer.bind<IRoomChannelRepository>(RepoTypes.RoomChannelRepository).to(RoomChannelRepositoryImpl);
 appContainer.bind<IRoomNotificationChannelRepository>(RepoTypes.RoomNotificationChannelRepository).to(RoomNotificationChannelRepositoryImpl);
+appContainer.bind<IRoomCategoryChannelRepository>(RepoTypes.RoomCategoryChannelRepository).to(RoomCategoryChannelRepositoryImpl);
 appContainer.bind<IStickyRepository>(RepoTypes.StickyRepository).to(StickyRepositoryImpl);
 appContainer.bind<ICommunityRepository>(RepoTypes.CommunityRepository).to(CommunityRepositoryImpl);
 appContainer.bind<IUserRepository>(RepoTypes.UserRepository).to(UserRepositoryImpl);
@@ -198,6 +205,7 @@ appContainer.bind<IStickyLogic>(LogicTypes.StickyLogic).to(StickyLogic);
 appContainer.bind<IRoomAddChannelLogic>(LogicTypes.RoomAddChannelLogic).to(RoomAddChannelLogic);
 appContainer.bind<IRoomChannelLogic>(LogicTypes.RoomChannelLogic).to(RoomChannelLogic);
 appContainer.bind<IRoomNotificationChannelLogic>(LogicTypes.RoomNotificationChannelLogic).to(RoomNotificationChannelLogic);
+appContainer.bind<IRoomCategoryChannelLogic>(LogicTypes.RoomCategoryChannelLogic).to(RoomCategoryChannelLogic);
 appContainer.bind<IUtilityLogic>(LogicTypes.UtilityLogic).to(UtilityLogic);
 appContainer.bind<ICommunityLogic>(LogicTypes.CommunityLogic).to(CommunityLogic);
 appContainer.bind<IUserLogic>(LogicTypes.UserLogic).to(UserLogic);
@@ -242,6 +250,8 @@ appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(Room
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(RoomAddChannelDeleteCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(RoomNotificationChannelCreateCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(RoomNotificationChannelDeleteCommandHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(RoomCategoryChannelCreateCommandHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(RoomCategoryChannelDeleteCommandHandler);
 
 // Routes
 appContainer.bind<DiscordEventRouter>(RouteTypes.SlashCommandRoute).to(SlashCommandRouter);
