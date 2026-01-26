@@ -120,7 +120,8 @@ class CodeBlockHandler {
 			const adjusted = StringUtils.splitAt(payload, lastNewlinePos);
 			return {
 				chunk: adjusted.head + CODE_BLOCK.CLOSE_MARKER + "\n",
-				remaining: "\n" + CodeBlockHandler.createOpenMarker(language) + adjusted.tail,
+				remaining:
+					"\n" + CodeBlockHandler.createOpenMarker(language) + adjusted.tail,
 			};
 		}
 
@@ -149,7 +150,7 @@ class TextSplitter {
 				CODE_BLOCK.DELIMITER,
 				CODE_BLOCK.DELIMITER.length,
 			);
-			
+
 			// 閉じタグが2000文字以内にない、または見つからない場合は-1を返す
 			// これにより、handleNoDelimiterで強制分割される
 			if (closeIndex < 0 || closeIndex > MAX_REPLY_CHARACTERS) {
@@ -158,7 +159,7 @@ class TextSplitter {
 					codeBlockIndex: -1,
 				};
 			}
-			
+
 			return {
 				paragraphIndex: -1,
 				codeBlockIndex: closeIndex,
@@ -222,13 +223,11 @@ class TextSplitter {
 
 		// コードブロックから出るかチェック（閉じタグで分割）
 		const isExitingCodeBlock =
-			codeBlockState.isInside &&
-			delimiterIndices.codeBlockIndex === nextIndex;
+			codeBlockState.isInside && delimiterIndices.codeBlockIndex === nextIndex;
 
 		// コードブロックに入るかチェック
 		const isEnteringCodeBlock =
-			!codeBlockState.isInside &&
-			delimiterIndices.codeBlockIndex === nextIndex;
+			!codeBlockState.isInside && delimiterIndices.codeBlockIndex === nextIndex;
 
 		const newState: CodeBlockState = isExitingCodeBlock
 			? { isInside: false, language: "" }
@@ -297,7 +296,9 @@ class ChunkBuilder {
  * Discord用テキストプレゼンター
  * 長いテキストを2000文字以内のチャンクに分割
  */
-export const DiscordTextPresenter = async (string: string): Promise<string[]> => {
+export const DiscordTextPresenter = async (
+	string: string,
+): Promise<string[]> => {
 	const chunks = TextSplitter.split(string);
 	return ChunkBuilder.build(chunks);
 };
