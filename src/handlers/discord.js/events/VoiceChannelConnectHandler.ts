@@ -97,7 +97,7 @@ export class VoiceChannelConnectHandler
 			type: DiscordChannelType.GuildVoice,
 		});
 
-		// 部屋作成後 Channels に INSERT されるまで少し待つ
+		// 部屋作成後Channelsに INSERTされるまで少し待つ
 		async () => {
 			await ((ms: number) =>
 				new Promise<void>((resolve) => setTimeout(resolve, ms)))(3000);
