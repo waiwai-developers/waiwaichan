@@ -1,6 +1,6 @@
 import type Mocha from "mocha";
 import {
-	DISCORD_CATEGORY_TYPE,
+	DISCORD_CATEGORY_CHANNEL_TYPE,
 	RoleConfig,
 	RoomCategoryChannelRepositoryImpl,
 	TestDiscordServer,
@@ -94,7 +94,7 @@ describe("Test RoomCategoryChannelCreate Commands", () => {
 			RoleConfig.users = [{ discordId: userId, role: "admin" }];
 
 			// Channelテーブルにレコードを作成
-			const channelDbId = await createChannelAndGetId(discordChannelId, communityId, DISCORD_CATEGORY_TYPE);
+			const channelDbId = await createChannelAndGetId(discordChannelId, communityId, DISCORD_CATEGORY_CHANNEL_TYPE);
 
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("roomcategorychannelcreate", { channelid: discordChannelId }, userId);
@@ -167,7 +167,7 @@ describe("Test RoomCategoryChannelCreate Commands", () => {
 			RoleConfig.users = [{ discordId: userId, role: "admin" }];
 
 			// Channelテーブルにレコードを作成
-			const channelDbId = await createChannelAndGetId(discordChannelId, communityId, DISCORD_CATEGORY_TYPE);
+			const channelDbId = await createChannelAndGetId(discordChannelId, communityId, DISCORD_CATEGORY_CHANNEL_TYPE);
 
 			// 削除済みのデータを作成（ChannelテーブルのIDを使用）
 			const deletedData = await RoomCategoryChannelRepositoryImpl.create({
@@ -372,7 +372,7 @@ describe("Test RoomCategoryChannelCreate Commands", () => {
 			RoleConfig.users = [{ discordId: userId, role: "admin" }];
 
 			// Channelテーブルにレコードを作成
-			const channelDbId = await createChannelAndGetId(discordChannelId, communityId, DISCORD_CATEGORY_TYPE);
+			const channelDbId = await createChannelAndGetId(discordChannelId, communityId, DISCORD_CATEGORY_CHANNEL_TYPE);
 
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("roomcategorychannelcreate", { channelid: discordChannelId }, userId);
