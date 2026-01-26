@@ -3,6 +3,7 @@ import {
 	ChannelRepositoryImpl,
 	CommunityRepositoryImpl,
 	RoomAddChannelRepositoryImpl,
+	RoomCategoryChannelRepositoryImpl,
 	RoomChannelRepositoryImpl,
 	RoomNotificationChannelRepositoryImpl,
 } from "@/src/repositories/sequelize-mysql";
@@ -17,9 +18,10 @@ import { TestDiscordServer } from "../../fixtures/discord.js/TestDiscordServer";
 // =============================================================================
 // チャンネルタイプ定数
 // =============================================================================
-export const DISCORD_CATEGORY_TYPE = 0;
+export const DISCORD_CATEGORY_TYPE = 0; // ChannelCategoryType.Discord
 export const DISCORD_VOICE_CHANNEL_TYPE = 3; // ChannelType.DiscordVoice
 export const DISCORD_TEXT_CHANNEL_TYPE = 2; // ChannelType.DiscordText
+export const DISCORD_CATEGORY_CHANNEL_TYPE = 5; // ChannelType.DiscordCategory
 export const DEFAULT_BATCH_STATUS = 0;
 
 /**
@@ -460,6 +462,10 @@ export async function roomTestBeforeEach(): Promise<void> {
 		truncate: true,
 		force: true,
 	});
+	await RoomCategoryChannelRepositoryImpl.destroy({
+		truncate: true,
+		force: true,
+	});
 	await RoomNotificationChannelRepositoryImpl.destroy({
 		truncate: true,
 		force: true,
@@ -493,6 +499,10 @@ export async function roomTestAfterEach(): Promise<void> {
 		truncate: true,
 		force: true,
 	});
+	await RoomCategoryChannelRepositoryImpl.destroy({
+		truncate: true,
+		force: true,
+	});
 	await RoomNotificationChannelRepositoryImpl.destroy({
 		truncate: true,
 		force: true,
@@ -514,6 +524,7 @@ export async function roomTestAfterEach(): Promise<void> {
 // Re-export for convenience
 export {
 	RoomAddChannelRepositoryImpl,
+	RoomCategoryChannelRepositoryImpl,
 	RoomNotificationChannelRepositoryImpl,
 	RoomChannelRepositoryImpl,
 	ChannelRepositoryImpl,
