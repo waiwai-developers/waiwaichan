@@ -12,6 +12,7 @@ import { PersonalityRepositoryImpl } from "./PersonalityRepositoryImpl";
 import { RoomAddChannelRepositoryImpl } from "./RoomAddChannelRepositoryImpl";
 import { RoomChannelRepositoryImpl } from "./RoomChannelRepositoryImpl";
 import { RoomNotificationChannelRepositoryImpl } from "./RoomNotificationChannelRepositoryImpl";
+import { RoomCategoryChannelRepositoryImpl } from "./RoomCategoryChannelRepositoryImpl";
 import { StickyRepositoryImpl } from "./StickyRepositoryImpl";
 import { ThreadRepositoryImpl } from "./ThreadRepositoryImpl";
 import { UserCandyItemRepositoryImpl } from "./UserCandyItemRepositoryImpl";
@@ -34,6 +35,7 @@ export {
 	RoomAddChannelRepositoryImpl,
 	RoomChannelRepositoryImpl,
 	RoomNotificationChannelRepositoryImpl,
+	RoomCategoryChannelRepositoryImpl,
 	StickyRepositoryImpl,
 	DataDeletionCircularImpl,
 };
