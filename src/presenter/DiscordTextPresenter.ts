@@ -119,14 +119,14 @@ class CodeBlockHandler {
 		if (lastNewlinePos > 0) {
 			const adjusted = StringUtils.splitAt(payload, lastNewlinePos);
 			return {
-				chunk: adjusted.head + CODE_BLOCK.CLOSE_MARKER,
-				remaining: CodeBlockHandler.createOpenMarker(language) + adjusted.tail,
+				chunk: adjusted.head + CODE_BLOCK.CLOSE_MARKER + "\n",
+				remaining: "\n" + CodeBlockHandler.createOpenMarker(language) + adjusted.tail,
 			};
 		}
 
 		return {
-			chunk: head + CODE_BLOCK.CLOSE_MARKER,
-			remaining: CodeBlockHandler.createOpenMarker(language) + tail,
+			chunk: head + CODE_BLOCK.CLOSE_MARKER + "\n",
+			remaining: "\n" + CodeBlockHandler.createOpenMarker(language) + tail,
 		};
 	}
 }
@@ -144,13 +144,24 @@ class TextSplitter {
 	): DelimiterIndices {
 		if (codeBlockState.isInside) {
 			// コードブロック内: 閉じタグを探す
+			const closeIndex = StringUtils.lastIndexOf(
+				payload,
+				CODE_BLOCK.DELIMITER,
+				CODE_BLOCK.DELIMITER.length,
+			);
+			
+			// 閉じタグが2000文字以内にない、または見つからない場合は-1を返す
+			// これにより、handleNoDelimiterで強制分割される
+			if (closeIndex < 0 || closeIndex > MAX_REPLY_CHARACTERS) {
+				return {
+					paragraphIndex: -1,
+					codeBlockIndex: -1,
+				};
+			}
+			
 			return {
 				paragraphIndex: -1,
-				codeBlockIndex: StringUtils.lastIndexOf(
-					payload,
-					CODE_BLOCK.DELIMITER,
-					CODE_BLOCK.DELIMITER.length,
-				),
+				codeBlockIndex: closeIndex,
 			};
 		}
 
@@ -209,17 +220,24 @@ class TextSplitter {
 		const nextIndex = Math.min(...validIndices, MAX_REPLY_CHARACTERS);
 		const { head, tail } = StringUtils.splitAt(payload, nextIndex);
 
+		// コードブロックから出るかチェック（閉じタグで分割）
+		const isExitingCodeBlock =
+			codeBlockState.isInside &&
+			delimiterIndices.codeBlockIndex === nextIndex;
+
 		// コードブロックに入るかチェック
 		const isEnteringCodeBlock =
-			payload.indexOf(CODE_BLOCK.DELIMITER) === nextIndex &&
-			!codeBlockState.isInside;
+			!codeBlockState.isInside &&
+			delimiterIndices.codeBlockIndex === nextIndex;
 
-		const newState: CodeBlockState = isEnteringCodeBlock
-			? {
-					isInside: true,
-					language: CodeBlockHandler.extractLanguage(tail),
-				}
-			: codeBlockState;
+		const newState: CodeBlockState = isExitingCodeBlock
+			? { isInside: false, language: "" }
+			: isEnteringCodeBlock
+				? {
+						isInside: true,
+						language: CodeBlockHandler.extractLanguage(tail),
+					}
+				: codeBlockState;
 
 		chunks.push(head);
 		return this.split(tail, chunks, newState);
