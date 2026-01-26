@@ -75,6 +75,9 @@ describe("Test VoiceChannelConnect Events", () => {
 				predictableCreatedChannelId: predictableCreatedChannelDiscordId,
 			});
 
+			// 非同期処理の完了を待つ
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+
 			// 部屋が作成されたことを確認
 			const afterData = await RoomChannelRepositoryImpl.findAll();
 			expect(afterData.length).to.eq(beforeCount + 1);
@@ -136,6 +139,9 @@ describe("Test VoiceChannelConnect Events", () => {
 				notificationChannelId: discordNotificationChannelId,
 				predictableCreatedChannelId: predictableCreatedChannelDiscordId,
 			});
+
+			// 非同期処理の完了を待つ
+			await new Promise((resolve) => setTimeout(resolve, 1000));
 
 			// 部屋が作成されたことを確認
 			const afterData = await RoomChannelRepositoryImpl.findAll();
@@ -235,6 +241,9 @@ describe("Test VoiceChannelConnect Events", () => {
 				displayName,
 				predictableCreatedChannelId: predictableCreatedChannelDiscordId,
 			});
+
+			// 非同期処理の完了を待つ
+			await new Promise((resolve) => setTimeout(resolve, 1000));
 
 			// 部屋が作成されたことを確認
 			const afterData = await RoomChannelRepositoryImpl.findAll();
@@ -537,7 +546,7 @@ describe("Test VoiceChannelConnect Events", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
 
-			await new Promise((resolve) => setTimeout(resolve, 100));
+			await new Promise((resolve) => setTimeout(resolve, 1000));
 
 			// データが作成されていることを確認
 			const afterData = await RoomChannelRepositoryImpl.findAll();
@@ -660,7 +669,7 @@ describe("Test VoiceChannelConnect Events", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
 
-			await new Promise((resolve) => setTimeout(resolve, 100));
+			await new Promise((resolve) => setTimeout(resolve, 1000));
 
 			// データは作成されていることを確認
 			const afterData = await RoomChannelRepositoryImpl.findAll();
