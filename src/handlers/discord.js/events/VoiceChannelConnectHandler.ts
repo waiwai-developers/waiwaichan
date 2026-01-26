@@ -97,6 +97,12 @@ export class VoiceChannelConnectHandler
 			type: DiscordChannelType.GuildVoice,
 		});
 
+		// 部屋作成後 Channels に INSERT されるまで少し待つ
+		async () => {
+			await ((ms: number) =>
+				new Promise<void>((resolve) => setTimeout(resolve, ms)))(3000);
+		};
+
 		const newChannelId = await this.ChannelLogic.getId(
 			new ChannelDto(
 				ChannelCategoryType.Discord,
