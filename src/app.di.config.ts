@@ -17,10 +17,10 @@ import {
 	ReviewListCommandHandler,
 	RoomAddChannelCreateCommandHandler,
 	RoomAddChannelDeleteCommandHandler,
-	RoomNotificationChannelCreateCommandHandler,
-	RoomNotificationChannelDeleteCommandHandler,
 	RoomCategoryChannelCreateCommandHandler,
 	RoomCategoryChannelDeleteCommandHandler,
+	RoomNotificationChannelCreateCommandHandler,
+	RoomNotificationChannelDeleteCommandHandler,
 	StickyCreateCommandHandler,
 	StickyDeleteCommandHandler,
 	StickyListCommandHandler,
@@ -63,9 +63,9 @@ import type { IPersonalityLogic } from "@/src/logics/Interfaces/logics/IPersonal
 import type { IPullRequestLogic } from "@/src/logics/Interfaces/logics/IPullRequestLogic";
 import type { IReminderLogic } from "@/src/logics/Interfaces/logics/IReminderLogic";
 import type { IRoomAddChannelLogic } from "@/src/logics/Interfaces/logics/IRoomAddChannelLogic";
+import type { IRoomCategoryChannelLogic } from "@/src/logics/Interfaces/logics/IRoomCategoryChannelLogic";
 import type { IRoomChannelLogic } from "@/src/logics/Interfaces/logics/IRoomChannelLogic";
 import type { IRoomNotificationChannelLogic } from "@/src/logics/Interfaces/logics/IRoomNotificationChannelLogic";
-import type { IRoomCategoryChannelLogic } from "@/src/logics/Interfaces/logics/IRoomCategoryChannelLogic";
 import type { IStickyLogic } from "@/src/logics/Interfaces/logics/IStickyLogic";
 import type { IThreadLogic } from "@/src/logics/Interfaces/logics/IThreadLogic";
 import type { ITranslatorLogic } from "@/src/logics/Interfaces/logics/ITranslatorLogic";
@@ -84,9 +84,9 @@ import type { IPersonalityContextRepository } from "@/src/logics/Interfaces/repo
 import type { IPersonalityRepository } from "@/src/logics/Interfaces/repositories/database/IPersonalityRepository";
 import type { IReminderRepository } from "@/src/logics/Interfaces/repositories/database/IReminderRepository";
 import type { IRoomAddChannelRepository } from "@/src/logics/Interfaces/repositories/database/IRoomAddChannelRepository";
+import type { IRoomCategoryChannelRepository } from "@/src/logics/Interfaces/repositories/database/IRoomCategoryChannelRepository";
 import type { IRoomChannelRepository } from "@/src/logics/Interfaces/repositories/database/IRoomChannelRepository";
 import type { IRoomNotificationChannelRepository } from "@/src/logics/Interfaces/repositories/database/IRoomNotificationChannelRepository";
-import type { IRoomCategoryChannelRepository } from "@/src/logics/Interfaces/repositories/database/IRoomCategoryChannelRepository";
 import type { IStickyRepository } from "@/src/logics/Interfaces/repositories/database/IStickyRepository";
 import type { IThreadRepository } from "@/src/logics/Interfaces/repositories/database/IThreadRepository";
 import type { ITransaction } from "@/src/logics/Interfaces/repositories/database/ITransaction";
@@ -101,9 +101,9 @@ import { PersonalityLogic } from "@/src/logics/PersonalityLogic";
 import { PullRequestLogic } from "@/src/logics/PullRequestLogic";
 import { ReminderLogic } from "@/src/logics/ReminderLogic";
 import { RoomAddChannelLogic } from "@/src/logics/RoomAddChannelLogic";
+import { RoomCategoryChannelLogic } from "@/src/logics/RoomCategoryChannelLogic";
 import { RoomChannelLogic } from "@/src/logics/RoomChannelLogic";
 import { RoomNotificationChannelLogic } from "@/src/logics/RoomNotificationChannelLogic";
-import { RoomCategoryChannelLogic } from "@/src/logics/RoomCategoryChannelLogic";
 import { StickyLogic } from "@/src/logics/StickyLogic";
 import { ThreadLogic } from "@/src/logics/ThreadLogic";
 import { TranslatorLogic } from "@/src/logics/TranslatorLogic";
@@ -126,9 +126,9 @@ import {
 	PersonalityRepositoryImpl,
 	ReminderRepositoryImpl,
 	RoomAddChannelRepositoryImpl,
+	RoomCategoryChannelRepositoryImpl,
 	RoomChannelRepositoryImpl,
 	RoomNotificationChannelRepositoryImpl,
-	RoomCategoryChannelRepositoryImpl,
 	StickyRepositoryImpl,
 	ThreadRepositoryImpl,
 	UserCandyItemRepositoryImpl,

@@ -14,10 +14,10 @@ import { ReviewGachaCommandHandler } from "@/src/handlers/discord.js/commands/Re
 import { ReviewListCommandHandler } from "@/src/handlers/discord.js/commands/ReviewListCommandHandler";
 import { RoomAddChannelCreateCommandHandler } from "@/src/handlers/discord.js/commands/RoomAddChannelCreateCommandHandler";
 import { RoomAddChannelDeleteCommandHandler } from "@/src/handlers/discord.js/commands/RoomAddChannelDeleteCommandHandler";
-import { RoomNotificationChannelCreateCommandHandler } from "@/src/handlers/discord.js/commands/RoomNotificationChannelCreateCommandHandler";
-import { RoomNotificationChannelDeleteCommandHandler } from "@/src/handlers/discord.js/commands/RoomNotificationChannelDeleteCommandHandler";
 import { RoomCategoryChannelCreateCommandHandler } from "@/src/handlers/discord.js/commands/RoomCategoryChannelCreateCommandHandler";
 import { RoomCategoryChannelDeleteCommandHandler } from "@/src/handlers/discord.js/commands/RoomCategoryChannelDeleteCommandHandler";
+import { RoomNotificationChannelCreateCommandHandler } from "@/src/handlers/discord.js/commands/RoomNotificationChannelCreateCommandHandler";
+import { RoomNotificationChannelDeleteCommandHandler } from "@/src/handlers/discord.js/commands/RoomNotificationChannelDeleteCommandHandler";
 import { StickyCreateCommandHandler } from "@/src/handlers/discord.js/commands/StickyCreateCommandHandler";
 import { StickyDeleteCommandHandler } from "@/src/handlers/discord.js/commands/StickyDeleteCommandHandler";
 import { StickyListCommandHandler } from "@/src/handlers/discord.js/commands/StickyListCommandHandler";
