@@ -11,6 +11,7 @@ import { ReminderSchedulerRepositoryImpl } from "@/src/repositories/sequelize-my
 import { RoomAddChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/RoomAddChannelRepositoryImpl";
 import { RoomChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/RoomChannelRepositoryImpl";
 import { RoomNotificationChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/RoomNotificationChannelRepositoryImpl";
+import { RoomCategoryChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/RoomCategoryChannelRepositoryImpl";
 import { SequelizeLogger } from "@/src/repositories/sequelize-mysql/SequelizeLogger";
 import { StickyRepositoryImpl } from "@/src/repositories/sequelize-mysql/StickyRepositoryImpl";
 import { ThreadRepositoryImpl } from "@/src/repositories/sequelize-mysql/ThreadRepositoryImpl";
@@ -41,6 +42,7 @@ export class MysqlSchedulerConnector
 		RoomAddChannelRepositoryImpl,
 		RoomChannelRepositoryImpl,
 		RoomNotificationChannelRepositoryImpl,
+		RoomCategoryChannelRepositoryImpl,
 	];
 	readonly instance: Sequelize;
 
