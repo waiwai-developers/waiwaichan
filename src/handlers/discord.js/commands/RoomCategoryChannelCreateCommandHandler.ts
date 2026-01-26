@@ -76,7 +76,7 @@ export class RoomCategoryChannelCreateCommandHandler
 		const channel = interaction.guild?.channels.cache.get(targetChannelId);
 		if (!(channel instanceof CategoryChannel)) {
 			await interaction.reply(
-				"このチャンネルはカテゴリーチャンネルでないので登録できないよ！っ",
+				"このチャンネルはカテゴリーチャンネルでないのでカテゴリーチャンネルとして登録できないよ！っ",
 			);
 			return;
 		}
@@ -90,7 +90,7 @@ export class RoomCategoryChannelCreateCommandHandler
 			),
 		);
 		if (channelId == null) {
-			await interaction.reply("チャンネルが登録されていなかったよ！っ");
+			await interaction.reply("カテゴリーチャンネルが登録されていなかったよ！っ");
 			return;
 		}
 

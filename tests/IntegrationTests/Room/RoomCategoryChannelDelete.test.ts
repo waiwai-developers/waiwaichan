@@ -30,7 +30,7 @@ describe("Test RoomCategoryChannelDelete Commands", () => {
 	 */
 
 	/**
-	 * [権限チェック] 管理者権限がない場合は部屋カテゴリーチャンネルを削除できない
+	 * [権限チェック] 管理者権限がない場合はカテゴリーチャンネルを削除できない
 	 * - コマンド実行時に権限チェックが行われることを検証
 	 * - 権限がない場合にエラーメッセージが返されることを検証
 	 * - RoomCategoryChannelLogic.deleteメソッドが呼ばれないことを検証
@@ -57,13 +57,13 @@ describe("Test RoomCategoryChannelDelete Commands", () => {
 			await executeCommandAndWait(mock, 1000);
 
 			// 応答の検証
-			expect(mock.getReplyValue()).to.eq("部屋カテゴリーチャンネルを登録する権限を持っていないよ！っ");
+			expect(mock.getReplyValue()).to.eq("カテゴリーチャンネルを登録する権限を持っていないよ！っ");
 		})();
 	});
 
 	/**
 	 * [存在チェック - データなし] サーバーにRoomCategoryChannelsデータがない状況で実行した時
-	 * - 部屋カテゴリーチャンネルが登録されていなかったよ！っと投稿されること
+	 * - カテゴリーチャンネルが登録されていなかったよ！っと投稿されること
 	 */
 	it("should not delete room category channel when no data exists", function (this: Mocha.Context) {
 		this.timeout(10_000);
@@ -101,7 +101,7 @@ describe("Test RoomCategoryChannelDelete Commands", () => {
 			await waitUntilReply(commandMock, 10_000);
 
 			// 応答の検証
-			expect(replyValue).to.eq("部屋カテゴリーチャンネルが登録されていなかったよ！っ");
+			expect(replyValue).to.eq("カテゴリーチャンネルが登録されていなかったよ！っ");
 
 			// データベースにデータが存在しないことを再確認
 			const afterData = await RoomCategoryChannelRepositoryImpl.findAll();
@@ -111,7 +111,7 @@ describe("Test RoomCategoryChannelDelete Commands", () => {
 
 	/**
 	 * [正常削除] サーバーにRoomCategoryChannelsデータがdeletedAtがnullである状況で実行した時
-	 * - 部屋カテゴリーチャンネルを削除したよ！っと投稿されること
+	 * - カテゴリーチャンネルを削除したよ！っと投稿されること
 	 * - RoomCategoryChannelsのデータのdeletedAtに値が入ること
 	 */
 	it("should delete room category channel successfully", function (this: Mocha.Context) {
@@ -158,7 +158,7 @@ describe("Test RoomCategoryChannelDelete Commands", () => {
 			await waitUntilReply(commandMock, 1000);
 
 			// 応答の検証
-			expect(replyValue).to.eq("部屋カテゴリーチャンネルを削除したよ！っ");
+			expect(replyValue).to.eq("カテゴリーチャンネルを削除したよ！っ");
 
 			// データが論理削除されていることを確認（findAllでは取得できない）
 			const afterData = await RoomCategoryChannelRepositoryImpl.findAll();
@@ -175,7 +175,7 @@ describe("Test RoomCategoryChannelDelete Commands", () => {
 
 	/**
 	 * [存在チェック - deletedAtあり] サーバーにRoomCategoryChannelsデータがdeletedAtがnullでない状況で実行した時
-	 * - 部屋カテゴリーチャンネルが登録されていなかったよ！っと投稿されること
+	 * - カテゴリーチャンネルが登録されていなかったよ！っと投稿されること
 	 */
 	it("should not delete room category channel when already deleted", function (this: Mocha.Context) {
 		this.timeout(10_000);
@@ -221,7 +221,7 @@ describe("Test RoomCategoryChannelDelete Commands", () => {
 			await waitUntilReply(commandMock, 5000);
 
 			// 応答の検証
-			expect(replyValue).to.eq("部屋カテゴリーチャンネルが登録されていなかったよ！っ");
+			expect(replyValue).to.eq("カテゴリーチャンネルが登録されていなかったよ！っ");
 		})();
 	});
 });

@@ -30,7 +30,7 @@ describe("Test RoomCategoryChannelCreate Commands", () => {
 	 */
 
 	/**
-	 * [権限チェック] 管理者権限がない場合は部屋カテゴリーチャンネルを登録できない
+	 * [権限チェック] 管理者権限がない場合はカテゴリーチャンネルを登録できない
 	 * - コマンド実行時に権限チェックが行われることを検証
 	 * - 権限がない場合にエラーメッセージが返されることを検証
 	 * - RoomCategoryChannelLogic.createメソッドが呼ばれないことを検証
@@ -68,7 +68,7 @@ describe("Test RoomCategoryChannelCreate Commands", () => {
 			await waitUntilReply(commandMock, 1000);
 
 			// 応答の検証
-			expect(replyValue).to.eq("部屋カテゴリーチャンネルを登録する権限を持っていないよ！っ");
+			expect(replyValue).to.eq("カテゴリーチャンネルを登録する権限を持っていないよ！っ");
 
 			// データが作られていないことを確認
 			const afterData = await RoomCategoryChannelRepositoryImpl.findAll();
@@ -78,7 +78,7 @@ describe("Test RoomCategoryChannelCreate Commands", () => {
 
 	/**
 	 * [正常作成 - データなし] サーバーにRoomCategoryChannelsデータがない状況でCategoryChannelで実行した時
-	 * - 部屋カテゴリーチャンネルを登録したよ！っと投稿されること
+	 * - カテゴリーチャンネルを登録したよ！っと投稿されること
 	 * - RoomCategoryChannelsにdeletedAtがnullでデータ作成されること
 	 */
 	it("should create room category channel when no data exists", function (this: Mocha.Context) {
@@ -138,7 +138,7 @@ describe("Test RoomCategoryChannelCreate Commands", () => {
 			await waitUntilReply(commandMock, 1000);
 
 			// 応答の検証
-			expect(replyValue).to.eq("部屋カテゴリーチャンネルを登録したよ！っ");
+			expect(replyValue).to.eq("カテゴリーチャンネルを登録したよ！っ");
 
 			// データが作られていることを確認
 			const afterData = await RoomCategoryChannelRepositoryImpl.findAll();
@@ -151,7 +151,7 @@ describe("Test RoomCategoryChannelCreate Commands", () => {
 
 	/**
 	 * [正常作成 - deletedAtあり] サーバーにRoomCategoryChannelsデータがありdeletedAtがnullでない状況でCategoryChannelで実行した時
-	 * - 部屋カテゴリーチャンネルを登録したよ！っと投稿されること
+	 * - カテゴリーチャンネルを登録したよ！っと投稿されること
 	 * - RoomCategoryChannelsにdeletedAtがnullでデータ作成されること
 	 */
 	it("should create room category channel when deleted data exists", function (this: Mocha.Context) {
@@ -218,7 +218,7 @@ describe("Test RoomCategoryChannelCreate Commands", () => {
 			await waitUntilReply(commandMock, 5000);
 
 			// 応答の検証
-			expect(replyValue).to.eq("部屋カテゴリーチャンネルを登録したよ！っ");
+			expect(replyValue).to.eq("カテゴリーチャンネルを登録したよ！っ");
 
 			// 新しいデータが作られていることを確認
 			const afterData = await RoomCategoryChannelRepositoryImpl.findAll();
@@ -230,9 +230,9 @@ describe("Test RoomCategoryChannelCreate Commands", () => {
 	});
 
 	/**
-	 * [既存チェック] 既に部屋カテゴリーチャンネルが登録されている場合は新規作成できない
+	 * [既存チェック] 既にカテゴリーチャンネルが登録されている場合は新規作成できない
 	 * - RoomCategoryChannelLogic.findが呼ばれることを検証
-	 * - 部屋カテゴリーチャンネルが既に存在する場合にエラーメッセージが返されることを検証
+	 * - カテゴリーチャンネルが既に存在する場合にエラーメッセージが返されることを検証
 	 * - RoomCategoryChannelLogic.createが呼ばれないことを検証
 	 */
 	it("should not create room category channel when already exists", function (this: Mocha.Context) {
@@ -278,7 +278,7 @@ describe("Test RoomCategoryChannelCreate Commands", () => {
 			await waitUntilReply(commandMock, 1000);
 
 			// 応答の検証
-			expect(replyValue).to.eq("部屋カテゴリーチャンネルが既に登録されているよ！っ");
+			expect(replyValue).to.eq("カテゴリーチャンネルが既に登録されているよ！っ");
 
 			// データが増えていないことを確認
 			const afterData = await RoomCategoryChannelRepositoryImpl.findAll();
@@ -288,7 +288,7 @@ describe("Test RoomCategoryChannelCreate Commands", () => {
 	});
 
 	/**
-	 * [チャンネル検証] CategoryChannel以外には部屋カテゴリーチャンネルを登録できない
+	 * [チャンネル検証] CategoryChannel以外にはカテゴリーチャンネルを登録できない
 	 * - チャンネルの型チェックが行われることを検証
 	 * - CategoryChannel以外の場合にエラーメッセージが返されることを検証
 	 * - RoomCategoryChannelLogic.createが呼ばれないことを検証
@@ -345,7 +345,7 @@ describe("Test RoomCategoryChannelCreate Commands", () => {
 			await waitUntilReply(commandMock, 1000);
 
 			// 応答の検証
-			expect(replyValue).to.eq("このチャンネルはカテゴリーチャンネルでないので部屋カテゴリーチャンネルとして登録できないよ！っ");
+			expect(replyValue).to.eq("このチャンネルはカテゴリーチャンネルでないのでカテゴリーチャンネルとして登録できないよ！っ");
 
 			// データが作られていないことを確認
 			const afterData = await RoomCategoryChannelRepositoryImpl.findAll();
@@ -354,10 +354,10 @@ describe("Test RoomCategoryChannelCreate Commands", () => {
 	});
 
 	/**
-	 * [正常作成] 部屋カテゴリーチャンネルが正常に登録される
+	 * [正常作成] カテゴリーチャンネルが正常に登録される
 	 * - RoomCategoryChannelLogic.createが正しいパラメータで呼ばれることを検証
 	 * - 登録成功時に成功メッセージが返されることを検証
-	 * - データベースに部屋カテゴリーチャンネルが保存されていることを確認
+	 * - データベースにカテゴリーチャンネルが保存されていることを確認
 	 */
 	it("should create room category channel successfully", function (this: Mocha.Context) {
 		this.timeout(10_000);
@@ -416,7 +416,7 @@ describe("Test RoomCategoryChannelCreate Commands", () => {
 			await waitUntilReply(commandMock, 1000);
 
 			// 応答の検証
-			expect(replyValue).to.eq("部屋カテゴリーチャンネルを登録したよ！っ");
+			expect(replyValue).to.eq("カテゴリーチャンネルを登録したよ！っ");
 
 			// データが作られていることを確認
 			const afterData = await RoomCategoryChannelRepositoryImpl.findAll();
