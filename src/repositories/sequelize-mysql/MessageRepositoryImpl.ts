@@ -147,7 +147,9 @@ class MessageRepositoryImpl extends Model implements IMessageRepository {
 				deletedAt: { [Op.not]: null },
 			},
 			paranoid: false,
-		}).then((res) => (res.length > 0 ? res.map((r) => new MessageId(r.id)) : []));
+		}).then((res) =>
+			res.length > 0 ? res.map((r) => new MessageId(r.id)) : [],
+		);
 	}
 
 	async findDeletionTargetsByBatchStatusAndDeletedAt(): Promise<
