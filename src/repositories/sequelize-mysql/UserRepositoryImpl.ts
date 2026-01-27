@@ -95,6 +95,18 @@ class UserRepositoryImpl extends Model implements IUserRepository {
 		}).then((res) => (res ? new UserId(res.id) : undefined));
 	}
 
+	async getIdByCommunityIdAndClientId(
+		communityId: UserCommunityId,
+		clientId: UserClientId,
+	): Promise<UserId | undefined> {
+		return UserRepositoryImpl.findOne({
+			where: {
+				communityId: communityId.getValue(),
+				clientId: clientId.getValue(),
+			},
+		}).then((res) => (res ? new UserId(res.id) : undefined));
+	}
+
 	async findByBatchStatusAndDeletedAt(): Promise<UserId[]> {
 		return UserRepositoryImpl.findAll({
 			where: {
