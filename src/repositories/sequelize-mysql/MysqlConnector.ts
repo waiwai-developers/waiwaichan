@@ -8,6 +8,7 @@ import { ChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/Channe
 import { CommunityRepositoryImpl } from "@/src/repositories/sequelize-mysql/CommunityRepositoryImpl";
 import { ContextRepositoryImpl } from "@/src/repositories/sequelize-mysql/ContextRepositoryImpl";
 import { CrownRepositoryImpl } from "@/src/repositories/sequelize-mysql/CrownRepositoryImpl";
+import { MessageRepositoryImpl } from "@/src/repositories/sequelize-mysql/MessageRepositoryImpl";
 import { PersonalityContextRepositoryImpl } from "@/src/repositories/sequelize-mysql/PersonalityContextRepositoryImpl";
 import { PersonalityRepositoryImpl } from "@/src/repositories/sequelize-mysql/PersonalityRepositoryImpl";
 import { ReminderRepositoryImpl } from "@/src/repositories/sequelize-mysql/ReminderRepositoryImpl";
@@ -39,6 +40,7 @@ export class MysqlConnector implements IDataBaseConnector<Sequelize, "mysql"> {
 		StickyRepositoryImpl,
 		CommunityRepositoryImpl,
 		UserRepositoryImpl,
+		MessageRepositoryImpl,
 		PersonalityRepositoryImpl,
 		PersonalityContextRepositoryImpl,
 		ContextRepositoryImpl,

@@ -2,6 +2,10 @@ import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
 import type { ChannelClientId } from "@/src/entities/vo/ChannelClientId";
 import type { ChannelCommunityId } from "@/src/entities/vo/ChannelCommunityId";
 import type { CommunityId } from "@/src/entities/vo/CommunityId";
+import type { MessageChannelId } from "@/src/entities/vo/MessageChannelId";
+import type { MessageClientId } from "@/src/entities/vo/MessageClientId";
+import type { MessageCommunityId } from "@/src/entities/vo/MessageCommunityId";
+import type { MessageUserId } from "@/src/entities/vo/MessageUserId";
 import type { UserClientId } from "@/src/entities/vo/UserClientId";
 import type { UserCommunityId } from "@/src/entities/vo/UserCommunityId";
 import { DataDeletionCircularHandler } from "@/src/handlers/discord.js/events/DataDeletionCircularHandler";
@@ -276,8 +280,9 @@ export const testRepositoryNotInCondition = async <T>(
 		receivedWhere = options?.where;
 	});
 
-	const repo = new RepositoryClass();
-	await executeMethod(repo);
+	// Repositoryクラスのプロトタイプを使って、インスタンスメソッドを静的コンテキストで実行
+	const proto = RepositoryClass.prototype;
+	await executeMethod(proto as T);
 
 	if (expectedConditions.communityId !== undefined) {
 		expect(receivedWhere?.communityId).to.equal(expectedConditions.communityId);
@@ -303,8 +308,9 @@ export const testRepositoryFindDeletionTargets = async <T>(RepositoryClass: new 
 		receivedWhere = options?.where;
 	});
 
-	const repo = new RepositoryClass();
-	await (repo as any).findDeletionTargetsByBatchStatusAndDeletedAt();
+	// Repositoryクラスのプロトタイプを使って、インスタンスメソッドを静的コンテキストで実行
+	const proto = RepositoryClass.prototype;
+	await (proto as any).findDeletionTargetsByBatchStatusAndDeletedAt();
 
 	expect(receivedWhere?.batchStatus).to.equal(expectedBatchStatus);
 	expect(receivedWhere?.deletedAt[Op.not]).to.equal(null);
@@ -329,8 +335,9 @@ export const testRepositoryUpdateBatchStatus = async <T, TId>(
 		updateOptions = options;
 	});
 
-	const repo = new RepositoryClass();
-	await (repo as any).updatebatchStatus(idInstance);
+	// Repositoryクラスのプロトタイプを使って、インスタンスメソッドを静的コンテキストで実行
+	const proto = RepositoryClass.prototype;
+	await (proto as any).updatebatchStatus(idInstance);
 
 	expect(updateOptions?.paranoid).to.equal(false);
 	expect(updateOptions?.where?.batchStatus).to.equal(expectedBatchStatus);
@@ -444,4 +451,173 @@ export const executeAndVerifyDeletionArguments = async <T extends UserClientId |
 
 	expect(capturedCommunityId?.getValue()).to.equal(expectedCommunityId.getValue());
 	expect(capturedClientIds.map((c) => c.getValue())).to.deep.equal(expectedClientIds.map((id) => BigInt(id)));
+};
+
+// ===================================
+// Helper Functions: Message Deletion Test
+// ===================================
+
+/**
+ * Message削除（User関連）の引数をキャプチャするヘルパー
+ * @param messageLogicMock モック化されたMessageLogic
+ * @returns キャプチャされた引数を返すオブジェクト
+ */
+export const setupMessageDeleteByUserIdArgumentCapture = (messageLogicMock: IMessageLogic) => {
+	const capturedUserIds: MessageUserId[] = [];
+	const returnedClientIds: MessageClientId[] = [];
+
+	(when((messageLogicMock as any).deleteByUserIdAndReturnClientIds(anything())) as any).thenCall((userId: MessageUserId) => {
+		capturedUserIds.push(userId);
+		return Promise.resolve(returnedClientIds);
+	});
+
+	return {
+		getUserIds: () => capturedUserIds,
+		setReturnedClientIds: (clientIds: MessageClientId[]) => {
+			returnedClientIds.length = 0;
+			returnedClientIds.push(...clientIds);
+		},
+	};
+};
+
+/**
+ * Message削除（Channel関連）の引数をキャプチャするヘルパー
+ * @param messageLogicMock モック化されたMessageLogic
+ * @returns キャプチャされた引数を返すオブジェクト
+ */
+export const setupMessageDeleteByChannelIdArgumentCapture = (messageLogicMock: IMessageLogic) => {
+	const capturedChannelIds: MessageChannelId[] = [];
+	const returnedClientIds: MessageClientId[] = [];
+
+	(when((messageLogicMock as any).deleteByChannelIdAndReturnClientIds(anything())) as any).thenCall((channelId: MessageChannelId) => {
+		capturedChannelIds.push(channelId);
+		return Promise.resolve(returnedClientIds);
+	});
+
+	return {
+		getChannelIds: () => capturedChannelIds,
+		setReturnedClientIds: (clientIds: MessageClientId[]) => {
+			returnedClientIds.length = 0;
+			returnedClientIds.push(...clientIds);
+		},
+	};
+};
+
+/**
+ * Message削除（Community関連）の引数をキャプチャするヘルパー
+ * @param messageLogicMock モック化されたMessageLogic
+ * @returns キャプチャされた引数を返すオブジェクト
+ */
+export const setupMessageDeleteByCommunityIdArgumentCapture = (messageLogicMock: IMessageLogic) => {
+	const capturedCommunityIds: MessageCommunityId[] = [];
+
+	(when((messageLogicMock as any).deletebyCommunityId(anything())) as any).thenCall((communityId: MessageCommunityId) => {
+		capturedCommunityIds.push(communityId);
+		return Promise.resolve(true);
+	});
+
+	return {
+		getCommunityIds: () => capturedCommunityIds,
+	};
+};
+
+/**
+ * Message削除を含む削除処理の実行順序を追跡するヘルパー
+ * @param userLogicMock モック化されたUserLogic
+ * @param channelLogicMock モック化されたChannelLogic
+ * @param messageLogicMock モック化されたMessageLogic
+ * @param communityLogicMock モック化されたCommunityLogic
+ * @returns 実行順序を記録した配列を返すオブジェクト
+ */
+export const setupDeletionOrderTrackingWithMessages = (
+	userLogicMock: IUserLogic,
+	channelLogicMock: IChannelLogic,
+	messageLogicMock: IMessageLogic,
+	communityLogicMock: ICommunityLogic,
+) => {
+	const callOrder: string[] = [];
+
+	when((userLogicMock as any).deletebyCommunityId(anything())).thenCall(() => {
+		callOrder.push("deleteUsers");
+		return Promise.resolve(true);
+	});
+
+	when((userLogicMock as any).findDeletionTargetsByBatchStatusAndDeletedAt()).thenCall(() => {
+		callOrder.push("findDeletedUsers");
+		return Promise.resolve([]);
+	});
+
+	when((channelLogicMock as any).deletebyCommunityId(anything())).thenCall(() => {
+		callOrder.push("deleteChannels");
+		return Promise.resolve(true);
+	});
+
+	when((channelLogicMock as any).findDeletionTargetsByBatchStatusAndDeletedAt()).thenCall(() => {
+		callOrder.push("findDeletedChannels");
+		return Promise.resolve([]);
+	});
+
+	when((messageLogicMock as any).deleteByUserIdAndReturnClientIds(anything())).thenCall(() => {
+		callOrder.push("deleteMessagesForUser");
+		return Promise.resolve([]);
+	});
+
+	when((messageLogicMock as any).deleteByChannelIdAndReturnClientIds(anything())).thenCall(() => {
+		callOrder.push("deleteMessagesForChannel");
+		return Promise.resolve([]);
+	});
+
+	when((messageLogicMock as any).deletebyCommunityId(anything())).thenCall(() => {
+		callOrder.push("deleteMessagesForCommunity");
+		return Promise.resolve(true);
+	});
+
+	when((communityLogicMock as any).delete(anything())).thenCall(() => {
+		callOrder.push("deleteCommunity");
+		return Promise.resolve(true);
+	});
+
+	return {
+		getCallOrder: () => callOrder,
+	};
+};
+
+/**
+ * Repository削除条件テストのヘルパー（単一カラム条件）
+ * @param RepositoryClass テスト対象のRepositoryクラス
+ * @param methodName テスト対象のメソッド名
+ * @param executeMethod 実行するメソッド（引数を受け取る関数）
+ * @param expectedConditions 期待される条件
+ */
+export const testRepositorySingleColumnCondition = async <T>(
+	RepositoryClass: new () => T,
+	methodName: string,
+	executeMethod: (repo: T) => Promise<any>,
+	expectedConditions: {
+		columnName: string;
+		columnValue: number | bigint;
+	},
+) => {
+	let receivedWhere: any = null;
+	const cleanup = mockRepositoryMethod(RepositoryClass as any, methodName, (options) => {
+		receivedWhere = options?.where;
+	});
+
+	// destroyメソッドもモックする（findAll→destroyの順で呼ぶメソッド用）
+	// ただし、methodNameがdestroyの場合はスキップ
+	let cleanupDestroy: (() => void) | null = null;
+	if (methodName !== "destroy") {
+		cleanupDestroy = mockRepositoryMethod(RepositoryClass as any, "destroy", () => {});
+	}
+
+	// Repositoryクラスのプロトタイプを使って、インスタンスメソッドを静的コンテキストで実行
+	const proto = RepositoryClass.prototype;
+	await executeMethod(proto as T);
+
+	expect(receivedWhere?.[expectedConditions.columnName]).to.equal(expectedConditions.columnValue);
+
+	cleanup();
+	if (cleanupDestroy) {
+		cleanupDestroy();
+	}
 };
