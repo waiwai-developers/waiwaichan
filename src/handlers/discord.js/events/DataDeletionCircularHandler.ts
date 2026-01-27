@@ -21,6 +21,91 @@ import type { IUserLogic } from "@/src/logics/Interfaces/logics/IUserLogic";
 import { schedulerContainer } from "@/src/scheduler.di.config";
 import type { Client } from "discord.js";
 
+/**
+ * 削除されたChannelに関連するMessagesを削除する
+ */
+const deleteMessagesForDeletedChannels = async (
+	channelLogic: IChannelLogic,
+	messageLogic: IMessageLogic,
+): Promise<void> => {
+	const deletedChannelTargets =
+		await channelLogic.findDeletionTargetsByBatchStatusAndDeletedAt();
+	for (const target of deletedChannelTargets) {
+		await messageLogic.deleteByChannelIdAndReturnClientIds(
+			new MessageChannelId(target.id.getValue()),
+		);
+	}
+};
+
+/**
+ * 削除されたUserに関連するMessagesを削除する
+ */
+const deleteMessagesForDeletedUsers = async (
+	userLogic: IUserLogic,
+	messageLogic: IMessageLogic,
+): Promise<void> => {
+	const deletedUserTargets =
+		await userLogic.findDeletionTargetsByBatchStatusAndDeletedAt();
+	for (const target of deletedUserTargets) {
+		await messageLogic.deleteByUserIdAndReturnClientIds(
+			new MessageUserId(target.id.getValue()),
+		);
+	}
+};
+
+/**
+ * 削除されたUser/Channel/Message/Communityに関連するすべてのデータを削除する
+ */
+const deleteRelatedDataForDeletedEntities = async (
+	communityLogic: ICommunityLogic,
+	userLogic: IUserLogic,
+	channelLogic: IChannelLogic,
+	messageLogic: IMessageLogic,
+	dataDeletionCircularLogic: DataDeletionCircularLogic,
+): Promise<void> => {
+	// 削除されたUserに関連するデータの削除
+	const userTargets =
+		await userLogic.findDeletionTargetsByBatchStatusAndDeletedAt();
+	for (const target of userTargets) {
+		const userId = new UserId(target.id.getValue());
+		await dataDeletionCircularLogic.deleteRecordInRelatedTableUserId(userId);
+		await userLogic.updatebatchStatus(userId);
+	}
+
+	// 削除されたChannelに関連するデータの削除
+	const channelTargets =
+		await channelLogic.findDeletionTargetsByBatchStatusAndDeletedAt();
+	for (const target of channelTargets) {
+		const channelId = new ChannelId(target.id.getValue());
+		await dataDeletionCircularLogic.deleteRecordInRelatedTableChannelId(
+			channelId,
+		);
+		await channelLogic.updatebatchStatus(channelId);
+	}
+
+	// 削除されたMessageに関連するデータの削除
+	const messageTargets =
+		await messageLogic.findDeletionTargetsByBatchStatusAndDeletedAt();
+	for (const target of messageTargets) {
+		const messageId = new MessageId(target.id.getValue());
+		await dataDeletionCircularLogic.deleteRecordInRelatedTableMessageId(
+			messageId,
+		);
+		await messageLogic.updatebatchStatus(messageId);
+	}
+
+	// 削除されたCommunityに関連するデータの削除
+	const communityTargets =
+		await communityLogic.findDeletionTargetsByBatchStatusAndDeletedAt();
+	for (const target of communityTargets) {
+		const communityId = new CommunityId(target.id.getValue());
+		await dataDeletionCircularLogic.deleteRecordInRelatedTableCommunityId(
+			communityId,
+		);
+		await communityLogic.updatebatchStatus(communityId);
+	}
+};
+
 export const DataDeletionCircularHandler = async (c: Client<boolean>) => {
 	const communityLogic = schedulerContainer.get<ICommunityLogic>(
 		LogicTypes.CommunityLogic,
@@ -39,13 +124,13 @@ export const DataDeletionCircularHandler = async (c: Client<boolean>) => {
 
 	const guilds = c.guilds.cache;
 
-	//Guildに存在しないUserとChannelとMessageの削除
+	// botがまだCommunityに所属している場合: Guildに存在しないUserとChannelとMessageの削除
 	for (const g of guilds.values()) {
 		const guild = await c.guilds.fetch(g.id);
 		const members = await guild.members.fetch();
 		const channels = await guild.channels.fetch();
 
-		//GuildのCommunityIdの取得
+		// GuildのCommunityIdの取得
 		const communityId = await communityLogic.getId(
 			new CommunityDto(
 				CommunityCategoryType.Discord,
@@ -56,7 +141,7 @@ export const DataDeletionCircularHandler = async (c: Client<boolean>) => {
 			continue;
 		}
 
-		//ChannelのclientIdの配列の取得
+		// ChannelのclientIdの配列の取得
 		const channelIds: ChannelClientId[] = [];
 		channels.forEach((channel) => {
 			if (channel != null) {
@@ -64,7 +149,7 @@ export const DataDeletionCircularHandler = async (c: Client<boolean>) => {
 			}
 		});
 
-		//Channelの削除
+		// ないChannelsのデータの削除
 		if (channelIds.length > 0) {
 			await channelLogic.deleteNotBelongByCommunityIdAndClientIds(
 				new ChannelCommunityId(communityId.getValue()),
@@ -72,22 +157,16 @@ export const DataDeletionCircularHandler = async (c: Client<boolean>) => {
 			);
 		}
 
-		//削除されたChannelに関連するMessagesの削除
-		const deletedChannelTargets =
-			await channelLogic.findDeletionTargetsByBatchStatusAndDeletedAt();
-		for (const target of deletedChannelTargets) {
-			await messageLogic.deleteByChannelIdAndReturnClientIds(
-				new MessageChannelId(target.id.getValue()),
-			);
-		}
+		// Channelsに関連するMessagesのデータの削除
+		await deleteMessagesForDeletedChannels(channelLogic, messageLogic);
 
-		//MemberのclientIdの配列の取得
+		// MemberのclientIdの配列の取得
 		const memberIds: UserClientId[] = [];
 		members.forEach((member) => {
 			memberIds.push(new UserClientId(BigInt(member.user.id)));
 		});
 
-		//Userの削除
+		// ないUsersのデータの削除
 		if (memberIds.length > 0) {
 			await userLogic.deleteNotBelongByCommunityIdAndClientIds(
 				new UserCommunityId(communityId.getValue()),
@@ -95,17 +174,11 @@ export const DataDeletionCircularHandler = async (c: Client<boolean>) => {
 			);
 		}
 
-		//削除されたUserに関連するMessagesの削除
-		const deletedUserTargets =
-			await userLogic.findDeletionTargetsByBatchStatusAndDeletedAt();
-		for (const target of deletedUserTargets) {
-			await messageLogic.deleteByUserIdAndReturnClientIds(
-				new MessageUserId(target.id.getValue()),
-			);
-		}
+		// Usersに関連するMessagesのデータの削除
+		await deleteMessagesForDeletedUsers(userLogic, messageLogic);
 	}
 
-	//Botが所属してないCommunityとCommunityのUserとChannelとMessage削除
+	// botがもうCommunityに所属していない場合: CommunityとCommunityのUserとChannelとMessage削除
 	const communityClientIds = await communityLogic.getNotExistClientId(
 		CommunityCategoryType.Discord,
 		guilds.map((g) => new CommunityClientId(BigInt(g.id))),
@@ -118,85 +191,39 @@ export const DataDeletionCircularHandler = async (c: Client<boolean>) => {
 			continue;
 		}
 
-		//Channelの削除
+		// Communitiesに関連するChannelsのデータの削除
 		await channelLogic.deletebyCommunityId(
 			new ChannelCommunityId(communityId.getValue()),
 		);
 
-		//削除されたChannelに関連するMessagesの削除
-		const deletedChannelTargetsForCommunity =
-			await channelLogic.findDeletionTargetsByBatchStatusAndDeletedAt();
-		for (const target of deletedChannelTargetsForCommunity) {
-			await messageLogic.deleteByChannelIdAndReturnClientIds(
-				new MessageChannelId(target.id.getValue()),
-			);
-		}
+		// Channelsに関連するMessagesのデータの削除
+		await deleteMessagesForDeletedChannels(channelLogic, messageLogic);
 
-		//Userの削除
+		// Communitiesに関連するUsersのデータの削除
 		await userLogic.deletebyCommunityId(
 			new UserCommunityId(communityId.getValue()),
 		);
 
-		//削除されたUserに関連するMessagesの削除
-		const deletedUserTargetsForCommunity =
-			await userLogic.findDeletionTargetsByBatchStatusAndDeletedAt();
-		for (const target of deletedUserTargetsForCommunity) {
-			await messageLogic.deleteByUserIdAndReturnClientIds(
-				new MessageUserId(target.id.getValue()),
-			);
-		}
+		// Usersに関連するMessagesのデータの削除
+		await deleteMessagesForDeletedUsers(userLogic, messageLogic);
 
-		//Communityに関連するMessagesの削除
+		// Communitiesに関連するMessagesのデータの削除
 		await messageLogic.deletebyCommunityId(
 			new MessageCommunityId(communityId.getValue()),
 		);
 
-		//Communityの削除
+		// ないCommunitiesのデータの削除
 		await communityLogic.delete(
 			new CommunityDto(CommunityCategoryType.Discord, cc),
 		);
 	}
 
-	//削除されたCommunityやUserやChannelやMessageに関連するすべてのデータの削除
-	//削除されたUserに関連するデータの削除
-	const userTargets =
-		await userLogic.findDeletionTargetsByBatchStatusAndDeletedAt();
-	for (const target of userTargets) {
-		const userId = new UserId(target.id.getValue());
-		await dataDeletionCircularLogic.deleteRecordInRelatedTableUserId(userId);
-		await userLogic.updatebatchStatus(userId);
-	}
-
-	//削除されたChannelに関連するデータの削除
-	const channelTargets =
-		await channelLogic.findDeletionTargetsByBatchStatusAndDeletedAt();
-	for (const target of channelTargets) {
-		const channelId = new ChannelId(target.id.getValue());
-		await dataDeletionCircularLogic.deleteRecordInRelatedTableChannelId(
-			channelId,
-		);
-		await channelLogic.updatebatchStatus(channelId);
-	}
-
-	//削除されたMessageに関連するデータの削除
-	const messageTargets =
-		await messageLogic.findDeletionTargetsByBatchStatusAndDeletedAt();
-	for (const target of messageTargets) {
-		const messageId = new MessageId(target.id.getValue());
-		await dataDeletionCircularLogic.deleteRecordInRelatedTableMessageId(
-			messageId,
-		);
-		await messageLogic.updatebatchStatus(messageId);
-	}
-
-	//削除されたCommunityに関連するデータの削除
-	const communityTargets =
-		await communityLogic.findDeletionTargetsByBatchStatusAndDeletedAt();
-	for (const target of communityTargets) {
-		const communityId = new CommunityId(target.id.getValue());
-		await dataDeletionCircularLogic.deleteRecordInRelatedTableCommunityId(
-			communityId,
-		);
-		await communityLogic.updatebatchStatus(communityId);
-	}
+	// 削除されたCommunityやUserやChannelやMessageに関連するすべてのデータの削除
+	await deleteRelatedDataForDeletedEntities(
+		communityLogic,
+		userLogic,
+		channelLogic,
+		messageLogic,
+		dataDeletionCircularLogic,
+	);
 };
