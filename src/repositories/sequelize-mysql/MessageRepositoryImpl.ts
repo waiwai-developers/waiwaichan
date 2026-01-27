@@ -98,6 +98,48 @@ class MessageRepositoryImpl extends Model implements IMessageRepository {
 		}).then((res) => (res ? new MessageId(res.id) : undefined));
 	}
 
+	async deleteByUserIdAndReturnClientIds(
+		userId: MessageUserId,
+	): Promise<MessageClientId[]> {
+		const messages = await MessageRepositoryImpl.findAll({
+			attributes: ["clientId"],
+			where: {
+				userId: userId.getValue(),
+			},
+		});
+
+		const clientIds = messages.map((m) => new MessageClientId(m.clientId));
+
+		await MessageRepositoryImpl.destroy({
+			where: {
+				userId: userId.getValue(),
+			},
+		});
+
+		return clientIds;
+	}
+
+	async deleteByChannelIdAndReturnClientIds(
+		channelId: MessageChannelId,
+	): Promise<MessageClientId[]> {
+		const messages = await MessageRepositoryImpl.findAll({
+			attributes: ["clientId"],
+			where: {
+				channelId: channelId.getValue(),
+			},
+		});
+
+		const clientIds = messages.map((m) => new MessageClientId(m.clientId));
+
+		await MessageRepositoryImpl.destroy({
+			where: {
+				channelId: channelId.getValue(),
+			},
+		});
+
+		return clientIds;
+	}
+
 	async findByBatchStatusAndDeletedAt(): Promise<MessageId[]> {
 		return MessageRepositoryImpl.findAll({
 			where: {
