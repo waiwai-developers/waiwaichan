@@ -16,6 +16,10 @@ export interface IUserLogic {
 		clientId: UserClientId,
 	): Promise<boolean>;
 	getId(data: UserDto): Promise<UserId | undefined>;
+	getIdByCommunityIdAndClientId(
+		communityId: UserCommunityId,
+		clientId: UserClientId,
+	): Promise<UserId | undefined>;
 	deleteNotBelongByCommunityIdAndClientIds(
 		communityId: UserCommunityId,
 		clientIds: UserClientId[],
