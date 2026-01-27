@@ -9,6 +9,7 @@ import { CommunityRepositoryImpl } from "@/src/repositories/sequelize-mysql/Comm
 import { CrownRepositoryImpl } from "@/src/repositories/sequelize-mysql/CrownRepositoryImpl";
 import { ReminderSchedulerRepositoryImpl } from "@/src/repositories/sequelize-mysql/ReminderSchedulerRepositoryImpl";
 import { RoomAddChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/RoomAddChannelRepositoryImpl";
+import { RoomCategoryChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/RoomCategoryChannelRepositoryImpl";
 import { RoomChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/RoomChannelRepositoryImpl";
 import { RoomNotificationChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/RoomNotificationChannelRepositoryImpl";
 import { SequelizeLogger } from "@/src/repositories/sequelize-mysql/SequelizeLogger";
@@ -41,6 +42,7 @@ export class MysqlSchedulerConnector
 		RoomAddChannelRepositoryImpl,
 		RoomChannelRepositoryImpl,
 		RoomNotificationChannelRepositoryImpl,
+		RoomCategoryChannelRepositoryImpl,
 	];
 	readonly instance: Sequelize;
 

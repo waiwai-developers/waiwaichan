@@ -1,9 +1,11 @@
 import type Mocha from "mocha";
 import {
 	CommunityRepositoryImpl,
+	DISCORD_CATEGORY_TYPE,
 	DISCORD_TEXT_CHANNEL_TYPE,
 	DISCORD_VOICE_CHANNEL_TYPE,
 	RoomAddChannelRepositoryImpl,
+	RoomCategoryChannelRepositoryImpl,
 	RoomChannelRepositoryImpl,
 	RoomNotificationChannelRepositoryImpl,
 	TestDiscordServer,
@@ -48,10 +50,14 @@ describe("Test VoiceChannelConnect Events", () => {
 			const roomAddChannelDbId = await createChannelAndGetId(discordRoomAddChannelId, communityId, DISCORD_VOICE_CHANNEL_TYPE);
 			const notificationChannelDbId = await createChannelAndGetId(discordNotificationChannelId, communityId, DISCORD_TEXT_CHANNEL_TYPE);
 
+			// カテゴリーチャンネルを作成（部屋が作成されるカテゴリー）
+			const categoryChannelDiscordId = "999";
+			const categoryChannelDbId = await createChannelAndGetId(categoryChannelDiscordId, communityId, DISCORD_CATEGORY_TYPE);
+
 			// 新しく作成されるチャンネル用のChannelレコードを事前に作成（ハンドラがChannelLogic.getIdで検索するため）
 			await createChannelAndGetId(predictableCreatedChannelDiscordId, communityId, DISCORD_VOICE_CHANNEL_TYPE);
 
-			// 部屋追加チャンネルと通知チャンネルを登録（Channel.idを使用）
+			// 部屋追加チャンネル、通知チャンネル、カテゴリーチャンネルを登録（Channel.idを使用）
 			await RoomAddChannelRepositoryImpl.create({
 				communityId: communityId,
 				channelId: roomAddChannelDbId,
@@ -59,6 +65,10 @@ describe("Test VoiceChannelConnect Events", () => {
 			await RoomNotificationChannelRepositoryImpl.create({
 				communityId: communityId,
 				channelId: notificationChannelDbId,
+			});
+			await RoomCategoryChannelRepositoryImpl.create({
+				communityId: communityId,
+				channelId: categoryChannelDbId,
 			});
 
 			const beforeCount = await RoomChannelRepositoryImpl.count();
@@ -74,6 +84,9 @@ describe("Test VoiceChannelConnect Events", () => {
 				notificationChannelId: discordNotificationChannelId,
 				predictableCreatedChannelId: predictableCreatedChannelDiscordId,
 			});
+
+			// 非同期処理の完了を待つ
+			await new Promise((resolve) => setTimeout(resolve, 1000));
 
 			// 部屋が作成されたことを確認
 			const afterData = await RoomChannelRepositoryImpl.findAll();
@@ -111,10 +124,14 @@ describe("Test VoiceChannelConnect Events", () => {
 			const roomAddChannelDbId = await createChannelAndGetId(discordRoomAddChannelId, communityId, DISCORD_VOICE_CHANNEL_TYPE);
 			const notificationChannelDbId = await createChannelAndGetId(discordNotificationChannelId, communityId, DISCORD_TEXT_CHANNEL_TYPE);
 
+			// カテゴリーチャンネルを作成（部屋が作成されるカテゴリー）
+			const categoryChannelDiscordId = "999";
+			const categoryChannelDbId = await createChannelAndGetId(categoryChannelDiscordId, communityId, DISCORD_CATEGORY_TYPE);
+
 			// 新しく作成されるチャンネル用のChannelレコードを事前に作成（ハンドラがChannelLogic.getIdで検索するため）
 			await createChannelAndGetId(predictableCreatedChannelDiscordId, communityId, DISCORD_VOICE_CHANNEL_TYPE);
 
-			// 部屋追加チャンネルと通知チャンネルを登録（Channel.idを使用）
+			// 部屋追加チャンネル、通知チャンネル、カテゴリーチャンネルを登録（Channel.idを使用）
 			await RoomAddChannelRepositoryImpl.create({
 				communityId: communityId,
 				channelId: roomAddChannelDbId,
@@ -122,6 +139,10 @@ describe("Test VoiceChannelConnect Events", () => {
 			await RoomNotificationChannelRepositoryImpl.create({
 				communityId: communityId,
 				channelId: notificationChannelDbId,
+			});
+			await RoomCategoryChannelRepositoryImpl.create({
+				communityId: communityId,
+				channelId: categoryChannelDbId,
 			});
 
 			const beforeCount = await RoomChannelRepositoryImpl.count();
@@ -136,6 +157,9 @@ describe("Test VoiceChannelConnect Events", () => {
 				notificationChannelId: discordNotificationChannelId,
 				predictableCreatedChannelId: predictableCreatedChannelDiscordId,
 			});
+
+			// 非同期処理の完了を待つ
+			await new Promise((resolve) => setTimeout(resolve, 1000));
 
 			// 部屋が作成されたことを確認
 			const afterData = await RoomChannelRepositoryImpl.findAll();
@@ -215,13 +239,21 @@ describe("Test VoiceChannelConnect Events", () => {
 			// ChannelテーブルにChannelレコードを作成
 			const roomAddChannelDbId = await createChannelAndGetId(discordRoomAddChannelId, communityId, DISCORD_VOICE_CHANNEL_TYPE);
 
+			// カテゴリーチャンネルを作成（部屋が作成されるカテゴリー）
+			const categoryChannelDiscordId = "999";
+			const categoryChannelDbId = await createChannelAndGetId(categoryChannelDiscordId, communityId, DISCORD_CATEGORY_TYPE);
+
 			// 新しく作成されるチャンネル用のChannelレコードを事前に作成（ハンドラがChannelLogic.getIdで検索するため）
 			await createChannelAndGetId(predictableCreatedChannelDiscordId, communityId, DISCORD_VOICE_CHANNEL_TYPE);
 
-			// 部屋追加チャンネルのみ登録（通知チャンネルは登録しない）（Channel.idを使用）
+			// 部屋追加チャンネルとカテゴリーチャンネルを登録（通知チャンネルは登録しない）（Channel.idを使用）
 			await RoomAddChannelRepositoryImpl.create({
 				communityId: communityId,
 				channelId: roomAddChannelDbId,
+			});
+			await RoomCategoryChannelRepositoryImpl.create({
+				communityId: communityId,
+				channelId: categoryChannelDbId,
 			});
 
 			const beforeCount = await RoomChannelRepositoryImpl.count();
@@ -235,6 +267,9 @@ describe("Test VoiceChannelConnect Events", () => {
 				displayName,
 				predictableCreatedChannelId: predictableCreatedChannelDiscordId,
 			});
+
+			// 非同期処理の完了を待つ
+			await new Promise((resolve) => setTimeout(resolve, 1000));
 
 			// 部屋が作成されたことを確認
 			const afterData = await RoomChannelRepositoryImpl.findAll();
@@ -507,18 +542,26 @@ describe("Test VoiceChannelConnect Events", () => {
 
 			// Communityテーブルのidを取得（beforeEachで作成済み）
 			const community = await CommunityRepositoryImpl.findOne({ where: { clientId: 1 } });
-			const communityDbId = community!.id;
+			const communityDbId = community?.id;
 
 			// 部屋追加チャンネルをChannelテーブルに登録し、IDを取得
 			const roomAddChannelDbId = await createChannelAndGetId(discordRoomAddChannelId, communityDbId, DISCORD_VOICE_CHANNEL_TYPE);
 
+			// カテゴリーチャンネルを作成（部屋が作成されるカテゴリー）
+			const categoryChannelDiscordId = "999";
+			const categoryChannelDbId = await createChannelAndGetId(categoryChannelDiscordId, communityDbId, DISCORD_CATEGORY_TYPE);
+
 			// 新しく作成されるチャンネル用のChannelレコードを事前に作成（ハンドラがChannelLogic.getIdで検索するため）
 			await createChannelAndGetId(predictableCreatedChannelDiscordId, communityDbId, DISCORD_VOICE_CHANNEL_TYPE);
 
-			// RoomAddChannelに登録（ChannelテーブルのIDを使用）
+			// RoomAddChannelとRoomCategoryChannelに登録（ChannelテーブルのIDを使用）
 			await RoomAddChannelRepositoryImpl.create({
 				communityId: communityDbId,
 				channelId: roomAddChannelDbId,
+			});
+			await RoomCategoryChannelRepositoryImpl.create({
+				communityId: communityDbId,
+				channelId: categoryChannelDbId,
 			});
 
 			const { mockVoiceState } = await import("../../fixtures/discord.js/MockVoiceState");
@@ -537,7 +580,7 @@ describe("Test VoiceChannelConnect Events", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
 
-			await new Promise((resolve) => setTimeout(resolve, 100));
+			await new Promise((resolve) => setTimeout(resolve, 2000));
 
 			// データが作成されていることを確認
 			const afterData = await RoomChannelRepositoryImpl.findAll();
@@ -562,16 +605,20 @@ describe("Test VoiceChannelConnect Events", () => {
 
 			// Communityテーブルのidを取得（beforeEachで作成済み）
 			const community = await CommunityRepositoryImpl.findOne({ where: { clientId: 1 } });
-			const communityDbId = community!.id;
+			const communityDbId = community?.id;
 
 			// 部屋追加チャンネルと通知チャンネルをChannelテーブルに登録
 			const roomAddChannelDbId = await createChannelAndGetId(discordRoomAddChannelId, communityDbId, DISCORD_VOICE_CHANNEL_TYPE);
 			const roomNotificationChannelDbId = await createChannelAndGetId(discordRoomNotificationChannelId, communityDbId, DISCORD_TEXT_CHANNEL_TYPE);
 
+			// カテゴリーチャンネルを作成（部屋が作成されるカテゴリー）
+			const categoryChannelDiscordId = "999";
+			const categoryChannelDbId = await createChannelAndGetId(categoryChannelDiscordId, communityDbId, DISCORD_CATEGORY_TYPE);
+
 			// 新しく作成されるチャンネル用のChannelレコードを事前に作成（ハンドラがChannelLogic.getIdで検索するため）
 			await createChannelAndGetId(predictableCreatedChannelDiscordId, communityDbId, DISCORD_VOICE_CHANNEL_TYPE);
 
-			// RoomAddChannelとRoomNotificationChannelに登録（ChannelテーブルのIDを使用）
+			// RoomAddChannel、RoomNotificationChannel、RoomCategoryChannelに登録（ChannelテーブルのIDを使用）
 			await RoomAddChannelRepositoryImpl.create({
 				communityId: communityDbId,
 				channelId: roomAddChannelDbId,
@@ -579,6 +626,10 @@ describe("Test VoiceChannelConnect Events", () => {
 			await RoomNotificationChannelRepositoryImpl.create({
 				communityId: communityDbId,
 				channelId: roomNotificationChannelDbId,
+			});
+			await RoomCategoryChannelRepositoryImpl.create({
+				communityId: communityDbId,
+				channelId: categoryChannelDbId,
 			});
 
 			const { mockVoiceState, addMockTextChannel } = await import("../../fixtures/discord.js/MockVoiceState");
@@ -608,7 +659,7 @@ describe("Test VoiceChannelConnect Events", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
 
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 2000));
 
 			// 通知が送信されたことを確認
 			expect(notificationSent).to.be.true;
@@ -632,18 +683,26 @@ describe("Test VoiceChannelConnect Events", () => {
 
 			// Communityテーブルのidを取得（beforeEachで作成済み）
 			const community = await CommunityRepositoryImpl.findOne({ where: { clientId: 1 } });
-			const communityDbId = community!.id;
+			const communityDbId = community?.id;
 
 			// 部屋追加チャンネルをChannelテーブルに登録
 			const roomAddChannelDbId = await createChannelAndGetId(discordRoomAddChannelId, communityDbId, DISCORD_VOICE_CHANNEL_TYPE);
 
+			// カテゴリーチャンネルを作成（部屋が作成されるカテゴリー）
+			const categoryChannelDiscordId = "999";
+			const categoryChannelDbId = await createChannelAndGetId(categoryChannelDiscordId, communityDbId, DISCORD_CATEGORY_TYPE);
+
 			// 新しく作成されるチャンネル用のChannelレコードを事前に作成（ハンドラがChannelLogic.getIdで検索するため）
 			await createChannelAndGetId(predictableCreatedChannelDiscordId, communityDbId, DISCORD_VOICE_CHANNEL_TYPE);
 
-			// 部屋追加チャンネルのみ登録
+			// 部屋追加チャンネルとカテゴリーチャンネルを登録（通知チャンネルは登録しない）
 			await RoomAddChannelRepositoryImpl.create({
 				communityId: communityDbId,
 				channelId: roomAddChannelDbId,
+			});
+			await RoomCategoryChannelRepositoryImpl.create({
+				communityId: communityDbId,
+				channelId: categoryChannelDbId,
 			});
 
 			const { mockVoiceState } = await import("../../fixtures/discord.js/MockVoiceState");
@@ -660,7 +719,7 @@ describe("Test VoiceChannelConnect Events", () => {
 			const TEST_CLIENT = await TestDiscordServer.getClient();
 			TEST_CLIENT.emit("voiceStateUpdate", oldState, newState);
 
-			await new Promise((resolve) => setTimeout(resolve, 100));
+			await new Promise((resolve) => setTimeout(resolve, 2000));
 
 			// データは作成されていることを確認
 			const afterData = await RoomChannelRepositoryImpl.findAll();

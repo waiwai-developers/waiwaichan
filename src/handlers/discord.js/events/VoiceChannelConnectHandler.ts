@@ -16,6 +16,7 @@ import type {
 import type { IChannelLogic } from "@/src/logics/Interfaces/logics/IChannelLogic";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { IRoomAddChannelLogic } from "@/src/logics/Interfaces/logics/IRoomAddChannelLogic";
+import type { IRoomCategoryChannelLogic } from "@/src/logics/Interfaces/logics/IRoomCategoryChannelLogic";
 import type { IRoomChannelLogic } from "@/src/logics/Interfaces/logics/IRoomChannelLogic";
 import type { IRoomNotificationChannelLogic } from "@/src/logics/Interfaces/logics/IRoomNotificationChannelLogic";
 import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
@@ -30,6 +31,8 @@ export class VoiceChannelConnectHandler
 	private readonly logger!: ILogger;
 	@inject(LogicTypes.RoomAddChannelLogic)
 	private roomAddChannelLogic!: IRoomAddChannelLogic;
+	@inject(LogicTypes.RoomCategoryChannelLogic)
+	private roomCategoryChannelLogic!: IRoomCategoryChannelLogic;
 	@inject(LogicTypes.RoomNotificationChannelLogic)
 	private roomNotificationChannelLogic!: IRoomNotificationChannelLogic;
 	@inject(LogicTypes.RoomChannelLogic)
@@ -91,11 +94,31 @@ export class VoiceChannelConnectHandler
 			return;
 		}
 
+		//communityIdから部屋カテゴリーChannelを取得
+		const roomCategoryChannel =
+			await this.roomCategoryChannelLogic.find(communityId);
+		if (roomCategoryChannel === undefined) {
+			this.logger.info("not setting room category channel");
+			return;
+		}
+		const categoryChannelClientId = await this.ChannelLogic.getClientIdById(
+			roomCategoryChannel.channelId,
+		);
+		if (categoryChannelClientId === undefined) {
+			this.logger.info("not exist category channel clientId");
+			return;
+		}
+
 		//新しく部屋と部屋データを作成しユーザーを移動
 		const newChannel = await newState.guild.channels.create({
 			name: `${newState.member.user.displayName}の部屋`,
 			type: DiscordChannelType.GuildVoice,
+			parent: categoryChannelClientId.getValue().toString(),
 		});
+
+		//部屋作成後ChannelsにINSERTされるまで少し待つ
+		this.logger.info("Waiting for channel to be inserted into database");
+		await new Promise<void>((resolve) => setTimeout(resolve, 1000));
 
 		const newChannelId = await this.ChannelLogic.getId(
 			new ChannelDto(

@@ -1,1 +1,1 @@
-export const InternalErrorMessage = "エラーが発生したよ！っ";
+export const InternalErrorMessage = "内部エラーが発生したよ！っ";
