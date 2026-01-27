@@ -9,10 +9,10 @@ import type { Client, GuildMember, PartialGuildMember } from "discord.js";
 import { inject, injectable } from "inversify";
 
 @injectable()
-export class ActionRemoveUserRouter implements DiscordEventRouter {
+export class UserRemoveRouter implements DiscordEventRouter {
 	@inject(RepoTypes.Logger)
 	private readonly logger!: ILogger;
-	@inject(HandlerTypes.ActionRemoveUserHandler)
+	@inject(HandlerTypes.UserRemoveHandler)
 	private readonly handler!: DiscordEventHandler<
 		GuildMember | PartialGuildMember
 	>;

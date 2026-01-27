@@ -5,25 +5,25 @@ import {
 import type { DiscordEventHandler } from "@/src/handlers/discord.js/events/DiscordEventHandler";
 import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 import type { DiscordEventRouter } from "@/src/routes/discordjs/events/DiscordEventRouter";
-import type { Client, DMChannel, GuildChannel } from "discord.js";
+import type { Client, Message, PartialMessage } from "discord.js";
 import { inject, injectable } from "inversify";
 
 @injectable()
-export class ActionRemoveChannelRouter implements DiscordEventRouter {
+export class MessageDeleteRouter implements DiscordEventRouter {
 	@inject(RepoTypes.Logger)
 	private readonly logger!: ILogger;
-	@inject(HandlerTypes.ActionRemoveChannelHandler)
-	private readonly handler!: DiscordEventHandler<GuildChannel | DMChannel>;
+	@inject(HandlerTypes.MessageDeleteHandler)
+	private readonly handler!: DiscordEventHandler<Message | PartialMessage>;
 	register(client: Client): void {
-		client.on("channelDelete", async (channel) => {
+		client.on("messageDelete", async (message) => {
 			try {
-				if (channel.isDMBased()) {
+				if (!message.guild) {
 					return;
 				}
 				this.logger.info(
-					`Channel was deleted for guildId: ${channel.guild.id} channelId: ${channel.id}.`,
+					`Message was deleted from server for guildId: ${message.guild.id} messageId: ${message.id}.`,
 				);
-				await this.handler.handle(channel);
+				await this.handler.handle(message);
 			} catch (e) {
 				this.logger.error(`Error: ${e}`);
 			}

@@ -9,10 +9,10 @@ import type { Client, Guild } from "discord.js";
 import { inject, injectable } from "inversify";
 
 @injectable()
-export class ActionRemoveBotRouter implements DiscordEventRouter {
+export class BotRemoveRouter implements DiscordEventRouter {
 	@inject(RepoTypes.Logger)
 	private readonly logger!: ILogger;
-	@inject(HandlerTypes.ActionRemoveBotHandler)
+	@inject(HandlerTypes.BotRemoveHandler)
 	private readonly handler!: DiscordEventHandler<Guild>;
 	register(client: Client): void {
 		client.on("guildDelete", async (guild) => {

@@ -5,25 +5,22 @@ import {
 import type { DiscordEventHandler } from "@/src/handlers/discord.js/events/DiscordEventHandler";
 import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 import type { DiscordEventRouter } from "@/src/routes/discordjs/events/DiscordEventRouter";
-import type { Client, Message, PartialMessage } from "discord.js";
+import type { Client, Guild } from "discord.js";
 import { inject, injectable } from "inversify";
 
 @injectable()
-export class ActionRemoveMessageRouter implements DiscordEventRouter {
+export class BotAddRouter implements DiscordEventRouter {
 	@inject(RepoTypes.Logger)
 	private readonly logger!: ILogger;
-	@inject(HandlerTypes.ActionRemoveMessageHandler)
-	private readonly handler!: DiscordEventHandler<Message | PartialMessage>;
+	@inject(HandlerTypes.BotAddHandler)
+	private readonly handler!: DiscordEventHandler<Guild>;
 	register(client: Client): void {
-		client.on("messageDelete", async (message) => {
+		client.on("guildCreate", async (guild) => {
 			try {
-				if (!message.guild) {
-					return;
-				}
 				this.logger.info(
-					`Message was deleted from server for guildId: ${message.guild.id} messageId: ${message.id}.`,
+					`Bot is added to new server for guildIs: ${guild.id}.`,
 				);
-				await this.handler.handle(message);
+				await this.handler.handle(guild);
 			} catch (e) {
 				this.logger.error(`Error: ${e}`);
 			}

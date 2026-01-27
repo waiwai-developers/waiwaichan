@@ -16,7 +16,7 @@ import type { Message, PartialMessage } from "discord.js";
 import { inject, injectable } from "inversify";
 
 @injectable()
-export class ActionRemoveMessageHandler
+export class MessageDeleteHandler
 	implements DiscordEventHandler<Message | PartialMessage>
 {
 	@inject(RepoTypes.Logger)

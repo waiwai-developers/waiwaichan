@@ -16,7 +16,7 @@ import type { Guild } from "discord.js";
 import { inject, injectable } from "inversify";
 
 @injectable()
-export class ActionRemoveBotHandler implements DiscordEventHandler<Guild> {
+export class BotRemoveHandler implements DiscordEventHandler<Guild> {
 	@inject(RepoTypes.Logger)
 	private readonly logger!: ILogger;
 
@@ -32,7 +32,7 @@ export class ActionRemoveBotHandler implements DiscordEventHandler<Guild> {
 	async handle(guild: Guild): Promise<void> {
 		try {
 			this.logger.info(
-				`ActionRemoveBotHandler: Bot was added to guild, GuildId: ${guild.id}`,
+				`BotRemoveHandler: Bot was added to guild, GuildId: ${guild.id}`,
 			);
 			const communityId = await this.CommunityLogic.getId(
 				new CommunityDto(
@@ -69,7 +69,7 @@ export class ActionRemoveBotHandler implements DiscordEventHandler<Guild> {
 				return;
 			}
 		} catch (error) {
-			this.logger.error(`ActionRemoveBotHandler error: ${error}`);
+			this.logger.error(`BotRemoveHandler error: ${error}`);
 		}
 	}
 }

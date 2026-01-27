@@ -9,10 +9,10 @@ import type { Client, GuildChannel } from "discord.js";
 import { inject, injectable } from "inversify";
 
 @injectable()
-export class ActionAddChannelRouter implements DiscordEventRouter {
+export class ChannelCreateRouter implements DiscordEventRouter {
 	@inject(RepoTypes.Logger)
 	private readonly logger!: ILogger;
-	@inject(HandlerTypes.ActionAddChannelHandler)
+	@inject(HandlerTypes.ChannelCreateHandler)
 	private readonly handler!: DiscordEventHandler<GuildChannel>;
 	register(client: Client): void {
 		client.on("channelCreate", async (channel) => {

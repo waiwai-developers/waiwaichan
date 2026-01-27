@@ -1,37 +1,31 @@
 import { AppConfig } from "@/src/entities/config/AppConfig";
-import {
-	LogicTypes,
-	RepoTypes,
-} from "@/src/entities/constants/DIContainerTypes";
+import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
+import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
 import { CommunityDto } from "@/src/entities/dto/CommunityDto";
+import { UserDto } from "@/src/entities/dto/UserDto";
 import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
 import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
-import { MessageUserId } from "@/src/entities/vo/MessageUserId";
+import { UserCategoryType } from "@/src/entities/vo/UserCategoryType";
 import { UserClientId } from "@/src/entities/vo/UserClientId";
 import { UserCommunityId } from "@/src/entities/vo/UserCommunityId";
+import { UserType } from "@/src/entities/vo/UserType";
 import type { DiscordEventHandler } from "@/src/handlers/discord.js/events/DiscordEventHandler";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
-import type { IMessageLogic } from "@/src/logics/Interfaces/logics/IMessageLogic";
 import type { IUserLogic } from "@/src/logics/Interfaces/logics/IUserLogic";
 import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 import type { GuildMember } from "discord.js";
 import { inject, injectable } from "inversify";
 
 @injectable()
-export class ActionRemoveUserHandler
-	implements DiscordEventHandler<GuildMember>
-{
+export class UserAddHandler implements DiscordEventHandler<GuildMember> {
 	@inject(RepoTypes.Logger)
 	private readonly logger!: ILogger;
-
-	@inject(LogicTypes.UserLogic)
-	private readonly UserLogic!: IUserLogic;
 
 	@inject(LogicTypes.CommunityLogic)
 	private readonly CommunityLogic!: ICommunityLogic;
 
-	@inject(LogicTypes.MessageLogic)
-	private readonly MessageLogic!: IMessageLogic;
+	@inject(LogicTypes.UserLogic)
+	private readonly UserLogic!: IUserLogic;
 
 	async handle(member: GuildMember): Promise<void> {
 		try {
@@ -39,45 +33,31 @@ export class ActionRemoveUserHandler
 				return;
 			}
 			this.logger.info(
-				`ActionRemoveUserHandler: User was removed from guild, guildId: ${member.guild.id}`,
+				`UserAddHandler: User was added to guild, guildId: ${member.guild.id}`,
 			);
-
 			const communityId = await this.CommunityLogic.getId(
 				new CommunityDto(
 					CommunityCategoryType.Discord,
 					new CommunityClientId(BigInt(member.guild.id)),
 				),
 			);
-
 			if (communityId == null) {
 				return;
 			}
 
-			// ユーザー削除前にUserIdを取得
-			const userId = await this.UserLogic.getIdByCommunityIdAndClientId(
-				new UserCommunityId(communityId.getValue()),
-				new UserClientId(BigInt(member.id)),
-			);
-
-			// ユーザーを削除
-			const isDeletebyClientId =
-				await this.UserLogic.deleteByCommunityIdAndClientId(
-					new UserCommunityId(communityId.getValue()),
+			const isBulkCreate = await this.UserLogic.bulkCreate([
+				new UserDto(
+					UserCategoryType.Discord,
 					new UserClientId(BigInt(member.id)),
-				);
-			if (!isDeletebyClientId) {
+					UserType.user,
+					new UserCommunityId(communityId.getValue()),
+				),
+			]);
+			if (!isBulkCreate) {
 				return;
 			}
-
-			// ユーザーに関連するメッセージを削除
-			if (userId == null) {
-				return;
-			}
-			await this.MessageLogic.deleteByUserIdAndReturnClientIds(
-				new MessageUserId(userId.getValue()),
-			);
 		} catch (error) {
-			this.logger.error(`ActionRemoveUserHandler error: ${error}`);
+			this.logger.error(`UserAddHandler error: ${error}`);
 		}
 	}
 }
