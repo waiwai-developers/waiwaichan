@@ -18,9 +18,7 @@ import type { GuildMember } from "discord.js";
 import { inject, injectable } from "inversify";
 
 @injectable()
-export class UserRemoveHandler
-	implements DiscordEventHandler<GuildMember>
-{
+export class UserRemoveHandler implements DiscordEventHandler<GuildMember> {
 	@inject(RepoTypes.Logger)
 	private readonly logger!: ILogger;
 
