@@ -1,9 +1,11 @@
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import type { DeletedMessageTargetDto } from "@/src/entities/dto/DeletedMessageTargetDto";
 import type { MessageDto } from "@/src/entities/dto/MessageDto";
+import type { MessageChannelId } from "@/src/entities/vo/MessageChannelId";
 import type { MessageClientId } from "@/src/entities/vo/MessageClientId";
 import type { MessageCommunityId } from "@/src/entities/vo/MessageCommunityId";
 import type { MessageId } from "@/src/entities/vo/MessageId";
+import type { MessageUserId } from "@/src/entities/vo/MessageUserId";
 import type { IMessageLogic } from "@/src/logics/Interfaces/logics/IMessageLogic";
 import type { IMessageRepository } from "@/src/logics/Interfaces/repositories/database/IMessageRepository";
 import type { ITransaction } from "@/src/logics/Interfaces/repositories/database/ITransaction";
@@ -68,6 +70,26 @@ export class MessageLogic implements IMessageLogic {
 	async getId(data: MessageDto): Promise<MessageId | undefined> {
 		return this.transaction.startTransaction(async () => {
 			return await this.MessageRepository.getId(data);
+		});
+	}
+
+	async deleteByUserIdAndReturnClientIds(
+		userId: MessageUserId,
+	): Promise<MessageClientId[]> {
+		return this.transaction.startTransaction(async () => {
+			return await this.MessageRepository.deleteByUserIdAndReturnClientIds(
+				userId,
+			);
+		});
+	}
+
+	async deleteByChannelIdAndReturnClientIds(
+		channelId: MessageChannelId,
+	): Promise<MessageClientId[]> {
+		return this.transaction.startTransaction(async () => {
+			return await this.MessageRepository.deleteByChannelIdAndReturnClientIds(
+				channelId,
+			);
 		});
 	}
 
