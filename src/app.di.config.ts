@@ -52,12 +52,14 @@ import { ChatAILogic } from "@/src/logics/ChatAILogic";
 import { CommunityLogic } from "@/src/logics/CommunityLogic";
 import { ContextLogic } from "@/src/logics/ContextLogic";
 import { CrownLogic } from "@/src/logics/CrownLogic";
+import { MessageLogic } from "@/src/logics/MessageLogic";
 import type { ICandyLogic } from "@/src/logics/Interfaces/logics/ICandyLogic";
 import type { IChannelLogic } from "@/src/logics/Interfaces/logics/IChannelLogic";
 import type { IChatAILogic } from "@/src/logics/Interfaces/logics/IChatAILogic";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { IContextLogic } from "@/src/logics/Interfaces/logics/IContextLogic";
 import type { ICrownLogic } from "@/src/logics/Interfaces/logics/ICrownLogic";
+import type { IMessageLogic } from "@/src/logics/Interfaces/logics/IMessageLogic";
 import type { IPersonalityContextLogic } from "@/src/logics/Interfaces/logics/IPersonalityContextLogic";
 import type { IPersonalityLogic } from "@/src/logics/Interfaces/logics/IPersonalityLogic";
 import type { IPullRequestLogic } from "@/src/logics/Interfaces/logics/IPullRequestLogic";
@@ -78,6 +80,7 @@ import type { IChannelRepository } from "@/src/logics/Interfaces/repositories/da
 import type { ICommunityRepository } from "@/src/logics/Interfaces/repositories/database/ICommunityRepository";
 import type { IContextRepository } from "@/src/logics/Interfaces/repositories/database/IContextRepository";
 import type { ICrownRepository } from "@/src/logics/Interfaces/repositories/database/ICrownRepository";
+import type { IMessageRepository } from "@/src/logics/Interfaces/repositories/database/IMessageRepository";
 import type { IDataBaseConnector } from "@/src/logics/Interfaces/repositories/database/IDataBaseConnector";
 import type { IDataDeletionCircular } from "@/src/logics/Interfaces/repositories/database/IDataDeletionCircular";
 import type { IPersonalityContextRepository } from "@/src/logics/Interfaces/repositories/database/IPersonalityContextRepository";
@@ -122,6 +125,7 @@ import {
 	ContextRepositoryImpl,
 	CrownRepositoryImpl,
 	DataDeletionCircularImpl,
+	MessageRepositoryImpl,
 	PersonalityContextRepositoryImpl,
 	PersonalityRepositoryImpl,
 	ReminderRepositoryImpl,
@@ -179,6 +183,7 @@ appContainer.bind<IStickyRepository>(RepoTypes.StickyRepository).to(StickyReposi
 appContainer.bind<ICommunityRepository>(RepoTypes.CommunityRepository).to(CommunityRepositoryImpl);
 appContainer.bind<IUserRepository>(RepoTypes.UserRepository).to(UserRepositoryImpl);
 appContainer.bind<IChannelRepository>(RepoTypes.ChannelRepository).to(ChannelRepositoryImpl);
+appContainer.bind<IMessageRepository>(RepoTypes.MessageRepository).to(MessageRepositoryImpl);
 appContainer.bind<IDataDeletionCircular>(RepoTypes.DataDeletionCircular).to(DataDeletionCircularImpl);
 // ChatGPT
 appContainer.bind<IChatAIRepository>(RepoTypes.ChatAIRepository).to(ChatGPTRepositoryImpl);
@@ -210,6 +215,7 @@ appContainer.bind<IUtilityLogic>(LogicTypes.UtilityLogic).to(UtilityLogic);
 appContainer.bind<ICommunityLogic>(LogicTypes.CommunityLogic).to(CommunityLogic);
 appContainer.bind<IUserLogic>(LogicTypes.UserLogic).to(UserLogic);
 appContainer.bind<IChannelLogic>(LogicTypes.ChannelLogic).to(ChannelLogic);
+appContainer.bind<IMessageLogic>(LogicTypes.MessageLogic).to(MessageLogic);
 
 // Handlers
 appContainer.bind<DiscordEventHandler<Message>>(HandlerTypes.MessageHandler).to(AIReplyHandler);
