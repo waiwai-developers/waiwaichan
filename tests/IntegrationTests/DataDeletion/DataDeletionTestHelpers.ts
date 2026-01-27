@@ -8,6 +8,7 @@ import { DataDeletionCircularHandler } from "@/src/handlers/discord.js/events/Da
 import type { DataDeletionCircularLogic } from "@/src/logics/DataDeletionCircularLogic";
 import type { IChannelLogic } from "@/src/logics/Interfaces/logics/IChannelLogic";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
+import type { IMessageLogic } from "@/src/logics/Interfaces/logics/IMessageLogic";
 import type { IUserLogic } from "@/src/logics/Interfaces/logics/IUserLogic";
 import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnector";
 import { MysqlSchedulerConnector } from "@/src/repositories/sequelize-mysql/MysqlSchedulerConnector";
@@ -199,6 +200,7 @@ export const setupHandlerMocks = () => {
 	const communityLogicMock = mock<ICommunityLogic>();
 	const userLogicMock = mock<IUserLogic>();
 	const channelLogicMock = mock<IChannelLogic>();
+	const messageLogicMock = mock<IMessageLogic>();
 	const dataDeletionLogicMock = mock<DataDeletionCircularLogic>();
 
 	const originalGet = schedulerContainer.get.bind(schedulerContainer);
@@ -214,6 +216,9 @@ export const setupHandlerMocks = () => {
 		if (token === LogicTypes.ChannelLogic) {
 			return instance(channelLogicMock);
 		}
+		if (token === LogicTypes.MessageLogic) {
+			return instance(messageLogicMock);
+		}
 		if (token === LogicTypes.dataDeletionCircularLogic) {
 			return instance(dataDeletionLogicMock);
 		}
@@ -225,6 +230,10 @@ export const setupHandlerMocks = () => {
 	when((userLogicMock as any).findDeletionTargetsByBatchStatusAndDeletedAt()).thenResolve([] as any);
 	when((communityLogicMock as any).findDeletionTargetsByBatchStatusAndDeletedAt()).thenResolve([] as any);
 	when((channelLogicMock as any).findDeletionTargetsByBatchStatusAndDeletedAt()).thenResolve([] as any);
+	when((messageLogicMock as any).findDeletionTargetsByBatchStatusAndDeletedAt()).thenResolve([] as any);
+	when((messageLogicMock as any).deleteByChannelIdAndReturnClientIds(anything())).thenResolve([] as any);
+	when((messageLogicMock as any).deleteByUserIdAndReturnClientIds(anything())).thenResolve([] as any);
+	(when((messageLogicMock as any).deletebyCommunityId(anything())) as any).thenReturn(Promise.resolve(true));
 
 	// クリーンアップ関数
 	const cleanup = () => {
@@ -235,6 +244,7 @@ export const setupHandlerMocks = () => {
 		communityLogicMock,
 		userLogicMock,
 		channelLogicMock,
+		messageLogicMock,
 		dataDeletionLogicMock,
 		cleanup,
 	};

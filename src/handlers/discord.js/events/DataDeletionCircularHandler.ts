@@ -191,14 +191,6 @@ export const DataDeletionCircularHandler = async (c: Client<boolean>) => {
 			continue;
 		}
 
-		// Communitiesに関連するChannelsのデータの削除
-		await channelLogic.deletebyCommunityId(
-			new ChannelCommunityId(communityId.getValue()),
-		);
-
-		// Channelsに関連するMessagesのデータの削除
-		await deleteMessagesForDeletedChannels(channelLogic, messageLogic);
-
 		// Communitiesに関連するUsersのデータの削除
 		await userLogic.deletebyCommunityId(
 			new UserCommunityId(communityId.getValue()),
@@ -206,6 +198,14 @@ export const DataDeletionCircularHandler = async (c: Client<boolean>) => {
 
 		// Usersに関連するMessagesのデータの削除
 		await deleteMessagesForDeletedUsers(userLogic, messageLogic);
+
+		// Communitiesに関連するChannelsのデータの削除
+		await channelLogic.deletebyCommunityId(
+			new ChannelCommunityId(communityId.getValue()),
+		);
+
+		// Channelsに関連するMessagesのデータの削除
+		await deleteMessagesForDeletedChannels(channelLogic, messageLogic);
 
 		// Communitiesに関連するMessagesのデータの削除
 		await messageLogic.deletebyCommunityId(
