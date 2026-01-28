@@ -2,7 +2,7 @@ import "reflect-metadata";
 import { ITEM_RECORDS } from "@/migrator/seeds/20241111041901-item";
 import { ID_JACKPOT } from "@/src/entities/constants/Items";
 import { CandyCategoryType } from "@/src/entities/vo/CandyCategoryType";
-import { CandyRepositoryImpl, CommunityRepositoryImpl, UserCandyItemRepositoryImpl, UserRepositoryImpl } from "@/src/repositories/sequelize-mysql";
+import { CandyRepositoryImpl, ChannelRepositoryImpl, CommunityRepositoryImpl, UserCandyItemRepositoryImpl, UserRepositoryImpl } from "@/src/repositories/sequelize-mysql";
 import { MysqlConnector } from "@/tests/fixtures/database/MysqlConnector";
 import { mockReaction } from "@/tests/fixtures/discord.js/MockReaction";
 import { waitUntilReply as waitSlashUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
@@ -257,6 +257,7 @@ export interface TestContext {
 	userId: number;
 	giveUserId: number;
 	receiverUserId: number;
+	channelId: number;
 }
 
 export function initializeDatabase(): void {
@@ -267,6 +268,7 @@ export async function cleanupAllTables(): Promise<void> {
 	await CandyRepositoryImpl.destroy({ truncate: true, force: true });
 	await UserCandyItemRepositoryImpl.destroy({ truncate: true, force: true });
 	await UserRepositoryImpl.destroy({ truncate: true, force: true });
+	await ChannelRepositoryImpl.destroy({ truncate: true, force: true });
 	await CommunityRepositoryImpl.destroy({ truncate: true, force: true });
 }
 
@@ -279,6 +281,14 @@ export async function createCommunityAndUser(): Promise<TestContext> {
 	const community = await CommunityRepositoryImpl.create({
 		categoryType: 0,
 		clientId: BigInt(TEST_GUILD_ID),
+		batchStatus: 0,
+	});
+
+	const channel = await ChannelRepositoryImpl.create({
+		categoryType: 0,
+		clientId: BigInt(TEST_GUILD_ID),
+		channelType: 0,
+		communityId: community.id,
 		batchStatus: 0,
 	});
 
@@ -311,6 +321,7 @@ export async function createCommunityAndUser(): Promise<TestContext> {
 		userId: user.id,
 		giveUserId: giveUser.id,
 		receiverUserId: receiverUser.id,
+		channelId: channel.id,
 	};
 }
 
