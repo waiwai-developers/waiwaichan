@@ -5,7 +5,7 @@ import {
 	SUPER_CANDY_AMOUNT,
 	SUPER_CANDY_LIMIT,
 } from "@/src/entities/constants/Candies";
-import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
+import { LogicTypes, RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import {
 	ID_HIT,
 	ID_JACKPOT,
@@ -22,14 +22,16 @@ import { CandyCreatedAt } from "@/src/entities/vo/CandyCreatedAt";
 import { CandyExpire } from "@/src/entities/vo/CandyExpire";
 import { CandyId } from "@/src/entities/vo/CandyId";
 import { CandyItemId } from "@/src/entities/vo/CandyItemId";
+import type { ChannelId } from "@/src/entities/vo/ChannelId";
 import type { CommunityId } from "@/src/entities/vo/CommunityId";
-import type { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
+import type { MessageId } from "@/src/entities/vo/MessageId";
 import type { DiscordMessageLink } from "@/src/entities/vo/DiscordMessageLink";
 import type { UserCandyItemCount } from "@/src/entities/vo/UserCandyItemCount";
 import { UserCandyItemExpire } from "@/src/entities/vo/UserCandyItemExpire";
 import { UserCandyItemId } from "@/src/entities/vo/UserCandyItemId";
 import type { UserId } from "@/src/entities/vo/UserId";
 import type { ICandyLogic } from "@/src/logics/Interfaces/logics/ICandyLogic";
+import type { IMessageLogic } from "@/src/logics/Interfaces/logics/IMessageLogic";
 import type { ICandyItemRepository } from "@/src/logics/Interfaces/repositories/database/ICandyItemRepository";
 import type { ICandyRepository } from "@/src/logics/Interfaces/repositories/database/ICandyRepository";
 import type { ITransaction } from "@/src/logics/Interfaces/repositories/database/ITransaction";
@@ -54,6 +56,9 @@ export class CandyLogic implements ICandyLogic {
 
 	@inject(RepoTypes.Mutex)
 	private readonly mutex!: IMutex;
+
+	@inject(LogicTypes.MessageLogic)
+	private readonly messageLogic!: IMessageLogic;
 
 	async check(communityId: CommunityId, userId: UserId): Promise<string> {
 		const candyCount = await this.candyRepository
@@ -264,7 +269,7 @@ export class CandyLogic implements ICandyLogic {
 		communityId: CommunityId,
 		receiver: UserId,
 		giver: UserId,
-		messageId: DiscordMessageId,
+		messageId: MessageId,
 		messageLink: DiscordMessageLink,
 		candyCategoryType: CandyCategoryType,
 	): Promise<string | undefined> {

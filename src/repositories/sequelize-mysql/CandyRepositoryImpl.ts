@@ -7,6 +7,7 @@ import { CandyId } from "@/src/entities/vo/CandyId";
 import { CommunityId } from "@/src/entities/vo/CommunityId";
 import type { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
 import { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
+import { MessageId } from "@/src/entities/vo/MessageId";
 import { UserId } from "@/src/entities/vo/UserId";
 import type { ICandyRepository } from "@/src/logics/Interfaces/repositories/database/ICandyRepository";
 import dayjs from "dayjs";
@@ -38,8 +39,8 @@ class CandyRepositoryImpl extends Model implements ICandyRepository {
 	declare userId: number;
 	@Column(DataType.BIGINT)
 	declare giveUserId: number;
-	@Column(DataType.STRING)
-	declare messageId: string;
+	@Column(DataType.INTEGER)
+	declare messageId: number;
 	@Column(DataType.INTEGER)
 	declare categoryType: number;
 	@Column(DataType.DATE)
@@ -150,7 +151,7 @@ class CandyRepositoryImpl extends Model implements ICandyRepository {
 	async findByGiverAndMessageId(
 		communityId: CommunityId,
 		giver: UserId,
-		messageId: DiscordMessageId,
+		messageId: MessageId,
 		categoryType: CandyCategoryType,
 	): Promise<Array<CandyDto>> {
 		return CandyRepositoryImpl.findAll({
@@ -174,7 +175,7 @@ class CandyRepositoryImpl extends Model implements ICandyRepository {
 			new CommunityId(communityId),
 			new UserId(userId),
 			new UserId(giveUserId),
-			new DiscordMessageId(messageId),
+			new MessageId(messageId),
 			new CandyCategoryType(categoryType),
 			new CandyExpire(expiredAt),
 		);
