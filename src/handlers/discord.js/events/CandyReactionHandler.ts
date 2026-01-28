@@ -8,7 +8,6 @@ import { UserDto } from "@/src/entities/dto/UserDto";
 import { CandyCategoryType } from "@/src/entities/vo/CandyCategoryType";
 import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
 import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
-import { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
 import { DiscordMessageLink } from "@/src/entities/vo/DiscordMessageLink";
 import { UserCategoryType } from "@/src/entities/vo/UserCategoryType";
 import { UserClientId } from "@/src/entities/vo/UserClientId";
@@ -20,10 +19,16 @@ import type {
 } from "@/src/handlers/discord.js/events/DiscordEventHandler";
 import type { ICandyLogic } from "@/src/logics/Interfaces/logics/ICandyLogic";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
+import type { IMessageLogic } from "@/src/logics/Interfaces/logics/IMessageLogic";
 import type { IUserLogic } from "@/src/logics/Interfaces/logics/IUserLogic";
 import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 import { TextChannel } from "discord.js";
 import { inject, injectable } from "inversify";
+import { MessageDto } from "@/src/entities/dto/MessageDto";
+import { MessageCategoryType } from "@/src/entities/vo/MessageCategoryType";
+import { MessageClientId } from "@/src/entities/vo/MessageClientId";
+import { MessageCommunityId } from "@/src/entities/vo/MessageCommunityId";
+import { MessageUserId } from "@/src/entities/vo/MessageUserId";
 
 @injectable()
 export class CandyReactionHandler
@@ -37,6 +42,9 @@ export class CandyReactionHandler
 
 	@inject(LogicTypes.UserLogic)
 	private UserLogic!: IUserLogic;
+
+	@inject(LogicTypes.MessageLogic)
+	private messageLogic!: IMessageLogic;
 
 	@inject(RepoTypes.Logger)
 	private readonly logger!: ILogger;
@@ -122,11 +130,26 @@ export class CandyReactionHandler
 			return;
 		}
 
+		if (reaction.message.channelId == null) {
+			this.logger.error("channelId is null");
+			return;
+		}
+
+		// MessageテーブルにMessageを作成
+		const messageId = await this.messageLogic.findOrCreate(
+			new MessageDto(
+				MessageCategoryType.Discord,
+				new MessageClientId(BigInt(reaction.message.id)),
+				new MessageCommunityId(communityId.getValue()),
+				new MessageUserId(receiverUserId.getValue()),
+			),
+		);
+
 		const res = await this.candyLogic.giveCandys(
 			communityId,
 			receiverUserId,
 			giveUserId,
-			new DiscordMessageId(reaction.message.id),
+			messageId,
 			new DiscordMessageLink(reaction.message.url),
 			candyCategoryType,
 		);
