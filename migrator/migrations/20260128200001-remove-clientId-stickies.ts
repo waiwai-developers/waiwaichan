@@ -10,7 +10,7 @@ export const up: Migration = async ({ context: sequelize }) => {
 	const tableDescription = await queryInterface.describeTable(TABLE_NAME);
 
 	if (tableDescription[COLUMN_NAME]) {
-		// Remove the clientId column from Crowns table
+		// Remove the clientId column from Sticky table
 		await queryInterface.removeColumn(TABLE_NAME, COLUMN_NAME);
 		console.log(`Removed ${COLUMN_NAME} column from ${TABLE_NAME} table`);
 	} else {
