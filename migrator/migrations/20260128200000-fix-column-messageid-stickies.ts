@@ -3,7 +3,7 @@ import { GetEnvAppConfig } from "@/src/entities/config/AppConfig";
 import { Client, GatewayIntentBits, Partials } from "discord.js";
 import { DataTypes, QueryTypes } from "sequelize";
 
-const CROWNS_TABLE_NAME = "Stickies";
+const STICKIES_TABLE_NAME = "Stickies";
 const MESSAGES_TABLE_NAME = "Messages";
 const COMMUNITIES_TABLE_NAME = "Communities";
 const CHANNELS_TABLE_NAME = "Channels";
@@ -16,7 +16,7 @@ const CATEGORY_TYPE_DISCORD = 0;
 // batchStatus: Yet
 const BATCH_STATUS_YET = 0;
 
-interface CrownRecord {
+interface StickyRecord {
 	communityId: number;
 	messageId: string;
 }
@@ -41,21 +41,21 @@ interface UserRecord {
 export const up: Migration = async ({ context: sequelize }) => {
 	const queryInterface = sequelize.getQueryInterface();
 
-	// Step 1: CrownsテーブルのDiscordClientのmessageIdを全て取得しdiscordClientにアクセスし
+	// Step 1: StickiesテーブルのDiscordClientのmessageIdを全て取得しdiscordClientにアクセスし
 	// CommunityテーブルやUsersテーブルやChannelsテーブルのidを取得しMessageテーブルのレコードとして発行する
 	console.log(
-		"Step 1: Fetching Crown records and creating Message records via Discord API...",
+		"Step 1: Fetching Sticky records and creating Message records via Discord API...",
 	);
 
-	// Get all Crown records
-	const crowns = await sequelize.query<CrownRecord>(
-		`SELECT communityId, messageId FROM ${CROWNS_TABLE_NAME}`,
+	// Get all Sticky records
+	const stickies = await sequelize.query<StickyRecord>(
+		`SELECT communityId, messageId FROM ${STICKIES_TABLE_NAME}`,
 		{ type: QueryTypes.SELECT },
 	);
 
-	console.log(`Found ${crowns.length} Crown records`);
+	console.log(`Found ${stickies.length} Sticky records`);
 
-	if (crowns.length > 0) {
+	if (stickies.length > 0) {
 		// Get all Communities for lookup
 		const communities = await sequelize.query<CommunityRecord>(
 			`SELECT id, clientId FROM ${COMMUNITIES_TABLE_NAME}`,
@@ -120,13 +120,13 @@ export const up: Migration = async ({ context: sequelize }) => {
 				updatedAt: Date;
 			}> = [];
 
-			for (const crown of crowns) {
+			for (const sticky of stickies) {
 				try {
 					// Get community's Discord guild ID
-					const guildClientId = communityById.get(crown.communityId);
+					const guildClientId = communityById.get(sticky.communityId);
 					if (!guildClientId) {
 						console.warn(
-							`Community not found for communityId: ${crown.communityId}`,
+							`Community not found for communityId: ${sticky.communityId}`,
 						);
 						continue;
 					}
@@ -148,7 +148,7 @@ export const up: Migration = async ({ context: sequelize }) => {
 						try {
 							if (!channel.isTextBased()) continue;
 							// @ts-ignore - fetch is available on text-based channels
-							const message = await channel.messages.fetch(crown.messageId);
+							const message = await channel.messages.fetch(sticky.messageId);
 							if (message) {
 								foundMessage = message;
 								break;
@@ -160,35 +160,35 @@ export const up: Migration = async ({ context: sequelize }) => {
 
 					if (!foundMessage) {
 						console.warn(
-							`Message not found for messageId: ${crown.messageId} in guild: ${guildClientId}`,
+							`Message not found for messageId: ${sticky.messageId} in guild: ${guildClientId}`,
 						);
 						continue;
 					}
 
 					// Get channel ID from our database
-					const channelKey = `${foundMessage.channelId}_${crown.communityId}`;
+					const channelKey = `${foundMessage.channelId}_${sticky.communityId}`;
 					const channelId = channelByClientIdAndCommunityId.get(channelKey);
 					if (!channelId) {
 						console.warn(
-							`Channel not found in database for clientId: ${foundMessage.channelId}, communityId: ${crown.communityId}`,
+							`Channel not found in database for clientId: ${foundMessage.channelId}, communityId: ${sticky.communityId}`,
 						);
 						continue;
 					}
 
 					// Get user ID from our database
-					const userKey = `${foundMessage.author.id}_${crown.communityId}`;
+					const userKey = `${foundMessage.author.id}_${sticky.communityId}`;
 					const userId = userByClientIdAndCommunityId.get(userKey);
 					if (!userId) {
 						console.warn(
-							`User not found in database for clientId: ${foundMessage.author.id}, communityId: ${crown.communityId}`,
+							`User not found in database for clientId: ${foundMessage.author.id}, communityId: ${sticky.communityId}`,
 						);
 						continue;
 					}
 
 					messagesToInsert.push({
 						categoryType: CATEGORY_TYPE_DISCORD,
-						clientId: crown.messageId,
-						communityId: crown.communityId,
+						clientId: sticky.messageId,
+						communityId: sticky.communityId,
 						channelId: channelId,
 						userId: userId,
 						batchStatus: BATCH_STATUS_YET,
@@ -197,7 +197,7 @@ export const up: Migration = async ({ context: sequelize }) => {
 					});
 				} catch (error) {
 					console.error(
-						`Error processing crown messageId: ${crown.messageId}`,
+						`Error processing sticky messageId: ${sticky.messageId}`,
 						error,
 					);
 				}
@@ -226,50 +226,45 @@ export const up: Migration = async ({ context: sequelize }) => {
 		}
 	}
 
-	// Step 2: CrownsテーブルのmessageIdをclientIdに命名を変更する
-	console.log("Step 2: Renaming messageId to clientId in Crowns table...");
-
-	// Remove the primary key constraint first
-	await queryInterface.removeConstraint(CROWNS_TABLE_NAME, "PRIMARY");
+	// Step 2: StickiesテーブルのmessageIdをclientIdに命名を変更する
+	// Stickiesテーブルはidカラムがauto incrementでprimary keyなので、PRIMARY KEY制約の操作は不要
+	console.log("Step 2: Renaming messageId to clientId in Stickies table...");
 
 	await queryInterface.renameColumn(
-		CROWNS_TABLE_NAME,
+		STICKIES_TABLE_NAME,
 		COLUMN_NAME_MESSAGE_ID,
 		COLUMN_NAME_CLIENT_ID,
 	);
 
-	// Step 3: Crownsテーブルに新たにmessageIdのカラムをIntegerで発行する
+	// Step 3: Stickiesテーブルに新たにmessageIdのカラムをIntegerで発行する
 	console.log(
-		"Step 3: Adding new messageId column (INTEGER) to Crowns table...",
+		"Step 3: Adding new messageId column (INTEGER) to Stickies table...",
 	);
-	await queryInterface.addColumn(CROWNS_TABLE_NAME, COLUMN_NAME_MESSAGE_ID, {
+	await queryInterface.addColumn(STICKIES_TABLE_NAME, COLUMN_NAME_MESSAGE_ID, {
 		type: DataTypes.INTEGER,
 		allowNull: true,
 	});
 
-	// Step 4: CrownsテーブルのclientIdと一致するMessageテーブルのidを取得しCrownsテーブルのmessageIdを埋める
+	// Step 4: StickiesテーブルのclientIdと一致するMessageテーブルのidを取得しStickiesテーブルのmessageIdを埋める
 	console.log(
-		"Step 4: Updating Crowns.messageId with Messages.id based on clientId...",
+		"Step 4: Updating Stickies.messageId with Messages.id based on clientId...",
 	);
 	await sequelize.query(`
-		UPDATE ${CROWNS_TABLE_NAME} AS cr
-		INNER JOIN ${MESSAGES_TABLE_NAME} AS m ON cr.${COLUMN_NAME_CLIENT_ID} = m.clientId AND cr.communityId = m.communityId
-		SET cr.${COLUMN_NAME_MESSAGE_ID} = m.id
+		UPDATE ${STICKIES_TABLE_NAME} AS st
+		INNER JOIN ${MESSAGES_TABLE_NAME} AS m ON st.${COLUMN_NAME_CLIENT_ID} = m.clientId AND st.communityId = m.communityId
+		SET st.${COLUMN_NAME_MESSAGE_ID} = m.id
 	`);
 
-	// Step 5: CrownsテーブルのmessageIdにnot null 制約を追加する
-	console.log("Step 5: Adding NOT NULL constraint to Crowns.messageId...");
-	await queryInterface.changeColumn(CROWNS_TABLE_NAME, COLUMN_NAME_MESSAGE_ID, {
-		type: DataTypes.INTEGER,
-		allowNull: false,
-	});
-
-	// Restore composite primary key with communityId and messageId
-	await queryInterface.addConstraint(CROWNS_TABLE_NAME, {
-		fields: ["communityId", COLUMN_NAME_MESSAGE_ID],
-		type: "primary key",
-		name: "PRIMARY",
-	});
+	// Step 5: StickiesテーブルのmessageIdにnot null 制約を追加する
+	console.log("Step 5: Adding NOT NULL constraint to Stickies.messageId...");
+	await queryInterface.changeColumn(
+		STICKIES_TABLE_NAME,
+		COLUMN_NAME_MESSAGE_ID,
+		{
+			type: DataTypes.INTEGER,
+			allowNull: false,
+		},
+	);
 
 	console.log("Migration completed successfully!");
 };
@@ -279,32 +274,26 @@ export const down: Migration = async ({ context: sequelize }) => {
 
 	// Step 5 reverse: Remove NOT NULL constraint (revert to nullable)
 	console.log("Reverting Step 5: Making messageId nullable...");
-	await queryInterface.changeColumn(CROWNS_TABLE_NAME, COLUMN_NAME_MESSAGE_ID, {
-		type: DataTypes.INTEGER,
-		allowNull: true,
-	});
-
-	// Remove primary key constraint
-	await queryInterface.removeConstraint(CROWNS_TABLE_NAME, "PRIMARY");
+	await queryInterface.changeColumn(
+		STICKIES_TABLE_NAME,
+		COLUMN_NAME_MESSAGE_ID,
+		{
+			type: DataTypes.INTEGER,
+			allowNull: true,
+		},
+	);
 
 	// Step 3 reverse: Remove the new messageId column
 	console.log("Reverting Step 3: Removing messageId column...");
-	await queryInterface.removeColumn(CROWNS_TABLE_NAME, COLUMN_NAME_MESSAGE_ID);
+	await queryInterface.removeColumn(STICKIES_TABLE_NAME, COLUMN_NAME_MESSAGE_ID);
 
 	// Step 2 reverse: Rename clientId back to messageId
 	console.log("Reverting Step 2: Renaming clientId back to messageId...");
 	await queryInterface.renameColumn(
-		CROWNS_TABLE_NAME,
+		STICKIES_TABLE_NAME,
 		COLUMN_NAME_CLIENT_ID,
 		COLUMN_NAME_MESSAGE_ID,
 	);
-
-	// Restore original composite primary key
-	await queryInterface.addConstraint(CROWNS_TABLE_NAME, {
-		fields: ["communityId", COLUMN_NAME_MESSAGE_ID],
-		type: "primary key",
-		name: "PRIMARY",
-	});
 
 	// Step 1 reverse: Delete the created Message records
 	// Note: This is a destructive operation. The Messages created during up migration
