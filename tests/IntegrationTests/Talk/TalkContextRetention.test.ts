@@ -10,7 +10,9 @@ import { ThreadMetadata } from "@/src/entities/vo/ThreadMetadata";
 import { AIReplyHandler } from "@/src/handlers/discord.js/events/AIReplyHandler";
 import type { IChatAILogic } from "@/src/logics/Interfaces/logics/IChatAILogic";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
+import type { IMessageLogic } from "@/src/logics/Interfaces/logics/IMessageLogic";
 import type { ThreadLogic } from "@/src/logics/ThreadLogic";
+import { MessageId } from "@/src/entities/vo/MessageId";
 import { CommunityRepositoryImpl } from "@/src/repositories/sequelize-mysql/CommunityRepositoryImpl";
 import { ContextRepositoryImpl } from "@/src/repositories/sequelize-mysql/ContextRepositoryImpl";
 import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnector";
@@ -96,6 +98,11 @@ describe("Talk Context Retention and End-to-End Tests", function (this: Mocha.Su
 		// @ts-ignore
 		aiReplyHandler.CommunityLogic = instance(communityLogicMock);
 		when(communityLogicMock.getId(anything())).thenResolve(new CommunityId(1));
+
+		const messageLogicMock = mock<IMessageLogic>();
+		// @ts-ignore
+		aiReplyHandler.MessageLogic = instance(messageLogicMock);
+		when(messageLogicMock.getIdByCommunityIdAndClientId(anything(), anything())).thenResolve(new MessageId(TEST_THREAD_ID));
 
 		const threadLogicMock = mock<ThreadLogic>();
 		// @ts-ignore
@@ -274,6 +281,11 @@ describe("Talk Context Retention and End-to-End Tests", function (this: Mocha.Su
 		// @ts-ignore
 		aiReplyHandler.CommunityLogic = instance(communityLogicMock);
 		when(communityLogicMock.getId(anything())).thenResolve(new CommunityId(1));
+
+		const messageLogicMock = mock<IMessageLogic>();
+		// @ts-ignore
+		aiReplyHandler.MessageLogic = instance(messageLogicMock);
+		when(messageLogicMock.getIdByCommunityIdAndClientId(anything(), anything())).thenResolve(new MessageId(TEST_THREAD_ID));
 
 		const threadLogicMock = mock<ThreadLogic>();
 		// @ts-ignore

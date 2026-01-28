@@ -5,8 +5,12 @@ import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import { REVIEW_GRADE_HIGH } from "@/src/entities/constants/review";
 import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
 import type { IPullRequestRepository } from "@/src/logics/Interfaces/repositories/githubapi/IPullRequestRepository";
+import { ChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/ChannelRepositoryImpl";
 import { CommunityRepositoryImpl } from "@/src/repositories/sequelize-mysql/CommunityRepositoryImpl";
+import { MessageRepositoryImpl } from "@/src/repositories/sequelize-mysql/MessageRepositoryImpl";
 import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnector";
+import { ThreadRepositoryImpl } from "@/src/repositories/sequelize-mysql/ThreadRepositoryImpl";
+import { UserRepositoryImpl } from "@/src/repositories/sequelize-mysql/UserRepositoryImpl";
 import { createMockMessage, mockSlashCommand, waitUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { TestDiscordServer } from "@/tests/fixtures/discord.js/TestDiscordServer";
 import { DummyPullRequest, MockGithubAPI } from "@/tests/fixtures/repositories/MockGithubAPI";
@@ -29,6 +33,10 @@ import {
 } from "./ReviewHelpers.test";
 
 describe("Test Review Commands", () => {
+	// テスト用定数（MockSlashCommandのデフォルト値と一致させる）
+	const TEST_USER_ID = "1234"; // MockSlashCommandのデフォルトuserId
+	const TEST_CHANNEL_ID = "5678"; // MockSlashCommandのデフォルトchannelId
+
 	beforeEach(async () => {
 		// データベース接続を初期化
 		const connector = new MysqlConnector();
@@ -36,16 +44,70 @@ describe("Test Review Commands", () => {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		(connector.instance.options as any).logging = false;
 
-		// コミュニティデータをクリーンアップ
+		// テスト前にデータをクリーンアップ（外部キー制約の順序に注意）
+		await ThreadRepositoryImpl.destroy({
+			truncate: true,
+			force: true,
+		});
+		await MessageRepositoryImpl.destroy({
+			truncate: true,
+			force: true,
+		});
+		await ChannelRepositoryImpl.destroy({
+			truncate: true,
+			force: true,
+		});
+		await UserRepositoryImpl.destroy({
+			truncate: true,
+			force: true,
+		});
 		await CommunityRepositoryImpl.destroy({
 			truncate: true,
 			force: true,
 		});
 
 		// テスト用のコミュニティを作成
-		await CommunityRepositoryImpl.create({
+		const community = await CommunityRepositoryImpl.create({
 			categoryType: CommunityCategoryType.Discord.getValue(),
 			clientId: BigInt(TEST_GUILD_ID),
+			batchStatus: 0,
+		});
+
+		// テスト用のユーザーを作成
+		await UserRepositoryImpl.create({
+			categoryType: 0, // Discord
+			clientId: BigInt(TEST_USER_ID),
+			userType: 0, // user
+			communityId: community.id,
+			batchStatus: 0,
+		});
+
+		// AccountsConfig.users[0]のユーザーも作成
+		await UserRepositoryImpl.create({
+			categoryType: 0, // Discord
+			clientId: BigInt(AccountsConfig.users[0].discordId),
+			userType: 0, // user
+			communityId: community.id,
+			batchStatus: 0,
+		});
+
+		// AccountsConfig.users[1]のユーザーも作成（PRオーナー検証テスト用）
+		if (AccountsConfig.users.length > 1) {
+			await UserRepositoryImpl.create({
+				categoryType: 0, // Discord
+				clientId: BigInt(AccountsConfig.users[1].discordId),
+				userType: 0, // user
+				communityId: community.id,
+				batchStatus: 0,
+			});
+		}
+
+		// テスト用のチャンネルを作成
+		await ChannelRepositoryImpl.create({
+			categoryType: 0, // Discord
+			clientId: BigInt(TEST_CHANNEL_ID),
+			channelType: 2, // DiscordText
+			communityId: community.id,
 			batchStatus: 0,
 		});
 
