@@ -50,7 +50,7 @@ class MessageRepositoryImpl extends Model implements IMessageRepository {
 				clientId: d.clientId.getValue(),
 				communityId: d.communityId.getValue(),
 				userId: d.userId.getValue(),
-				channelId: d.channelId.getValue(),
+				channelId: d.channelId?.getValue(),
 				batchStatus: MessageBatchStatus.Yet.getValue(),
 			})),
 		).then((res) => !!res);
