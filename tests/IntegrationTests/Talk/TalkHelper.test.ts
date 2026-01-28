@@ -523,15 +523,29 @@ export async function findAllThreads() {
 
 /**
  * メッセージIDでスレッドを検索する
- * @param messageId - メッセージID
+ * @param messageClientId - メッセージのクライアントID（Discord message ID）
  * @param communityId - コミュニティID（デフォルト: 1）
  * @returns スレッドまたはnull
  */
-export async function findThreadByMessageId(messageId: string, communityId = 1) {
+export async function findThreadByMessageId(messageClientId: string | number, communityId = 1) {
+	// First, find the Message record by clientId
+	const { MessageRepositoryImpl } = await import("@/src/repositories/sequelize-mysql/MessageRepositoryImpl");
+	const message = await MessageRepositoryImpl.findOne({
+		where: {
+			communityId,
+			clientId: BigInt(messageClientId),
+		},
+	});
+	
+	if (!message) {
+		return null;
+	}
+	
+	// Then find the Thread by the Message's id
 	return await ThreadRepositoryImpl.findOne({
 		where: {
 			communityId,
-			messageId,
+			messageId: message.id,
 		},
 	});
 }
@@ -614,7 +628,7 @@ export function verifyThreadMetadata(thread: ThreadRecord, expectedMetadata?: Pa
  * @param communityId - コミュニティID（デフォルト: 1）
  */
 export async function assertThreadExistsWithData(
-	messageId: string,
+	messageId: string | number,
 	expected: {
 		communityId?: string;
 		categoryType?: number;
@@ -635,7 +649,7 @@ export async function assertThreadExistsWithData(
 	if (thread) {
 		verifyThreadData(thread, {
 			communityId: expected.communityId,
-			messageId,
+			messageId: String(messageId),
 			categoryType: expected.categoryType,
 		});
 

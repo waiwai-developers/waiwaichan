@@ -196,7 +196,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		// テスト用のパラメータ
 		const testTitle = "テストタイトル";
 		const testContextType = 999; // seedsで使用されていないIDを使用
-		const testMessageId = "67890";
+		const testMessageId = 67890;
 		const expectedThreadTitle = `テストコンテキスト: ${testTitle}`;
 
 		// モックの設定（guildIdを正しく設定）

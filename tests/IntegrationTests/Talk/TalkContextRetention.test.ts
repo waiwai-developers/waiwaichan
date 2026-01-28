@@ -1,4 +1,3 @@
-import { AppConfig } from "@/src/entities/config/AppConfig";
 import type { ChatAIMessageDto } from "@/src/entities/dto/ChatAIMessageDto";
 import { ThreadDto } from "@/src/entities/dto/ThreadDto";
 import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
@@ -360,7 +359,7 @@ describe("Talk Context Retention and End-to-End Tests", function (this: Mocha.Su
 		expect(savedThread).to.not.be.null;
 		if (savedThread) {
 			expect(savedThread.communityId.toString()).to.equal("1");
-			expect(savedThread.messageId.toString()).to.equal(TEST_THREAD_ID);
+			expect(savedThread.messageId.toString()).to.equal(String(TEST_THREAD_ID));
 			expect(savedThread.categoryType).to.equal(ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue());
 
 			const metadata = savedThread.metadata;

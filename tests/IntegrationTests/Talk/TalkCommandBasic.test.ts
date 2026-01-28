@@ -161,7 +161,7 @@ describe("Talk Command Basic Tests", function (this: Mocha.Suite) {
 
 		const testTitle = "テストタイトル";
 		const testContextType = 999;
-		const testMessageId = "67890";
+		const testMessageId = 67890;
 		const expectedThreadTitle = `テストコンテキスト: ${testTitle}`;
 
 		const commandMock = mockSlashCommand(
