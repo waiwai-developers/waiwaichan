@@ -283,24 +283,24 @@ export class CandyLogic implements ICandyLogic {
 				} = ((ct: CandyCategoryType) => {
 					switch (ct.getValue()) {
 						case CandyCategoryType.CATEGORY_TYPE_SUPER.getValue():
-							return {
-								startDatetime: new CandyCreatedAt(
-									//super candyの場合は過去一ヶ月の付与を調べる
-									dayjs()
-										.add(9, "h")
-										.startOf("month")
-										.subtract(9, "h")
-										.toDate(),
-								),
-								countBylimit: SUPER_CANDY_LIMIT,
-								candyExpire: new CandyExpire(
-									//super candyもcandyも共通で有効期限は一ヶ月
-									dayjs()
-										.add(1, "day")
-										.add(1, "month")
-										.startOf("day")
-										.toDate(),
-								),
+					return {
+						startDatetime: new CandyCreatedAt(
+							//super candyの場合は過去一ヶ月の付与を調べる
+							dayjs()
+								.add(9, "h")
+								.startOf("month")
+								.subtract(9, "h")
+								.toDate(),
+						),
+						countBylimit: SUPER_CANDY_LIMIT,
+						candyExpire: new CandyExpire(
+							//super candyもcandyも共通で有効期限は一ヶ月
+							dayjs()
+								.add(1, "month")
+								.add(1, "day")
+								.startOf("day")
+								.toDate(),
+						),
 								candyAmount: SUPER_CANDY_AMOUNT,
 								prefixText: "特別な",
 								candyEmoji: AppConfig.backend.candySuperEmoji,
@@ -319,8 +319,8 @@ export class CandyLogic implements ICandyLogic {
 								candyExpire: new CandyExpire(
 									//super candyもcandyも共通で有効期限は一ヶ月
 									dayjs()
-										.add(1, "day")
 										.add(1, "month")
+										.add(1, "day")
 										.startOf("day")
 										.toDate(),
 								),
