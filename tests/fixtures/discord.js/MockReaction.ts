@@ -50,6 +50,8 @@ export const mockReaction = (
 	when(AuthorMock.id).thenReturn(receiverId);
 
 	when(MessageMock.id).thenReturn("7890");
+	when(MessageMock.channelId).thenReturn("1234567890");
+	when(MessageMock.guildId).thenReturn("1234567890");
 	when(ReactionMock.emoji).thenReturn(instance(EmojiMock));
 	when(MessageMock.author).thenReturn(instance(AuthorMock));
 
