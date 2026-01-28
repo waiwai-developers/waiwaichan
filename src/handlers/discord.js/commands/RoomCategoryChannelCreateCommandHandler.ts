@@ -90,7 +90,9 @@ export class RoomCategoryChannelCreateCommandHandler
 			),
 		);
 		if (channelId == null) {
-			await interaction.reply("カテゴリーチャンネルが登録されていなかったよ！っ");
+			await interaction.reply(
+				"カテゴリーチャンネルが登録されていなかったよ！っ",
+			);
 			return;
 		}
 

@@ -60,7 +60,7 @@ const getChannelType = (
 };
 
 @injectable()
-export class ActionAddBotHandler implements DiscordEventHandler<Guild> {
+export class BotAddHandler implements DiscordEventHandler<Guild> {
 	@inject(RepoTypes.Logger)
 	private readonly logger!: ILogger;
 
@@ -76,7 +76,7 @@ export class ActionAddBotHandler implements DiscordEventHandler<Guild> {
 	async handle(guild: Guild): Promise<void> {
 		try {
 			this.logger.info(
-				`ActionAddBotHandler: Bot was added to guild, guildId: ${guild.id}`,
+				`BotAddHandler: Bot was added to guild, guildId: ${guild.id}`,
 			);
 			const communityId = await this.CommunityLogic.create(
 				new CommunityDto(
@@ -118,7 +118,7 @@ export class ActionAddBotHandler implements DiscordEventHandler<Guild> {
 				await this.ChannelLogic.bulkCreate(channelDtos);
 			}
 		} catch (error) {
-			this.logger.error(`ActionAddBotHandler error: ${error}`);
+			this.logger.error(`BotAddHandler error: ${error}`);
 		}
 	}
 }

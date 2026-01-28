@@ -5,25 +5,24 @@ import {
 import type { DiscordEventHandler } from "@/src/handlers/discord.js/events/DiscordEventHandler";
 import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 import type { DiscordEventRouter } from "@/src/routes/discordjs/events/DiscordEventRouter";
-import type { Client, GuildChannel } from "discord.js";
+import type { Client, GuildMember, PartialGuildMember } from "discord.js";
 import { inject, injectable } from "inversify";
 
 @injectable()
-export class ActionAddChannelRouter implements DiscordEventRouter {
+export class UserRemoveRouter implements DiscordEventRouter {
 	@inject(RepoTypes.Logger)
 	private readonly logger!: ILogger;
-	@inject(HandlerTypes.ActionAddChannelHandler)
-	private readonly handler!: DiscordEventHandler<GuildChannel>;
+	@inject(HandlerTypes.UserRemoveHandler)
+	private readonly handler!: DiscordEventHandler<
+		GuildMember | PartialGuildMember
+	>;
 	register(client: Client): void {
-		client.on("channelCreate", async (channel) => {
+		client.on("guildMemberRemove", async (member) => {
 			try {
-				if (channel.isDMBased()) {
-					return;
-				}
 				this.logger.info(
-					`Channel is created for guildId: ${channel.guild.id} channelId: ${channel.id}.`,
+					`User was removed to new server for guildIs: ${member.guild.id} memberId: ${member.id}.`,
 				);
-				await this.handler.handle(channel);
+				await this.handler.handle(member);
 			} catch (e) {
 				this.logger.error(`Error: ${e}`);
 			}

@@ -1,9 +1,9 @@
 import type { CommunityId } from "@/src/entities/vo/CommunityId";
-import type { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
+import type { MessageId } from "@/src/entities/vo/MessageId";
 
 export class CrownDto {
 	constructor(
 		public communityId: CommunityId,
-		public messageId: DiscordMessageId,
+		public messageId: MessageId,
 	) {}
 }

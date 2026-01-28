@@ -8,16 +8,16 @@ import { UserCategoryType } from "@/src/entities/vo/UserCategoryType";
 import { UserClientId } from "@/src/entities/vo/UserClientId";
 import { UserCommunityId } from "@/src/entities/vo/UserCommunityId";
 import { UserType } from "@/src/entities/vo/UserType";
-import { ActionAddBotHandler } from "@/src/handlers/discord.js/events/ActionAddBotHandler";
-import { ActionRemoveBotHandler } from "@/src/handlers/discord.js/events/ActionRemoveBotHandler";
+import { BotAddHandler } from "@/src/handlers/discord.js/events/BotAddHandler";
+import { BotRemoveHandler } from "@/src/handlers/discord.js/events/BotRemoveHandler";
 import type { IChannelLogic } from "@/src/logics/Interfaces/logics/IChannelLogic";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { IUserLogic } from "@/src/logics/Interfaces/logics/IUserLogic";
 import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 import { CommunityRepositoryImpl } from "@/src/repositories/sequelize-mysql/CommunityRepositoryImpl";
 import { UserRepositoryImpl } from "@/src/repositories/sequelize-mysql/UserRepositoryImpl";
-import { ActionAddBotRouter } from "@/src/routes/discordjs/events/ActionAddBotRouter";
-import { ActionRemoveBotRouter } from "@/src/routes/discordjs/events/ActionRemoveBotRouter";
+import { BotAddRouter } from "@/src/routes/discordjs/events/BotAddRouter";
+import { BotRemoveRouter } from "@/src/routes/discordjs/events/BotRemoveRouter";
 import { expect } from "chai";
 import { anything, instance, mock, verify, when } from "ts-mockito";
 
@@ -195,20 +195,20 @@ describe("Community event integration tests", () => {
 	};
 
 	/**
-	 * 1) ActionAddBotRouter / ActionAddBotHandler (Community作成)
+	 * 1) BotAddRouter / BotAddHandler (Community作成)
 	 */
-	describe("1) ActionAddBotRouter / ActionAddBotHandler", () => {
+	describe("1) BotAddRouter / BotAddHandler", () => {
 		it("guildCreateでRouterがHandlerを呼び出す", async () => {
-			const handlerMock = mock<ActionAddBotHandler>();
+			const handlerMock = mock<BotAddHandler>();
 			const guild = createGuildMock("100");
-			await setupRouterAndVerifyHandlerCall(ActionAddBotRouter, handlerMock, "guildCreate", guild);
+			await setupRouterAndVerifyHandlerCall(BotAddRouter, handlerMock, "guildCreate", guild);
 			verify(handlerMock.handle(guild)).once();
 		});
 
 		it("ログにguildIdが出力される", async () => {
-			const router = new ActionAddBotRouter();
+			const router = new BotAddRouter();
 			const loggerMock = createLoggerMock();
-			const handlerMock = mock<ActionAddBotHandler>();
+			const handlerMock = mock<BotAddHandler>();
 			when(handlerMock.handle(anything())).thenResolve();
 
 			injectRouterDependencies(router, {
@@ -222,7 +222,7 @@ describe("Community event integration tests", () => {
 		});
 
 		it("CommunityLogic.createが呼ばれ、CommunityRepositoryImpl.createがinsertする", async () => {
-			const handler = new ActionAddBotHandler();
+			const handler = new BotAddHandler();
 			const loggerMock = createLoggerMock();
 			const communityLogicMock = mock<ICommunityLogic>();
 			const userLogicMock = mock<IUserLogic>();
@@ -269,7 +269,7 @@ describe("Community event integration tests", () => {
 		});
 
 		it("Community作成失敗時にUser作成がスキップされる", async () => {
-			const handler = new ActionAddBotHandler();
+			const handler = new BotAddHandler();
 			const communityLogicMock = createCommunityLogicMock({ createResult: null });
 			const userLogicMock = createUserLogicMock();
 			const channelLogicMock = createChannelLogicMock();
@@ -287,7 +287,7 @@ describe("Community event integration tests", () => {
 		});
 
 		it("guild.members.fetch() の結果全員がUserDtoに変換される", async () => {
-			const handler = new ActionAddBotHandler();
+			const handler = new BotAddHandler();
 			const communityId = new CommunityId(22);
 			const communityLogicMock = createCommunityLogicMock({ createResult: communityId });
 
@@ -322,7 +322,7 @@ describe("Community event integration tests", () => {
 		});
 
 		it("botメンバーはUserType.bot、通常ユーザーはUserType.userになる", async () => {
-			const handler = new ActionAddBotHandler();
+			const handler = new BotAddHandler();
 			const communityId = new CommunityId(23);
 			const communityLogicMock = createCommunityLogicMock({ createResult: communityId });
 
@@ -357,7 +357,7 @@ describe("Community event integration tests", () => {
 		});
 
 		it("UserLogic.bulkCreate → UserRepositoryImpl.bulkCreateで複数レコードが作成される", async () => {
-			const handler = new ActionAddBotHandler();
+			const handler = new BotAddHandler();
 			const loggerMock = createLoggerMock();
 			const communityLogicMock = mock<ICommunityLogic>();
 			const userLogicMock = mock<IUserLogic>();
@@ -405,18 +405,18 @@ describe("Community event integration tests", () => {
 	});
 
 	/**
-	 * 2) ActionRemoveBotRouter / ActionRemoveBotHandler (Community削除)
+	 * 2) BotRemoveRouter / BotRemoveHandler (Community削除)
 	 */
-	describe("2) ActionRemoveBotRouter / ActionRemoveBotHandler", () => {
+	describe("2) BotRemoveRouter / BotRemoveHandler", () => {
 		it("guildDeleteでRouterがHandlerを呼び出す", async () => {
-			const handlerMock = mock<ActionRemoveBotHandler>();
+			const handlerMock = mock<BotRemoveHandler>();
 			const guild = createGuildMock("600");
-			await setupRouterAndVerifyHandlerCall(ActionRemoveBotRouter, handlerMock, "guildDelete", guild);
+			await setupRouterAndVerifyHandlerCall(BotRemoveRouter, handlerMock, "guildDelete", guild);
 			verify(handlerMock.handle(guild)).once();
 		});
 
 		it("CommunityLogic.getIdでCommunityIdが取得できない場合は処理を終了する", async () => {
-			const { handler, communityLogicMock, userLogicMock, channelLogicMock } = setupHandlerWithMocks(ActionRemoveBotHandler);
+			const { handler, communityLogicMock, userLogicMock, channelLogicMock } = setupHandlerWithMocks(BotRemoveHandler);
 			(when(communityLogicMock.getId(anything()) as any) as any).thenResolve(undefined);
 
 			const guild = { id: "800" } as any;
@@ -428,7 +428,7 @@ describe("Community event integration tests", () => {
 		});
 
 		it("CommunityLogic.deleteが先に実行される", async () => {
-			const handler = new ActionRemoveBotHandler();
+			const handler = new BotRemoveHandler();
 			const loggerMock = createLoggerMock();
 			const communityLogicMock = mock<ICommunityLogic>();
 			const userLogicMock = mock<IUserLogic>();
@@ -462,7 +462,7 @@ describe("Community event integration tests", () => {
 		});
 
 		it("Community削除に失敗した場合、User削除が実行されない", async () => {
-			const { handler, communityLogicMock, userLogicMock, channelLogicMock } = setupHandlerWithMocks(ActionRemoveBotHandler);
+			const { handler, communityLogicMock, userLogicMock, channelLogicMock } = setupHandlerWithMocks(BotRemoveHandler);
 			const communityId = new CommunityId(66);
 
 			(when(communityLogicMock.getId(anything()) as any) as any).thenResolve(communityId);

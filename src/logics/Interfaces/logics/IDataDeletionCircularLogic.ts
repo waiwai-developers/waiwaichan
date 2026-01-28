@@ -1,5 +1,6 @@
 import type { ChannelId } from "@/src/entities/vo/ChannelId";
 import type { CommunityId } from "@/src/entities/vo/CommunityId";
+import type { MessageId } from "@/src/entities/vo/MessageId";
 import type { UserId } from "@/src/entities/vo/UserId";
 
 export interface IDataDeletionCircularLogic {
@@ -8,4 +9,5 @@ export interface IDataDeletionCircularLogic {
 	): Promise<boolean>;
 	deleteRecordInRelatedTableUserId(userId: UserId): Promise<boolean>;
 	deleteRecordInRelatedTableChannelId(channelId: ChannelId): Promise<boolean>;
+	deleteRecordInRelatedTableMessageId(messageId: MessageId): Promise<boolean>;
 }

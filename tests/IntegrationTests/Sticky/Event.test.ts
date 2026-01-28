@@ -1,5 +1,11 @@
 import { RoleConfig } from "@/src/entities/config/RoleConfig";
-import { ChannelRepositoryImpl, CommunityRepositoryImpl, StickyRepositoryImpl, UserRepositoryImpl } from "@/src/repositories/sequelize-mysql";
+import {
+	ChannelRepositoryImpl,
+	CommunityRepositoryImpl,
+	MessageRepositoryImpl,
+	StickyRepositoryImpl,
+	UserRepositoryImpl,
+} from "@/src/repositories/sequelize-mysql";
 import { MysqlConnector } from "@/tests/fixtures/database/MysqlConnector";
 import { mockMessage } from "@/tests/fixtures/discord.js/MockMessage";
 import { expect } from "chai";
@@ -284,6 +290,7 @@ describe("Test StickyEventHandler", () => {
 		new MysqlConnector();
 		// Clean up existing records
 		await StickyRepositoryImpl.destroy({ truncate: true, force: true });
+		await MessageRepositoryImpl.destroy({ truncate: true, force: true });
 		await ChannelRepositoryImpl.destroy({ truncate: true, force: true });
 		await UserRepositoryImpl.destroy({ truncate: true, force: true });
 		await CommunityRepositoryImpl.destroy({ truncate: true, force: true });
@@ -295,6 +302,10 @@ describe("Test StickyEventHandler", () => {
 
 	afterEach(async () => {
 		await StickyRepositoryImpl.destroy({
+			truncate: true,
+			force: true,
+		});
+		await MessageRepositoryImpl.destroy({
 			truncate: true,
 			force: true,
 		});
@@ -458,15 +469,41 @@ describe("Test StickyEventHandler", () => {
 		return (async () => {
 			// テスト用のパラメータ設定
 			const channelClientId = "2";
-			const oldMessageId = "4";
-			const newMessageId = "5";
+			const oldMessageClientId = "4";
+			const newMessageClientId = "5";
+			const botClientId = "9999"; // botのclientId
 			const message = "スティッキーのメッセージ";
 
 			// テスト用Channelを作成（DBのchannel.idを取得）
 			const dbChannelId = await createTestChannel(testCommunityId, channelClientId);
 
-			// スティッキーをデータベースに作成（DBのchannel.idを使用）
-			await createTestSticky(testCommunityId, testUserId, String(dbChannelId), oldMessageId, message);
+			// botユーザーを作成（新しいメッセージのauthor用）
+			const botUser = await UserRepositoryImpl.create({
+				categoryType: 0, // Discord
+				clientId: BigInt(botClientId),
+				userType: 1, // bot
+				communityId: testCommunityId,
+				batchStatus: 0,
+			});
+
+			// 古いメッセージをMessageテーブルに作成
+			const dbOldMessage = await MessageRepositoryImpl.create({
+				categoryType: 0, // Discord
+				clientId: BigInt(oldMessageClientId),
+				communityId: testCommunityId,
+				userId: testUserId,
+				channelId: dbChannelId,
+				batchStatus: 0,
+			});
+
+			// スティッキーをデータベースに作成（DBのchannel.idとMessage.idを使用）
+			await StickyRepositoryImpl.create({
+				communityId: testCommunityId,
+				channelId: String(dbChannelId),
+				userId: testUserId,
+				messageId: String(dbOldMessage.id),
+				message: message,
+			});
 
 			// データベースにスティッキーが存在することを確認
 			const beforeStickies = await StickyRepositoryImpl.findAll();
@@ -477,18 +514,21 @@ describe("Test StickyEventHandler", () => {
 
 			// 古いメッセージのモック - 削除が成功するケース
 			let deleteWasCalled = false;
-			const oldMessageMock = createMessageMock(oldMessageId, message, {
+			const oldMessageMock = createMessageMock(oldMessageClientId, message, {
 				onDelete: () => {
 					deleteWasCalled = true;
 				},
 			});
 
-			// 新しいメッセージのモック - guildIdとchannelIdが必要（StickyEventHandlerでチェックされる）
+			// 新しいメッセージのモック - guildIdとchannelIdとauthor.idが必要（StickyEventHandlerでチェックされる）
 			const newMessageMock = {
-				id: newMessageId,
+				id: newMessageClientId,
 				content: message,
 				guildId: TEST_GUILD_ID,
 				channelId: channelClientId,
+				author: {
+					id: botClientId,
+				},
 			};
 
 			// TextChannelのモック（ヘルパー関数使用）
@@ -497,14 +537,25 @@ describe("Test StickyEventHandler", () => {
 			// guildをモック - TextChannelを返すように設定（ヘルパー関数使用）
 			setupEventGuildMock(messageMock, channelClientId, textChannelMock);
 
-			// イベント発火と待機
-			await emitMessageCreateAndWait(messageMock);
+			// イベント発火と待機（時間を増やす）
+			await emitMessageCreateAndWait(messageMock, 500);
 
 			// message.delete()が呼ばれることを検証
 			expect(deleteWasCalled).to.eq(true);
 
-			// StickyのmessageIdが更新されたことを検証
-			await expectStickyMessageIdUpdated(testCommunityId, String(dbChannelId), newMessageId);
+			// Messageテーブルに新しいメッセージが作成されたか確認
+			const afterMessages = await MessageRepositoryImpl.findAll();
+			expect(afterMessages.length).to.eq(2); // 古いメッセージ + 新しいメッセージ
+
+			// 新しいメッセージのIDを取得
+			const newDbMessage = afterMessages.find((m) => String(m.clientId) === newMessageClientId);
+			expect(newDbMessage).to.not.be.undefined;
+
+			// StickyのmessageIdが新しいMessageのIDで更新されたことを検証
+			const afterSticky = await StickyRepositoryImpl.findOne({
+				where: { communityId: testCommunityId, channelId: String(dbChannelId) },
+			});
+			expect(String(afterSticky?.messageId)).to.eq(String(newDbMessage?.id));
 		})();
 	});
 });

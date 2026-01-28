@@ -1,5 +1,6 @@
 import { ChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/ChannelRepositoryImpl";
 import { CommunityRepositoryImpl } from "@/src/repositories/sequelize-mysql/CommunityRepositoryImpl";
+import { MessageRepositoryImpl } from "@/src/repositories/sequelize-mysql/MessageRepositoryImpl";
 import { ReminderRepositoryImpl } from "@/src/repositories/sequelize-mysql/ReminderRepositoryImpl";
 import { ReminderSchedulerRepositoryImpl } from "@/src/repositories/sequelize-mysql/ReminderSchedulerRepositoryImpl";
 import { CandyItemRepositoryImpl } from "./CandyItemRepositoryImpl";
@@ -21,6 +22,7 @@ import { UserRepositoryImpl } from "./UserRepositoryImpl";
 export {
 	ChannelRepositoryImpl,
 	CommunityRepositoryImpl,
+	MessageRepositoryImpl,
 	UserRepositoryImpl,
 	ReminderRepositoryImpl,
 	ReminderSchedulerRepositoryImpl,

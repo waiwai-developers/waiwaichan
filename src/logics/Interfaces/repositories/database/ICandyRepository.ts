@@ -6,7 +6,7 @@ import type { CandyExpire } from "@/src/entities/vo/CandyExpire";
 import type { CandyId } from "@/src/entities/vo/CandyId";
 import type { CommunityId } from "@/src/entities/vo/CommunityId";
 import type { DiscordChannelId } from "@/src/entities/vo/DiscordChannelId";
-import type { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
+import type { MessageId } from "@/src/entities/vo/MessageId";
 import type { UserId } from "@/src/entities/vo/UserId";
 
 export interface ICandyRepository {
@@ -25,7 +25,7 @@ export interface ICandyRepository {
 	findByGiverAndMessageId(
 		communityId: CommunityId,
 		giver: UserId,
-		messageId: DiscordMessageId,
+		messageId: MessageId,
 		categoryType: CandyCategoryType,
 	): Promise<Array<CandyDto>>;
 	consumeCandies(

@@ -2,7 +2,7 @@ import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import type { StickyDto } from "@/src/entities/dto/StickyDto";
 import type { ChannelId } from "@/src/entities/vo/ChannelId";
 import type { CommunityId } from "@/src/entities/vo/CommunityId";
-import type { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
+import type { MessageId } from "@/src/entities/vo/MessageId";
 import type { IStickyLogic } from "@/src/logics/Interfaces/logics/IStickyLogic";
 import type { IStickyRepository } from "@/src/logics/Interfaces/repositories/database/IStickyRepository";
 import type { ITransaction } from "@/src/logics/Interfaces/repositories/database/ITransaction";
@@ -52,7 +52,7 @@ export class StickyLogic implements IStickyLogic {
 	async updateMessageId(
 		communityId: CommunityId,
 		channelId: ChannelId,
-		messageId: DiscordMessageId,
+		messageId: MessageId,
 	): Promise<string> {
 		return this.transaction.startTransaction(async () => {
 			await this.StickyRepository.updateForMessageId(

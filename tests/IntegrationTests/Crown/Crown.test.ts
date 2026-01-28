@@ -6,7 +6,7 @@ import { CrownDto } from "@/src/entities/dto/CrownDto";
 import { CommunityId } from "@/src/entities/vo/CommunityId";
 import { CrownMessage } from "@/src/entities/vo/CrownMessage";
 import { CrownMessageLink } from "@/src/entities/vo/CrownMessageLink";
-import { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
+import { MessageId } from "@/src/entities/vo/MessageId";
 import type { ICrownLogic } from "@/src/logics/Interfaces/logics/ICrownLogic";
 import { CommunityRepositoryImpl, CrownRepositoryImpl, UserRepositoryImpl } from "@/src/repositories/sequelize-mysql";
 import { MysqlConnector } from "@/tests/fixtures/database/MysqlConnector";
@@ -219,7 +219,7 @@ describe("Test Crown Commands", () => {
 			return (async () => {
 				const crownLogic = appContainer.get<ICrownLogic>(LogicTypes.CrownLogic);
 				const communityId = new CommunityId(1);
-				const messageId = new DiscordMessageId("123456789012345678");
+				const messageId = new MessageId(1001);
 				const crownMessage = new CrownMessage("テストメッセージの内容");
 				const crownMessageLink = new CrownMessageLink("https://discord.com/channels/123/456/789");
 
@@ -247,7 +247,7 @@ describe("Test Crown Commands", () => {
 			return (async () => {
 				const crownLogic = appContainer.get<ICrownLogic>(LogicTypes.CrownLogic);
 				const communityId = new CommunityId(1);
-				const messageId = new DiscordMessageId("123456789012345679");
+				const messageId = new MessageId(1002);
 				const crownMessage = new CrownMessage("テストメッセージの内容");
 				const crownMessageLink = new CrownMessageLink("https://discord.com/channels/123/456/789");
 
@@ -275,7 +275,7 @@ describe("Test Crown Commands", () => {
 			return (async () => {
 				const crownLogic = appContainer.get<ICrownLogic>(LogicTypes.CrownLogic);
 				const communityId = new CommunityId(2);
-				const messageId = new DiscordMessageId("123456789012345680");
+				const messageId = new MessageId(1003);
 				const crownMessage = new CrownMessage("成功メッセージテスト");
 				const crownMessageLink = new CrownMessageLink("https://example.com/link");
 
@@ -295,7 +295,7 @@ describe("Test Crown Commands", () => {
 			return (async () => {
 				const crownLogic = appContainer.get<ICrownLogic>(LogicTypes.CrownLogic);
 				const communityId = new CommunityId(3);
-				const messageId = new DiscordMessageId("123456789012345681");
+				const messageId = new MessageId(1004);
 				const messageContent = "これは特定のメッセージ内容です";
 				const crownMessage = new CrownMessage(messageContent);
 				const crownMessageLink = new CrownMessageLink("https://example.com/msg");
@@ -316,7 +316,7 @@ describe("Test Crown Commands", () => {
 			return (async () => {
 				const crownLogic = appContainer.get<ICrownLogic>(LogicTypes.CrownLogic);
 				const communityId = new CommunityId(4);
-				const messageId = new DiscordMessageId("123456789012345682");
+				const messageId = new MessageId(1005);
 				const messageLink = "https://discord.com/channels/guild/channel/message";
 				const crownMessage = new CrownMessage("テスト");
 				const crownMessageLink = new CrownMessageLink(messageLink);
@@ -343,17 +343,17 @@ describe("Test Crown Commands", () => {
 				// テストデータを直接作成
 				await CrownRepositoryImpl.create({
 					communityId: 1,
-					messageId: "123456789012345683",
+					messageId: 2001,
 				});
 
 				const repo = new CrownRepositoryImpl();
-				const dto = new CrownDto(new CommunityId(1), new DiscordMessageId("123456789012345683"));
+				const dto = new CrownDto(new CommunityId(1), new MessageId(2001));
 
 				const result = await repo.findOne(dto);
 
 				expect(result).to.not.be.undefined;
 				expect(result?.communityId.getValue()).to.eq(1);
-				expect(result?.messageId.getValue()).to.eq("123456789012345683");
+				expect(result?.messageId.getValue()).to.eq(2001);
 			})();
 		});
 
@@ -366,7 +366,7 @@ describe("Test Crown Commands", () => {
 
 			return (async () => {
 				const repo = new CrownRepositoryImpl();
-				const dto = new CrownDto(new CommunityId(999), new DiscordMessageId("999999999999999999"));
+				const dto = new CrownDto(new CommunityId(999), new MessageId(999999));
 
 				const result = await repo.findOne(dto);
 
@@ -383,7 +383,7 @@ describe("Test Crown Commands", () => {
 
 			return (async () => {
 				const repo = new CrownRepositoryImpl();
-				const dto = new CrownDto(new CommunityId(5), new DiscordMessageId("123456789012345684"));
+				const dto = new CrownDto(new CommunityId(5), new MessageId(2002));
 
 				const result = await repo.create(dto);
 
@@ -391,7 +391,7 @@ describe("Test Crown Commands", () => {
 
 				// DBに保存されていることを確認
 				const crowns = await CrownRepositoryImpl.findAll({
-					where: { communityId: 5, messageId: "123456789012345684" },
+					where: { communityId: 5, messageId: 2002 },
 				});
 				expect(crowns.length).to.eq(1);
 			})();
@@ -407,11 +407,11 @@ describe("Test Crown Commands", () => {
 			return (async () => {
 				await CrownRepositoryImpl.create({
 					communityId: 10,
-					messageId: "123456789012345685",
+					messageId: 2003,
 				});
 
 				const model = await CrownRepositoryImpl.findOne({
-					where: { communityId: 10, messageId: "123456789012345685" },
+					where: { communityId: 10, messageId: 2003 },
 				});
 
 				expect(model).to.not.be.null;
@@ -420,7 +420,7 @@ describe("Test Crown Commands", () => {
 
 				expect(dto).to.be.instanceOf(CrownDto);
 				expect(dto?.communityId.getValue()).to.eq(10);
-				expect(dto?.messageId.getValue()).to.eq("123456789012345685");
+				expect(dto?.messageId.getValue()).to.eq(2003);
 			})();
 		});
 
@@ -435,17 +435,17 @@ describe("Test Crown Commands", () => {
 				// 同じ communityId で異なる messageId
 				await CrownRepositoryImpl.create({
 					communityId: 20,
-					messageId: "123456789012345686",
+					messageId: 2004,
 				});
 				await CrownRepositoryImpl.create({
 					communityId: 20,
-					messageId: "123456789012345687",
+					messageId: 2005,
 				});
 
 				// 異なる communityId で同じ messageId
 				await CrownRepositoryImpl.create({
 					communityId: 21,
-					messageId: "123456789012345686",
+					messageId: 2004,
 				});
 
 				const crowns = await CrownRepositoryImpl.findAll();
@@ -463,14 +463,14 @@ describe("Test Crown Commands", () => {
 			return (async () => {
 				await CrownRepositoryImpl.create({
 					communityId: 30,
-					messageId: "123456789012345688",
+					messageId: 2006,
 				});
 
 				let error: Error | null = null;
 				try {
 					await CrownRepositoryImpl.create({
 						communityId: 30,
-						messageId: "123456789012345688",
+						messageId: 2006,
 					});
 				} catch (e) {
 					error = e as Error;
@@ -496,7 +496,7 @@ describe("Test Crown Commands", () => {
 			return (async () => {
 				const crownLogic = appContainer.get<ICrownLogic>(LogicTypes.CrownLogic);
 				const communityId = new CommunityId(100);
-				const messageId = new DiscordMessageId("123456789012345689");
+				const messageId = new MessageId(3001);
 				const crownMessage = new CrownMessage("重複テスト");
 				const crownMessageLink = new CrownMessageLink("https://example.com/dup");
 
@@ -578,7 +578,7 @@ describe("Test Crown Commands", () => {
 
 			return (async () => {
 				const crownLogic = appContainer.get<ICrownLogic>(LogicTypes.CrownLogic);
-				const messageId = new DiscordMessageId("123456789012345690");
+				const messageId = new MessageId(3002);
 				const crownMessage = new CrownMessage("テスト");
 				const crownMessageLink = new CrownMessageLink("https://example.com");
 
@@ -617,13 +617,13 @@ describe("Test Crown Commands", () => {
 		 */
 		it("should create CrownDto with correct properties", () => {
 			const communityId = new CommunityId(1);
-			const messageId = new DiscordMessageId("123456789012345691");
+			const messageId = new MessageId(3003);
 			const dto = new CrownDto(communityId, messageId);
 
 			expect(dto.communityId).to.eq(communityId);
 			expect(dto.messageId).to.eq(messageId);
 			expect(dto.communityId.getValue()).to.eq(1);
-			expect(dto.messageId.getValue()).to.eq("123456789012345691");
+			expect(dto.messageId.getValue()).to.eq(3003);
 		});
 	});
 });

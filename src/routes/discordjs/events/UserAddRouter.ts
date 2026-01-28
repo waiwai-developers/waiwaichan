@@ -9,10 +9,10 @@ import type { Client, GuildMember } from "discord.js";
 import { inject, injectable } from "inversify";
 
 @injectable()
-export class ActionAddUserRouter implements DiscordEventRouter {
+export class UserAddRouter implements DiscordEventRouter {
 	@inject(RepoTypes.Logger)
 	private readonly logger!: ILogger;
-	@inject(HandlerTypes.ActionAddUserHandler)
+	@inject(HandlerTypes.UserAddHandler)
 	private readonly handler!: DiscordEventHandler<GuildMember>;
 	register(client: Client): void {
 		client.on("guildMemberAdd", async (member) => {

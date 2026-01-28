@@ -1,17 +1,29 @@
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
 import { ChannelDto } from "@/src/entities/dto/ChannelDto";
 import { CommunityDto } from "@/src/entities/dto/CommunityDto";
+import { MessageDto } from "@/src/entities/dto/MessageDto";
+import { UserDto } from "@/src/entities/dto/UserDto";
 import { ChannelCategoryType } from "@/src/entities/vo/ChannelCategoryType";
 import { ChannelClientId } from "@/src/entities/vo/ChannelClientId";
 import { ChannelCommunityId } from "@/src/entities/vo/ChannelCommunityId";
 import { ChannelType } from "@/src/entities/vo/ChannelType";
 import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
 import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
-import { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
+import { MessageCategoryType } from "@/src/entities/vo/MessageCategoryType";
+import { MessageChannelId } from "@/src/entities/vo/MessageChannelId";
+import { MessageClientId } from "@/src/entities/vo/MessageClientId";
+import { MessageCommunityId } from "@/src/entities/vo/MessageCommunityId";
+import { MessageUserId } from "@/src/entities/vo/MessageUserId";
+import { UserCategoryType } from "@/src/entities/vo/UserCategoryType";
+import { UserClientId } from "@/src/entities/vo/UserClientId";
+import { UserCommunityId } from "@/src/entities/vo/UserCommunityId";
+import { UserType } from "@/src/entities/vo/UserType";
 import type { DiscordEventHandler } from "@/src/handlers/discord.js/events/DiscordEventHandler";
 import type { IChannelLogic } from "@/src/logics/Interfaces/logics/IChannelLogic";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
+import type { IMessageLogic } from "@/src/logics/Interfaces/logics/IMessageLogic";
 import type { IStickyLogic } from "@/src/logics/Interfaces/logics/IStickyLogic";
+import type { IUserLogic } from "@/src/logics/Interfaces/logics/IUserLogic";
 import type { Message } from "discord.js";
 import { TextChannel } from "discord.js";
 import { inject, injectable } from "inversify";
@@ -26,6 +38,12 @@ export class StickyEventHandler implements DiscordEventHandler<Message> {
 
 	@inject(LogicTypes.ChannelLogic)
 	private readonly ChannelLogic!: IChannelLogic;
+
+	@inject(LogicTypes.MessageLogic)
+	private readonly MessageLogic!: IMessageLogic;
+
+	@inject(LogicTypes.UserLogic)
+	private readonly UserLogic!: IUserLogic;
 
 	async handle(message: Message) {
 		if (!message.guildId) {
@@ -61,8 +79,14 @@ export class StickyEventHandler implements DiscordEventHandler<Message> {
 		if (channel == null) return;
 		if (!(channel instanceof TextChannel)) return;
 
+		// MessageテーブルからclientIdを取得
+		const stickyOldMessageClientId = await this.MessageLogic.getClientIdById(
+			sticky.messageId,
+		);
+		if (stickyOldMessageClientId == null) return;
+
 		const stickyOldMessage = await channel.messages.fetch(
-			sticky.messageId.getValue(),
+			stickyOldMessageClientId.getValue().toString(),
 		);
 		const success = await stickyOldMessage.delete();
 		if (!success) return;
@@ -90,10 +114,31 @@ export class StickyEventHandler implements DiscordEventHandler<Message> {
 		);
 		if (newChannelId == null) return;
 
+		const userId = await this.UserLogic.getId(
+			new UserDto(
+				UserCategoryType.Discord,
+				new UserClientId(BigInt(stickyNewMessage.author.id)),
+				UserType.bot,
+				new UserCommunityId(newCommunityId.getValue()),
+			),
+		);
+		if (userId == null) return;
+
+		// 新しいメッセージをMessageテーブルに登録
+		const newMessageId = await this.MessageLogic.findOrCreate(
+			new MessageDto(
+				MessageCategoryType.Discord,
+				new MessageClientId(BigInt(stickyNewMessage.id)),
+				new MessageCommunityId(newCommunityId.getValue()),
+				new MessageUserId(userId.getValue()),
+				new MessageChannelId(newChannelId.getValue()),
+			),
+		);
+
 		await this.stickyLogic.updateMessageId(
 			communityId,
 			newChannelId,
-			new DiscordMessageId(stickyNewMessage.id),
+			newMessageId,
 		);
 	}
 }

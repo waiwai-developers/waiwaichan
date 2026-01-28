@@ -72,6 +72,18 @@ export class UserLogic implements IUserLogic {
 		});
 	}
 
+	async getIdByCommunityIdAndClientId(
+		communityId: UserCommunityId,
+		clientId: UserClientId,
+	): Promise<UserId | undefined> {
+		return this.transaction.startTransaction(async () => {
+			return await this.UserRepository.getIdByCommunityIdAndClientId(
+				communityId,
+				clientId,
+			);
+		});
+	}
+
 	async findByBatchStatusAndDeletedAt(): Promise<UserId[]> {
 		return this.transaction.startTransaction(async () => {
 			return await this.UserRepository.findByBatchStatusAndDeletedAt();

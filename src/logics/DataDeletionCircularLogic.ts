@@ -4,6 +4,7 @@ import type { ChannelId } from "@/src/entities/vo/ChannelId";
 import { ColumnId } from "@/src/entities/vo/ColumnId";
 import { ColumnName } from "@/src/entities/vo/ColumnName";
 import type { CommunityId } from "@/src/entities/vo/CommunityId";
+import type { MessageId } from "@/src/entities/vo/MessageId";
 import type { UserId } from "@/src/entities/vo/UserId";
 import type { IDataDeletionCircularLogic } from "@/src/logics/Interfaces/logics/IDataDeletionCircularLogic";
 import type { IDataDeletionCircular } from "@/src/logics/Interfaces/repositories/database/IDataDeletionCircular";
@@ -33,6 +34,14 @@ export class DataDeletionCircularLogic implements IDataDeletionCircularLogic {
 	): Promise<boolean> {
 		return await this.dataDeletionCircular.deleteRecordInRelatedTable(
 			new ColumnDto(ColumnName.channel, new ColumnId(channelId.getValue())),
+		);
+	}
+
+	async deleteRecordInRelatedTableMessageId(
+		messageId: MessageId,
+	): Promise<boolean> {
+		return await this.dataDeletionCircular.deleteRecordInRelatedTable(
+			new ColumnDto(ColumnName.message, new ColumnId(messageId.getValue())),
 		);
 	}
 }

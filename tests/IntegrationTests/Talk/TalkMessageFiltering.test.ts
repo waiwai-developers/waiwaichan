@@ -82,13 +82,13 @@ describe("Talk Message Filtering Tests", function (this: Mocha.Suite) {
 	it("test AIReplyHandler message filtering", async function (this: Mocha.Context) {
 		this.timeout(10_000);
 
-		const testOtherThreadId = "67891";
-		const testNonChatGPTThreadId = "67892";
+		const testOtherThreadId = 67891;
+		const testNonChatGPTThreadId = 67892;
 
 		await createTestThread();
 		await createTestThread({ messageId: testOtherThreadId });
 		await createTestThread({
-			messageId: testNonChatGPTThreadId,
+			messageId: Number(testNonChatGPTThreadId),
 			categoryType: ThreadCategoryType.CATEGORY_TYPE_DEEPL.getValue(),
 		});
 
@@ -121,7 +121,7 @@ describe("Talk Message Filtering Tests", function (this: Mocha.Suite) {
 
 		// テストケース3: 他ユーザーが所有するスレッドを無視
 		const { messageMock: otherOwnerMessageMock } = setupMessageWithChannel({
-			threadId: testOtherThreadId,
+			threadId: String(testOtherThreadId),
 			ownerId: TEST_USER_ID,
 		});
 
@@ -131,13 +131,13 @@ describe("Talk Message Filtering Tests", function (this: Mocha.Suite) {
 		// テストケース4: ChatGPT以外のカテゴリのスレッドを無視
 		when(threadLogicMock.find(anything(), anything())).thenResolve(
 			createTestThreadDto({
-				messageId: testNonChatGPTThreadId,
+				messageId: Number(testNonChatGPTThreadId),
 				categoryType: ThreadCategoryType.CATEGORY_TYPE_DEEPL,
 			}),
 		);
 
 		const { messageMock: nonChatGPTMessageMock } = setupMessageWithChannel({
-			threadId: testNonChatGPTThreadId,
+			threadId: String(testNonChatGPTThreadId),
 		});
 
 		await handleAIReplyEvent(handler, nonChatGPTMessageMock);

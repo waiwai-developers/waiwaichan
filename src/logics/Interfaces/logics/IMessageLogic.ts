@@ -1,0 +1,42 @@
+import type { DeletedMessageTargetDto } from "@/src/entities/dto/DeletedMessageTargetDto";
+import type { MessageDto } from "@/src/entities/dto/MessageDto";
+import type { MessageChannelId } from "@/src/entities/vo/MessageChannelId";
+import type { MessageClientId } from "@/src/entities/vo/MessageClientId";
+import type { MessageCommunityId } from "@/src/entities/vo/MessageCommunityId";
+import type { MessageId } from "@/src/entities/vo/MessageId";
+import type { MessageUserId } from "@/src/entities/vo/MessageUserId";
+
+export interface IMessageLogic {
+	bulkCreate(data: MessageDto[]): Promise<boolean>;
+	findOrCreate(data: MessageDto): Promise<MessageId>;
+	deletebyCommunityId(communityId: MessageCommunityId): Promise<boolean>;
+	deleteByCommunityIdAndClientId(
+		communityId: MessageCommunityId,
+		clientId: MessageClientId,
+	): Promise<boolean>;
+	deletebyClientId(
+		communityId: MessageCommunityId,
+		clientId: MessageClientId,
+	): Promise<boolean>;
+	getId(data: MessageDto): Promise<MessageId | undefined>;
+	getIdByCommunityIdAndClientId(
+		communityId: MessageCommunityId,
+		clientId: MessageClientId,
+	): Promise<MessageId | undefined>;
+	getClientIdById(id: MessageId): Promise<MessageClientId | undefined>;
+	deleteByUserIdAndReturnClientIds(
+		userId: MessageUserId,
+	): Promise<MessageClientId[]>;
+	deleteByChannelIdAndReturnClientIds(
+		channelId: MessageChannelId,
+	): Promise<MessageClientId[]>;
+	deleteNotBelongByCommunityIdAndClientIds(
+		communityId: MessageCommunityId,
+		clientIds: MessageClientId[],
+	): Promise<boolean>;
+	findByBatchStatusAndDeletedAt(): Promise<MessageId[]>;
+	findDeletionTargetsByBatchStatusAndDeletedAt(): Promise<
+		DeletedMessageTargetDto[]
+	>;
+	updatebatchStatus(id: MessageId): Promise<boolean>;
+}

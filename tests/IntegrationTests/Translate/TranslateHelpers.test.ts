@@ -1,8 +1,12 @@
 import { InternalErrorMessage } from "@/src/entities/DiscordErrorMessages";
 import { TranslateConst } from "@/src/entities/constants/translate";
 import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
+import { ChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/ChannelRepositoryImpl";
 import { CommunityRepositoryImpl } from "@/src/repositories/sequelize-mysql/CommunityRepositoryImpl";
+import { MessageRepositoryImpl } from "@/src/repositories/sequelize-mysql/MessageRepositoryImpl";
 import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnector";
+import { ThreadRepositoryImpl } from "@/src/repositories/sequelize-mysql/ThreadRepositoryImpl";
+import { UserRepositoryImpl } from "@/src/repositories/sequelize-mysql/UserRepositoryImpl";
 import { createMockMessage, mockSlashCommand, waitUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { TestDiscordServer } from "@/tests/fixtures/discord.js/TestDiscordServer";
 import { expect } from "chai";
@@ -151,6 +155,10 @@ export async function assertCommunityNotExists(clientId: string): Promise<void> 
 	expect(community).to.be.null;
 }
 
+// テスト用定数（MockSlashCommandのデフォルト値と一致させる）
+const TEST_USER_ID = "1234"; // MockSlashCommandのデフォルトuserId
+const TEST_CHANNEL_ID = "5678"; // MockSlashCommandのデフォルトchannelId
+
 /**
  * データベースのセットアップを一括で行う
  * ログ無効化、クリーンアップ、テストデータ作成を実行
@@ -158,8 +166,46 @@ export async function assertCommunityNotExists(clientId: string): Promise<void> 
  */
 export async function setupTestDatabase(clientId: string = TEST_GUILD_ID): Promise<void> {
 	initializeDatabaseWithoutLogging();
+
+	// テスト前にデータをクリーンアップ（外部キー制約の順序に注意）
+	await ThreadRepositoryImpl.destroy({
+		truncate: true,
+		force: true,
+	});
+	await MessageRepositoryImpl.destroy({
+		truncate: true,
+		force: true,
+	});
+	await ChannelRepositoryImpl.destroy({
+		truncate: true,
+		force: true,
+	});
+	await UserRepositoryImpl.destroy({
+		truncate: true,
+		force: true,
+	});
 	await cleanupCommunityRepository();
-	await createTestCommunity(clientId);
+
+	// テスト用のコミュニティを作成
+	const community = await createTestCommunity(clientId);
+
+	// テスト用のユーザーを作成
+	await UserRepositoryImpl.create({
+		categoryType: 0, // Discord
+		clientId: BigInt(TEST_USER_ID),
+		userType: 0, // user
+		communityId: community.id,
+		batchStatus: 0,
+	});
+
+	// テスト用のチャンネルを作成
+	await ChannelRepositoryImpl.create({
+		categoryType: 0, // Discord
+		clientId: BigInt(TEST_CHANNEL_ID),
+		channelType: 2, // DiscordText
+		communityId: community.id,
+		batchStatus: 0,
+	});
 }
 
 // ============================================================

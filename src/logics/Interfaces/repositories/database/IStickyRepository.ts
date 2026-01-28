@@ -1,7 +1,7 @@
 import type { StickyDto } from "@/src/entities/dto/StickyDto";
 import type { ChannelId } from "@/src/entities/vo/ChannelId";
 import type { CommunityId } from "@/src/entities/vo/CommunityId";
-import type { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
+import type { MessageId } from "@/src/entities/vo/MessageId";
 import type { StickyMessage } from "@/src/entities/vo/StickyMessage";
 
 export interface IStickyRepository {
@@ -15,7 +15,7 @@ export interface IStickyRepository {
 	updateForMessageId(
 		communityId: CommunityId,
 		channelId: ChannelId,
-		messageId: DiscordMessageId,
+		messageId: MessageId,
 	): Promise<boolean>;
 	updateForMessage(
 		communityId: CommunityId,
