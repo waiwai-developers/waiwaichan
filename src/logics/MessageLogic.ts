@@ -25,6 +25,12 @@ export class MessageLogic implements IMessageLogic {
 		});
 	}
 
+	async findOrCreate(data: MessageDto): Promise<MessageId> {
+		return this.transaction.startTransaction(async () => {
+			return await this.MessageRepository.findOrCreate(data);
+		});
+	}
+
 	async deletebyCommunityId(communityId: MessageCommunityId): Promise<boolean> {
 		return this.transaction.startTransaction(async () => {
 			return await this.MessageRepository.deletebyCommunityId(communityId);
