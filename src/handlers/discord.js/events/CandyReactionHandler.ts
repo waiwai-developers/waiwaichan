@@ -4,6 +4,7 @@ import {
 	RepoTypes,
 } from "@/src/entities/constants/DIContainerTypes";
 import { CommunityDto } from "@/src/entities/dto/CommunityDto";
+import { MessageDto } from "@/src/entities/dto/MessageDto";
 import { UserDto } from "@/src/entities/dto/UserDto";
 import { CandyCategoryType } from "@/src/entities/vo/CandyCategoryType";
 import { ChannelClientId } from "@/src/entities/vo/ChannelClientId";
@@ -11,6 +12,11 @@ import { ChannelCommunityId } from "@/src/entities/vo/ChannelCommunityId";
 import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
 import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
 import { DiscordMessageLink } from "@/src/entities/vo/DiscordMessageLink";
+import { MessageCategoryType } from "@/src/entities/vo/MessageCategoryType";
+import { MessageChannelId } from "@/src/entities/vo/MessageChannelId";
+import { MessageClientId } from "@/src/entities/vo/MessageClientId";
+import { MessageCommunityId } from "@/src/entities/vo/MessageCommunityId";
+import { MessageUserId } from "@/src/entities/vo/MessageUserId";
 import { UserCategoryType } from "@/src/entities/vo/UserCategoryType";
 import { UserClientId } from "@/src/entities/vo/UserClientId";
 import { UserCommunityId } from "@/src/entities/vo/UserCommunityId";
@@ -27,12 +33,6 @@ import type { IUserLogic } from "@/src/logics/Interfaces/logics/IUserLogic";
 import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 import { TextChannel } from "discord.js";
 import { inject, injectable } from "inversify";
-import { MessageDto } from "@/src/entities/dto/MessageDto";
-import { MessageCategoryType } from "@/src/entities/vo/MessageCategoryType";
-import { MessageChannelId } from "@/src/entities/vo/MessageChannelId";
-import { MessageClientId } from "@/src/entities/vo/MessageClientId";
-import { MessageCommunityId } from "@/src/entities/vo/MessageCommunityId";
-import { MessageUserId } from "@/src/entities/vo/MessageUserId";
 
 @injectable()
 export class CandyReactionHandler

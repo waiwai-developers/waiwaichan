@@ -285,10 +285,7 @@ export const down: Migration = async ({ context: sequelize }) => {
 
 	// Step 3 reverse: Remove the new messageId column
 	console.log("Reverting Step 3: Removing messageId column...");
-	await queryInterface.removeColumn(
-		THREADS_TABLE_NAME,
-		COLUMN_NAME_MESSAGE_ID,
-	);
+	await queryInterface.removeColumn(THREADS_TABLE_NAME, COLUMN_NAME_MESSAGE_ID);
 
 	// Step 2 reverse: Rename clientId back to messageId
 	console.log("Reverting Step 2: Renaming clientId back to messageId...");

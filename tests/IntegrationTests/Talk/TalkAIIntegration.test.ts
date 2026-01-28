@@ -178,7 +178,12 @@ describe("Talk AI Integration Tests", function (this: Mocha.Suite) {
 
 		await createTestThread({ messageId: TEST_THREAD_ID });
 
-		const { handler: aiReplyHandler, communityLogicMock, threadLogicMock, chatAILogicMock } = createAIReplyHandlerWithMocks({
+		const {
+			handler: aiReplyHandler,
+			communityLogicMock,
+			threadLogicMock,
+			chatAILogicMock,
+		} = createAIReplyHandlerWithMocks({
 			threadDto: new ThreadDto(
 				new CommunityId(1),
 				new ThreadMessageId(TEST_THREAD_ID),

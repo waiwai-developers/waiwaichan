@@ -2,7 +2,13 @@ import "reflect-metadata";
 import { ITEM_RECORDS } from "@/migrator/seeds/20241111041901-item";
 import { ID_JACKPOT } from "@/src/entities/constants/Items";
 import { CandyCategoryType } from "@/src/entities/vo/CandyCategoryType";
-import { CandyRepositoryImpl, ChannelRepositoryImpl, CommunityRepositoryImpl, UserCandyItemRepositoryImpl, UserRepositoryImpl } from "@/src/repositories/sequelize-mysql";
+import {
+	CandyRepositoryImpl,
+	ChannelRepositoryImpl,
+	CommunityRepositoryImpl,
+	UserCandyItemRepositoryImpl,
+	UserRepositoryImpl,
+} from "@/src/repositories/sequelize-mysql";
 import { MysqlConnector } from "@/tests/fixtures/database/MysqlConnector";
 import { mockReaction } from "@/tests/fixtures/discord.js/MockReaction";
 import { waitUntilReply as waitSlashUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";

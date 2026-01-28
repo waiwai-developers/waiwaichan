@@ -240,7 +240,9 @@ export function createAIReplyHandlerWithMocks(options: AIReplyHandlerMockOptions
 	// @ts-ignore - privateフィールドにアクセスするため
 	handler.MessageLogic = instance(messageLogicMock);
 	// デフォルトでMessageId(1)を返す（ThreadのmessageIdと一致させる）
-	when(messageLogicMock.getIdByCommunityIdAndClientId(anything(), anything())).thenResolve(new MessageId(options.threadDto?.messageId.getValue() ?? TEST_THREAD_ID));
+	when(messageLogicMock.getIdByCommunityIdAndClientId(anything(), anything())).thenResolve(
+		new MessageId(options.threadDto?.messageId.getValue() ?? TEST_THREAD_ID),
+	);
 
 	// ThreadLogicのモックを作成
 	const threadLogicMock = mock<ThreadLogic>();
@@ -302,11 +304,11 @@ export async function findThreadByMessageId(messageClientId: string | number, co
 			clientId: BigInt(messageClientId),
 		},
 	});
-	
+
 	if (!message) {
 		return null;
 	}
-	
+
 	// Then find the Thread by the Message's id
 	return await ThreadRepositoryImpl.findOne({
 		where: {
