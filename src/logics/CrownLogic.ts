@@ -2,14 +2,13 @@ import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import { CrownDto } from "@/src/entities/dto/CrownDto";
 import type { CrownMessage } from "@/src/entities/vo/CrownMessage";
 import type { CrownMessageLink } from "@/src/entities/vo/CrownMessageLink";
-import type { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
+import type { MessageId } from "@/src/entities/vo/MessageId";
 import type { ICrownLogic } from "@/src/logics/Interfaces/logics/ICrownLogic";
 import type { ICrownRepository } from "@/src/logics/Interfaces/repositories/database/ICrownRepository";
 import type { ITransaction } from "@/src/logics/Interfaces/repositories/database/ITransaction";
 import type { IMutex } from "@/src/logics/Interfaces/repositories/mutex/IMutex";
 import { inject, injectable } from "inversify";
 import type { CommunityId } from "../entities/vo/CommunityId";
-import { UserId } from "../entities/vo/UserId";
 
 @injectable()
 export class CrownLogic implements ICrownLogic {
@@ -24,7 +23,7 @@ export class CrownLogic implements ICrownLogic {
 
 	async createCrownIfNotExists(
 		communityId: CommunityId,
-		messageId: DiscordMessageId,
+		messageId: MessageId,
 		crownMessage: CrownMessage,
 		crownMessageLink: CrownMessageLink,
 	): Promise<string | undefined> {
@@ -49,7 +48,7 @@ export class CrownLogic implements ICrownLogic {
 
 	private async create(
 		communityId: CommunityId,
-		messageId: DiscordMessageId,
+		messageId: MessageId,
 		crownMessage: CrownMessage,
 		crownMessageLink: CrownMessageLink,
 	): Promise<string> {
