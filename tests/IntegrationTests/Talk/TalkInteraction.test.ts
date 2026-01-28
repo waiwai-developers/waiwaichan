@@ -93,7 +93,7 @@ describe("Test Talk Interactions", function (this: Mocha.Suite) {
 				emotion_model: "明るく",
 				notes: "テスト用",
 				input_scope: "全般",
-			},
+			} as unknown as JSON,
 		});
 
 		// Contextデータの作成
@@ -107,7 +107,7 @@ describe("Test Talk Interactions", function (this: Mocha.Suite) {
 				emotion_model: "テスト感情",
 				notes: "テスト注釈",
 				input_scope: "テスト範囲",
-			},
+			} as unknown as JSON,
 		});
 
 		// PersonalityContextデータの作成
@@ -479,7 +479,7 @@ describe("Test Talk Interactions", function (this: Mocha.Suite) {
 		const { handler: aiReplyHandler, chatAILogicMock } = createAIReplyHandlerWithMocks({
 			threadDto: createTestThreadDto({ messageId: Number(testThreadId), metadata: testMetadata }),
 			replyCallback: (prompt, context) => {
-				const promptValue = prompt.getValue();
+				const promptValue = (prompt as any).getValue();
 				expect(promptValue).to.deep.equal(testMetadata);
 				expect(context).to.be.an("array").with.lengthOf(3);
 				expect(context[0].role.getValue()).to.equal("user");
