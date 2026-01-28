@@ -79,6 +79,12 @@ export class MessageLogic implements IMessageLogic {
 		});
 	}
 
+	async getClientIdById(id: MessageId): Promise<MessageClientId | undefined> {
+		return this.transaction.startTransaction(async () => {
+			return await this.MessageRepository.getClientIdById(id);
+		});
+	}
+
 	async deleteByUserIdAndReturnClientIds(
 		userId: MessageUserId,
 	): Promise<MessageClientId[]> {
