@@ -19,6 +19,7 @@ export interface IMessageLogic {
 		clientId: MessageClientId,
 	): Promise<boolean>;
 	getId(data: MessageDto): Promise<MessageId | undefined>;
+	getClientIdById(id: MessageId): Promise<MessageClientId | undefined>;
 	deleteByUserIdAndReturnClientIds(
 		userId: MessageUserId,
 	): Promise<MessageClientId[]>;
