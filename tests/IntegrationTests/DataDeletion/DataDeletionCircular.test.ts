@@ -526,15 +526,10 @@ describe("CommunityAndUserDeleteHandler integration tests", () => {
 		 * - communityIdでdestroyが実行されることを検証
 		 */
 		it("MessageRepositoryImpl.deletebyCommunityIdはcommunityIdで削除する", async () => {
-			await testRepositorySingleColumnCondition(
-				MessageRepositoryImpl,
-				"destroy",
-				(repo) => repo.deletebyCommunityId(new MessageCommunityId(77)),
-				{
-					columnName: "communityId",
-					columnValue: 77,
-				},
-			);
+			await testRepositorySingleColumnCondition(MessageRepositoryImpl, "destroy", (repo) => repo.deletebyCommunityId(new MessageCommunityId(77)), {
+				columnName: "communityId",
+				columnValue: 77,
+			});
 		});
 
 		/**

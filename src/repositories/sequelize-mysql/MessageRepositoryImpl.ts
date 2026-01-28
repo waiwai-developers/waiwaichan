@@ -56,6 +56,25 @@ class MessageRepositoryImpl extends Model implements IMessageRepository {
 		).then((res) => !!res);
 	}
 
+	async findOrCreate(data: MessageDto): Promise<MessageId> {
+		const [result] = await MessageRepositoryImpl.findOrCreate({
+			where: {
+				categoryType: data.categoryType.getValue(),
+				clientId: data.clientId.getValue(),
+				communityId: data.communityId.getValue(),
+			},
+			defaults: {
+				categoryType: data.categoryType.getValue(),
+				clientId: data.clientId.getValue(),
+				communityId: data.communityId.getValue(),
+				userId: data.userId.getValue(),
+				channelId: data.channelId.getValue(),
+				batchStatus: MessageBatchStatus.Yet.getValue(),
+			},
+		});
+		return new MessageId(result.id);
+	}
+
 	async deletebyCommunityId(communityId: MessageCommunityId): Promise<boolean> {
 		return MessageRepositoryImpl.destroy({
 			where: {

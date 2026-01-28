@@ -296,8 +296,8 @@ export class CandyLogic implements ICandyLogic {
 								candyExpire: new CandyExpire(
 									//super candyもcandyも共通で有効期限は一ヶ月
 									dayjs()
-										.add(1, "day")
 										.add(1, "month")
+										.add(1, "day")
 										.startOf("day")
 										.toDate(),
 								),
@@ -319,8 +319,8 @@ export class CandyLogic implements ICandyLogic {
 								candyExpire: new CandyExpire(
 									//super candyもcandyも共通で有効期限は一ヶ月
 									dayjs()
-										.add(1, "day")
 										.add(1, "month")
+										.add(1, "day")
 										.startOf("day")
 										.toDate(),
 								),
