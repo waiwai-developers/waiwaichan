@@ -8,6 +8,7 @@ import type { MessageUserId } from "@/src/entities/vo/MessageUserId";
 
 export interface IMessageRepository {
 	bulkCreate(data: MessageDto[]): Promise<boolean>;
+	findOrCreate(data: MessageDto): Promise<MessageId>;
 	deletebyCommunityId(communityId: MessageCommunityId): Promise<boolean>;
 	deleteByCommunityIdAndClientId(
 		communityId: MessageCommunityId,
