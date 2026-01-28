@@ -273,6 +273,7 @@ describe("Talk Context Retention and End-to-End Tests", function (this: Mocha.Su
 		this.timeout(30_000);
 
 		const testMetadata = createTestMetadata();
+		// Create thread with the internal messageId (TEST_THREAD_ID is used as the database ID here)
 		await createTestThread({ messageId: TEST_THREAD_ID, metadata: testMetadata });
 
 		const aiReplyHandler = new AIReplyHandler();
@@ -284,17 +285,25 @@ describe("Talk Context Retention and End-to-End Tests", function (this: Mocha.Su
 		const messageLogicMock = mock<IMessageLogic>();
 		// @ts-ignore
 		aiReplyHandler.MessageLogic = instance(messageLogicMock);
+		// Return the internal message ID that matches the thread's messageId
 		when(messageLogicMock.getIdByCommunityIdAndClientId(anything(), anything())).thenResolve(new MessageId(TEST_THREAD_ID));
 
 		const threadLogicMock = mock<ThreadLogic>();
 		// @ts-ignore
 		aiReplyHandler.threadLogic = instance(threadLogicMock);
 
+		// Directly return the thread from the database using the messageId (internal ID)
 		when(threadLogicMock.find(anything(), anything())).thenCall(async (communityId, messageId) => {
 			expect(communityId.getValue()).to.equal(1);
 			expect(messageId.getValue()).to.equal(TEST_THREAD_ID);
 
-			const thread = await findThreadByMessageId(messageId.getValue());
+			// Find the thread by internal messageId
+			const thread = await ThreadRepositoryImpl.findOne({
+				where: {
+					communityId: communityId.getValue(),
+					messageId: messageId.getValue(),
+				},
+			});
 			return thread ? thread.toDto() : undefined;
 		});
 

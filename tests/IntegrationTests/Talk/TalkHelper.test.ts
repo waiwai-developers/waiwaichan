@@ -623,7 +623,7 @@ export function verifyThreadMetadata(thread: ThreadRecord, expectedMetadata?: Pa
 
 /**
  * スレッドが存在し、データが正しいことを検証する
- * @param messageId - メッセージID
+ * @param messageId - メッセージID (Discord client ID)
  * @param expected - 期待値
  * @param communityId - コミュニティID（デフォルト: 1）
  */
@@ -647,9 +647,9 @@ export async function assertThreadExistsWithData(
 	expect(thread).to.not.be.null;
 
 	if (thread) {
+		// Don't verify messageId as it's an internal database ID, not the Discord client ID
 		verifyThreadData(thread, {
 			communityId: expected.communityId,
-			messageId: String(messageId),
 			categoryType: expected.categoryType,
 		});
 
