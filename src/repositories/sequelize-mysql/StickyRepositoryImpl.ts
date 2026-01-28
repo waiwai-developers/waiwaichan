@@ -1,7 +1,7 @@
 import { StickyDto } from "@/src/entities/dto/StickyDto";
 import { ChannelId } from "@/src/entities/vo/ChannelId";
 import { CommunityId } from "@/src/entities/vo/CommunityId";
-import { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
+import { MessageId } from "@/src/entities/vo/MessageId";
 import { StickyMessage } from "@/src/entities/vo/StickyMessage";
 import { UserId } from "@/src/entities/vo/UserId";
 import type { IStickyRepository } from "@/src/logics/Interfaces/repositories/database/IStickyRepository";
@@ -32,8 +32,8 @@ class StickyRepositoryImpl extends Model implements IStickyRepository {
 	declare channelId: number;
 	@Column(DataType.INTEGER)
 	declare userId: number;
-	@Column(DataType.STRING)
-	declare messageId: string;
+	@Column(DataType.INTEGER)
+	declare messageId: number;
 	@Column(DataType.STRING)
 	declare message: string;
 
@@ -62,7 +62,7 @@ class StickyRepositoryImpl extends Model implements IStickyRepository {
 	async updateForMessageId(
 		communityId: CommunityId,
 		channelId: ChannelId,
-		messageId: DiscordMessageId,
+		messageId: MessageId,
 	): Promise<boolean> {
 		return StickyRepositoryImpl.findOne({
 			where: {
@@ -114,7 +114,7 @@ class StickyRepositoryImpl extends Model implements IStickyRepository {
 			new CommunityId(this.communityId),
 			new ChannelId(this.channelId),
 			new UserId(this.userId),
-			new DiscordMessageId(this.messageId),
+			new MessageId(this.messageId),
 			new StickyMessage(this.message),
 		);
 	}
