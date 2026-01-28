@@ -108,7 +108,9 @@ export class StickyDeleteCommandHandler implements SlashCommandHandler {
 			sticky.messageId,
 		);
 		if (messageClientId == null) {
-			await interaction.reply("スティッキーのメッセージが見つからなかったよ！っ");
+			await interaction.reply(
+				"スティッキーのメッセージが見つからなかったよ！っ",
+			);
 			return;
 		}
 

@@ -1,5 +1,11 @@
 import { RoleConfig } from "@/src/entities/config/RoleConfig";
-import { ChannelRepositoryImpl, CommunityRepositoryImpl, MessageRepositoryImpl, StickyRepositoryImpl, UserRepositoryImpl } from "@/src/repositories/sequelize-mysql";
+import {
+	ChannelRepositoryImpl,
+	CommunityRepositoryImpl,
+	MessageRepositoryImpl,
+	StickyRepositoryImpl,
+	UserRepositoryImpl,
+} from "@/src/repositories/sequelize-mysql";
 import { MysqlConnector } from "@/tests/fixtures/database/MysqlConnector";
 import { mockMessage } from "@/tests/fixtures/discord.js/MockMessage";
 import { expect } from "chai";
