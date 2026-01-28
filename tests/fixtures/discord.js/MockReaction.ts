@@ -9,7 +9,7 @@ import {
 	TextChannel,
 	User,
 } from "discord.js";
-import { anything, instance, mock, verify, when } from "ts-mockito";
+import { instance, mock, when } from "ts-mockito";
 
 export interface MockReactionOptions {
 	isPartial?: boolean;
