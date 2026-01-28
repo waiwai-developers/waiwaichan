@@ -12,6 +12,7 @@ import { StickyMessage } from "@/src/entities/vo/StickyMessage";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
 import type { IChannelLogic } from "@/src/logics/Interfaces/logics/IChannelLogic";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
+import type { IMessageLogic } from "@/src/logics/Interfaces/logics/IMessageLogic";
 import type { IStickyLogic } from "@/src/logics/Interfaces/logics/IStickyLogic";
 import type { CacheType, ChatInputCommandInteraction } from "discord.js";
 import {
@@ -33,6 +34,9 @@ export class StickyUpdateCommandHandler implements SlashCommandHandler {
 
 	@inject(LogicTypes.ChannelLogic)
 	private ChannelLogic!: IChannelLogic;
+
+	@inject(LogicTypes.MessageLogic)
+	private MessageLogic!: IMessageLogic;
 
 	isHandle(commandName: string): boolean {
 		return commandName === "stickyupdate";
@@ -98,7 +102,18 @@ export class StickyUpdateCommandHandler implements SlashCommandHandler {
 			return;
 		}
 
-		const message = await channel.messages.fetch(sticky.messageId.getValue());
+		// MessageテーブルからclientIdを取得
+		const messageClientId = await this.MessageLogic.getClientIdById(
+			sticky.messageId,
+		);
+		if (messageClientId == null) {
+			await interaction.reply("スティッキーのメッセージが見つからなかったよ！っ");
+			return;
+		}
+
+		const message = await channel.messages.fetch(
+			messageClientId.getValue().toString(),
+		);
 
 		const modal = new ModalBuilder()
 			.setCustomId("stickyModal")

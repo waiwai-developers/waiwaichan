@@ -2,6 +2,7 @@ import { RoleConfig } from "@/src/entities/config/RoleConfig";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
 import { ChannelDto } from "@/src/entities/dto/ChannelDto";
 import { CommunityDto } from "@/src/entities/dto/CommunityDto";
+import { MessageDto } from "@/src/entities/dto/MessageDto";
 import { StickyDto } from "@/src/entities/dto/StickyDto";
 import { UserDto } from "@/src/entities/dto/UserDto";
 import { ChannelCategoryType } from "@/src/entities/vo/ChannelCategoryType";
@@ -10,7 +11,11 @@ import { ChannelCommunityId } from "@/src/entities/vo/ChannelCommunityId";
 import { ChannelType } from "@/src/entities/vo/ChannelType";
 import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
 import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
-import { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
+import { MessageCategoryType } from "@/src/entities/vo/MessageCategoryType";
+import { MessageChannelId } from "@/src/entities/vo/MessageChannelId";
+import { MessageClientId } from "@/src/entities/vo/MessageClientId";
+import { MessageCommunityId } from "@/src/entities/vo/MessageCommunityId";
+import { MessageUserId } from "@/src/entities/vo/MessageUserId";
 import { StickyMessage } from "@/src/entities/vo/StickyMessage";
 import { UserCategoryType } from "@/src/entities/vo/UserCategoryType";
 import { UserClientId } from "@/src/entities/vo/UserClientId";
@@ -19,6 +24,7 @@ import { UserType } from "@/src/entities/vo/UserType";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
 import type { IChannelLogic } from "@/src/logics/Interfaces/logics/IChannelLogic";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
+import type { IMessageLogic } from "@/src/logics/Interfaces/logics/IMessageLogic";
 import type { IStickyLogic } from "@/src/logics/Interfaces/logics/IStickyLogic";
 import type { IUserLogic } from "@/src/logics/Interfaces/logics/IUserLogic";
 import type { CacheType, ChatInputCommandInteraction } from "discord.js";
@@ -45,6 +51,9 @@ export class StickyCreateCommandHandler implements SlashCommandHandler {
 
 	@inject(LogicTypes.ChannelLogic)
 	private ChannelLogic!: IChannelLogic;
+
+	@inject(LogicTypes.MessageLogic)
+	private MessageLogic!: IMessageLogic;
 
 	isHandle(commandName: string): boolean {
 		return commandName === "stickycreate";
@@ -157,13 +166,23 @@ export class StickyCreateCommandHandler implements SlashCommandHandler {
 					return;
 				}
 
+				const messageId = await this.MessageLogic.findOrCreate(
+					new MessageDto(
+						MessageCategoryType.Discord,
+						new MessageClientId(BigInt(message.id)),
+						new MessageCommunityId(communityId.getValue()),
+						new MessageUserId(userId.getValue()),
+						new MessageChannelId(channelId.getValue()),
+					),
+				);
+
 				await t.reply(
 					await this.stickyLogic.create(
 						new StickyDto(
 							communityId,
 							channelId,
 							userId,
-							new DiscordMessageId(message.id),
+							messageId,
 							new StickyMessage(message.content),
 						),
 					),
