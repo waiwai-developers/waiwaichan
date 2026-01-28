@@ -208,6 +208,20 @@
 					"parameter": "none",
 					"summary": "部屋通知チャンネルを削除する",
 					"detail": "roomnotificationchannelcreateは部屋追加チャンネルを削除するコマンドです。部屋通知チャンネルに部屋追加や削除が起こった時に通知を飛ばさなくなります"
+				},
+				{
+					"name": "/roomcategorychannelcreate",
+					"example": "/roomcategorychannelcreate channelId: 1",
+					"parameter": "id: integer",
+					"summary": "カテゴリーチャンネルを登録する",
+					"detail": "roomcategorychannelcreateはカテゴリーチャンネルを登録するコマンドです。カテゴリーチャンネルのカテゴリーに部屋追加で作成したチャンネルを追加します"
+				},
+				{
+					"name": "/roomcategorychanneldelete",
+					"example": "/roomcategorychanneldelete",
+					"parameter": "none",
+					"summary": "カテゴリーチャンネルを削除する",
+					"detail": "roomcategorychanneldeleteはカテゴリーチャンネルを削除するコマンドです。カテゴリーチャンネルを追加しないと権限周りで上手く部屋追加を行う事が出来ません"
 				}
 			]
 		}
