@@ -117,6 +117,18 @@ class MessageRepositoryImpl extends Model implements IMessageRepository {
 		}).then((res) => (res ? new MessageId(res.id) : undefined));
 	}
 
+	async getIdByCommunityIdAndClientId(
+		communityId: MessageCommunityId,
+		clientId: MessageClientId,
+	): Promise<MessageId | undefined> {
+		return MessageRepositoryImpl.findOne({
+			where: {
+				clientId: clientId.getValue(),
+				communityId: communityId.getValue(),
+			},
+		}).then((res) => (res ? new MessageId(res.id) : undefined));
+	}
+
 	async getClientIdById(id: MessageId): Promise<MessageClientId | undefined> {
 		return MessageRepositoryImpl.findOne({
 			where: {

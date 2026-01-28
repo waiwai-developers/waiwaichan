@@ -3,12 +3,14 @@ import { Thread_Fetch_Nom } from "@/src/entities/constants/Thread";
 import type { ChatAIMessageDto } from "@/src/entities/dto/ChatAIMessageDto";
 import { ThreadDto } from "@/src/entities/dto/ThreadDto";
 import { CommunityId } from "@/src/entities/vo/CommunityId";
+import { MessageId } from "@/src/entities/vo/MessageId";
 import { ThreadCategoryType } from "@/src/entities/vo/ThreadCategoryType";
 import { ThreadMessageId } from "@/src/entities/vo/ThreadMessageId";
 import { ThreadMetadata } from "@/src/entities/vo/ThreadMetadata";
 import { AIReplyHandler } from "@/src/handlers/discord.js/events/AIReplyHandler";
 import type { IChatAILogic } from "@/src/logics/Interfaces/logics/IChatAILogic";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
+import type { IMessageLogic } from "@/src/logics/Interfaces/logics/IMessageLogic";
 import type { ThreadLogic } from "@/src/logics/ThreadLogic";
 import { ThreadRepositoryImpl } from "@/src/repositories/sequelize-mysql/ThreadRepositoryImpl";
 import { mockMessage } from "@/tests/fixtures/discord.js/MockMessage";
@@ -51,7 +53,7 @@ export interface ThreadRecord {
 
 // テスト用のguildId（MockSlashCommandで使用される値と一致させる）
 export const TEST_GUILD_ID = "12345";
-export const TEST_THREAD_ID = "67890";
+export const TEST_THREAD_ID = 67890;
 export const TEST_USER_ID = "98765";
 export const TEST_BOT_ID = AppConfig.discord.clientId;
 
@@ -84,7 +86,7 @@ export function createTestMetadata(overrides: Partial<ThreadMetadataContent> = {
 export async function createTestThread(
 	options: {
 		communityId?: number;
-		messageId?: string;
+		messageId?: number;
 		categoryType?: number;
 		metadata?: object;
 	} = {},
@@ -105,7 +107,7 @@ export async function createTestThread(
 export function createTestThreadDto(
 	options: {
 		communityId?: number;
-		messageId?: string;
+		messageId?: number;
 		categoryType?: ThreadCategoryType;
 		metadata?: object;
 	} = {},
@@ -407,7 +409,7 @@ export async function setupMessageFilteringTest(
 		isBot?: boolean;
 		isThread?: boolean;
 		ownerId?: string;
-		threadId?: string;
+		threadId?: number;
 		categoryType?: ThreadCategoryType;
 	} = {},
 ): Promise<{
@@ -427,7 +429,7 @@ export async function setupMessageFilteringTest(
 	const messageMock = mockMessage(TEST_USER_ID, false, options.isBot ?? false);
 	const channelMock = createChannelMock({
 		isThread: options.isThread ?? true,
-		threadId: options.threadId ?? TEST_THREAD_ID,
+		threadId: String(options.threadId ?? TEST_THREAD_ID),
 		ownerId: options.ownerId ?? TEST_BOT_ID,
 	});
 
@@ -467,6 +469,13 @@ export function createAIReplyHandlerWithMocks(options: AIReplyHandlerMockOptions
 	handler.CommunityLogic = instance(communityLogicMock);
 	when(communityLogicMock.getId(anything())).thenResolve(new CommunityId(1));
 
+	// MessageLogicのモックを作成
+	const messageLogicMock = mock<IMessageLogic>();
+	// @ts-ignore - privateフィールドにアクセスするため
+	handler.MessageLogic = instance(messageLogicMock);
+	// デフォルトでMessageId(messageId)を返す（ThreadのmessageIdと一致させる）
+	when(messageLogicMock.getIdByCommunityIdAndClientId(anything(), anything())).thenResolve(new MessageId(options.threadDto?.messageId.getValue() ?? TEST_THREAD_ID));
+
 	// ThreadLogicのモックを作成
 	const threadLogicMock = mock<ThreadLogic>();
 	// @ts-ignore - privateフィールドにアクセスするため
@@ -494,6 +503,7 @@ export function createAIReplyHandlerWithMocks(options: AIReplyHandlerMockOptions
 	return {
 		handler,
 		communityLogicMock,
+		messageLogicMock,
 		threadLogicMock,
 		chatAILogicMock,
 	};
@@ -513,15 +523,29 @@ export async function findAllThreads() {
 
 /**
  * メッセージIDでスレッドを検索する
- * @param messageId - メッセージID
+ * @param messageClientId - メッセージのクライアントID（Discord message ID）
  * @param communityId - コミュニティID（デフォルト: 1）
  * @returns スレッドまたはnull
  */
-export async function findThreadByMessageId(messageId: string, communityId = 1) {
+export async function findThreadByMessageId(messageClientId: string | number, communityId = 1) {
+	// First, find the Message record by clientId
+	const { MessageRepositoryImpl } = await import("@/src/repositories/sequelize-mysql/MessageRepositoryImpl");
+	const message = await MessageRepositoryImpl.findOne({
+		where: {
+			communityId,
+			clientId: BigInt(messageClientId),
+		},
+	});
+	
+	if (!message) {
+		return null;
+	}
+	
+	// Then find the Thread by the Message's id
 	return await ThreadRepositoryImpl.findOne({
 		where: {
 			communityId,
-			messageId,
+			messageId: message.id,
 		},
 	});
 }
@@ -599,12 +623,12 @@ export function verifyThreadMetadata(thread: ThreadRecord, expectedMetadata?: Pa
 
 /**
  * スレッドが存在し、データが正しいことを検証する
- * @param messageId - メッセージID
+ * @param messageId - メッセージID (Discord client ID)
  * @param expected - 期待値
  * @param communityId - コミュニティID（デフォルト: 1）
  */
 export async function assertThreadExistsWithData(
-	messageId: string,
+	messageId: string | number,
 	expected: {
 		communityId?: string;
 		categoryType?: number;
@@ -623,9 +647,9 @@ export async function assertThreadExistsWithData(
 	expect(thread).to.not.be.null;
 
 	if (thread) {
+		// Don't verify messageId as it's an internal database ID, not the Discord client ID
 		verifyThreadData(thread, {
 			communityId: expected.communityId,
-			messageId,
 			categoryType: expected.categoryType,
 		});
 

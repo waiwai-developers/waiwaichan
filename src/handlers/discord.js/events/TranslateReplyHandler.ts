@@ -4,6 +4,8 @@ import { CommunityDto } from "@/src/entities/dto/CommunityDto";
 import { TranslateDto } from "@/src/entities/dto/TranslateDto";
 import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
 import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
+import { MessageClientId } from "@/src/entities/vo/MessageClientId";
+import { MessageCommunityId } from "@/src/entities/vo/MessageCommunityId";
 import { ThreadCategoryType } from "@/src/entities/vo/ThreadCategoryType";
 import { ThreadMessageId } from "@/src/entities/vo/ThreadMessageId";
 import { TranslateSourceLanguage } from "@/src/entities/vo/TranslateSourceLanguage";
@@ -11,6 +13,7 @@ import { TranslateTargetLanguage } from "@/src/entities/vo/TranslateTargetLangua
 import { TranslateText } from "@/src/entities/vo/TranslateText";
 import type { DiscordEventHandler } from "@/src/handlers/discord.js/events/DiscordEventHandler";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
+import type { IMessageLogic } from "@/src/logics/Interfaces/logics/IMessageLogic";
 import type { IThreadLogic } from "@/src/logics/Interfaces/logics/IThreadLogic";
 import type { ITranslatorLogic } from "@/src/logics/Interfaces/logics/ITranslatorLogic.ts";
 import { DiscordTextPresenter } from "@/src/presenter/DiscordTextPresenter";
@@ -25,6 +28,8 @@ export class TranslateReplyHandler implements DiscordEventHandler<Message> {
 	private readonly threadLogic!: IThreadLogic;
 	@inject(LogicTypes.CommunityLogic)
 	private CommunityLogic!: ICommunityLogic;
+	@inject(LogicTypes.MessageLogic)
+	private MessageLogic!: IMessageLogic;
 
 	async handle(message: Message) {
 		if (message.author.bot) return;
@@ -42,9 +47,16 @@ export class TranslateReplyHandler implements DiscordEventHandler<Message> {
 		);
 		if (communityId == null) return;
 
+		// スレッドのIDは親メッセージのIDと同じなので、clientIdとして使用してMessageIdを取得
+		const messageId = await this.MessageLogic.getIdByCommunityIdAndClientId(
+			new MessageCommunityId(communityId.getValue()),
+			new MessageClientId(BigInt(message.channel.id)),
+		);
+		if (messageId == null) return;
+
 		const thread = await this.threadLogic.find(
 			communityId,
-			new ThreadMessageId(message.channel.id),
+			new ThreadMessageId(messageId.getValue()),
 		);
 
 		if (

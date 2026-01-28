@@ -11,11 +11,14 @@ import { ChatAIPrompt } from "@/src/entities/vo/ChatAIPrompt";
 import { ChatAIRole } from "@/src/entities/vo/ChatAIRole";
 import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
 import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
+import { MessageClientId } from "@/src/entities/vo/MessageClientId";
+import { MessageCommunityId } from "@/src/entities/vo/MessageCommunityId";
 import { ThreadCategoryType } from "@/src/entities/vo/ThreadCategoryType";
 import { ThreadMessageId } from "@/src/entities/vo/ThreadMessageId";
 import type { DiscordEventHandler } from "@/src/handlers/discord.js/events/DiscordEventHandler";
 import type { IChatAILogic } from "@/src/logics/Interfaces/logics/IChatAILogic";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
+import type { IMessageLogic } from "@/src/logics/Interfaces/logics/IMessageLogic";
 import type { IThreadLogic } from "@/src/logics/Interfaces/logics/IThreadLogic";
 import { DiscordTextPresenter } from "@/src/presenter/DiscordTextPresenter";
 import type { Message } from "discord.js";
@@ -29,6 +32,8 @@ export class AIReplyHandler implements DiscordEventHandler<Message> {
 	private readonly threadLogic!: IThreadLogic;
 	@inject(LogicTypes.CommunityLogic)
 	private CommunityLogic!: ICommunityLogic;
+	@inject(LogicTypes.MessageLogic)
+	private MessageLogic!: IMessageLogic;
 
 	async handle(message: Message) {
 		if (message.author.bot) return;
@@ -47,9 +52,16 @@ export class AIReplyHandler implements DiscordEventHandler<Message> {
 		);
 		if (communityId == null) return;
 
+		// スレッドのIDは親メッセージのIDと同じなので、clientIdとして使用してMessageIdを取得
+		const messageId = await this.MessageLogic.getIdByCommunityIdAndClientId(
+			new MessageCommunityId(communityId.getValue()),
+			new MessageClientId(BigInt(message.channel.id)),
+		);
+		if (messageId == null) return;
+
 		const thread = await this.threadLogic.find(
 			communityId,
-			new ThreadMessageId(message.channel.id),
+			new ThreadMessageId(messageId.getValue()),
 		);
 		if (
 			thread?.categoryType.getValue() !==
