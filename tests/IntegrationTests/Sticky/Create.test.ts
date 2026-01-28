@@ -1,5 +1,5 @@
 import { RoleConfig } from "@/src/entities/config/RoleConfig";
-import { ChannelRepositoryImpl, CommunityRepositoryImpl, StickyRepositoryImpl, UserRepositoryImpl } from "@/src/repositories/sequelize-mysql";
+import { ChannelRepositoryImpl, CommunityRepositoryImpl, MessageRepositoryImpl, StickyRepositoryImpl, UserRepositoryImpl } from "@/src/repositories/sequelize-mysql";
 import { MysqlConnector } from "@/tests/fixtures/database/MysqlConnector";
 import { mockSlashCommand, waitUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { expect } from "chai";
@@ -183,6 +183,7 @@ describe("Test StickyCreateCommandHandler", () => {
 		new MysqlConnector();
 		// Clean up existing records
 		await StickyRepositoryImpl.destroy({ truncate: true, force: true });
+		await MessageRepositoryImpl.destroy({ truncate: true, force: true });
 		await ChannelRepositoryImpl.destroy({ truncate: true, force: true });
 		await UserRepositoryImpl.destroy({ truncate: true, force: true });
 		await CommunityRepositoryImpl.destroy({ truncate: true, force: true });
@@ -194,6 +195,10 @@ describe("Test StickyCreateCommandHandler", () => {
 
 	afterEach(async () => {
 		await StickyRepositoryImpl.destroy({
+			truncate: true,
+			force: true,
+		});
+		await MessageRepositoryImpl.destroy({
 			truncate: true,
 			force: true,
 		});
@@ -686,7 +691,11 @@ describe("Test StickyCreateCommandHandler", () => {
 			expect(String(afterStickies[0].communityId)).to.eq(String(testCommunityId));
 			expect(String(afterStickies[0].channelId)).to.eq(String(dbChannelId));
 			expect(String(afterStickies[0].userId)).to.eq(String(testUserId));
-			expect(String(afterStickies[0].messageId)).to.eq(String(messageId));
+			// messageIdはMessageテーブルの内部ID（autoincrement）なのでMessage作成を確認
+			const afterMessages = await MessageRepositoryImpl.findAll();
+			expect(afterMessages.length).to.eq(1);
+			expect(String(afterStickies[0].messageId)).to.eq(String(afterMessages[0].id));
+			expect(String(afterMessages[0].clientId)).to.eq(String(messageId));
 			expect(afterStickies[0].message).to.eq(stickyMessageText);
 		})();
 	});
