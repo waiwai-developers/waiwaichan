@@ -140,7 +140,7 @@ export class CrownReactionHandler
 			return;
 		}
 
-		const messageId = await this.MessageLogic.getId(
+		const messageId = await this.MessageLogic.findOrCreate(
 			new MessageDto(
 				MessageCategoryType.Discord,
 				new MessageClientId(BigInt(reaction.message.id)),
@@ -149,9 +149,6 @@ export class CrownReactionHandler
 				new MessageChannelId(channelId.getValue()),
 			),
 		);
-		if (messageId == null) {
-			return;
-		}
 
 		const res = await this.crownLogic.createCrownIfNotExists(
 			communityId,
