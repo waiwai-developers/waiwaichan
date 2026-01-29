@@ -11,13 +11,14 @@ import type { MessageReactionEventDetails } from "discord.js";
 import type Mocha from "mocha";
 import { anything, instance, mock, verify, when } from "ts-mockito";
 
-import { TEST_GUILD_ID, type TestContext, cleanupCandyTables, setupTestEnvironment, teardownTestEnvironment } from "./CandyHelper.test";
+import { TEST_GUILD_ID, TEST_CHANNEL_ID, type TestContext, cleanupCandyTables, setupTestEnvironment, teardownTestEnvironment } from "./CandyHelper.test";
 
 describe("Test Candy Add Super (Super Reaction)", () => {
 	let testCommunityId: number;
 	let testUserId: number;
 	let testGiveUserId: number;
 	let testReceiverUserId: number;
+	let testChannelId: number;
 
 	beforeEach(async () => {
 		const context: TestContext = await setupTestEnvironment();
@@ -25,6 +26,7 @@ describe("Test Candy Add Super (Super Reaction)", () => {
 		testUserId = context.userId;
 		testGiveUserId = context.giveUserId;
 		testReceiverUserId = context.receiverUserId;
+		testChannelId = context.channelId;
 	});
 
 	afterEach(async () => {
@@ -48,6 +50,7 @@ describe("Test Candy Add Super (Super Reaction)", () => {
 
 			when(messageMock.id).thenReturn("5678");
 			when(messageMock.guildId).thenReturn(TEST_GUILD_ID);
+			when(messageMock.channelId).thenReturn(TEST_CHANNEL_ID);
 			when(messageMock.url).thenReturn("https://discord.com/channels/1234567890/1234567890/5678");
 
 			const TEST_CLIENT = await TestDiscordServer.getClient();
@@ -96,6 +99,7 @@ describe("Test Candy Add Super (Super Reaction)", () => {
 			const { reaction, user, messageMock } = mockReaction(AppConfig.backend.candySuperEmoji, giverId, receiverId);
 			when(messageMock.id).thenReturn(messageId);
 			when(messageMock.guildId).thenReturn(TEST_GUILD_ID);
+			when(messageMock.channelId).thenReturn(TEST_CHANNEL_ID);
 			when(messageMock.url).thenReturn("https://discord.com/channels/1234567890/1234567890/5678");
 
 			const TEST_CLIENT = await TestDiscordServer.getClient();
@@ -133,6 +137,7 @@ describe("Test Candy Add Super (Super Reaction)", () => {
 			const { reaction, user, messageMock } = mockReaction(AppConfig.backend.candySuperEmoji, giverId, receiverId);
 			when(messageMock.id).thenReturn("1234");
 			when(messageMock.guildId).thenReturn(TEST_GUILD_ID);
+			when(messageMock.channelId).thenReturn(TEST_CHANNEL_ID);
 			when(messageMock.url).thenReturn("https://discord.com/channels/1234567890/1234567890/1234");
 			when(messageMock.author).thenReturn({
 				id: receiverId,
@@ -156,6 +161,7 @@ describe("Test Candy Add Super (Super Reaction)", () => {
 			const { reaction: reaction2, user: user2, messageMock: messageMock2 } = mockReaction(AppConfig.backend.candySuperEmoji, giverId, receiverId);
 			when(messageMock2.id).thenReturn("5678");
 			when(messageMock2.guildId).thenReturn(TEST_GUILD_ID);
+			when(messageMock2.channelId).thenReturn(TEST_CHANNEL_ID);
 			when(messageMock2.url).thenReturn("https://discord.com/channels/1234567890/1234567890/5678");
 			when(messageMock2.author).thenReturn({
 				id: receiverId,
@@ -193,6 +199,7 @@ describe("Test Candy Add Super (Super Reaction)", () => {
 			const { reaction, user, messageMock } = mockReaction(AppConfig.backend.candySuperEmoji, giverId, receiverId);
 			when(messageMock.id).thenReturn(messageId);
 			when(messageMock.guildId).thenReturn(TEST_GUILD_ID);
+			when(messageMock.channelId).thenReturn(TEST_CHANNEL_ID);
 			when(messageMock.url).thenReturn("https://discord.com/channels/1234567890/1234567890/5678");
 
 			const TEST_CLIENT = await TestDiscordServer.getClient();
@@ -206,6 +213,7 @@ describe("Test Candy Add Super (Super Reaction)", () => {
 			const { reaction: reaction2, user: user2, messageMock: messageMock2 } = mockReaction(AppConfig.backend.candySuperEmoji, giverId, receiverId);
 			when(messageMock2.id).thenReturn(messageId);
 			when(messageMock2.guildId).thenReturn(TEST_GUILD_ID);
+			when(messageMock2.channelId).thenReturn(TEST_CHANNEL_ID);
 			when(messageMock2.url).thenReturn("https://discord.com/channels/1234567890/1234567890/5678");
 
 			TEST_CLIENT.emit("messageReactionAdd", instance(reaction2), instance(user2), instance(mock<MessageReactionEventDetails>()));

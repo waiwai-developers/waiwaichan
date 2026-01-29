@@ -12,6 +12,7 @@ import type { IChatAILogic } from "@/src/logics/Interfaces/logics/IChatAILogic";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { IMessageLogic } from "@/src/logics/Interfaces/logics/IMessageLogic";
 import type { ThreadLogic } from "@/src/logics/ThreadLogic";
+import { MessageRepositoryImpl } from "@/src/repositories/sequelize-mysql/MessageRepositoryImpl";
 import { ThreadRepositoryImpl } from "@/src/repositories/sequelize-mysql/ThreadRepositoryImpl";
 import { mockMessage } from "@/tests/fixtures/discord.js/MockMessage";
 import { mockSlashCommand } from "@/tests/fixtures/discord.js/MockSlashCommand";
@@ -531,7 +532,6 @@ export async function findAllThreads() {
  */
 export async function findThreadByMessageId(messageClientId: string | number, communityId = 1) {
 	// First, find the Message record by clientId
-	const { MessageRepositoryImpl } = await import("@/src/repositories/sequelize-mysql/MessageRepositoryImpl");
 	const message = await MessageRepositoryImpl.findOne({
 		where: {
 			communityId,

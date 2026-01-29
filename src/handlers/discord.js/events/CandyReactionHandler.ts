@@ -57,10 +57,6 @@ export class CandyReactionHandler
 	private readonly logger!: ILogger;
 
 	async handle({ reaction, user }: ReactionInteraction): Promise<void> {
-		if (!reaction.message.guildId) {
-			this.logger.debug("not guild message");
-			return;
-		}
 		if (reaction.partial) {
 			try {
 				await reaction.fetch();
@@ -80,12 +76,22 @@ export class CandyReactionHandler
 			(reaction.message.author?.bot ?? true) ||
 			(reaction.message.author?.id ?? null) == null
 		) {
-			this.logger.debug("some data is null");
+			this.logger.error("some data is null");
 			return;
 		}
 
 		if (reaction.message.author?.id == null) {
-			this.logger.debug("author id is null");
+			this.logger.error("author id is null");
+			return;
+		}
+
+		if (reaction.message.guildId == null) {
+			this.logger.error("guildId is null");
+			return;
+		}
+
+		if (reaction.message.channelId == null) {
+			this.logger.error("channelId is null");
 			return;
 		}
 
@@ -137,17 +143,11 @@ export class CandyReactionHandler
 			return;
 		}
 
-		if (reaction.message.channelId == null) {
-			this.logger.error("channelId is null");
-			return;
-		}
-
 		const channelId = await this.ChannelLogic.getIdByCommunityIdAndClientId(
 			new ChannelCommunityId(communityId.getValue()),
 			new ChannelClientId(BigInt(reaction.message.channelId)),
 		);
 		if (channelId == null) {
-			this.logger.error("channelId not found in database");
 			return;
 		}
 
