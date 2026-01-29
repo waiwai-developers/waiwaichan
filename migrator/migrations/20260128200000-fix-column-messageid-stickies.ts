@@ -232,8 +232,14 @@ export const up: Migration = async ({ context: sequelize }) => {
 		`Updated ${COLUMN_NAME_MESSAGE_ID} in ${STICKIES_TABLE_NAME} table with Messages.id`,
 	);
 
-	// Step 7: StickiesテーブルのclientIdのカラム自体をテーブルから削除する
-	// Note: This is handled by migration 20260128200001-remove-clientId-stickies.ts
+	// Step 7: Make messageId NOT NULL now that it's populated
+	await queryInterface.changeColumn(STICKIES_TABLE_NAME, COLUMN_NAME_MESSAGE_ID, {
+		type: DataTypes.INTEGER,
+		allowNull: false,
+	});
+	console.log(
+		`Changed ${COLUMN_NAME_MESSAGE_ID} to NOT NULL in ${STICKIES_TABLE_NAME} table`,
+	);
 };
 
 export const down: Migration = async ({ context: sequelize }) => {
