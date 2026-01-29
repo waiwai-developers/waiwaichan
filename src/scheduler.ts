@@ -58,7 +58,7 @@ cron.schedule("* * * * *", () => {
 });
 
 // 削除されたclientデータに関連するDBデータを削除
-cron.schedule("0 12 * * *", () => {
+cron.schedule("* * * * *", () => {
 	runInNamespace("delete data sync", () => DataDeletionCircularHandler(client));
 });
 

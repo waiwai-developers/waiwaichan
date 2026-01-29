@@ -1,4 +1,3 @@
-import { AppConfig } from "@/src/entities/config/AppConfig";
 import {
 	LogicTypes,
 	RepoTypes,
@@ -31,10 +30,6 @@ export class MessageDeleteHandler
 	async handle(message: Message | PartialMessage): Promise<void> {
 		try {
 			if (!message.guild) {
-				return;
-			}
-
-			if (message.author?.id === AppConfig.discord.clientId) {
 				return;
 			}
 

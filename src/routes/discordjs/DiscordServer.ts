@@ -27,6 +27,7 @@ export class DiscordServer {
 			appContainer.get<DiscordEventRouter>(RouteTypes.BotRemoveRoute),
 			appContainer.get<DiscordEventRouter>(RouteTypes.UserAddRoute),
 			appContainer.get<DiscordEventRouter>(RouteTypes.UserRemoveRoute),
+			appContainer.get<DiscordEventRouter>(RouteTypes.MessageDeleteRoute),
 			appContainer.get<DiscordEventRouter>(RouteTypes.ChannelCreateRoute),
 			appContainer.get<DiscordEventRouter>(RouteTypes.ChannelDeleteRoute),
 			appContainer.get<DiscordEventRouter>(RouteTypes.VoiceChannelEventRoute),
