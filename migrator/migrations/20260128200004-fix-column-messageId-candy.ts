@@ -234,19 +234,6 @@ export const up: Migration = async ({ context: sequelize }) => {
 
 	// Step 7: CandiesテーブルのclientIdのカラム自体をテーブルから削除する
 	// Note: This is handled by migration 20260128200005-remove-clientId-candy.ts
-
-	// Step 8: CandiesテーブルのmessageIdにnot null 制約を追加する
-	await queryInterface.changeColumn(
-		CANDIES_TABLE_NAME,
-		COLUMN_NAME_MESSAGE_ID,
-		{
-			type: DataTypes.INTEGER,
-			allowNull: false,
-		},
-	);
-	console.log(
-		`Added NOT NULL constraint to ${COLUMN_NAME_MESSAGE_ID} in ${CANDIES_TABLE_NAME} table`,
-	);
 };
 
 export const down: Migration = async ({ context: sequelize }) => {

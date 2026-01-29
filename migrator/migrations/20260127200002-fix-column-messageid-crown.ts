@@ -5,7 +5,6 @@ import { DataTypes, QueryTypes } from "sequelize";
 
 const CROWNS_TABLE_NAME = "Crowns";
 const MESSAGES_TABLE_NAME = "Messages";
-const COMMUNITIES_TABLE_NAME = "Communities";
 const CHANNELS_TABLE_NAME = "Channels";
 const USERS_TABLE_NAME = "Users";
 const COLUMN_NAME_CLIENT_ID = "clientId";

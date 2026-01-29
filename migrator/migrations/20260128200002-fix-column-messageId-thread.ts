@@ -1,6 +1,6 @@
 import type { Migration } from "@/migrator/umzug";
 import { GetEnvAppConfig } from "@/src/entities/config/AppConfig";
-import { Client, GatewayIntentBits, type Message, Partials } from "discord.js";
+import { Client, GatewayIntentBits, Partials } from "discord.js";
 import { DataTypes, QueryTypes } from "sequelize";
 
 const THREADS_TABLE_NAME = "Threads";
