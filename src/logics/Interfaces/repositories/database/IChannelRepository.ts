@@ -16,6 +16,10 @@ export interface IChannelRepository {
 		clientIds: ChannelClientId[],
 	): Promise<boolean>;
 	getId(data: ChannelDto): Promise<ChannelId | undefined>;
+	getIdByCommunityIdAndClientId(
+		communityId: ChannelCommunityId,
+		clientId: ChannelClientId,
+	): Promise<ChannelId | undefined>;
 	getClientIdById(id: ChannelId): Promise<ChannelClientId | undefined>;
 	findByBatchStatusAndDeletedAt(): Promise<ChannelId[]>;
 	findDeletionTargetsByBatchStatusAndDeletedAt(): Promise<

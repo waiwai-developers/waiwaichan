@@ -4,12 +4,19 @@ import {
 	RepoTypes,
 } from "@/src/entities/constants/DIContainerTypes";
 import { CommunityDto } from "@/src/entities/dto/CommunityDto";
+import { MessageDto } from "@/src/entities/dto/MessageDto";
 import { UserDto } from "@/src/entities/dto/UserDto";
 import { CandyCategoryType } from "@/src/entities/vo/CandyCategoryType";
+import { ChannelClientId } from "@/src/entities/vo/ChannelClientId";
+import { ChannelCommunityId } from "@/src/entities/vo/ChannelCommunityId";
 import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
 import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
-import { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
 import { DiscordMessageLink } from "@/src/entities/vo/DiscordMessageLink";
+import { MessageCategoryType } from "@/src/entities/vo/MessageCategoryType";
+import { MessageChannelId } from "@/src/entities/vo/MessageChannelId";
+import { MessageClientId } from "@/src/entities/vo/MessageClientId";
+import { MessageCommunityId } from "@/src/entities/vo/MessageCommunityId";
+import { MessageUserId } from "@/src/entities/vo/MessageUserId";
 import { UserCategoryType } from "@/src/entities/vo/UserCategoryType";
 import { UserClientId } from "@/src/entities/vo/UserClientId";
 import { UserCommunityId } from "@/src/entities/vo/UserCommunityId";
@@ -19,7 +26,9 @@ import type {
 	ReactionInteraction,
 } from "@/src/handlers/discord.js/events/DiscordEventHandler";
 import type { ICandyLogic } from "@/src/logics/Interfaces/logics/ICandyLogic";
+import type { IChannelLogic } from "@/src/logics/Interfaces/logics/IChannelLogic";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
+import type { IMessageLogic } from "@/src/logics/Interfaces/logics/IMessageLogic";
 import type { IUserLogic } from "@/src/logics/Interfaces/logics/IUserLogic";
 import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 import { TextChannel } from "discord.js";
@@ -38,14 +47,16 @@ export class CandyReactionHandler
 	@inject(LogicTypes.UserLogic)
 	private UserLogic!: IUserLogic;
 
+	@inject(LogicTypes.ChannelLogic)
+	private ChannelLogic!: IChannelLogic;
+
+	@inject(LogicTypes.MessageLogic)
+	private messageLogic!: IMessageLogic;
+
 	@inject(RepoTypes.Logger)
 	private readonly logger!: ILogger;
 
 	async handle({ reaction, user }: ReactionInteraction): Promise<void> {
-		if (!reaction.message.guildId) {
-			this.logger.debug("not guild message");
-			return;
-		}
 		if (reaction.partial) {
 			try {
 				await reaction.fetch();
@@ -65,12 +76,22 @@ export class CandyReactionHandler
 			(reaction.message.author?.bot ?? true) ||
 			(reaction.message.author?.id ?? null) == null
 		) {
-			this.logger.debug("some data is null");
+			this.logger.error("some data is null");
 			return;
 		}
 
 		if (reaction.message.author?.id == null) {
-			this.logger.debug("author id is null");
+			this.logger.error("author id is null");
+			return;
+		}
+
+		if (reaction.message.guildId == null) {
+			this.logger.error("guildId is null");
+			return;
+		}
+
+		if (reaction.message.channelId == null) {
+			this.logger.error("channelId is null");
 			return;
 		}
 
@@ -122,11 +143,30 @@ export class CandyReactionHandler
 			return;
 		}
 
+		const channelId = await this.ChannelLogic.getIdByCommunityIdAndClientId(
+			new ChannelCommunityId(communityId.getValue()),
+			new ChannelClientId(BigInt(reaction.message.channelId)),
+		);
+		if (channelId == null) {
+			return;
+		}
+
+		// MessageテーブルにMessageを作成
+		const messageId = await this.messageLogic.findOrCreate(
+			new MessageDto(
+				MessageCategoryType.Discord,
+				new MessageClientId(BigInt(reaction.message.id)),
+				new MessageCommunityId(communityId.getValue()),
+				new MessageUserId(receiverUserId.getValue()),
+				new MessageChannelId(channelId.getValue()),
+			),
+		);
+
 		const res = await this.candyLogic.giveCandys(
 			communityId,
 			receiverUserId,
 			giveUserId,
-			new DiscordMessageId(reaction.message.id),
+			messageId,
 			new DiscordMessageLink(reaction.message.url),
 			candyCategoryType,
 		);

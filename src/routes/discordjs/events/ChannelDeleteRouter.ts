@@ -9,10 +9,10 @@ import type { Client, DMChannel, GuildChannel } from "discord.js";
 import { inject, injectable } from "inversify";
 
 @injectable()
-export class ActionRemoveChannelRouter implements DiscordEventRouter {
+export class ChannelDeleteRouter implements DiscordEventRouter {
 	@inject(RepoTypes.Logger)
 	private readonly logger!: ILogger;
-	@inject(HandlerTypes.ActionRemoveChannelHandler)
+	@inject(HandlerTypes.ChannelDeleteHandler)
 	private readonly handler!: DiscordEventHandler<GuildChannel | DMChannel>;
 	register(client: Client): void {
 		client.on("channelDelete", async (channel) => {

@@ -24,8 +24,8 @@ class ThreadRepositoryImpl extends Model implements IThreadRepository {
 	@Column(DataType.INTEGER)
 	declare communityId: number;
 	@PrimaryKey
-	@Column(DataType.STRING)
-	declare messageId: string;
+	@Column(DataType.INTEGER)
+	declare messageId: number;
 	@Column(DataType.INTEGER)
 	declare categoryType: number;
 	@Column(DataType.JSON)

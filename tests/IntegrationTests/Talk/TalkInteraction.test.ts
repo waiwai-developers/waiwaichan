@@ -93,7 +93,7 @@ describe("Test Talk Interactions", function (this: Mocha.Suite) {
 				emotion_model: "明るく",
 				notes: "テスト用",
 				input_scope: "全般",
-			},
+			} as unknown as JSON,
 		});
 
 		// Contextデータの作成
@@ -107,7 +107,7 @@ describe("Test Talk Interactions", function (this: Mocha.Suite) {
 				emotion_model: "テスト感情",
 				notes: "テスト注釈",
 				input_scope: "テスト範囲",
-			},
+			} as unknown as JSON,
 		});
 
 		// PersonalityContextデータの作成
@@ -131,14 +131,14 @@ describe("Test Talk Interactions", function (this: Mocha.Suite) {
 	it("test AIReplyHandler message filtering", async function (this: Mocha.Context) {
 		this.timeout(10_000);
 
-		const testOtherThreadId = "67891";
-		const testNonChatGPTThreadId = "67892";
+		const testOtherThreadId = 67891;
+		const testNonChatGPTThreadId = 67892;
 
 		// テスト用のスレッドデータを作成
 		await createTestThread();
 		await createTestThread({ messageId: testOtherThreadId });
 		await createTestThread({
-			messageId: testNonChatGPTThreadId,
+			messageId: Number(testNonChatGPTThreadId),
 			categoryType: ThreadCategoryType.CATEGORY_TYPE_DEEPL.getValue(),
 		});
 
@@ -171,7 +171,7 @@ describe("Test Talk Interactions", function (this: Mocha.Suite) {
 
 		// テストケース3: 他ユーザーが所有するスレッドが除外対象になるか
 		const { messageMock: otherOwnerMessageMock } = setupMessageWithChannel({
-			threadId: testOtherThreadId,
+			threadId: String(testOtherThreadId),
 			ownerId: TEST_USER_ID,
 		});
 
@@ -181,13 +181,13 @@ describe("Test Talk Interactions", function (this: Mocha.Suite) {
 		// テストケース4: カスタムカテゴリ（CHATGPT以外）のスレッドで無視されるか
 		when(threadLogicMock.find(anything(), anything())).thenResolve(
 			createTestThreadDto({
-				messageId: testNonChatGPTThreadId,
+				messageId: Number(testNonChatGPTThreadId),
 				categoryType: ThreadCategoryType.CATEGORY_TYPE_DEEPL,
 			}),
 		);
 
 		const { messageMock: nonChatGPTMessageMock } = setupMessageWithChannel({
-			threadId: testNonChatGPTThreadId,
+			threadId: String(testNonChatGPTThreadId),
 		});
 
 		await handleAIReplyEvent(handler, nonChatGPTMessageMock);
@@ -298,7 +298,7 @@ describe("Test Talk Interactions", function (this: Mocha.Suite) {
 		const testNonExistThreadId = 99999;
 		const testUserId = 98765;
 
-		await createTestThread({ messageId: testThreadId.toString() });
+		await createTestThread({ messageId: testThreadId });
 
 		// ThreadLogicのインスタンスを作成
 		const threadLogic = new ThreadLogic();
@@ -326,7 +326,7 @@ describe("Test Talk Interactions", function (this: Mocha.Suite) {
 			}).then((res) => (res ? res.toDto() : undefined));
 		});
 
-		const foundThread = await threadLogic.find(new CommunityId(1), new ThreadMessageId(testThreadId.toString()));
+		const foundThread = await threadLogic.find(new CommunityId(1), new ThreadMessageId(Number(testThreadId)));
 
 		expect(foundThread).to.not.be.undefined;
 		if (foundThread) {
@@ -346,12 +346,12 @@ describe("Test Talk Interactions", function (this: Mocha.Suite) {
 			return undefined;
 		});
 
-		const notFoundThread = await threadLogic.find(new CommunityId(1), new ThreadMessageId(testNonExistThreadId.toString()));
+		const notFoundThread = await threadLogic.find(new CommunityId(1), new ThreadMessageId(Number(testNonExistThreadId)));
 		expect(notFoundThread).to.be.undefined;
 
 		// ThreadGuildIdとThreadMessageIdの生成と検証
 		const guildId = new CommunityId(testGuildId);
-		const messageId = new ThreadMessageId(testThreadId.toString());
+		const messageId = new ThreadMessageId(Number(testThreadId));
 
 		expect(Number(guildId.getValue())).to.equal(testGuildId);
 		expect(Number(messageId.getValue())).to.equal(testThreadId);
@@ -392,30 +392,16 @@ describe("Test Talk Interactions", function (this: Mocha.Suite) {
 		this.timeout(10_000);
 
 		const testGuildId = "12345";
-		const testThreadId = "67890";
+		const testThreadId = 67890;
 		const testUserId = "98765";
 		const testBotId = AppConfig.discord.clientId;
 
 		await createTestThread({ messageId: testThreadId });
 
-		const aiReplyHandler = new AIReplyHandler();
-		const communityLogicMock = mock<ICommunityLogic>();
-		// @ts-ignore
-		aiReplyHandler.CommunityLogic = instance(communityLogicMock);
-		when(communityLogicMock.getId(anything())).thenResolve(new CommunityId(1));
-
-		const threadLogicMockForTest = mock<ThreadLogic>();
-		// @ts-ignore
-		aiReplyHandler.threadLogic = instance(threadLogicMockForTest);
-
-		const chatAILogicMock = mock<IChatAILogic>();
-		// @ts-ignore
-		aiReplyHandler.chatAILogic = instance(chatAILogicMock);
-
-		when(threadLogicMockForTest.find(anything(), anything())).thenResolve(
-			new ThreadDto(
+		const { handler: aiReplyHandler, chatAILogicMock } = createAIReplyHandlerWithMocks({
+			threadDto: new ThreadDto(
 				new CommunityId(1),
-				new ThreadMessageId(testThreadId),
+				new ThreadMessageId(Number(testThreadId)),
 				ThreadCategoryType.CATEGORY_TYPE_CHATGPT,
 				new ThreadMetadata({
 					persona_role: "テスト役割",
@@ -426,9 +412,8 @@ describe("Test Talk Interactions", function (this: Mocha.Suite) {
 					input_scope: "テスト範囲",
 				} as unknown as JSON),
 			),
-		);
-
-		when(chatAILogicMock.replyTalk(anything(), anything())).thenResolve("テスト応答");
+			replyResponse: "テスト応答",
+		});
 
 		const mockMessages = [
 			{ id: "msg5", author: { bot: false, id: testUserId }, content: "ユーザーメッセージ5" },
@@ -476,7 +461,7 @@ describe("Test Talk Interactions", function (this: Mocha.Suite) {
 		this.timeout(10_000);
 
 		const testGuildId = "12345";
-		const testThreadId = "67890";
+		const testThreadId = 67890;
 		const testUserId = "98765";
 		const testBotId = AppConfig.discord.clientId;
 
@@ -489,23 +474,23 @@ describe("Test Talk Interactions", function (this: Mocha.Suite) {
 			input_scope: "テスト範囲",
 		};
 
-		await createTestThread({ messageId: testThreadId, metadata: testMetadata });
+		await createTestThread({ messageId: Number(testThreadId), metadata: testMetadata });
 
-		const aiReplyHandler = new AIReplyHandler();
-		const communityLogicMock = mock<ICommunityLogic>();
-		// @ts-ignore
-		aiReplyHandler.CommunityLogic = instance(communityLogicMock);
-		when(communityLogicMock.getId(anything())).thenResolve(new CommunityId(1));
-
-		const threadLogicMockForChatAI = mock<ThreadLogic>();
-		// @ts-ignore
-		aiReplyHandler.threadLogic = instance(threadLogicMockForChatAI);
-
-		when(threadLogicMockForChatAI.find(anything(), anything())).thenResolve(createTestThreadDto({ messageId: testThreadId, metadata: testMetadata }));
-
-		const chatAILogicMock = mock<IChatAILogic>();
-		// @ts-ignore
-		aiReplyHandler.chatAILogic = instance(chatAILogicMock);
+		const { handler: aiReplyHandler, chatAILogicMock } = createAIReplyHandlerWithMocks({
+			threadDto: createTestThreadDto({ messageId: Number(testThreadId), metadata: testMetadata }),
+			replyCallback: (prompt, context) => {
+				const promptValue = (prompt as any).getValue();
+				expect(promptValue).to.deep.equal(testMetadata);
+				expect(context).to.be.an("array").with.lengthOf(3);
+				expect(context[0].role.getValue()).to.equal("user");
+				expect(context[0].content.getValue()).to.equal("ユーザーメッセージ1");
+				expect(context[1].role.getValue()).to.equal("assistant");
+				expect(context[1].content.getValue()).to.equal("ボットメッセージ1");
+				expect(context[2].role.getValue()).to.equal("user");
+				expect(context[2].content.getValue()).to.equal("ユーザーメッセージ2");
+				return Promise.resolve("テスト応答");
+			},
+		});
 
 		const testMessageHistory = [
 			{ id: "msg1", author: { bot: false, id: testUserId }, content: "ユーザーメッセージ1" },
@@ -513,38 +498,10 @@ describe("Test Talk Interactions", function (this: Mocha.Suite) {
 			{ id: "msg3", author: { bot: false, id: testUserId }, content: "ユーザーメッセージ2" },
 		];
 
-		const messageCollection = {
-			reverse: () => testMessageHistory,
-			map: function (callback: any) {
-				return this.reverse().map(callback);
-			},
-		};
-
-		const messageMock = mockMessage(testUserId);
-		const channelMock = mock<any>();
-		when(channelMock.isThread()).thenReturn(true);
-		when(channelMock.guildId).thenReturn(testGuildId);
-		when(channelMock.id).thenReturn(testThreadId);
-		when(channelMock.ownerId).thenReturn(testBotId);
-		when(channelMock.sendTyping()).thenResolve();
-		when(channelMock.messages).thenReturn({
-			fetch: () => Promise.resolve(messageCollection),
-		});
-
-		when(messageMock.channel).thenReturn(instance(channelMock));
-		when(messageMock.reply(anything())).thenResolve();
-
-		when(chatAILogicMock.replyTalk(anything(), anything())).thenCall((prompt, context) => {
-			const promptValue = prompt.getValue();
-			expect(promptValue).to.deep.equal(testMetadata);
-			expect(context).to.be.an("array").with.lengthOf(3);
-			expect(context[0].role.getValue()).to.equal("user");
-			expect(context[0].content.getValue()).to.equal("ユーザーメッセージ1");
-			expect(context[1].role.getValue()).to.equal("assistant");
-			expect(context[1].content.getValue()).to.equal("ボットメッセージ1");
-			expect(context[2].role.getValue()).to.equal("user");
-			expect(context[2].content.getValue()).to.equal("ユーザーメッセージ2");
-			return Promise.resolve("テスト応答");
+		const { messageMock } = setupMessageWithChannel({
+			userId: testUserId,
+			threadId: String(testThreadId),
+			messageCollection: createMessageCollectionMock(testMessageHistory),
 		});
 
 		await aiReplyHandler.handle(instance(messageMock));
@@ -589,11 +546,6 @@ describe("Test Talk Interactions", function (this: Mocha.Suite) {
 	it("test error handling robustness", async function (this: Mocha.Context) {
 		this.timeout(10_000);
 
-		const testGuildId = "12345";
-		const testThreadId = "67890";
-		const testUserId = "98765";
-		const testBotId = AppConfig.discord.clientId;
-
 		const testMetadata = {
 			persona_role: "テスト役割",
 			speaking_style_rules: "テストスタイル",
@@ -603,56 +555,23 @@ describe("Test Talk Interactions", function (this: Mocha.Suite) {
 			input_scope: "テスト範囲",
 		};
 
-		await createTestThread({ messageId: testThreadId, metadata: testMetadata });
+		await createTestThread({ messageId: TEST_THREAD_ID, metadata: testMetadata });
 
-		const aiReplyHandler = new AIReplyHandler();
-		const communityLogicMock = mock<ICommunityLogic>();
-		// @ts-ignore
-		aiReplyHandler.CommunityLogic = instance(communityLogicMock);
-		when(communityLogicMock.getId(anything())).thenResolve(new CommunityId(1));
+		const testMessageHistory = [{ id: "msg1", author: { bot: false, id: TEST_USER_ID }, content: "こんにちは" }];
 
-		const chatAILogicMock = mock<IChatAILogic>();
-		// @ts-ignore
-		aiReplyHandler.chatAILogic = instance(chatAILogicMock);
-
-		const testMessageHistory = [{ id: "msg1", author: { bot: false, id: testUserId }, content: "こんにちは" }];
-
-		const messageCollection = {
-			reverse: () => testMessageHistory,
-			map: function (callback: any) {
-				return this.reverse().map(callback);
-			},
-		};
-
-		const messageMock = mockMessage(testUserId);
-		const channelMock = mock<any>();
-		when(channelMock.isThread()).thenReturn(true);
-		when(channelMock.guildId).thenReturn(testGuildId);
-		when(channelMock.id).thenReturn(testThreadId);
-		when(channelMock.ownerId).thenReturn(testBotId);
-		when(channelMock.sendTyping()).thenResolve();
-		when(channelMock.messages).thenReturn({
-			fetch: () => Promise.resolve(messageCollection),
-		});
-
-		when(messageMock.channel).thenReturn(instance(channelMock));
-		when(messageMock.reply(anything())).thenResolve();
-
-		const threadLogicMock = mock<ThreadLogic>();
-		// @ts-ignore
-		aiReplyHandler.threadLogic = instance(threadLogicMock);
-
-		when(threadLogicMock.find(anything(), anything())).thenResolve(
-			new ThreadDto(
+		const { handler: aiReplyHandler } = createAIReplyHandlerWithMocks({
+			threadDto: new ThreadDto(
 				new CommunityId(1),
-				new ThreadMessageId(testThreadId),
+				new ThreadMessageId(TEST_THREAD_ID),
 				ThreadCategoryType.CATEGORY_TYPE_CHATGPT,
 				new ThreadMetadata(testMetadata as unknown as JSON),
 			),
-		);
+			replyThrowError: new Error("ChatAI応答生成エラー"),
+		});
 
-		// テストケース1: ChatAILogic.replyTalkが例外をスローする場合
-		when(chatAILogicMock.replyTalk(anything(), anything())).thenThrow(new Error("ChatAI応答生成エラー"));
+		const { messageMock } = setupMessageWithChannel({
+			messageCollection: createMessageCollectionMock(testMessageHistory),
+		});
 
 		let error = null;
 		try {
@@ -671,56 +590,14 @@ describe("Test Talk Interactions", function (this: Mocha.Suite) {
 	it("test empty message handling", async function (this: Mocha.Context) {
 		this.timeout(10_000);
 
-		const testGuildId = "12345";
-		const testThreadId = "67890";
-		const testUserId = "98765";
-		const testBotId = AppConfig.discord.clientId;
+		await createTestThread({ messageId: TEST_THREAD_ID });
 
-		await createTestThread({ messageId: testThreadId });
-
-		const aiReplyHandler = new AIReplyHandler();
-		const communityLogicMock = mock<ICommunityLogic>();
-		// @ts-ignore
-		aiReplyHandler.CommunityLogic = instance(communityLogicMock);
-		when(communityLogicMock.getId(anything())).thenResolve(new CommunityId(1));
-
-		const threadLogicMock = mock<ThreadLogic>();
-		// @ts-ignore
-		aiReplyHandler.threadLogic = instance(threadLogicMock);
-
-		when(threadLogicMock.find(anything(), anything())).thenResolve(createTestThreadDto({ messageId: testThreadId }));
-
-		const chatAILogicMock = mock<IChatAILogic>();
-		// @ts-ignore
-		aiReplyHandler.chatAILogic = instance(chatAILogicMock);
-
-		const emptyMessageMock = mockMessage(testUserId);
-		when(emptyMessageMock.content).thenReturn("");
-
-		const channelMock = mock<any>();
-		when(channelMock.isThread()).thenReturn(true);
-		when(channelMock.guildId).thenReturn(testGuildId);
-		when(channelMock.id).thenReturn(testThreadId);
-		when(channelMock.ownerId).thenReturn(testBotId);
-		when(channelMock.sendTyping()).thenResolve();
-		when(channelMock.messages).thenReturn({
-			fetch: () =>
-				Promise.resolve({
-					reverse: () => [{ author: { bot: false, id: testUserId }, content: "" }],
-					map: function (callback: any) {
-						return this.reverse().map(callback);
-					},
-				}),
+		const { chatAILogicMock } = await executeAIReplyTest({
+			content: "",
+			threadDto: createTestThreadDto(),
+			replyResponse: "何か質問や話したいことがあれば、お気軽に話しかけてね！",
 		});
 
-		when(emptyMessageMock.channel).thenReturn(instance(channelMock));
-		when(emptyMessageMock.reply(anything())).thenResolve();
-
-		when(chatAILogicMock.replyTalk(anything(), anything())).thenResolve("何か質問や話したいことがあれば、お気軽に話しかけてね！");
-
-		await aiReplyHandler.handle(instance(emptyMessageMock));
-
-		verify(emptyMessageMock.reply(anything())).once();
 		verify(chatAILogicMock.replyTalk(anything(), anything())).once();
 	});
 
@@ -730,60 +607,20 @@ describe("Test Talk Interactions", function (this: Mocha.Suite) {
 	it("test special characters and markdown handling", async function (this: Mocha.Context) {
 		this.timeout(10_000);
 
-		const testGuildId = "12345";
-		const testThreadId = "67890";
-		const testUserId = "98765";
-		const testBotId = AppConfig.discord.clientId;
+		await createTestThread({ messageId: TEST_THREAD_ID });
 
-		await createTestThread({ messageId: testThreadId });
-
-		const aiReplyHandler = new AIReplyHandler();
-		const communityLogicMock = mock<ICommunityLogic>();
-		// @ts-ignore
-		aiReplyHandler.CommunityLogic = instance(communityLogicMock);
-		when(communityLogicMock.getId(anything())).thenResolve(new CommunityId(1));
-
-		const threadLogicMock = mock<ThreadLogic>();
-		// @ts-ignore
-		aiReplyHandler.threadLogic = instance(threadLogicMock);
-
-		when(threadLogicMock.find(anything(), anything())).thenResolve(createTestThreadDto({ messageId: testThreadId }));
-
-		const chatAILogicMock = mock<IChatAILogic>();
-		// @ts-ignore
-		aiReplyHandler.chatAILogic = instance(chatAILogicMock);
-
-		const specialCharMessageMock = mockMessage(testUserId);
 		const specialCharContent = "# タイトル\n**太字**\n```コード```\n絵文字: 😀 🎉";
-		when(specialCharMessageMock.content).thenReturn(specialCharContent);
 
-		const channelMock = mock<any>();
-		when(channelMock.isThread()).thenReturn(true);
-		when(channelMock.guildId).thenReturn(testGuildId);
-		when(channelMock.id).thenReturn(testThreadId);
-		when(channelMock.ownerId).thenReturn(testBotId);
-		when(channelMock.sendTyping()).thenResolve();
-		when(channelMock.messages).thenReturn({
-			fetch: () =>
-				Promise.resolve({
-					reverse: () => [{ author: { bot: false, id: testUserId }, content: specialCharContent }],
-					map: function (callback: any) {
-						return this.reverse().map(callback);
-					},
-				}),
+		const { chatAILogicMock } = await executeAIReplyTest({
+			content: specialCharContent,
+			messageHistory: [{ id: "msg1", author: { bot: false, id: TEST_USER_ID }, content: specialCharContent }],
+			threadDto: createTestThreadDto(),
+			replyCallback: (prompt, context) => {
+				expect(context[0].content.getValue()).to.equal(specialCharContent);
+				return Promise.resolve("特殊文字とMarkdownを含むメッセージを受け取りました。");
+			},
 		});
 
-		when(specialCharMessageMock.channel).thenReturn(instance(channelMock));
-		when(specialCharMessageMock.reply(anything())).thenResolve();
-
-		when(chatAILogicMock.replyTalk(anything(), anything())).thenCall((prompt, context) => {
-			expect(context[0].content.getValue()).to.equal(specialCharContent);
-			return Promise.resolve("特殊文字とMarkdownを含むメッセージを受け取りました。");
-		});
-
-		await aiReplyHandler.handle(instance(specialCharMessageMock));
-
-		verify(specialCharMessageMock.reply(anything())).once();
 		verify(chatAILogicMock.replyTalk(anything(), anything())).once();
 	});
 
@@ -793,61 +630,21 @@ describe("Test Talk Interactions", function (this: Mocha.Suite) {
 	it("test long message handling", async function (this: Mocha.Context) {
 		this.timeout(10_000);
 
-		const testGuildId = "12345";
-		const testThreadId = "67890";
-		const testUserId = "98765";
-		const testBotId = AppConfig.discord.clientId;
+		await createTestThread({ messageId: TEST_THREAD_ID });
 
-		await createTestThread({ messageId: testThreadId });
-
-		const aiReplyHandler = new AIReplyHandler();
-		const communityLogicMock = mock<ICommunityLogic>();
-		// @ts-ignore
-		aiReplyHandler.CommunityLogic = instance(communityLogicMock);
-		when(communityLogicMock.getId(anything())).thenResolve(new CommunityId(1));
-
-		const threadLogicMock = mock<ThreadLogic>();
-		// @ts-ignore
-		aiReplyHandler.threadLogic = instance(threadLogicMock);
-
-		when(threadLogicMock.find(anything(), anything())).thenResolve(createTestThreadDto({ messageId: testThreadId }));
-
-		const chatAILogicMock = mock<IChatAILogic>();
-		// @ts-ignore
-		aiReplyHandler.chatAILogic = instance(chatAILogicMock);
-
-		const longMessageMock = mockMessage(testUserId);
 		const longContent = "これは長文メッセージのテストです。".repeat(100);
-		when(longMessageMock.content).thenReturn(longContent);
 
-		const channelMock = mock<any>();
-		when(channelMock.isThread()).thenReturn(true);
-		when(channelMock.guildId).thenReturn(testGuildId);
-		when(channelMock.id).thenReturn(testThreadId);
-		when(channelMock.ownerId).thenReturn(testBotId);
-		when(channelMock.sendTyping()).thenResolve();
-		when(channelMock.messages).thenReturn({
-			fetch: () =>
-				Promise.resolve({
-					reverse: () => [{ author: { bot: false, id: testUserId }, content: longContent }],
-					map: function (callback: any) {
-						return this.reverse().map(callback);
-					},
-				}),
+		const { chatAILogicMock } = await executeAIReplyTest({
+			content: longContent,
+			messageHistory: [{ id: "msg1", author: { bot: false, id: TEST_USER_ID }, content: longContent }],
+			threadDto: createTestThreadDto(),
+			replyCallback: (prompt, context) => {
+				expect(context[0].content.getValue()).to.equal(longContent);
+				expect(context[0].content.getValue().length).to.be.at.least(1000);
+				return Promise.resolve(`長文メッセージを受け取りました。${"応答の一部です。".repeat(50)}`);
+			},
 		});
 
-		when(longMessageMock.channel).thenReturn(instance(channelMock));
-		when(longMessageMock.reply(anything())).thenResolve();
-
-		when(chatAILogicMock.replyTalk(anything(), anything())).thenCall((prompt, context) => {
-			expect(context[0].content.getValue()).to.equal(longContent);
-			expect(context[0].content.getValue().length).to.be.at.least(1000);
-			return Promise.resolve(`長文メッセージを受け取りました。${"応答の一部です。".repeat(50)}`);
-		});
-
-		await aiReplyHandler.handle(instance(longMessageMock));
-
-		verify(longMessageMock.reply(anything())).atLeast(1);
 		verify(chatAILogicMock.replyTalk(anything(), anything())).once();
 	});
 });

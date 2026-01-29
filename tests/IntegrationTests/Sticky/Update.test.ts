@@ -1,5 +1,11 @@
 import { RoleConfig } from "@/src/entities/config/RoleConfig";
-import { ChannelRepositoryImpl, CommunityRepositoryImpl, StickyRepositoryImpl, UserRepositoryImpl } from "@/src/repositories/sequelize-mysql";
+import {
+	ChannelRepositoryImpl,
+	CommunityRepositoryImpl,
+	MessageRepositoryImpl,
+	StickyRepositoryImpl,
+	UserRepositoryImpl,
+} from "@/src/repositories/sequelize-mysql";
 import { MysqlConnector } from "@/tests/fixtures/database/MysqlConnector";
 import { mockSlashCommand, waitUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { expect } from "chai";
@@ -71,6 +77,7 @@ describe("Test StickyUpdateCommandHandler", () => {
 		new MysqlConnector();
 		// Clean up existing records
 		await StickyRepositoryImpl.destroy({ truncate: true, force: true });
+		await MessageRepositoryImpl.destroy({ truncate: true, force: true });
 		await ChannelRepositoryImpl.destroy({ truncate: true, force: true });
 		await UserRepositoryImpl.destroy({ truncate: true, force: true });
 		await CommunityRepositoryImpl.destroy({ truncate: true, force: true });
@@ -82,6 +89,10 @@ describe("Test StickyUpdateCommandHandler", () => {
 
 	afterEach(async () => {
 		await StickyRepositoryImpl.destroy({
+			truncate: true,
+			force: true,
+		});
+		await MessageRepositoryImpl.destroy({
 			truncate: true,
 			force: true,
 		});
@@ -317,18 +328,28 @@ describe("Test StickyUpdateCommandHandler", () => {
 		return (async () => {
 			// 管理者ユーザーIDを設定
 			const channelClientId = "2";
-			const messageId = "4";
+			const messageClientId = "4";
 			const message = "スティッキーのメッセージ";
 
 			// テスト用Channelを作成（DBのchannel.idを取得）
 			const dbChannelId = await createTestChannel(testCommunityId, channelClientId);
 
-			// スティッキーをデータベースに作成（DBのchannel.idを使用）
+			// Messageテーブルにデータを作成
+			const dbMessage = await MessageRepositoryImpl.create({
+				categoryType: 0, // Discord
+				clientId: BigInt(messageClientId),
+				communityId: testCommunityId,
+				userId: testUserId,
+				channelId: dbChannelId,
+				batchStatus: 0,
+			});
+
+			// スティッキーをデータベースに作成（DBのchannel.idとMessage.idを使用）
 			await StickyRepositoryImpl.create({
 				communityId: testCommunityId,
 				channelId: String(dbChannelId),
 				userId: testUserId,
-				messageId: messageId,
+				messageId: String(dbMessage.id),
 				message: message,
 			});
 
@@ -353,7 +374,7 @@ describe("Test StickyUpdateCommandHandler", () => {
 
 			// メッセージのモック
 			const messageMock = {
-				id: messageId,
+				id: messageClientId,
 				content: message,
 				delete: () => {
 					return Promise.resolve(true);
@@ -439,18 +460,28 @@ describe("Test StickyUpdateCommandHandler", () => {
 		return (async () => {
 			// 管理者ユーザーIDを設定
 			const channelClientId = "2";
-			const messageId = "4";
+			const messageClientId = "4";
 			const message = "スティッキーのメッセージ";
 
 			// テスト用Channelを作成（DBのchannel.idを取得）
 			const dbChannelId = await createTestChannel(testCommunityId, channelClientId);
 
-			// スティッキーをデータベースに作成（DBのchannel.idを使用）
+			// Messageテーブルにデータを作成
+			const dbMessage = await MessageRepositoryImpl.create({
+				categoryType: 0, // Discord
+				clientId: BigInt(messageClientId),
+				communityId: testCommunityId,
+				userId: testUserId,
+				channelId: dbChannelId,
+				batchStatus: 0,
+			});
+
+			// スティッキーをデータベースに作成（DBのchannel.idとMessage.idを使用）
 			await StickyRepositoryImpl.create({
 				communityId: testCommunityId,
 				channelId: String(dbChannelId),
 				userId: testUserId,
-				messageId: messageId,
+				messageId: String(dbMessage.id),
 				message: message,
 			});
 
@@ -492,10 +523,10 @@ describe("Test StickyUpdateCommandHandler", () => {
 
 			// メッセージのモック
 			const messageMock = {
-				id: messageId,
+				id: messageClientId,
 				content: message,
 				edit: (newContent: string) => {
-					return Promise.resolve({ id: messageId, content: newContent } as any);
+					return Promise.resolve({ id: messageClientId, content: newContent } as any);
 				},
 			};
 
@@ -560,19 +591,29 @@ describe("Test StickyUpdateCommandHandler", () => {
 		return (async () => {
 			// 管理者ユーザーIDを設定
 			const channelClientId = "2";
-			const messageId = "4";
+			const messageClientId = "4";
 			const originalMessage = "元のスティッキーメッセージ";
 			const updatedMessage = "更新されたスティッキーメッセージ";
 
 			// テスト用Channelを作成（DBのchannel.idを取得）
 			const dbChannelId = await createTestChannel(testCommunityId, channelClientId);
 
-			// スティッキーをデータベースに作成（DBのchannel.idを使用）
+			// Messageテーブルにデータを作成
+			const dbMessage = await MessageRepositoryImpl.create({
+				categoryType: 0, // Discord
+				clientId: BigInt(messageClientId),
+				communityId: testCommunityId,
+				userId: testUserId,
+				channelId: dbChannelId,
+				batchStatus: 0,
+			});
+
+			// スティッキーをデータベースに作成（DBのchannel.idとMessage.idを使用）
 			await StickyRepositoryImpl.create({
 				communityId: testCommunityId,
 				channelId: String(dbChannelId),
 				userId: testUserId,
-				messageId: messageId,
+				messageId: String(dbMessage.id),
 				message: originalMessage,
 			});
 
@@ -615,12 +656,12 @@ describe("Test StickyUpdateCommandHandler", () => {
 			// メッセージのモック
 			let editedContent = "";
 			const messageMock = {
-				id: messageId,
+				id: messageClientId,
 				content: originalMessage,
 				edit: (newContent: string) => {
 					editedContent = newContent;
 					messageMock.content = newContent; // Update the content property
-					return Promise.resolve({ id: messageId, content: newContent } as any);
+					return Promise.resolve({ id: messageClientId, content: newContent } as any);
 				},
 			};
 

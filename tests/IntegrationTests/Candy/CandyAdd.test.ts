@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { AppConfig } from "@/src/entities/config/AppConfig";
 import { CandyCategoryType } from "@/src/entities/vo/CandyCategoryType";
-import { CandyRepositoryImpl } from "@/src/repositories/sequelize-mysql";
+import { CandyRepositoryImpl, MessageRepositoryImpl } from "@/src/repositories/sequelize-mysql";
 import { waitUntilMessageReply } from "@/tests/fixtures/discord.js/MockMessage";
 import { mockReaction } from "@/tests/fixtures/discord.js/MockReaction";
 import { TestDiscordServer } from "@/tests/fixtures/discord.js/TestDiscordServer";
@@ -11,13 +11,14 @@ import type { MessageReactionEventDetails } from "discord.js";
 import type Mocha from "mocha";
 import { anything, instance, mock, verify, when } from "ts-mockito";
 
-import { TEST_GUILD_ID, type TestContext, setupTestEnvironment, teardownTestEnvironment } from "./CandyHelper.test";
+import { TEST_GUILD_ID, TEST_CHANNEL_ID, type TestContext, setupTestEnvironment, teardownTestEnvironment } from "./CandyHelper.test";
 
 describe("Test Candy Add (Reaction)", () => {
 	let testCommunityId: number;
 	let testUserId: number;
 	let testGiveUserId: number;
 	let testReceiverUserId: number;
+	let testChannelId: number;
 
 	beforeEach(async () => {
 		const context: TestContext = await setupTestEnvironment();
@@ -25,6 +26,7 @@ describe("Test Candy Add (Reaction)", () => {
 		testUserId = context.userId;
 		testGiveUserId = context.giveUserId;
 		testReceiverUserId = context.receiverUserId;
+		testChannelId = context.channelId;
 	});
 
 	afterEach(async () => {
@@ -45,6 +47,7 @@ describe("Test Candy Add (Reaction)", () => {
 			const { reaction, user, messageMock } = mockReaction(AppConfig.backend.candyEmoji, giverId, receiverId);
 
 			when(messageMock.guildId).thenReturn(TEST_GUILD_ID);
+			when(messageMock.channelId).thenReturn(TEST_CHANNEL_ID); // Ensure channelId matches the test setup
 			when(messageMock.url).thenReturn("https://discord.com/channels/1234567890/1234567890/7890");
 
 			const TEST_CLIENT = await TestDiscordServer.getClient();
@@ -78,10 +81,22 @@ describe("Test Candy Add (Reaction)", () => {
 
 			const today = new Date();
 			for (let i = 0; i < 3; i++) {
+				// Create Message record first
+				const message = await MessageRepositoryImpl.create({
+					categoryType: 0, // Discord
+					clientId: BigInt(i),
+					communityId: testCommunityId,
+					userId: testUserId,
+					channelId: testChannelId,
+					batchStatus: 0,
+					createdAt: today,
+					updatedAt: today,
+				});
+
 				await CandyRepositoryImpl.create({
 					userId: receiverId,
 					giveUserId: giverId,
-					messageId: String(i),
+					messageId: message.id,
 					expiredAt: dayjs().add(1, "month").hour(0).minute(0).second(0).millisecond(0).add(1, "day").toDate(),
 					deletedAt: null,
 					createdAt: today,

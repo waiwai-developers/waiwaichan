@@ -1,8 +1,8 @@
-import { AppConfig } from "@/src/entities/config/AppConfig";
 import type { ChatAIMessageDto } from "@/src/entities/dto/ChatAIMessageDto";
 import { ThreadDto } from "@/src/entities/dto/ThreadDto";
 import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
 import { CommunityId } from "@/src/entities/vo/CommunityId";
+import { MessageId } from "@/src/entities/vo/MessageId";
 import { PersonalityId } from "@/src/entities/vo/PersonalityId";
 import { ThreadCategoryType } from "@/src/entities/vo/ThreadCategoryType";
 import { ThreadMessageId } from "@/src/entities/vo/ThreadMessageId";
@@ -10,6 +10,7 @@ import { ThreadMetadata } from "@/src/entities/vo/ThreadMetadata";
 import { AIReplyHandler } from "@/src/handlers/discord.js/events/AIReplyHandler";
 import type { IChatAILogic } from "@/src/logics/Interfaces/logics/IChatAILogic";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
+import type { IMessageLogic } from "@/src/logics/Interfaces/logics/IMessageLogic";
 import type { ThreadLogic } from "@/src/logics/ThreadLogic";
 import { CommunityRepositoryImpl } from "@/src/repositories/sequelize-mysql/CommunityRepositoryImpl";
 import { ContextRepositoryImpl } from "@/src/repositories/sequelize-mysql/ContextRepositoryImpl";
@@ -96,6 +97,11 @@ describe("Talk Context Retention and End-to-End Tests", function (this: Mocha.Su
 		// @ts-ignore
 		aiReplyHandler.CommunityLogic = instance(communityLogicMock);
 		when(communityLogicMock.getId(anything())).thenResolve(new CommunityId(1));
+
+		const messageLogicMock = mock<IMessageLogic>();
+		// @ts-ignore
+		aiReplyHandler.MessageLogic = instance(messageLogicMock);
+		when(messageLogicMock.getIdByCommunityIdAndClientId(anything(), anything())).thenResolve(new MessageId(TEST_THREAD_ID));
 
 		const threadLogicMock = mock<ThreadLogic>();
 		// @ts-ignore
@@ -267,6 +273,7 @@ describe("Talk Context Retention and End-to-End Tests", function (this: Mocha.Su
 		this.timeout(30_000);
 
 		const testMetadata = createTestMetadata();
+		// Create thread with the internal messageId (TEST_THREAD_ID is used as the database ID here)
 		await createTestThread({ messageId: TEST_THREAD_ID, metadata: testMetadata });
 
 		const aiReplyHandler = new AIReplyHandler();
@@ -275,15 +282,28 @@ describe("Talk Context Retention and End-to-End Tests", function (this: Mocha.Su
 		aiReplyHandler.CommunityLogic = instance(communityLogicMock);
 		when(communityLogicMock.getId(anything())).thenResolve(new CommunityId(1));
 
+		const messageLogicMock = mock<IMessageLogic>();
+		// @ts-ignore
+		aiReplyHandler.MessageLogic = instance(messageLogicMock);
+		// Return the internal message ID that matches the thread's messageId
+		when(messageLogicMock.getIdByCommunityIdAndClientId(anything(), anything())).thenResolve(new MessageId(TEST_THREAD_ID));
+
 		const threadLogicMock = mock<ThreadLogic>();
 		// @ts-ignore
 		aiReplyHandler.threadLogic = instance(threadLogicMock);
 
+		// Directly return the thread from the database using the messageId (internal ID)
 		when(threadLogicMock.find(anything(), anything())).thenCall(async (communityId, messageId) => {
 			expect(communityId.getValue()).to.equal(1);
 			expect(messageId.getValue()).to.equal(TEST_THREAD_ID);
 
-			const thread = await findThreadByMessageId(messageId.getValue());
+			// Find the thread by internal messageId
+			const thread = await ThreadRepositoryImpl.findOne({
+				where: {
+					communityId: communityId.getValue(),
+					messageId: messageId.getValue(),
+				},
+			});
 			return thread ? thread.toDto() : undefined;
 		});
 
@@ -348,7 +368,7 @@ describe("Talk Context Retention and End-to-End Tests", function (this: Mocha.Su
 		expect(savedThread).to.not.be.null;
 		if (savedThread) {
 			expect(savedThread.communityId.toString()).to.equal("1");
-			expect(savedThread.messageId.toString()).to.equal(TEST_THREAD_ID);
+			expect(savedThread.messageId.toString()).to.equal(String(TEST_THREAD_ID));
 			expect(savedThread.categoryType).to.equal(ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue());
 
 			const metadata = savedThread.metadata;
