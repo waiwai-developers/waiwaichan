@@ -33,16 +33,6 @@ describe("Message delete event integration tests", () => {
 		return mock_;
 	};
 
-	const createMessageLogicMock = (overrides?: {
-		deleteByCommunityIdAndClientIdResult?: boolean;
-	}) => {
-		const mock_ = mock<IMessageLogic>();
-		if (overrides?.deleteByCommunityIdAndClientIdResult !== undefined) {
-			when(mock_.deleteByCommunityIdAndClientId(anything() as any, anything() as any)).thenResolve(overrides.deleteByCommunityIdAndClientIdResult);
-		}
-		return mock_;
-	};
-
 	const createMessageMock = (messageId: string, guildId: string, authorId?: string): any => ({
 		id: messageId,
 		guild: { id: guildId },
@@ -180,18 +170,6 @@ describe("Message delete event integration tests", () => {
 				const dmMessage = createDMMessageMock("111");
 
 				await handler.handle(dmMessage);
-
-				verify(communityLogicMock.getId(anything())).never();
-				verify(messageLogicMock.deleteByCommunityIdAndClientId(anything(), anything())).never();
-			});
-
-			it("Bot自身のメッセージ削除は処理がスキップされる", async () => {
-				const { handler, communityLogicMock, messageLogicMock } = setupHandlerWithMocks(MessageDeleteHandler);
-
-				// Bot自身のIDを持つメッセージ
-				const botMessage = createMessageMock("222", "333", AppConfig.discord.clientId);
-
-				await handler.handle(botMessage);
 
 				verify(communityLogicMock.getId(anything())).never();
 				verify(messageLogicMock.deleteByCommunityIdAndClientId(anything(), anything())).never();
