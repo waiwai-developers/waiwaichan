@@ -2,7 +2,14 @@ import "reflect-metadata";
 import { ITEM_RECORDS } from "@/migrator/seeds/20241111041901-item";
 import { ID_JACKPOT } from "@/src/entities/constants/Items";
 import { CandyCategoryType } from "@/src/entities/vo/CandyCategoryType";
-import { CandyRepositoryImpl, CommunityRepositoryImpl, UserCandyItemRepositoryImpl, UserRepositoryImpl } from "@/src/repositories/sequelize-mysql";
+import {
+	CandyRepositoryImpl,
+	ChannelRepositoryImpl,
+	CommunityRepositoryImpl,
+	MessageRepositoryImpl,
+	UserCandyItemRepositoryImpl,
+	UserRepositoryImpl,
+} from "@/src/repositories/sequelize-mysql";
 import { MysqlConnector } from "@/tests/fixtures/database/MysqlConnector";
 import { mockReaction } from "@/tests/fixtures/discord.js/MockReaction";
 import { waitUntilReply as waitSlashUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
@@ -14,6 +21,7 @@ import { anything, instance, mock, when } from "ts-mockito";
 
 // テスト用の定数
 export const TEST_GUILD_ID = "1234567890" as const;
+export const TEST_CHANNEL_ID = "1234567890" as const; // Match MockReaction's default channelId
 export const TEST_USER_ID = "1234" as const;
 export const TEST_GIVE_USER_ID = "12345" as const;
 export const TEST_RECEIVER_ID = "5678" as const;
@@ -257,6 +265,7 @@ export interface TestContext {
 	userId: number;
 	giveUserId: number;
 	receiverUserId: number;
+	channelId: number;
 }
 
 export function initializeDatabase(): void {
@@ -266,19 +275,30 @@ export function initializeDatabase(): void {
 export async function cleanupAllTables(): Promise<void> {
 	await CandyRepositoryImpl.destroy({ truncate: true, force: true });
 	await UserCandyItemRepositoryImpl.destroy({ truncate: true, force: true });
+	await MessageRepositoryImpl.destroy({ truncate: true, force: true });
 	await UserRepositoryImpl.destroy({ truncate: true, force: true });
+	await ChannelRepositoryImpl.destroy({ truncate: true, force: true });
 	await CommunityRepositoryImpl.destroy({ truncate: true, force: true });
 }
 
 export async function cleanupCandyTables(): Promise<void> {
 	await CandyRepositoryImpl.destroy({ truncate: true, force: true });
 	await UserCandyItemRepositoryImpl.destroy({ truncate: true, force: true });
+	await MessageRepositoryImpl.destroy({ truncate: true, force: true });
 }
 
 export async function createCommunityAndUser(): Promise<TestContext> {
 	const community = await CommunityRepositoryImpl.create({
 		categoryType: 0,
 		clientId: BigInt(TEST_GUILD_ID),
+		batchStatus: 0,
+	});
+
+	const channel = await ChannelRepositoryImpl.create({
+		categoryType: 0,
+		clientId: BigInt(TEST_CHANNEL_ID),
+		channelType: 0,
+		communityId: community.id,
 		batchStatus: 0,
 	});
 
@@ -311,6 +331,7 @@ export async function createCommunityAndUser(): Promise<TestContext> {
 		userId: user.id,
 		giveUserId: giveUser.id,
 		receiverUserId: receiverUser.id,
+		channelId: channel.id,
 	};
 }
 
@@ -329,16 +350,49 @@ export async function teardownTestEnvironment(): Promise<void> {
 // ============================================================
 
 export async function insertCandy(options: CandyDataOptions): Promise<void> {
+	// First create a Message record since messageId is now a foreign key
+	const message = await MessageRepositoryImpl.create({
+		categoryType: 0, // Discord
+		clientId: BigInt(options.messageId ?? "5678"),
+		communityId: options.communityId,
+		userId: options.userId,
+		channelId: 1, // Default channel
+		batchStatus: 0,
+	});
+	
 	const data = createCandyData(options);
-	await CandyRepositoryImpl.create(data);
+	// Use the Message's internal ID instead of the client ID
+	await CandyRepositoryImpl.create({
+		...data,
+		messageId: message.id,
+	});
 }
 
 export async function insertBulkCandies(
 	amount: number,
 	options: Pick<CandyDataOptions, "userId" | "giveUserId" | "communityId" | "categoryType">,
 ): Promise<void> {
+	// Create Message records first
+	const messages = await Promise.all(
+		Array.from({ length: amount }, async (_, i) => {
+			return await MessageRepositoryImpl.create({
+				categoryType: 0, // Discord
+				clientId: BigInt(`5678${i}`),
+				communityId: options.communityId,
+				userId: options.userId,
+				channelId: 1, // Default channel
+				batchStatus: 0,
+			});
+		})
+	);
+
 	const data = createBulkCandyData(amount, options);
-	await CandyRepositoryImpl.bulkCreate(data);
+	// Update messageIds to use Message internal IDs
+	const candyData = data.map((candy, index) => ({
+		...candy,
+		messageId: messages[index].id,
+	}));
+	await CandyRepositoryImpl.bulkCreate(candyData);
 }
 
 export async function insertPityCandies(
@@ -346,8 +400,31 @@ export async function insertPityCandies(
 	usedCount: number,
 	options: Pick<CandyDataOptions, "userId" | "giveUserId" | "communityId" | "categoryType">,
 ): Promise<void> {
+	// Create Message records first
+	const messages = await Promise.all(
+		Array.from({ length: totalAmount }, async (_, i) => {
+			const date = new Date();
+			date.setDate(date.getDate() - (totalAmount - i));
+			return await MessageRepositoryImpl.create({
+				categoryType: 0, // Discord
+				clientId: BigInt(10_000 + i),
+				communityId: options.communityId,
+				userId: options.userId,
+				channelId: 1, // Default channel
+				batchStatus: 0,
+				createdAt: date,
+				updatedAt: date,
+			});
+		})
+	);
+
 	const data = createPityCandyData(totalAmount, usedCount, options);
-	await CandyRepositoryImpl.bulkCreate(data);
+	// Update messageIds to use Message internal IDs
+	const candyData = data.map((candy, index) => ({
+		...candy,
+		messageId: messages[index].id,
+	}));
+	await CandyRepositoryImpl.bulkCreate(candyData);
 }
 
 export async function insertThisYearJackpot(options: Pick<UserCandyItemDataOptions, "userId" | "communityId" | "candyId">): Promise<void> {

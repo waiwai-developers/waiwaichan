@@ -1,4 +1,3 @@
-import { AppConfig } from "@/src/entities/config/AppConfig";
 import {
 	LogicTypes,
 	RepoTypes,
@@ -6,41 +5,42 @@ import {
 import { CommunityDto } from "@/src/entities/dto/CommunityDto";
 import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
 import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
-import { UserClientId } from "@/src/entities/vo/UserClientId";
-import { UserCommunityId } from "@/src/entities/vo/UserCommunityId";
+import { MessageClientId } from "@/src/entities/vo/MessageClientId";
+import { MessageCommunityId } from "@/src/entities/vo/MessageCommunityId";
 import type { DiscordEventHandler } from "@/src/handlers/discord.js/events/DiscordEventHandler";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
-import type { IUserLogic } from "@/src/logics/Interfaces/logics/IUserLogic";
+import type { IMessageLogic } from "@/src/logics/Interfaces/logics/IMessageLogic";
 import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
-import type { GuildMember } from "discord.js";
+import type { Message, PartialMessage } from "discord.js";
 import { inject, injectable } from "inversify";
 
 @injectable()
-export class ActionRemoveUserHandler
-	implements DiscordEventHandler<GuildMember>
+export class MessageDeleteHandler
+	implements DiscordEventHandler<Message | PartialMessage>
 {
 	@inject(RepoTypes.Logger)
 	private readonly logger!: ILogger;
 
-	@inject(LogicTypes.UserLogic)
-	private readonly UserLogic!: IUserLogic;
-
 	@inject(LogicTypes.CommunityLogic)
 	private readonly CommunityLogic!: ICommunityLogic;
 
-	async handle(member: GuildMember): Promise<void> {
+	@inject(LogicTypes.MessageLogic)
+	private readonly MessageLogic!: IMessageLogic;
+
+	async handle(message: Message | PartialMessage): Promise<void> {
 		try {
-			if (member.id === AppConfig.discord.clientId) {
+			if (!message.guild) {
 				return;
 			}
+
 			this.logger.info(
-				`ActionRemoveUserHandler: User was removed from guild, guildId: ${member.guild.id}`,
+				`ActionRemoveMessageHandler: Message was deleted from guild, guildId: ${message.guild.id}, messageId: ${message.id}`,
 			);
 
 			const communityId = await this.CommunityLogic.getId(
 				new CommunityDto(
 					CommunityCategoryType.Discord,
-					new CommunityClientId(BigInt(member.guild.id)),
+					new CommunityClientId(BigInt(message.guild.id)),
 				),
 			);
 
@@ -49,15 +49,15 @@ export class ActionRemoveUserHandler
 			}
 
 			const isDeletebyClientId =
-				await this.UserLogic.deleteByCommunityIdAndClientId(
-					new UserCommunityId(communityId.getValue()),
-					new UserClientId(BigInt(member.id)),
+				await this.MessageLogic.deleteByCommunityIdAndClientId(
+					new MessageCommunityId(communityId.getValue()),
+					new MessageClientId(BigInt(message.id)),
 				);
 			if (!isDeletebyClientId) {
 				return;
 			}
 		} catch (error) {
-			this.logger.error(`ActionRemoveUserHandler error: ${error}`);
+			this.logger.error(`ActionRemoveMessageHandler error: ${error}`);
 		}
 	}
 }

@@ -31,18 +31,19 @@ import {
 } from "@/src/handlers/discord.js/commands/";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
 import { AIReplyHandler } from "@/src/handlers/discord.js/events/AIReplyHandler";
-import { ActionAddBotHandler } from "@/src/handlers/discord.js/events/ActionAddBotHandler";
-import { ActionAddUserHandler } from "@/src/handlers/discord.js/events/ActionAddUserHandler";
-import { ActionRemoveBotHandler } from "@/src/handlers/discord.js/events/ActionRemoveBotHandler";
-import { ActionRemoveUserHandler } from "@/src/handlers/discord.js/events/ActionRemoveUserHandler";
+import { BotAddHandler } from "@/src/handlers/discord.js/events/BotAddHandler";
+import { BotRemoveHandler } from "@/src/handlers/discord.js/events/BotRemoveHandler";
 import { CandyReactionHandler } from "@/src/handlers/discord.js/events/CandyReactionHandler";
 import { ChannelCreateHandler } from "@/src/handlers/discord.js/events/ChannelCreateHandler";
 import { ChannelDeleteHandler } from "@/src/handlers/discord.js/events/ChannelDeleteHandler";
 import { CrownReactionHandler } from "@/src/handlers/discord.js/events/CrownReactionHandler";
 import type { DiscordEventHandler } from "@/src/handlers/discord.js/events/DiscordEventHandler";
 import type { ReactionInteraction } from "@/src/handlers/discord.js/events/DiscordEventHandler";
+import { MessageDeleteHandler } from "@/src/handlers/discord.js/events/MessageDeleteHandler";
 import { StickyEventHandler } from "@/src/handlers/discord.js/events/StickyEventHandler";
 import { TranslateReplyHandler } from "@/src/handlers/discord.js/events/TranslateReplyHandler";
+import { UserAddHandler } from "@/src/handlers/discord.js/events/UserAddHandler";
+import { UserRemoveHandler } from "@/src/handlers/discord.js/events/UserRemoveHandler";
 import { VoiceChannelConnectHandler } from "@/src/handlers/discord.js/events/VoiceChannelConnectHandler";
 import { VoiceChannelDisconnectHandler } from "@/src/handlers/discord.js/events/VoiceChannelDisconnectHandler";
 import type { VoiceChannelEventHandler, VoiceChannelState } from "@/src/handlers/discord.js/events/VoiceChannelEventHandler";
@@ -58,6 +59,7 @@ import type { IChatAILogic } from "@/src/logics/Interfaces/logics/IChatAILogic";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { IContextLogic } from "@/src/logics/Interfaces/logics/IContextLogic";
 import type { ICrownLogic } from "@/src/logics/Interfaces/logics/ICrownLogic";
+import type { IMessageLogic } from "@/src/logics/Interfaces/logics/IMessageLogic";
 import type { IPersonalityContextLogic } from "@/src/logics/Interfaces/logics/IPersonalityContextLogic";
 import type { IPersonalityLogic } from "@/src/logics/Interfaces/logics/IPersonalityLogic";
 import type { IPullRequestLogic } from "@/src/logics/Interfaces/logics/IPullRequestLogic";
@@ -80,6 +82,7 @@ import type { IContextRepository } from "@/src/logics/Interfaces/repositories/da
 import type { ICrownRepository } from "@/src/logics/Interfaces/repositories/database/ICrownRepository";
 import type { IDataBaseConnector } from "@/src/logics/Interfaces/repositories/database/IDataBaseConnector";
 import type { IDataDeletionCircular } from "@/src/logics/Interfaces/repositories/database/IDataDeletionCircular";
+import type { IMessageRepository } from "@/src/logics/Interfaces/repositories/database/IMessageRepository";
 import type { IPersonalityContextRepository } from "@/src/logics/Interfaces/repositories/database/IPersonalityContextRepository";
 import type { IPersonalityRepository } from "@/src/logics/Interfaces/repositories/database/IPersonalityRepository";
 import type { IReminderRepository } from "@/src/logics/Interfaces/repositories/database/IReminderRepository";
@@ -96,6 +99,7 @@ import type { IPullRequestRepository } from "@/src/logics/Interfaces/repositorie
 import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 import type { IMutex } from "@/src/logics/Interfaces/repositories/mutex/IMutex";
 import type { ITranslatorRepository } from "@/src/logics/Interfaces/repositories/translator/ITranslatorRepository";
+import { MessageLogic } from "@/src/logics/MessageLogic";
 import { PersonalityContextLogic } from "@/src/logics/PersonalityContextLogic";
 import { PersonalityLogic } from "@/src/logics/PersonalityLogic";
 import { PullRequestLogic } from "@/src/logics/PullRequestLogic";
@@ -122,6 +126,7 @@ import {
 	ContextRepositoryImpl,
 	CrownRepositoryImpl,
 	DataDeletionCircularImpl,
+	MessageRepositoryImpl,
 	PersonalityContextRepositoryImpl,
 	PersonalityRepositoryImpl,
 	ReminderRepositoryImpl,
@@ -136,19 +141,20 @@ import {
 } from "@/src/repositories/sequelize-mysql";
 import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnector";
 import { SequelizeTransaction } from "@/src/repositories/sequelize-mysql/SequelizeTransaction";
-import { ActionAddBotRouter } from "@/src/routes/discordjs/events/ActionAddBotRouter";
-import { ActionAddChannelRouter } from "@/src/routes/discordjs/events/ActionAddChannelRouter";
-import { ActionAddUserRouter } from "@/src/routes/discordjs/events/ActionAddUserRouter";
-import { ActionRemoveBotRouter } from "@/src/routes/discordjs/events/ActionRemoveBotRouter";
-import { ActionRemoveChannelRouter } from "@/src/routes/discordjs/events/ActionRemoveChannelRoute";
-import { ActionRemoveUserRouter } from "@/src/routes/discordjs/events/ActionRemoveUserRouter";
+import { BotAddRouter } from "@/src/routes/discordjs/events/BotAddRouter";
+import { BotRemoveRouter } from "@/src/routes/discordjs/events/BotRemoveRouter";
+import { ChannelCreateRouter } from "@/src/routes/discordjs/events/ChannelCreateRouter";
+import { ChannelDeleteRouter } from "@/src/routes/discordjs/events/ChannelDeleteRouter";
 import type { DiscordEventRouter } from "@/src/routes/discordjs/events/DiscordEventRouter";
+import { MessageDeleteRouter } from "@/src/routes/discordjs/events/MessageDeleteRouter";
 import { MessageReplyRouter } from "@/src/routes/discordjs/events/MessageReplyRouter";
 import { ReactionRouter } from "@/src/routes/discordjs/events/ReactionRouter";
 import { ReadyStateRouter } from "@/src/routes/discordjs/events/ReadyStateRouter";
 import { SlashCommandRouter } from "@/src/routes/discordjs/events/SlashCommandRouter";
+import { UserAddRouter } from "@/src/routes/discordjs/events/UserAddRouter";
+import { UserRemoveRouter } from "@/src/routes/discordjs/events/UserRemoveRouter";
 import { VoiceChannelEventRouter } from "@/src/routes/discordjs/events/VoiceChannelEventRouter";
-import type { DMChannel, Guild, GuildChannel, GuildMember, Message } from "discord.js";
+import type { DMChannel, Guild, GuildChannel, GuildMember, Message, PartialMessage } from "discord.js";
 import { Container } from "inversify";
 import type { Sequelize } from "sequelize";
 import { DiceLogic } from "./logics/DiceLogic";
@@ -179,6 +185,7 @@ appContainer.bind<IStickyRepository>(RepoTypes.StickyRepository).to(StickyReposi
 appContainer.bind<ICommunityRepository>(RepoTypes.CommunityRepository).to(CommunityRepositoryImpl);
 appContainer.bind<IUserRepository>(RepoTypes.UserRepository).to(UserRepositoryImpl);
 appContainer.bind<IChannelRepository>(RepoTypes.ChannelRepository).to(ChannelRepositoryImpl);
+appContainer.bind<IMessageRepository>(RepoTypes.MessageRepository).to(MessageRepositoryImpl);
 appContainer.bind<IDataDeletionCircular>(RepoTypes.DataDeletionCircular).to(DataDeletionCircularImpl);
 // ChatGPT
 appContainer.bind<IChatAIRepository>(RepoTypes.ChatAIRepository).to(ChatGPTRepositoryImpl);
@@ -210,18 +217,20 @@ appContainer.bind<IUtilityLogic>(LogicTypes.UtilityLogic).to(UtilityLogic);
 appContainer.bind<ICommunityLogic>(LogicTypes.CommunityLogic).to(CommunityLogic);
 appContainer.bind<IUserLogic>(LogicTypes.UserLogic).to(UserLogic);
 appContainer.bind<IChannelLogic>(LogicTypes.ChannelLogic).to(ChannelLogic);
+appContainer.bind<IMessageLogic>(LogicTypes.MessageLogic).to(MessageLogic);
 
 // Handlers
 appContainer.bind<DiscordEventHandler<Message>>(HandlerTypes.MessageHandler).to(AIReplyHandler);
 appContainer.bind<DiscordEventHandler<Message>>(HandlerTypes.MessageHandler).to(StickyEventHandler);
 appContainer.bind<DiscordEventHandler<Message>>(HandlerTypes.MessageHandler).to(TranslateReplyHandler);
 appContainer.bind<DiscordEventHandler<ReactionInteraction>>(HandlerTypes.ReactionHandler).to(CandyReactionHandler);
-appContainer.bind<DiscordEventHandler<Guild>>(HandlerTypes.ActionAddBotHandler).to(ActionAddBotHandler);
-appContainer.bind<DiscordEventHandler<Guild>>(HandlerTypes.ActionRemoveBotHandler).to(ActionRemoveBotHandler);
-appContainer.bind<DiscordEventHandler<GuildMember>>(HandlerTypes.ActionAddUserHandler).to(ActionAddUserHandler);
-appContainer.bind<DiscordEventHandler<GuildMember>>(HandlerTypes.ActionRemoveUserHandler).to(ActionRemoveUserHandler);
-appContainer.bind<DiscordEventHandler<GuildChannel>>(HandlerTypes.ActionAddChannelHandler).to(ChannelCreateHandler);
-appContainer.bind<DiscordEventHandler<GuildChannel | DMChannel>>(HandlerTypes.ActionRemoveChannelHandler).to(ChannelDeleteHandler);
+appContainer.bind<DiscordEventHandler<Guild>>(HandlerTypes.BotAddHandler).to(BotAddHandler);
+appContainer.bind<DiscordEventHandler<Guild>>(HandlerTypes.BotRemoveHandler).to(BotRemoveHandler);
+appContainer.bind<DiscordEventHandler<GuildMember>>(HandlerTypes.UserAddHandler).to(UserAddHandler);
+appContainer.bind<DiscordEventHandler<GuildMember>>(HandlerTypes.UserRemoveHandler).to(UserRemoveHandler);
+appContainer.bind<DiscordEventHandler<Message | PartialMessage>>(HandlerTypes.MessageDeleteHandler).to(MessageDeleteHandler);
+appContainer.bind<DiscordEventHandler<GuildChannel>>(HandlerTypes.ChannelCreateHandler).to(ChannelCreateHandler);
+appContainer.bind<DiscordEventHandler<GuildChannel | DMChannel>>(HandlerTypes.ChannelDeleteHandler).to(ChannelDeleteHandler);
 appContainer.bind<DiscordEventHandler<ReactionInteraction>>(HandlerTypes.ReactionHandler).to(CrownReactionHandler);
 appContainer.bind<VoiceChannelEventHandler<VoiceChannelState>>(HandlerTypes.VoiceChannelEventHandler).to(VoiceChannelConnectHandler);
 appContainer.bind<VoiceChannelEventHandler<VoiceChannelState>>(HandlerTypes.VoiceChannelEventHandler).to(VoiceChannelDisconnectHandler);
@@ -258,11 +267,12 @@ appContainer.bind<DiscordEventRouter>(RouteTypes.SlashCommandRoute).to(SlashComm
 appContainer.bind<DiscordEventRouter>(RouteTypes.MessageReplyRoute).to(MessageReplyRouter);
 appContainer.bind<DiscordEventRouter>(RouteTypes.ReadyStateRoute).to(ReadyStateRouter);
 appContainer.bind<DiscordEventRouter>(RouteTypes.ReactionRoute).to(ReactionRouter);
-appContainer.bind<DiscordEventRouter>(RouteTypes.ActionAddBotRoute).to(ActionAddBotRouter);
-appContainer.bind<DiscordEventRouter>(RouteTypes.ActionRemoveBotRoute).to(ActionRemoveBotRouter);
-appContainer.bind<DiscordEventRouter>(RouteTypes.ActionAddUserRoute).to(ActionAddUserRouter);
-appContainer.bind<DiscordEventRouter>(RouteTypes.ActionRemoveUserRoute).to(ActionRemoveUserRouter);
-appContainer.bind<DiscordEventRouter>(RouteTypes.ActionAddChannelRoute).to(ActionAddChannelRouter);
-appContainer.bind<DiscordEventRouter>(RouteTypes.ActionRemoveChannelRoute).to(ActionRemoveChannelRouter);
+appContainer.bind<DiscordEventRouter>(RouteTypes.BotAddRoute).to(BotAddRouter);
+appContainer.bind<DiscordEventRouter>(RouteTypes.BotRemoveRoute).to(BotRemoveRouter);
+appContainer.bind<DiscordEventRouter>(RouteTypes.UserAddRoute).to(UserAddRouter);
+appContainer.bind<DiscordEventRouter>(RouteTypes.UserRemoveRoute).to(UserRemoveRouter);
+appContainer.bind<DiscordEventRouter>(RouteTypes.MessageDeleteRoute).to(MessageDeleteRouter);
+appContainer.bind<DiscordEventRouter>(RouteTypes.ChannelCreateRoute).to(ChannelCreateRouter);
+appContainer.bind<DiscordEventRouter>(RouteTypes.ChannelDeleteRoute).to(ChannelDeleteRouter);
 appContainer.bind<DiscordEventRouter>(RouteTypes.VoiceChannelEventRoute).to(VoiceChannelEventRouter);
 export { appContainer };

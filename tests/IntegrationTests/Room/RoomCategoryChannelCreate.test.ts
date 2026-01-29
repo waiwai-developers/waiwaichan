@@ -1,3 +1,4 @@
+import { CategoryChannel } from "discord.js";
 import type Mocha from "mocha";
 import {
 	DISCORD_CATEGORY_CHANNEL_TYPE,
@@ -14,7 +15,6 @@ import {
 	waitUntilReply,
 	when,
 } from "./RoomTestHelpers";
-import { CategoryChannel } from "discord.js";
 
 describe("Test RoomCategoryChannelCreate Commands", () => {
 	beforeEach(async () => {

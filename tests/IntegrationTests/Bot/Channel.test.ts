@@ -11,8 +11,8 @@ import type { IChannelLogic } from "@/src/logics/Interfaces/logics/IChannelLogic
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 import { ChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/ChannelRepositoryImpl";
-import { ActionAddChannelRouter } from "@/src/routes/discordjs/events/ActionAddChannelRouter";
-import { ActionRemoveChannelRouter } from "@/src/routes/discordjs/events/ActionRemoveChannelRoute";
+import { ChannelCreateRouter } from "@/src/routes/discordjs/events/ChannelCreateRouter";
+import { ChannelDeleteRouter } from "@/src/routes/discordjs/events/ChannelDeleteRouter";
 import { expect } from "chai";
 import { ChannelType as DiscordChannelType } from "discord.js";
 import { Op } from "sequelize";
@@ -150,18 +150,18 @@ describe("Channel event integration tests", () => {
 	};
 
 	/**
-	 * 1) ActionAddChannelRouter / ChannelCreateHandler (Channel追加)
+	 * 1) ChannelCreateRouter / ChannelCreateHandler (Channel追加)
 	 */
-	describe("1) ActionAddChannelRouter / ChannelCreateHandler", () => {
+	describe("1) ChannelCreateRouter / ChannelCreateHandler", () => {
 		it("channelCreateでRouterがHandlerを呼び出す", async () => {
 			const handlerMock = mock<ChannelCreateHandler>();
 			const channel = createChannelMock("501", "500");
-			await setupRouterAndVerifyHandlerCall(ActionAddChannelRouter, handlerMock, "channelCreate", channel);
+			await setupRouterAndVerifyHandlerCall(ChannelCreateRouter, handlerMock, "channelCreate", channel);
 			verify(handlerMock.handle(channel)).once();
 		});
 
 		it("DMチャンネルの作成イベントは処理がスキップされる", async () => {
-			const router = new ActionAddChannelRouter();
+			const router = new ChannelCreateRouter();
 			const loggerMock = createLoggerMock();
 			const handlerMock = mock<ChannelCreateHandler>();
 
@@ -275,13 +275,13 @@ describe("Channel event integration tests", () => {
 	});
 
 	/**
-	 * 2) ActionRemoveChannelRouter / ChannelDeleteHandler (Channel削除)
+	 * 2) ChannelDeleteRouter / ChannelDeleteHandler (Channel削除)
 	 */
-	describe("2) ActionRemoveChannelRouter / ChannelDeleteHandler", () => {
+	describe("2) ChannelDeleteRouter / ChannelDeleteHandler", () => {
 		it("channelDeleteでRouterがHandlerを呼び出す", async () => {
 			const handlerMock = mock<ChannelDeleteHandler>();
 			const channel = createChannelMock("701", "700");
-			await setupRouterAndVerifyHandlerCall(ActionRemoveChannelRouter, handlerMock, "channelDelete", channel);
+			await setupRouterAndVerifyHandlerCall(ChannelDeleteRouter, handlerMock, "channelDelete", channel);
 			verify(handlerMock.handle(channel)).once();
 		});
 
@@ -468,7 +468,7 @@ describe("Channel event integration tests", () => {
 	 */
 	describe("4) Error handling", () => {
 		it("Router/Handlerで例外が発生した場合にログに出力される", async () => {
-			const router = new ActionAddChannelRouter();
+			const router = new ChannelCreateRouter();
 			const routerLogger = createLoggerMock();
 			const handlerMock = mock<ChannelCreateHandler>();
 			when(handlerMock.handle(anything())).thenThrow(new Error("boom"));

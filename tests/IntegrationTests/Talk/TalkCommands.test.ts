@@ -2,12 +2,15 @@ import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
 import { PersonalityId } from "@/src/entities/vo/PersonalityId";
 import { ThreadCategoryType } from "@/src/entities/vo/ThreadCategoryType";
 import { TalkCommandHandler } from "@/src/handlers/discord.js/commands/TalkCommandHandler";
+import { ChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/ChannelRepositoryImpl";
 import { CommunityRepositoryImpl } from "@/src/repositories/sequelize-mysql/CommunityRepositoryImpl";
 import { ContextRepositoryImpl } from "@/src/repositories/sequelize-mysql/ContextRepositoryImpl";
+import { MessageRepositoryImpl } from "@/src/repositories/sequelize-mysql/MessageRepositoryImpl";
 import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnector";
 import { PersonalityContextRepositoryImpl } from "@/src/repositories/sequelize-mysql/PersonalityContextRepositoryImpl";
 import { PersonalityRepositoryImpl } from "@/src/repositories/sequelize-mysql/PersonalityRepositoryImpl";
 import { ThreadRepositoryImpl } from "@/src/repositories/sequelize-mysql/ThreadRepositoryImpl";
+import { UserRepositoryImpl } from "@/src/repositories/sequelize-mysql/UserRepositoryImpl";
 import { mockSlashCommand, waitUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { expect } from "chai";
 import { anything, instance, mock, verify, when } from "ts-mockito";
@@ -26,6 +29,10 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 	// テストのタイムアウト時間を延長（60秒）
 	this.timeout(60_000);
 
+	// テスト用定数（MockSlashCommandのデフォルト値と一致させる）
+	const TEST_USER_ID = "1234"; // MockSlashCommandのデフォルトuserId
+	const TEST_CHANNEL_ID = "5678"; // MockSlashCommandのデフォルトchannelId
+
 	beforeEach(async () => {
 		// データベース接続を初期化（MockLoggerを使用）
 
@@ -33,21 +40,24 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		// @ts-ignore - privateフィールドにアクセスするため
 		connector.instance.options.logging = false;
 
-		// コミュニティデータをクリーンアップ
-		await CommunityRepositoryImpl.destroy({
+		// テスト前にデータをクリーンアップ
+		await ThreadRepositoryImpl.destroy({
 			truncate: true,
 			force: true,
 		});
-
-		// テスト用のコミュニティを作成
-		await CommunityRepositoryImpl.create({
-			categoryType: CommunityCategoryType.Discord.getValue(),
-			clientId: BigInt(TEST_GUILD_ID),
-			batchStatus: 0,
+		await MessageRepositoryImpl.destroy({
+			truncate: true,
+			force: true,
 		});
-
-		// テスト前にデータをクリーンアップ
-		await ThreadRepositoryImpl.destroy({
+		await ChannelRepositoryImpl.destroy({
+			truncate: true,
+			force: true,
+		});
+		await UserRepositoryImpl.destroy({
+			truncate: true,
+			force: true,
+		});
+		await CommunityRepositoryImpl.destroy({
 			truncate: true,
 			force: true,
 		});
@@ -62,6 +72,31 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		await PersonalityRepositoryImpl.destroy({
 			truncate: true,
 			force: true,
+		});
+
+		// テスト用のコミュニティを作成
+		const community = await CommunityRepositoryImpl.create({
+			categoryType: CommunityCategoryType.Discord.getValue(),
+			clientId: BigInt(TEST_GUILD_ID),
+			batchStatus: 0,
+		});
+
+		// テスト用のユーザーを作成
+		await UserRepositoryImpl.create({
+			categoryType: 0, // Discord
+			clientId: BigInt(TEST_USER_ID),
+			userType: 0, // user
+			communityId: community.id,
+			batchStatus: 0,
+		});
+
+		// テスト用のチャンネルを作成
+		await ChannelRepositoryImpl.create({
+			categoryType: 0, // Discord
+			clientId: BigInt(TEST_CHANNEL_ID),
+			channelType: 2, // DiscordText
+			communityId: community.id,
+			batchStatus: 0,
 		});
 
 		// Personalityデータの作成
@@ -161,7 +196,7 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		// テスト用のパラメータ
 		const testTitle = "テストタイトル";
 		const testContextType = 999; // seedsで使用されていないIDを使用
-		const testMessageId = "67890";
+		const testMessageId = 67890;
 		const expectedThreadTitle = `テストコンテキスト: ${testTitle}`;
 
 		// モックの設定（guildIdを正しく設定）

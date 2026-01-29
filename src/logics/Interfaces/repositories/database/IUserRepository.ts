@@ -16,6 +16,10 @@ export interface IUserRepository {
 		clientIds: UserClientId[],
 	): Promise<boolean>;
 	getId(data: UserDto): Promise<UserId | undefined>;
+	getIdByCommunityIdAndClientId(
+		communityId: UserCommunityId,
+		clientId: UserClientId,
+	): Promise<UserId | undefined>;
 	findByBatchStatusAndDeletedAt(): Promise<UserId[]>;
 	findDeletionTargetsByBatchStatusAndDeletedAt(): Promise<
 		DeletedUserTargetDto[]

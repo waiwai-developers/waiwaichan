@@ -9,7 +9,7 @@ import {
 	TextChannel,
 	User,
 } from "discord.js";
-import { anything, instance, mock, verify, when } from "ts-mockito";
+import { instance, mock, when } from "ts-mockito";
 
 export interface MockReactionOptions {
 	isPartial?: boolean;
@@ -42,20 +42,26 @@ export const mockReaction = (
 	when(UserMock.id).thenReturn(giverId);
 	when(EmojiMock.name).thenReturn(reaction);
 
+	// Handle partial reaction
+	when(ReactionMock.partial).thenReturn(isPartial as false);
 	if (isPartial) {
-		when(ReactionMock.fetch).thenReturn(instance(mock<() => Promise<MessageReaction>>()));
-		when(ReactionMock.fetch()).thenReturn();
-		when(MessageMock.fetch()).thenReturn();
+		when(ReactionMock.fetch()).thenResolve(instance(ReactionMock) as any);
+		when(MessageMock.fetch()).thenResolve(instance(MessageMock) as any);
 	}
 
 	when(AuthorMock.bot).thenReturn(isBotMessage);
 	when(AuthorMock.id).thenReturn(receiverId);
 
 	when(MessageMock.id).thenReturn("7890");
+	when(MessageMock.content).thenReturn("Test message content");
+	when(MessageMock.channelId).thenReturn("1234567890");
+	when(MessageMock.guildId).thenReturn("1234567890");
+	when(MessageMock.url).thenReturn("https://discord.com/channels/1234567890/1234567890/7890");
 	when(ReactionMock.emoji).thenReturn(instance(EmojiMock));
 	when(MessageMock.author).thenReturn(instance(AuthorMock));
 
 	when(ReactionMock.message).thenReturn(instance(MessageMock));
+	when(ReactionMock.count).thenReturn(1);
 
 	// Guild and channel setup for candy log channel
 	const channelsCache = new Collection<string, GuildTextBasedChannel>();
@@ -119,6 +125,7 @@ export const mockCrownReaction = (reactionEmoji: string, giverId: string, receiv
 	// Message properties
 	when(MessageMock.id).thenReturn(messageId);
 	when(MessageMock.content).thenReturn(content as string);
+	when(MessageMock.channelId).thenReturn("1234567890");
 	when(MessageMock.guildId).thenReturn(guildId);
 	when(MessageMock.url).thenReturn(messageUrl);
 	when(MessageMock.author).thenReturn(instance(AuthorMock));

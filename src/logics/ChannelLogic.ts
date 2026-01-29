@@ -72,6 +72,18 @@ export class ChannelLogic implements IChannelLogic {
 		});
 	}
 
+	async getIdByCommunityIdAndClientId(
+		communityId: ChannelCommunityId,
+		clientId: ChannelClientId,
+	): Promise<ChannelId | undefined> {
+		return this.transaction.startTransaction(async () => {
+			return await this.ChannelRepository.getIdByCommunityIdAndClientId(
+				communityId,
+				clientId,
+			);
+		});
+	}
+
 	async getClientIdById(id: ChannelId): Promise<ChannelClientId | undefined> {
 		return this.transaction.startTransaction(async () => {
 			return await this.ChannelRepository.getClientIdById(id);

@@ -1,6 +1,6 @@
 import { CrownDto } from "@/src/entities/dto/CrownDto";
 import { CommunityId } from "@/src/entities/vo/CommunityId";
-import { DiscordMessageId } from "@/src/entities/vo/DiscordMessageId";
+import { MessageId } from "@/src/entities/vo/MessageId";
 import type { ICrownRepository } from "@/src/logics/Interfaces/repositories/database/ICrownRepository";
 import { injectable } from "inversify";
 import {
@@ -16,6 +16,7 @@ import {
 @Table({
 	tableName: "Crowns",
 	timestamps: true,
+	paranoid: true,
 })
 class CrownRepositoryImpl extends Model implements ICrownRepository {
 	@PrimaryKey
@@ -24,8 +25,8 @@ class CrownRepositoryImpl extends Model implements ICrownRepository {
 	declare communityId: number;
 	@PrimaryKey
 	@AllowNull(false)
-	@Column(DataType.BIGINT)
-	declare messageId: string;
+	@Column(DataType.INTEGER)
+	declare messageId: number;
 
 	async findOne(data: CrownDto): Promise<CrownDto | undefined> {
 		return await CrownRepositoryImpl.findOne({
@@ -46,7 +47,7 @@ class CrownRepositoryImpl extends Model implements ICrownRepository {
 	toDto(): CrownDto {
 		return new CrownDto(
 			new CommunityId(this.communityId),
-			new DiscordMessageId(this.messageId),
+			new MessageId(this.messageId),
 		);
 	}
 }
