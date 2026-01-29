@@ -42,7 +42,7 @@ describe("Test Candy Add Super (Super Reaction)", () => {
 		return (async () => {
 			const giverId = "1234";
 			const receiverId = "5678";
-			const creationDate = dayjs().add(1, "month").hour(0).minute(0).second(0).millisecond(0).add(1, "day").subtract(1, "second");
+			const creationDate = dayjs().add(1, "day").add(1, "month").startOf("day").subtract(1, "second");
 			const { reaction, user, messageMock } = mockReaction(AppConfig.backend.candySuperEmoji, giverId, receiverId);
 			const beforeCount = await CandyRepositoryImpl.count();
 
@@ -68,7 +68,7 @@ describe("Test Candy Add Super (Super Reaction)", () => {
 				expect(String(candy.userId)).to.eq(String(testReceiverUserId));
 				expect(candy.categoryType).to.eq(CandyCategoryType.CATEGORY_TYPE_SUPER.getValue());
 
-				const finishedDate = dayjs().add(1, "month").hour(0).minute(0).second(0).millisecond(0).add(1, "day").add(1, "second");
+				const finishedDate = dayjs().add(1, "day").add(1, "month").startOf("day").add(1, "second");
 
 				expect(creationDate.isBefore(dayjs(candy.expiredAt))).to.be.true;
 				expect(finishedDate.isAfter(dayjs(candy.expiredAt))).to.be.true;
