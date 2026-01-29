@@ -10,7 +10,19 @@ export const up: Migration = async ({ context: sequelize }) => {
 	const tableDescription = await queryInterface.describeTable(TABLE_NAME);
 
 	if (tableDescription[COLUMN_NAME]) {
-		// Remove the clientId column from Crowns table
+		// Step 1: Drop the old PRIMARY KEY (communityId, clientId)
+		await sequelize.query(
+			`ALTER TABLE ${TABLE_NAME} DROP PRIMARY KEY`,
+		);
+		console.log(`Dropped old PRIMARY KEY from ${TABLE_NAME} table`);
+
+		// Step 2: Add new PRIMARY KEY (communityId, messageId)
+		await sequelize.query(
+			`ALTER TABLE ${TABLE_NAME} ADD PRIMARY KEY (communityId, messageId)`,
+		);
+		console.log(`Added new PRIMARY KEY (communityId, messageId) to ${TABLE_NAME} table`);
+
+		// Step 3: Remove the clientId column from Crowns table
 		await queryInterface.removeColumn(TABLE_NAME, COLUMN_NAME);
 		console.log(`Removed ${COLUMN_NAME} column from ${TABLE_NAME} table`);
 	} else {
