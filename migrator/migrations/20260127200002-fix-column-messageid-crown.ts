@@ -21,11 +21,6 @@ interface CrownRecord {
 	messageId: string;
 }
 
-interface CommunityRecord {
-	id: number;
-	clientId: string;
-}
-
 interface ChannelRecord {
 	id: number;
 	clientId: string;
@@ -41,50 +36,16 @@ interface UserRecord {
 export const up: Migration = async ({ context: sequelize }) => {
 	const queryInterface = sequelize.getQueryInterface();
 
-	// Step 1: CrownsテーブルのDiscordClientのmessageIdを全て取得しdiscordClientにアクセスし
-	// CommunityテーブルやUsersテーブルやChannelsテーブルのidを取得しMessageテーブルのレコードとして発行する
-	console.log(
-		"Step 1: Fetching Crown records and creating Message records via Discord API...",
-	);
-
-	// Get all Crown records
-	const crowns = await sequelize.query<CrownRecord>(
+	// Step 1: CrownsテーブルのDiscordClientのmessageIdを全て取得する
+	const crownRecords = await sequelize.query<CrownRecord>(
 		`SELECT communityId, messageId FROM ${CROWNS_TABLE_NAME}`,
 		{ type: QueryTypes.SELECT },
 	);
 
-	console.log(`Found ${crowns.length} Crown records`);
-
-	if (crowns.length > 0) {
-		// Get all Communities for lookup
-		const communities = await sequelize.query<CommunityRecord>(
-			`SELECT id, clientId FROM ${COMMUNITIES_TABLE_NAME}`,
-			{ type: QueryTypes.SELECT },
-		);
-		const communityByClientId = new Map(
-			communities.map((c) => [c.clientId, c.id]),
-		);
-		const communityById = new Map(communities.map((c) => [c.id, c.clientId]));
-
-		// Get all Channels for lookup
-		const channels = await sequelize.query<ChannelRecord>(
-			`SELECT id, clientId, communityId FROM ${CHANNELS_TABLE_NAME}`,
-			{ type: QueryTypes.SELECT },
-		);
-		const channelByClientIdAndCommunityId = new Map<string, number>(
-			channels.map((c) => [`${c.clientId}_${c.communityId}`, c.id]),
-		);
-
-		// Get all Users for lookup
-		const users = await sequelize.query<UserRecord>(
-			`SELECT id, clientId, communityId FROM ${USERS_TABLE_NAME}`,
-			{ type: QueryTypes.SELECT },
-		);
-		const userByClientIdAndCommunityId = new Map<string, number>(
-			users.map((u) => [`${u.clientId}_${u.communityId}`, u.id]),
-		);
-
-		// Initialize Discord client
+	if (crownRecords.length === 0) {
+		console.log("No crown records found, skipping Discord client access");
+	} else {
+		// Step 2: discordClientにアクセスしUsersのclientIdとChannelsのclientIdを取得する
 		const appConfig = GetEnvAppConfig();
 		const client = new Client({
 			intents: [
@@ -95,223 +56,202 @@ export const up: Migration = async ({ context: sequelize }) => {
 			partials: [Partials.Message, Partials.Channel],
 		});
 
-		try {
-			await client.login(appConfig.discord.token);
-			console.log("Discord client logged in");
+		await client.login(appConfig.discord.token);
 
-			// Wait for client to be ready
-			await new Promise<void>((resolve) => {
-				if (client.isReady()) {
-					resolve();
-				} else {
-					client.once("ready", () => resolve());
-				}
+		// Wait for client to be ready
+		await new Promise<void>((resolve) => {
+			client.once("ready", () => {
+				console.log("Discord client is ready");
+				resolve();
 			});
+		});
 
-			const now = new Date();
-			const messagesToInsert: Array<{
-				categoryType: number;
-				clientId: string;
-				communityId: number;
-				channelId: number;
-				userId: number;
-				batchStatus: number;
-				createdAt: Date;
-				updatedAt: Date;
-			}> = [];
+		for (const crownRecord of crownRecords) {
+			try {
+				const discordMessageId = crownRecord.messageId;
 
-			for (const crown of crowns) {
-				try {
-					// Get community's Discord guild ID
-					const guildClientId = communityById.get(crown.communityId);
-					if (!guildClientId) {
-						console.warn(
-							`Community not found for communityId: ${crown.communityId}`,
-						);
-						continue;
-					}
+				// Find the Discord message
+				let message: any = null;
+				let channelClientId: string | null = null;
+				let userClientId: string | null = null;
 
-					// Fetch guild from Discord
-					const guild = await client.guilds.fetch(guildClientId);
-					if (!guild) {
-						console.warn(`Guild not found for clientId: ${guildClientId}`);
-						continue;
-					}
-
-					// Find the message by searching all text channels
-					let foundMessage = null;
-					const textChannels = guild.channels.cache.filter(
-						(c) => c.isTextBased() && !c.isThread(),
-					);
-
-					for (const [, channel] of textChannels) {
-						try {
-							if (!channel.isTextBased()) continue;
-							// @ts-ignore - fetch is available on text-based channels
-							const message = await channel.messages.fetch(crown.messageId);
-							if (message) {
-								foundMessage = message;
-								break;
+				// Search through all guilds and channels to find the message
+				for (const guild of client.guilds.cache.values()) {
+					for (const channel of guild.channels.cache.values()) {
+						if (channel.isTextBased()) {
+							try {
+								// @ts-ignore - TextBasedChannel has messages
+								message = await channel.messages.fetch(discordMessageId);
+								if (message) {
+									channelClientId = channel.id;
+									userClientId = message.author.id;
+									break;
+								}
+							} catch (error) {
+								// Message not in this channel, continue searching
+								continue;
 							}
-						} catch {
-							// Message not in this channel, continue searching
 						}
 					}
+					if (message) break;
+				}
 
-					if (!foundMessage) {
-						console.warn(
-							`Message not found for messageId: ${crown.messageId} in guild: ${guildClientId}`,
-						);
-						continue;
-					}
+				if (!message || !channelClientId || !userClientId) {
+					console.log(
+						`Message ${discordMessageId} not found in Discord, skipping`,
+					);
+					continue;
+				}
 
-					// Get channel ID from our database
-					const channelKey = `${foundMessage.channelId}_${crown.communityId}`;
-					const channelId = channelByClientIdAndCommunityId.get(channelKey);
-					if (!channelId) {
-						console.warn(
-							`Channel not found in database for clientId: ${foundMessage.channelId}, communityId: ${crown.communityId}`,
-						);
-						continue;
-					}
+				// Step 3: Communitiesのid: 1 Usersのid: clientIdに対応するid Channelsのid: clientIdに対応するidでMessagesのレコードを発行する
+				// ただしDeletedAtがnullな物があれば優先的に紐づける
 
-					// Get user ID from our database
-					const userKey = `${foundMessage.author.id}_${crown.communityId}`;
-					const userId = userByClientIdAndCommunityId.get(userKey);
-					if (!userId) {
-						console.warn(
-							`User not found in database for clientId: ${foundMessage.author.id}, communityId: ${crown.communityId}`,
-						);
-						continue;
-					}
+				// Get user id from Users table
+				const users = await sequelize.query<UserRecord>(
+					`SELECT id FROM ${USERS_TABLE_NAME} WHERE clientId = :userClientId AND communityId = :communityId LIMIT 1`,
+					{
+						replacements: {
+							userClientId,
+							communityId: crownRecord.communityId,
+						},
+						type: QueryTypes.SELECT,
+					},
+				);
 
-					messagesToInsert.push({
-						categoryType: CATEGORY_TYPE_DISCORD,
-						clientId: crown.messageId,
-						communityId: crown.communityId,
-						channelId: channelId,
-						userId: userId,
-						batchStatus: BATCH_STATUS_YET,
-						createdAt: now,
-						updatedAt: now,
-					});
-				} catch (error) {
-					console.error(
-						`Error processing crown messageId: ${crown.messageId}`,
-						error,
+				if (users.length === 0) {
+					console.log(`User with clientId ${userClientId} not found, skipping`);
+					continue;
+				}
+
+				const userId = users[0].id;
+
+				// Get channel id from Channels table
+				const channels = await sequelize.query<ChannelRecord>(
+					`SELECT id FROM ${CHANNELS_TABLE_NAME} WHERE clientId = :channelClientId AND communityId = :communityId LIMIT 1`,
+					{
+						replacements: {
+							channelClientId,
+							communityId: crownRecord.communityId,
+						},
+						type: QueryTypes.SELECT,
+					},
+				);
+
+				if (channels.length === 0) {
+					console.log(
+						`Channel with clientId ${channelClientId} not found, skipping`,
+					);
+					continue;
+				}
+
+				const channelId = channels[0].id;
+
+				// Check if message already exists (prefer non-deleted)
+				const existingMessages = await sequelize.query<{
+					id: number;
+					deletedAt: Date | null;
+				}>(
+					`SELECT id, deletedAt FROM ${MESSAGES_TABLE_NAME}
+					WHERE clientId = :clientId
+					AND communityId = :communityId
+					AND channelId = :channelId
+					AND userId = :userId
+					ORDER BY deletedAt IS NULL DESC, id ASC
+					LIMIT 1`,
+					{
+						replacements: {
+							clientId: discordMessageId,
+							communityId: crownRecord.communityId,
+							channelId,
+							userId,
+						},
+						type: QueryTypes.SELECT,
+					},
+				);
+
+				if (existingMessages.length > 0) {
+					console.log(
+						`Message record already exists for Discord message ${discordMessageId}, using existing id: ${existingMessages[0].id}`,
+					);
+				} else {
+					// Create new message record
+					await sequelize.query(
+						`INSERT INTO ${MESSAGES_TABLE_NAME}
+						(categoryType, clientId, communityId, channelId, userId, batchStatus, createdAt, updatedAt)
+						VALUES (:categoryType, :clientId, :communityId, :channelId, :userId, :batchStatus, NOW(), NOW())`,
+						{
+							replacements: {
+								categoryType: CATEGORY_TYPE_DISCORD,
+								clientId: discordMessageId,
+								communityId: crownRecord.communityId,
+								channelId,
+								userId,
+								batchStatus: BATCH_STATUS_YET,
+							},
+							type: QueryTypes.INSERT,
+						},
+					);
+					console.log(
+						`Created message record for Discord message ${discordMessageId}`,
 					);
 				}
+			} catch (error) {
+				console.error(`Error processing crown record:`, error);
 			}
-
-			// Bulk insert messages
-			if (messagesToInsert.length > 0) {
-				const insertValues = messagesToInsert
-					.map(
-						(m) =>
-							`(${m.categoryType}, ${m.clientId}, ${m.communityId}, ${m.channelId}, ${m.userId}, ${m.batchStatus}, '${m.createdAt.toISOString().slice(0, 19).replace("T", " ")}', '${m.updatedAt.toISOString().slice(0, 19).replace("T", " ")}')`,
-					)
-					.join(", ");
-
-				await sequelize.query(
-					`INSERT INTO ${MESSAGES_TABLE_NAME} (categoryType, clientId, communityId, channelId, userId, batchStatus, createdAt, updatedAt) VALUES ${insertValues}`,
-				);
-				console.log(`Inserted ${messagesToInsert.length} Message records`);
-			}
-
-			client.destroy();
-			console.log("Discord client disconnected");
-		} catch (error) {
-			client.destroy();
-			throw error;
 		}
+
+		await client.destroy();
 	}
 
-	// Step 2: CrownsテーブルのmessageIdをclientIdに命名を変更する
-	console.log("Step 2: Renaming messageId to clientId in Crowns table...");
-
-	// Remove the primary key constraint first
-	await queryInterface.removeConstraint(CROWNS_TABLE_NAME, "PRIMARY");
-
+	// Step 4: CrownsテーブルのmessageIdをclientIdに命名を変更する
 	await queryInterface.renameColumn(
 		CROWNS_TABLE_NAME,
 		COLUMN_NAME_MESSAGE_ID,
 		COLUMN_NAME_CLIENT_ID,
 	);
-
-	// Step 3: Crownsテーブルに新たにmessageIdのカラムをIntegerで発行する
 	console.log(
-		"Step 3: Adding new messageId column (INTEGER) to Crowns table...",
+		`Renamed ${COLUMN_NAME_MESSAGE_ID} to ${COLUMN_NAME_CLIENT_ID} in ${CROWNS_TABLE_NAME} table`,
 	);
+
+	// Step 5: Crownsテーブルに新たにmessageIdのカラムをIntegerで追加する
 	await queryInterface.addColumn(CROWNS_TABLE_NAME, COLUMN_NAME_MESSAGE_ID, {
 		type: DataTypes.INTEGER,
 		allowNull: true,
 	});
-
-	// Step 4: CrownsテーブルのclientIdと一致するMessageテーブルのidを取得しCrownsテーブルのmessageIdを埋める
 	console.log(
-		"Step 4: Updating Crowns.messageId with Messages.id based on clientId...",
+		`Added new ${COLUMN_NAME_MESSAGE_ID} column to ${CROWNS_TABLE_NAME} table`,
 	);
-	await sequelize.query(`
-		UPDATE ${CROWNS_TABLE_NAME} AS cr
-		INNER JOIN ${MESSAGES_TABLE_NAME} AS m ON cr.${COLUMN_NAME_CLIENT_ID} = m.clientId AND cr.communityId = m.communityId
-		SET cr.${COLUMN_NAME_MESSAGE_ID} = m.id
-	`);
 
-	// Step 5: CrownsテーブルのmessageIdにnot null 制約を追加する
-	console.log("Step 5: Adding NOT NULL constraint to Crowns.messageId...");
-	await queryInterface.changeColumn(CROWNS_TABLE_NAME, COLUMN_NAME_MESSAGE_ID, {
-		type: DataTypes.INTEGER,
-		allowNull: false,
-	});
+	// Step 6: CrownsテーブルのclientIdと一致するMessageテーブルのidを取得しCrownsテーブルのmessageIdを埋める
+	await sequelize.query(
+		`UPDATE ${CROWNS_TABLE_NAME} c
+		INNER JOIN ${MESSAGES_TABLE_NAME} m ON c.${COLUMN_NAME_CLIENT_ID} = m.clientId AND c.communityId = m.communityId
+		SET c.${COLUMN_NAME_MESSAGE_ID} = m.id`,
+		{ type: QueryTypes.UPDATE },
+	);
+	console.log(
+		`Updated ${COLUMN_NAME_MESSAGE_ID} in ${CROWNS_TABLE_NAME} table with Messages.id`,
+	);
 
-	// Restore composite primary key with communityId and messageId
-	await queryInterface.addConstraint(CROWNS_TABLE_NAME, {
-		fields: ["communityId", COLUMN_NAME_MESSAGE_ID],
-		type: "primary key",
-		name: "PRIMARY",
-	});
-
-	console.log("Migration completed successfully!");
+	// Step 7: CrownsテーブルのclientIdのカラム自体をテーブルから削除する
+	// Note: This is handled by migration 20260127200003-remove-clientId-crown.ts
 };
 
 export const down: Migration = async ({ context: sequelize }) => {
 	const queryInterface = sequelize.getQueryInterface();
 
-	// Step 5 reverse: Remove NOT NULL constraint (revert to nullable)
-	console.log("Reverting Step 5: Making messageId nullable...");
-	await queryInterface.changeColumn(CROWNS_TABLE_NAME, COLUMN_NAME_MESSAGE_ID, {
-		type: DataTypes.INTEGER,
-		allowNull: true,
-	});
+	// Reverse Step 6: Clear messageId values (no specific action needed as we're about to remove the column)
 
-	// Remove primary key constraint
-	await queryInterface.removeConstraint(CROWNS_TABLE_NAME, "PRIMARY");
-
-	// Step 3 reverse: Remove the new messageId column
-	console.log("Reverting Step 3: Removing messageId column...");
+	// Reverse Step 5: Remove the new messageId column
 	await queryInterface.removeColumn(CROWNS_TABLE_NAME, COLUMN_NAME_MESSAGE_ID);
 
-	// Step 2 reverse: Rename clientId back to messageId
-	console.log("Reverting Step 2: Renaming clientId back to messageId...");
+	// Reverse Step 4: Rename clientId back to messageId
 	await queryInterface.renameColumn(
 		CROWNS_TABLE_NAME,
 		COLUMN_NAME_CLIENT_ID,
 		COLUMN_NAME_MESSAGE_ID,
 	);
 
-	// Restore original composite primary key
-	await queryInterface.addConstraint(CROWNS_TABLE_NAME, {
-		fields: ["communityId", COLUMN_NAME_MESSAGE_ID],
-		type: "primary key",
-		name: "PRIMARY",
-	});
-
-	// Step 1 reverse: Delete the created Message records
-	// Note: This is a destructive operation. The Messages created during up migration
-	// cannot be precisely identified, so we leave them as is.
-	console.log(
-		"Note: Message records created during migration are not removed to prevent data loss.",
-	);
-
-	console.log("Migration rollback completed!");
+	// Note: We don't reverse Steps 1-3 (message record creation) as those are data operations
+	// and the message records may be in use by other parts of the system
 };
