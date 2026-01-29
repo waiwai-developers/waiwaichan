@@ -97,7 +97,18 @@ export const up: Migration = async ({ context: sequelize }) => {
 
 				if (!message || !channelClientId || !userClientId) {
 					console.log(
-						`Message ${discordMessageId} not found in Discord, skipping`,
+						`Message ${discordMessageId} not found in Discord, deleting sticky record`,
+					);
+					// Discord上で既に削除されているデータのStickyレコードを削除する
+					await sequelize.query(
+						`DELETE FROM ${STICKIES_TABLE_NAME} WHERE messageId = :messageId AND communityId = :communityId`,
+						{
+							replacements: {
+								messageId: discordMessageId,
+								communityId: stickyRecord.communityId,
+							},
+							type: QueryTypes.DELETE,
+						},
 					);
 					continue;
 				}

@@ -97,7 +97,18 @@ export const up: Migration = async ({ context: sequelize }) => {
 
 				if (!message || !channelClientId || !userClientId) {
 					console.log(
-						`Message ${discordMessageId} not found in Discord, skipping`,
+						`Message ${discordMessageId} not found in Discord, deleting crown record`,
+					);
+					// Discord上で既に削除されているデータのCrownレコードを削除する
+					await sequelize.query(
+						`DELETE FROM ${CROWNS_TABLE_NAME} WHERE messageId = :messageId AND communityId = :communityId`,
+						{
+							replacements: {
+								messageId: discordMessageId,
+								communityId: crownRecord.communityId,
+							},
+							type: QueryTypes.DELETE,
+						},
 					);
 					continue;
 				}
