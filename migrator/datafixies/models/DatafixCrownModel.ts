@@ -7,7 +7,7 @@ import {
 } from "sequelize-typescript";
 
 @Table({
-	tableName: "Users",
+	tableName: "Crowns",
 })
 class DatafixCrownModel extends Model {
 	@Column(DataType.INTEGER)
