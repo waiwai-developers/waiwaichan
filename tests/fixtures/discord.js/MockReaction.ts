@@ -35,6 +35,8 @@ export const mockReaction = (
 	const ReactionMock = mock(MessageReaction);
 	const UserMock = mock(User);
 	const AuthorMock = mock(User);
+	const GuildMock = mock<Guild>();
+	const TextChannelMock = mock(TextChannel);
 
 	when(UserMock.bot).thenReturn(isBotReacted);
 	when(UserMock.id).thenReturn(giverId);
@@ -54,6 +56,17 @@ export const mockReaction = (
 	when(MessageMock.author).thenReturn(instance(AuthorMock));
 
 	when(ReactionMock.message).thenReturn(instance(MessageMock));
+
+	// Guild and channel setup for candy log channel
+	const channelsCache = new Collection<string, GuildTextBasedChannel>();
+	channelsCache.set("candyLogChannelId", instance(TextChannelMock));
+
+	when(GuildMock.channels).thenReturn({
+		cache: channelsCache,
+		fetch: () => Promise.resolve(channelsCache),
+	} as any);
+
+	when(MessageMock.guild).thenReturn(instance(GuildMock));
 
 	return {
 		reaction: ReactionMock,
