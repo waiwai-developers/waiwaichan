@@ -3,6 +3,7 @@ import { ITEM_RECORDS } from "@/migrator/seeds/20241111041901-item";
 import { ID_JACKPOT } from "@/src/entities/constants/Items";
 import { CandyCategoryType } from "@/src/entities/vo/CandyCategoryType";
 import {
+	CandyNotificationChannelRepositoryImpl,
 	CandyRepositoryImpl,
 	ChannelRepositoryImpl,
 	CommunityRepositoryImpl,
@@ -273,6 +274,7 @@ export function initializeDatabase(): void {
 }
 
 export async function cleanupAllTables(): Promise<void> {
+	await CandyNotificationChannelRepositoryImpl.destroy({ truncate: true, force: true });
 	await CandyRepositoryImpl.destroy({ truncate: true, force: true });
 	await UserCandyItemRepositoryImpl.destroy({ truncate: true, force: true });
 	await MessageRepositoryImpl.destroy({ truncate: true, force: true });

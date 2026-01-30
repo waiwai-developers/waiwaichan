@@ -1,6 +1,7 @@
 import { DatabaseConfig } from "@/src/entities/config/DatabaseConfig";
 import type { IDataBaseConnector } from "@/src/logics/Interfaces/repositories/database/IDataBaseConnector";
 import { CandyItemRepositoryImpl } from "@/src/repositories/sequelize-mysql/CandyItemRepositoryImpl";
+import { CandyNotificationChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/CandyNotificationChannelRepositoryImpl";
 import { CandyRepositoryImpl } from "@/src/repositories/sequelize-mysql/CandyRepositoryImpl";
 import { ChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/ChannelRepositoryImpl";
 import { CommunityRepositoryImpl } from "@/src/repositories/sequelize-mysql/CommunityRepositoryImpl";
@@ -35,6 +36,7 @@ export class MysqlConnector implements IDataBaseConnector<Sequelize, "mysql"> {
 			models: [
 				CandyRepositoryImpl,
 				CandyItemRepositoryImpl,
+				CandyNotificationChannelRepositoryImpl,
 				ChannelRepositoryImpl,
 				CrownRepositoryImpl,
 				UserCandyItemRepositoryImpl,
