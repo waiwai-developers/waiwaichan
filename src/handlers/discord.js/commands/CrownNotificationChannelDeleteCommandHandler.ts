@@ -37,7 +37,9 @@ export class CrownNotificationChannelDeleteCommandHandler
 			RoleConfig.users.find((u) => u.discordId === interaction.user.id)
 				?.role !== "admin"
 		) {
-			interaction.reply("クラウン通知チャンネルを登録する権限を持っていないよ！っ");
+			interaction.reply(
+				"クラウン通知チャンネルを登録する権限を持っていないよ！っ",
+			);
 			return;
 		}
 
@@ -55,7 +57,9 @@ export class CrownNotificationChannelDeleteCommandHandler
 		const crownNotificationChannel =
 			await this.crownNotificationChannelLogic.find(communityId);
 		if (crownNotificationChannel === undefined) {
-			await interaction.reply("クラウン通知チャンネルが登録されていなかったよ！っ");
+			await interaction.reply(
+				"クラウン通知チャンネルが登録されていなかったよ！っ",
+			);
 			return;
 		}
 

@@ -45,7 +45,9 @@ export class CrownNotificationChannelCreateCommandHandler
 			RoleConfig.users.find((u) => u.discordId === interaction.user.id)
 				?.role !== "admin"
 		) {
-			interaction.reply("クラウン通知チャンネルを登録する権限を持っていないよ！っ");
+			interaction.reply(
+				"クラウン通知チャンネルを登録する権限を持っていないよ！っ",
+			);
 			return;
 		}
 

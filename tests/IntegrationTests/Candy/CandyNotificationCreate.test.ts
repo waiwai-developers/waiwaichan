@@ -1,4 +1,5 @@
 import "reflect-metadata";
+import { RoleConfig } from "@/src/entities/config/RoleConfig";
 import { CandyNotificationChannelRepositoryImpl, ChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql";
 import { mockSlashCommand, waitUntilReply as waitSlashUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { TestDiscordServer } from "@/tests/fixtures/discord.js/TestDiscordServer";
@@ -6,7 +7,6 @@ import { expect } from "chai";
 import { TextChannel } from "discord.js";
 import type Mocha from "mocha";
 import { anything, instance, when } from "ts-mockito";
-import { RoleConfig } from "@/src/entities/config/RoleConfig";
 import { TEST_GUILD_ID, type TestContext, setupTestEnvironment, teardownTestEnvironment } from "./CandyHelper.test";
 
 const DISCORD_TEXT_CHANNEL_TYPE = 0;

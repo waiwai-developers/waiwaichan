@@ -4,8 +4,8 @@ import { CommunityDto } from "@/src/entities/dto/CommunityDto";
 import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
 import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
-import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { ICandyNotificationChannelLogic } from "@/src/logics/Interfaces/logics/ICandyNotificationChannelLogic";
+import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { CacheType, ChatInputCommandInteraction } from "discord.js";
 import { inject, injectable } from "inversify";
 
@@ -37,7 +37,9 @@ export class CandyNotificationChannelDeleteCommandHandler
 			RoleConfig.users.find((u) => u.discordId === interaction.user.id)
 				?.role !== "admin"
 		) {
-			interaction.reply("キャンディ通知チャンネルを登録する権限を持っていないよ！っ");
+			interaction.reply(
+				"キャンディ通知チャンネルを登録する権限を持っていないよ！っ",
+			);
 			return;
 		}
 
@@ -55,7 +57,9 @@ export class CandyNotificationChannelDeleteCommandHandler
 		const candyNotificationChannel =
 			await this.candyNotificationChannelLogic.find(communityId);
 		if (candyNotificationChannel === undefined) {
-			await interaction.reply("キャンディ通知チャンネルが登録されていなかったよ！っ");
+			await interaction.reply(
+				"キャンディ通知チャンネルが登録されていなかったよ！っ",
+			);
 			return;
 		}
 

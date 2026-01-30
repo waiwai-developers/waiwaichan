@@ -361,7 +361,7 @@ export async function insertCandy(options: CandyDataOptions): Promise<void> {
 		channelId: 1, // Default channel
 		batchStatus: 0,
 	});
-	
+
 	const data = createCandyData(options);
 	// Use the Message's internal ID instead of the client ID
 	await CandyRepositoryImpl.create({
@@ -385,7 +385,7 @@ export async function insertBulkCandies(
 				channelId: 1, // Default channel
 				batchStatus: 0,
 			});
-		})
+		}),
 	);
 
 	const data = createBulkCandyData(amount, options);
@@ -417,7 +417,7 @@ export async function insertPityCandies(
 				createdAt: date,
 				updatedAt: date,
 			});
-		})
+		}),
 	);
 
 	const data = createPityCandyData(totalAmount, usedCount, options);

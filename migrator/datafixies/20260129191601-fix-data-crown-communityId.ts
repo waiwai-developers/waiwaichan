@@ -13,10 +13,7 @@ export const up: Datafix = async ({ context: sequelize }) => {
 
 export const down: Datafix = async ({ context: sequelize }) => {
 	// ロールバック処理（communityIdをNULLに戻す）
-	await DatafixCrownModel.update(
-		{ communityId: null },
-		{ where: {} },
-	);
+	await DatafixCrownModel.update({ communityId: null }, { where: {} });
 
 	console.log("All Crown records have been rolled back (communityId = null)");
 };

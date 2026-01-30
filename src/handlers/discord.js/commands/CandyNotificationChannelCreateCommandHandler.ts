@@ -1,15 +1,15 @@
 import { RoleConfig } from "@/src/entities/config/RoleConfig";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
-import { CommunityDto } from "@/src/entities/dto/CommunityDto";
 import { CandyNotificationChannelDto } from "@/src/entities/dto/CandyNotificationChannelDto";
+import { CommunityDto } from "@/src/entities/dto/CommunityDto";
 import { ChannelClientId } from "@/src/entities/vo/ChannelClientId";
 import { ChannelCommunityId } from "@/src/entities/vo/ChannelCommunityId";
 import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
 import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
+import type { ICandyNotificationChannelLogic } from "@/src/logics/Interfaces/logics/ICandyNotificationChannelLogic";
 import type { IChannelLogic } from "@/src/logics/Interfaces/logics/IChannelLogic";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
-import type { ICandyNotificationChannelLogic } from "@/src/logics/Interfaces/logics/ICandyNotificationChannelLogic";
 import type { CacheType, ChatInputCommandInteraction } from "discord.js";
 import { TextChannel } from "discord.js";
 import { inject, injectable } from "inversify";
@@ -45,7 +45,9 @@ export class CandyNotificationChannelCreateCommandHandler
 			RoleConfig.users.find((u) => u.discordId === interaction.user.id)
 				?.role !== "admin"
 		) {
-			interaction.reply("キャンディ通知チャンネルを登録する権限を持っていないよ！っ");
+			interaction.reply(
+				"キャンディ通知チャンネルを登録する権限を持っていないよ！っ",
+			);
 			return;
 		}
 

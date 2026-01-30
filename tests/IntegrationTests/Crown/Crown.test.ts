@@ -9,8 +9,6 @@ import { CrownMessageLink } from "@/src/entities/vo/CrownMessageLink";
 import { MessageId } from "@/src/entities/vo/MessageId";
 import type { ICrownLogic } from "@/src/logics/Interfaces/logics/ICrownLogic";
 import { CrownRepositoryImpl } from "@/src/repositories/sequelize-mysql";
-import { mockCrownReaction } from "@/tests/fixtures/discord.js/MockReaction";
-import { TestDiscordServer } from "@/tests/fixtures/discord.js/TestDiscordServer";
 import {
 	cleanupCrownTest,
 	createCrownDto,
@@ -23,6 +21,8 @@ import {
 	setupCrownTest,
 	waitForHandlerCompletion,
 } from "@/tests/IntegrationTests/Crown/CrownTestHelper";
+import { mockCrownReaction } from "@/tests/fixtures/discord.js/MockReaction";
+import { TestDiscordServer } from "@/tests/fixtures/discord.js/TestDiscordServer";
 import { expect } from "chai";
 import type { MessageReactionEventDetails } from "discord.js";
 import type Mocha from "mocha";
@@ -273,12 +273,7 @@ describe("Test Crown Commands", () => {
 			return (async () => {
 				const crownLogic = appContainer.get<ICrownLogic>(LogicTypes.CrownLogic);
 				const messageContent = "これは特定のメッセージ内容です";
-				const { communityId, messageId, crownMessage, crownMessageLink } = createCrownTestData(
-					3,
-					1004,
-					messageContent,
-					"https://example.com/msg",
-				);
+				const { communityId, messageId, crownMessage, crownMessageLink } = createCrownTestData(3, 1004, messageContent, "https://example.com/msg");
 
 				const result = await crownLogic.createCrownIfNotExists(communityId, messageId, crownMessage, crownMessageLink);
 
@@ -447,12 +442,7 @@ describe("Test Crown Commands", () => {
 
 			return (async () => {
 				const crownLogic = appContainer.get<ICrownLogic>(LogicTypes.CrownLogic);
-				const { communityId, messageId, crownMessage, crownMessageLink } = createCrownTestData(
-					100,
-					3001,
-					"重複テスト",
-					"https://example.com/dup",
-				);
+				const { communityId, messageId, crownMessage, crownMessageLink } = createCrownTestData(100, 3001, "重複テスト", "https://example.com/dup");
 
 				// 1回目
 				const result1 = await crownLogic.createCrownIfNotExists(communityId, messageId, crownMessage, crownMessageLink);

@@ -244,10 +244,14 @@ export const up: Migration = async ({ context: sequelize }) => {
 	);
 
 	// Step 7: Make messageId NOT NULL now that it's populated
-	await queryInterface.changeColumn(STICKIES_TABLE_NAME, COLUMN_NAME_MESSAGE_ID, {
-		type: DataTypes.INTEGER,
-		allowNull: false,
-	});
+	await queryInterface.changeColumn(
+		STICKIES_TABLE_NAME,
+		COLUMN_NAME_MESSAGE_ID,
+		{
+			type: DataTypes.INTEGER,
+			allowNull: false,
+		},
+	);
 	console.log(
 		`Changed ${COLUMN_NAME_MESSAGE_ID} to NOT NULL in ${STICKIES_TABLE_NAME} table`,
 	);
