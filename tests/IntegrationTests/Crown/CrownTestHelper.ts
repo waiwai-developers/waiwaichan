@@ -6,6 +6,7 @@ import { MessageId } from "@/src/entities/vo/MessageId";
 import {
 	ChannelRepositoryImpl,
 	CommunityRepositoryImpl,
+	CrownNotificationChannelRepositoryImpl,
 	CrownRepositoryImpl,
 	MessageRepositoryImpl,
 	UserRepositoryImpl,
@@ -26,6 +27,10 @@ export function setupCrownTest(): void {
  * 全てのテーブルをトランケートする
  */
 export async function cleanupCrownTest(): Promise<void> {
+	await CrownNotificationChannelRepositoryImpl.destroy({
+		truncate: true,
+		force: true,
+	});
 	await CrownRepositoryImpl.destroy({
 		truncate: true,
 		force: true,
