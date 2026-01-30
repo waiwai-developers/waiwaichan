@@ -31,6 +31,8 @@ import {
 } from "@/src/handlers/discord.js/commands/";
 import { CandyNotificationChannelCreateCommandHandler } from "@/src/handlers/discord.js/commands/CandyNotificationChannelCreateCommandHandler";
 import { CandyNotificationChannelDeleteCommandHandler } from "@/src/handlers/discord.js/commands/CandyNotificationChannelDeleteCommandHandler";
+import { CrownNotificationChannelCreateCommandHandler } from "@/src/handlers/discord.js/commands/CrownNotificationChannelCreateCommandHandler";
+import { CrownNotificationChannelDeleteCommandHandler } from "@/src/handlers/discord.js/commands/CrownNotificationChannelDeleteCommandHandler";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
 import { AIReplyHandler } from "@/src/handlers/discord.js/events/AIReplyHandler";
 import { BotAddHandler } from "@/src/handlers/discord.js/events/BotAddHandler";
@@ -52,6 +54,7 @@ import type { VoiceChannelEventHandler, VoiceChannelState } from "@/src/handlers
 import { CandyLogic } from "@/src/logics/CandyLogic";
 import { CandyNotificationChannelLogic } from "@/src/logics/CandyNotificationChannelLogic";
 import { ChannelLogic } from "@/src/logics/ChannelLogic";
+import { CrownNotificationChannelLogic } from "@/src/logics/CrownNotificationChannelLogic";
 import { ChatAILogic } from "@/src/logics/ChatAILogic";
 import { CommunityLogic } from "@/src/logics/CommunityLogic";
 import { ContextLogic } from "@/src/logics/ContextLogic";
@@ -59,6 +62,7 @@ import { CrownLogic } from "@/src/logics/CrownLogic";
 import type { ICandyLogic } from "@/src/logics/Interfaces/logics/ICandyLogic";
 import type { ICandyNotificationChannelLogic } from "@/src/logics/Interfaces/logics/ICandyNotificationChannelLogic";
 import type { IChannelLogic } from "@/src/logics/Interfaces/logics/IChannelLogic";
+import type { ICrownNotificationChannelLogic } from "@/src/logics/Interfaces/logics/ICrownNotificationChannelLogic";
 import type { IChatAILogic } from "@/src/logics/Interfaces/logics/IChatAILogic";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { IContextLogic } from "@/src/logics/Interfaces/logics/IContextLogic";
@@ -81,6 +85,7 @@ import type { IChatAIRepository } from "@/src/logics/Interfaces/repositories/cha
 import type { ICandyItemRepository } from "@/src/logics/Interfaces/repositories/database/ICandyItemRepository";
 import type { ICandyNotificationChannelRepository } from "@/src/logics/Interfaces/repositories/database/ICandyNotificationChannelRepository";
 import type { ICandyRepository } from "@/src/logics/Interfaces/repositories/database/ICandyRepository";
+import type { ICrownNotificationChannelRepository } from "@/src/logics/Interfaces/repositories/database/ICrownNotificationChannelRepository";
 import type { IChannelRepository } from "@/src/logics/Interfaces/repositories/database/IChannelRepository";
 import type { ICommunityRepository } from "@/src/logics/Interfaces/repositories/database/ICommunityRepository";
 import type { IContextRepository } from "@/src/logics/Interfaces/repositories/database/IContextRepository";
@@ -145,6 +150,7 @@ import {
 	UserRepositoryImpl,
 } from "@/src/repositories/sequelize-mysql";
 import { CandyNotificationChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/CandyNotificationChannelRepositoryImpl";
+import { CrownNotificationChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/CrownNotificationChannelRepositoryImpl";
 import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnector";
 import { SequelizeTransaction } from "@/src/repositories/sequelize-mysql/SequelizeTransaction";
 import { BotAddRouter } from "@/src/routes/discordjs/events/BotAddRouter";
@@ -187,6 +193,7 @@ appContainer.bind<IRoomAddChannelRepository>(RepoTypes.RoomAddChannelRepository)
 appContainer.bind<IRoomChannelRepository>(RepoTypes.RoomChannelRepository).to(RoomChannelRepositoryImpl);
 appContainer.bind<IRoomNotificationChannelRepository>(RepoTypes.RoomNotificationChannelRepository).to(RoomNotificationChannelRepositoryImpl);
 appContainer.bind<ICandyNotificationChannelRepository>(RepoTypes.CandyNotificationChannelRepository).to(CandyNotificationChannelRepositoryImpl);
+appContainer.bind<ICrownNotificationChannelRepository>(RepoTypes.CrownNotificationChannelRepository).to(CrownNotificationChannelRepositoryImpl);
 appContainer.bind<IRoomCategoryChannelRepository>(RepoTypes.RoomCategoryChannelRepository).to(RoomCategoryChannelRepositoryImpl);
 appContainer.bind<IStickyRepository>(RepoTypes.StickyRepository).to(StickyRepositoryImpl);
 appContainer.bind<ICommunityRepository>(RepoTypes.CommunityRepository).to(CommunityRepositoryImpl);
@@ -220,6 +227,7 @@ appContainer.bind<IRoomAddChannelLogic>(LogicTypes.RoomAddChannelLogic).to(RoomA
 appContainer.bind<IRoomChannelLogic>(LogicTypes.RoomChannelLogic).to(RoomChannelLogic);
 appContainer.bind<IRoomNotificationChannelLogic>(LogicTypes.RoomNotificationChannelLogic).to(RoomNotificationChannelLogic);
 appContainer.bind<ICandyNotificationChannelLogic>(LogicTypes.CandyNotificationChannelLogic).to(CandyNotificationChannelLogic);
+appContainer.bind<ICrownNotificationChannelLogic>(LogicTypes.CrownNotificationChannelLogic).to(CrownNotificationChannelLogic);
 appContainer.bind<IRoomCategoryChannelLogic>(LogicTypes.RoomCategoryChannelLogic).to(RoomCategoryChannelLogic);
 appContainer.bind<IUtilityLogic>(LogicTypes.UtilityLogic).to(UtilityLogic);
 appContainer.bind<ICommunityLogic>(LogicTypes.CommunityLogic).to(CommunityLogic);
@@ -271,6 +279,8 @@ appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(Room
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(RoomCategoryChannelDeleteCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(CandyNotificationChannelCreateCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(CandyNotificationChannelDeleteCommandHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(CrownNotificationChannelCreateCommandHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(CrownNotificationChannelDeleteCommandHandler);
 
 // Routes
 appContainer.bind<DiscordEventRouter>(RouteTypes.SlashCommandRoute).to(SlashCommandRouter);
