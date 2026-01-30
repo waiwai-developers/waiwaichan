@@ -21,7 +21,6 @@
 	"backend": {
 		"candyEmoji": "",
 		"candySuperEmoji": "",
-		"candyBoxAmount": "",
-		"crownLogChannel": ""
+		"candyBoxAmount": ""
 	}
 }

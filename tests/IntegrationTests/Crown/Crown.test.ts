@@ -8,8 +8,19 @@ import { CrownMessage } from "@/src/entities/vo/CrownMessage";
 import { CrownMessageLink } from "@/src/entities/vo/CrownMessageLink";
 import { MessageId } from "@/src/entities/vo/MessageId";
 import type { ICrownLogic } from "@/src/logics/Interfaces/logics/ICrownLogic";
-import { CommunityRepositoryImpl, CrownRepositoryImpl, UserRepositoryImpl } from "@/src/repositories/sequelize-mysql";
-import { MysqlConnector } from "@/tests/fixtures/database/MysqlConnector";
+import { CrownRepositoryImpl } from "@/src/repositories/sequelize-mysql";
+import {
+	cleanupCrownTest,
+	createCrownDto,
+	createCrownRecord,
+	createCrownTestData,
+	expectCrownCreated,
+	expectCrownNotCreated,
+	findCrownByIds,
+	findCrownsByCommunityId,
+	setupCrownTest,
+	waitForHandlerCompletion,
+} from "@/tests/IntegrationTests/Crown/CrownTestHelper";
 import { mockCrownReaction } from "@/tests/fixtures/discord.js/MockReaction";
 import { TestDiscordServer } from "@/tests/fixtures/discord.js/TestDiscordServer";
 import { expect } from "chai";
@@ -22,22 +33,11 @@ describe("Test Crown Commands", () => {
 	 * テスト実行前に毎回実行される共通のセットアップ
 	 */
 	beforeEach(() => {
-		new MysqlConnector();
+		setupCrownTest();
 	});
 
 	afterEach(async () => {
-		await CrownRepositoryImpl.destroy({
-			truncate: true,
-			force: true,
-		});
-		await CommunityRepositoryImpl.destroy({
-			truncate: true,
-			force: true,
-		});
-		await UserRepositoryImpl.destroy({
-			truncate: true,
-			force: true,
-		});
+		await cleanupCrownTest();
 	});
 
 	// ===================================
@@ -64,12 +64,8 @@ describe("Test Crown Commands", () => {
 				const TEST_CLIENT = await TestDiscordServer.getClient();
 				TEST_CLIENT.emit("messageReactionAdd", instance(reaction), instance(user), instance(mock<MessageReactionEventDetails>()));
 
-				// 少し待機してハンドラーの処理が完了するのを待つ
-				await new Promise((resolve) => setTimeout(resolve, 100));
-
-				// クラウンが作成されていないことを確認
-				const crowns = await CrownRepositoryImpl.findAll();
-				expect(crowns.length).to.eq(0);
+				await waitForHandlerCompletion();
+				await expectCrownNotCreated();
 			})();
 		});
 
@@ -93,10 +89,8 @@ describe("Test Crown Commands", () => {
 				const TEST_CLIENT = await TestDiscordServer.getClient();
 				TEST_CLIENT.emit("messageReactionAdd", instance(reaction), instance(user), instance(mock<MessageReactionEventDetails>()));
 
-				await new Promise((resolve) => setTimeout(resolve, 100));
-
-				const crowns = await CrownRepositoryImpl.findAll();
-				expect(crowns.length).to.eq(0);
+				await waitForHandlerCompletion();
+				await expectCrownNotCreated();
 			})();
 		});
 
@@ -120,10 +114,8 @@ describe("Test Crown Commands", () => {
 				const TEST_CLIENT = await TestDiscordServer.getClient();
 				TEST_CLIENT.emit("messageReactionAdd", instance(reaction), instance(user), instance(mock<MessageReactionEventDetails>()));
 
-				await new Promise((resolve) => setTimeout(resolve, 100));
-
-				const crowns = await CrownRepositoryImpl.findAll();
-				expect(crowns.length).to.eq(0);
+				await waitForHandlerCompletion();
+				await expectCrownNotCreated();
 			})();
 		});
 
@@ -146,10 +138,8 @@ describe("Test Crown Commands", () => {
 				const TEST_CLIENT = await TestDiscordServer.getClient();
 				TEST_CLIENT.emit("messageReactionAdd", instance(reaction), instance(user), instance(mock<MessageReactionEventDetails>()));
 
-				await new Promise((resolve) => setTimeout(resolve, 100));
-
-				const crowns = await CrownRepositoryImpl.findAll();
-				expect(crowns.length).to.eq(0);
+				await waitForHandlerCompletion();
+				await expectCrownNotCreated();
 			})();
 		});
 
@@ -172,10 +162,8 @@ describe("Test Crown Commands", () => {
 				const TEST_CLIENT = await TestDiscordServer.getClient();
 				TEST_CLIENT.emit("messageReactionAdd", instance(reaction), instance(user), instance(mock<MessageReactionEventDetails>()));
 
-				await new Promise((resolve) => setTimeout(resolve, 100));
-
-				const crowns = await CrownRepositoryImpl.findAll();
-				expect(crowns.length).to.eq(0);
+				await waitForHandlerCompletion();
+				await expectCrownNotCreated();
 			})();
 		});
 
@@ -197,10 +185,8 @@ describe("Test Crown Commands", () => {
 				const TEST_CLIENT = await TestDiscordServer.getClient();
 				TEST_CLIENT.emit("messageReactionAdd", instance(reaction), instance(user), instance(mock<MessageReactionEventDetails>()));
 
-				await new Promise((resolve) => setTimeout(resolve, 100));
-
-				const crowns = await CrownRepositoryImpl.findAll();
-				expect(crowns.length).to.eq(0);
+				await waitForHandlerCompletion();
+				await expectCrownNotCreated();
 			})();
 		});
 	});
@@ -218,10 +204,7 @@ describe("Test Crown Commands", () => {
 
 			return (async () => {
 				const crownLogic = appContainer.get<ICrownLogic>(LogicTypes.CrownLogic);
-				const communityId = new CommunityId(1);
-				const messageId = new MessageId(1001);
-				const crownMessage = new CrownMessage("テストメッセージの内容");
-				const crownMessageLink = new CrownMessageLink("https://discord.com/channels/123/456/789");
+				const { communityId, messageId, crownMessage, crownMessageLink } = createCrownTestData(1, 1001);
 
 				const result = await crownLogic.createCrownIfNotExists(communityId, messageId, crownMessage, crownMessageLink);
 
@@ -231,9 +214,7 @@ describe("Test Crown Commands", () => {
 				expect(result).to.include("テストメッセージの内容");
 				expect(result).to.include("https://discord.com/channels/123/456/789");
 
-				// DBにクラウンが作成されていることを確認
-				const crowns = await CrownRepositoryImpl.findAll();
-				expect(crowns.length).to.eq(1);
+				await expectCrownCreated(1);
 			})();
 		});
 
@@ -246,10 +227,7 @@ describe("Test Crown Commands", () => {
 
 			return (async () => {
 				const crownLogic = appContainer.get<ICrownLogic>(LogicTypes.CrownLogic);
-				const communityId = new CommunityId(1);
-				const messageId = new MessageId(1002);
-				const crownMessage = new CrownMessage("テストメッセージの内容");
-				const crownMessageLink = new CrownMessageLink("https://discord.com/channels/123/456/789");
+				const { communityId, messageId, crownMessage, crownMessageLink } = createCrownTestData(1, 1002);
 
 				// 1回目の作成
 				const result1 = await crownLogic.createCrownIfNotExists(communityId, messageId, crownMessage, crownMessageLink);
@@ -259,9 +237,7 @@ describe("Test Crown Commands", () => {
 				const result2 = await crownLogic.createCrownIfNotExists(communityId, messageId, crownMessage, crownMessageLink);
 				expect(result2).to.be.undefined;
 
-				// DBにクラウンが1つだけ存在することを確認
-				const crowns = await CrownRepositoryImpl.findAll();
-				expect(crowns.length).to.eq(1);
+				await expectCrownCreated(1);
 			})();
 		});
 
@@ -274,10 +250,12 @@ describe("Test Crown Commands", () => {
 
 			return (async () => {
 				const crownLogic = appContainer.get<ICrownLogic>(LogicTypes.CrownLogic);
-				const communityId = new CommunityId(2);
-				const messageId = new MessageId(1003);
-				const crownMessage = new CrownMessage("成功メッセージテスト");
-				const crownMessageLink = new CrownMessageLink("https://example.com/link");
+				const { communityId, messageId, crownMessage, crownMessageLink } = createCrownTestData(
+					2,
+					1003,
+					"成功メッセージテスト",
+					"https://example.com/link",
+				);
 
 				const result = await crownLogic.createCrownIfNotExists(communityId, messageId, crownMessage, crownMessageLink);
 
@@ -294,11 +272,8 @@ describe("Test Crown Commands", () => {
 
 			return (async () => {
 				const crownLogic = appContainer.get<ICrownLogic>(LogicTypes.CrownLogic);
-				const communityId = new CommunityId(3);
-				const messageId = new MessageId(1004);
 				const messageContent = "これは特定のメッセージ内容です";
-				const crownMessage = new CrownMessage(messageContent);
-				const crownMessageLink = new CrownMessageLink("https://example.com/msg");
+				const { communityId, messageId, crownMessage, crownMessageLink } = createCrownTestData(3, 1004, messageContent, "https://example.com/msg");
 
 				const result = await crownLogic.createCrownIfNotExists(communityId, messageId, crownMessage, crownMessageLink);
 
@@ -315,11 +290,8 @@ describe("Test Crown Commands", () => {
 
 			return (async () => {
 				const crownLogic = appContainer.get<ICrownLogic>(LogicTypes.CrownLogic);
-				const communityId = new CommunityId(4);
-				const messageId = new MessageId(1005);
 				const messageLink = "https://discord.com/channels/guild/channel/message";
-				const crownMessage = new CrownMessage("テスト");
-				const crownMessageLink = new CrownMessageLink(messageLink);
+				const { communityId, messageId, crownMessage, crownMessageLink } = createCrownTestData(4, 1005, "テスト", messageLink);
 
 				const result = await crownLogic.createCrownIfNotExists(communityId, messageId, crownMessage, crownMessageLink);
 
@@ -340,14 +312,10 @@ describe("Test Crown Commands", () => {
 			this.timeout(10_000);
 
 			return (async () => {
-				// テストデータを直接作成
-				await CrownRepositoryImpl.create({
-					communityId: 1,
-					messageId: 2001,
-				});
+				await createCrownRecord(1, 2001);
 
 				const repo = new CrownRepositoryImpl();
-				const dto = new CrownDto(new CommunityId(1), new MessageId(2001));
+				const dto = createCrownDto(1, 2001);
 
 				const result = await repo.findOne(dto);
 
@@ -366,7 +334,7 @@ describe("Test Crown Commands", () => {
 
 			return (async () => {
 				const repo = new CrownRepositoryImpl();
-				const dto = new CrownDto(new CommunityId(999), new MessageId(999999));
+				const dto = createCrownDto(999, 999999);
 
 				const result = await repo.findOne(dto);
 
@@ -383,16 +351,14 @@ describe("Test Crown Commands", () => {
 
 			return (async () => {
 				const repo = new CrownRepositoryImpl();
-				const dto = new CrownDto(new CommunityId(5), new MessageId(2002));
+				const dto = createCrownDto(5, 2002);
 
 				const result = await repo.create(dto);
 
 				expect(result).to.be.true;
 
 				// DBに保存されていることを確認
-				const crowns = await CrownRepositoryImpl.findAll({
-					where: { communityId: 5, messageId: 2002 },
-				});
+				const crowns = await findCrownByIds(5, 2002);
 				expect(crowns.length).to.eq(1);
 			})();
 		});
@@ -405,10 +371,7 @@ describe("Test Crown Commands", () => {
 			this.timeout(10_000);
 
 			return (async () => {
-				await CrownRepositoryImpl.create({
-					communityId: 10,
-					messageId: 2003,
-				});
+				await createCrownRecord(10, 2003);
 
 				const model = await CrownRepositoryImpl.findOne({
 					where: { communityId: 10, messageId: 2003 },
@@ -433,23 +396,13 @@ describe("Test Crown Commands", () => {
 
 			return (async () => {
 				// 同じ communityId で異なる messageId
-				await CrownRepositoryImpl.create({
-					communityId: 20,
-					messageId: 2004,
-				});
-				await CrownRepositoryImpl.create({
-					communityId: 20,
-					messageId: 2005,
-				});
+				await createCrownRecord(20, 2004);
+				await createCrownRecord(20, 2005);
 
 				// 異なる communityId で同じ messageId
-				await CrownRepositoryImpl.create({
-					communityId: 21,
-					messageId: 2004,
-				});
+				await createCrownRecord(21, 2004);
 
-				const crowns = await CrownRepositoryImpl.findAll();
-				expect(crowns.length).to.eq(3);
+				await expectCrownCreated(3);
 			})();
 		});
 
@@ -461,17 +414,11 @@ describe("Test Crown Commands", () => {
 			this.timeout(10_000);
 
 			return (async () => {
-				await CrownRepositoryImpl.create({
-					communityId: 30,
-					messageId: 2006,
-				});
+				await createCrownRecord(30, 2006);
 
 				let error: Error | null = null;
 				try {
-					await CrownRepositoryImpl.create({
-						communityId: 30,
-						messageId: 2006,
-					});
+					await createCrownRecord(30, 2006);
 				} catch (e) {
 					error = e as Error;
 				}
@@ -495,10 +442,7 @@ describe("Test Crown Commands", () => {
 
 			return (async () => {
 				const crownLogic = appContainer.get<ICrownLogic>(LogicTypes.CrownLogic);
-				const communityId = new CommunityId(100);
-				const messageId = new MessageId(3001);
-				const crownMessage = new CrownMessage("重複テスト");
-				const crownMessageLink = new CrownMessageLink("https://example.com/dup");
+				const { communityId, messageId, crownMessage, crownMessageLink } = createCrownTestData(100, 3001, "重複テスト", "https://example.com/dup");
 
 				// 1回目
 				const result1 = await crownLogic.createCrownIfNotExists(communityId, messageId, crownMessage, crownMessageLink);
@@ -509,9 +453,7 @@ describe("Test Crown Commands", () => {
 				expect(result2).to.be.undefined;
 
 				// DBに1件のみ存在
-				const crowns = await CrownRepositoryImpl.findAll({
-					where: { communityId: 100 },
-				});
+				const crowns = await findCrownsByCommunityId(100);
 				expect(crowns.length).to.eq(1);
 			})();
 		});
@@ -535,10 +477,8 @@ describe("Test Crown Commands", () => {
 				const TEST_CLIENT = await TestDiscordServer.getClient();
 				TEST_CLIENT.emit("messageReactionAdd", instance(reaction), instance(user), instance(mock<MessageReactionEventDetails>()));
 
-				await new Promise((resolve) => setTimeout(resolve, 100));
-
-				const crowns = await CrownRepositoryImpl.findAll();
-				expect(crowns.length).to.eq(0);
+				await waitForHandlerCompletion();
+				await expectCrownNotCreated();
 			})();
 		});
 
@@ -562,10 +502,8 @@ describe("Test Crown Commands", () => {
 				const TEST_CLIENT = await TestDiscordServer.getClient();
 				TEST_CLIENT.emit("messageReactionAdd", instance(reaction), instance(user), instance(mock<MessageReactionEventDetails>()));
 
-				await new Promise((resolve) => setTimeout(resolve, 100));
-
-				const crowns = await CrownRepositoryImpl.findAll();
-				expect(crowns.length).to.eq(0);
+				await waitForHandlerCompletion();
+				await expectCrownNotCreated();
 			})();
 		});
 
@@ -593,9 +531,9 @@ describe("Test Crown Commands", () => {
 				expect(resultB).to.not.be.undefined;
 
 				// 両方のコミュニティでクラウンが作成されている
-				const crowns = await CrownRepositoryImpl.findAll();
-				expect(crowns.length).to.eq(2);
+				await expectCrownCreated(2);
 
+				const crowns = await CrownRepositoryImpl.findAll();
 				const crownA = crowns.find((c) => c.communityId === 200);
 				const crownB = crowns.find((c) => c.communityId === 201);
 				expect(crownA).to.not.be.undefined;

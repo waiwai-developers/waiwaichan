@@ -18,7 +18,14 @@ import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogge
 import { MessageLogic } from "@/src/logics/MessageLogic";
 import { UserLogic } from "@/src/logics/UserLogic";
 import { PinoSchedulerLogger } from "@/src/repositories/logger/PinoSchedulerLogger";
-import { ChannelRepositoryImpl, CommunityRepositoryImpl, DataDeletionCircularImpl, MessageRepositoryImpl, ReminderSchedulerRepositoryImpl, UserRepositoryImpl } from "@/src/repositories/sequelize-mysql";
+import {
+	ChannelRepositoryImpl,
+	CommunityRepositoryImpl,
+	DataDeletionCircularImpl,
+	MessageRepositoryImpl,
+	ReminderSchedulerRepositoryImpl,
+	UserRepositoryImpl,
+} from "@/src/repositories/sequelize-mysql";
 import { MysqlSchedulerConnector } from "@/src/repositories/sequelize-mysql/MysqlSchedulerConnector";
 import { SequelizeTransaction } from "@/src/repositories/sequelize-mysql/SequelizeTransaction";
 import { Container } from "inversify";

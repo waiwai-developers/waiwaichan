@@ -7,6 +7,7 @@ import { CandyNotificationChannelRepositoryImpl } from "@/src/repositories/seque
 import { CandyRepositoryImpl } from "@/src/repositories/sequelize-mysql/CandyRepositoryImpl";
 import { ChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/ChannelRepositoryImpl";
 import { CommunityRepositoryImpl } from "@/src/repositories/sequelize-mysql/CommunityRepositoryImpl";
+import { CrownNotificationChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/CrownNotificationChannelRepositoryImpl";
 import { CrownRepositoryImpl } from "@/src/repositories/sequelize-mysql/CrownRepositoryImpl";
 import { MessageRepositoryImpl } from "@/src/repositories/sequelize-mysql/MessageRepositoryImpl";
 import { ReminderSchedulerRepositoryImpl } from "@/src/repositories/sequelize-mysql/ReminderSchedulerRepositoryImpl";
@@ -37,6 +38,7 @@ export class MysqlSchedulerConnector
 		// userId関連データ削除用
 		CandyRepositoryImpl,
 		CandyNotificationChannelRepositoryImpl,
+		CrownNotificationChannelRepositoryImpl,
 		CrownRepositoryImpl,
 		CandyItemRepositoryImpl,
 		UserCandyItemRepositoryImpl,

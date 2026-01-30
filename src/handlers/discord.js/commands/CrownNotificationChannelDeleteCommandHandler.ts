@@ -4,23 +4,23 @@ import { CommunityDto } from "@/src/entities/dto/CommunityDto";
 import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
 import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
-import type { ICandyNotificationChannelLogic } from "@/src/logics/Interfaces/logics/ICandyNotificationChannelLogic";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
+import type { ICrownNotificationChannelLogic } from "@/src/logics/Interfaces/logics/ICrownNotificationChannelLogic";
 import type { CacheType, ChatInputCommandInteraction } from "discord.js";
 import { inject, injectable } from "inversify";
 
 @injectable()
-export class CandyNotificationChannelDeleteCommandHandler
+export class CrownNotificationChannelDeleteCommandHandler
 	implements SlashCommandHandler
 {
-	@inject(LogicTypes.CandyNotificationChannelLogic)
-	private candyNotificationChannelLogic!: ICandyNotificationChannelLogic;
+	@inject(LogicTypes.CrownNotificationChannelLogic)
+	private crownNotificationChannelLogic!: ICrownNotificationChannelLogic;
 
 	@inject(LogicTypes.CommunityLogic)
 	private CommunityLogic!: ICommunityLogic;
 
 	isHandle(commandName: string): boolean {
-		return commandName === "candynotificationchanneldelete";
+		return commandName === "crownnotificationchanneldelete";
 	}
 
 	async handle(
@@ -38,7 +38,7 @@ export class CandyNotificationChannelDeleteCommandHandler
 				?.role !== "admin"
 		) {
 			interaction.reply(
-				"キャンディ通知チャンネルを登録する権限を持っていないよ！っ",
+				"クラウン通知チャンネルを登録する権限を持っていないよ！っ",
 			);
 			return;
 		}
@@ -54,17 +54,17 @@ export class CandyNotificationChannelDeleteCommandHandler
 			return;
 		}
 
-		const candyNotificationChannel =
-			await this.candyNotificationChannelLogic.find(communityId);
-		if (candyNotificationChannel === undefined) {
+		const crownNotificationChannel =
+			await this.crownNotificationChannelLogic.find(communityId);
+		if (crownNotificationChannel === undefined) {
 			await interaction.reply(
-				"キャンディ通知チャンネルが登録されていなかったよ！っ",
+				"クラウン通知チャンネルが登録されていなかったよ！っ",
 			);
 			return;
 		}
 
 		await interaction.reply(
-			await this.candyNotificationChannelLogic.delete(communityId),
+			await this.crownNotificationChannelLogic.delete(communityId),
 		);
 	}
 }
