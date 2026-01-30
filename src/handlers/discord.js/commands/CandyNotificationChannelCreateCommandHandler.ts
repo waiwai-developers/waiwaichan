@@ -79,13 +79,9 @@ export class CandyNotificationChannelCreateCommandHandler
 			return;
 		}
 
-		const channelId = await this.ChannelLogic.getId(
-			new ChannelDto(
-				ChannelCategoryType.Discord,
-				new ChannelClientId(BigInt(targetChannelId)),
-				ChannelType.DiscordText,
-				new ChannelCommunityId(communityId.getValue()),
-			),
+		const channelId = await this.ChannelLogic.getIdByCommunityIdAndClientId(
+			new ChannelCommunityId(communityId.getValue()),
+			new ChannelClientId(BigInt(targetChannelId)),
 		);
 		if (channelId == null) {
 			await interaction.reply("チャンネルが登録されていなかったよ！っ");
