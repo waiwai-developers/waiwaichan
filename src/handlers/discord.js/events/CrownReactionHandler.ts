@@ -1,4 +1,3 @@
-import { AppConfig } from "@/src/entities/config/AppConfig";
 import { APPLY_CROWN_NUM } from "@/src/entities/constants/Crown";
 import {
 	LogicTypes,
@@ -29,6 +28,7 @@ import type {
 import type { IChannelLogic } from "@/src/logics/Interfaces/logics/IChannelLogic";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { ICrownLogic } from "@/src/logics/Interfaces/logics/ICrownLogic";
+import type { ICrownNotificationChannelLogic } from "@/src/logics/Interfaces/logics/ICrownNotificationChannelLogic";
 import type { IMessageLogic } from "@/src/logics/Interfaces/logics/IMessageLogic";
 import type { IUserLogic } from "@/src/logics/Interfaces/logics/IUserLogic";
 import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
@@ -41,6 +41,9 @@ export class CrownReactionHandler
 {
 	@inject(LogicTypes.CrownLogic)
 	private crownLogic!: ICrownLogic;
+
+	@inject(LogicTypes.CrownNotificationChannelLogic)
+	private crownNotificationChannelLogic!: ICrownNotificationChannelLogic;
 
 	@inject(LogicTypes.CommunityLogic)
 	private CommunityLogic!: ICommunityLogic;
@@ -161,11 +164,29 @@ export class CrownReactionHandler
 			return;
 		}
 
-		const channel = reaction.message.guild?.channels.cache.get(
-			AppConfig.backend.crownLogChannel,
-		);
+		// CrownNotificationChannelLogicから通知チャンネルを取得
+		const crownNotificationChannel =
+			await this.crownNotificationChannelLogic.find(communityId);
+		if (crownNotificationChannel == null) {
+			this.logger.debug("crown notification channel not registered");
+			return;
+		}
 
+		// チャンネルIDからClientIdを取得
+		const notificationChannelClientId = await this.ChannelLogic.getClientIdById(
+			crownNotificationChannel.channelId,
+		);
+		if (notificationChannelClientId == null) {
+			this.logger.error("notification channel client id not found");
+			return;
+		}
+
+		// Discord APIを使用してチャンネルを取得
+		const channel = reaction.message.guild?.channels.cache.get(
+			notificationChannelClientId.getValue().toString(),
+		);
 		if (!(channel instanceof TextChannel)) {
+			this.logger.error("notification channel is not a text channel");
 			return;
 		}
 		await channel.send(`<@${reaction.message.author.id}>さん${res}`);

@@ -230,6 +230,18 @@ export class DiscordCommandRegister {
 			new SlashCommandBuilder()
 				.setName("roomcategorychanneldelete")
 				.setDescription("room category channel delete"),
+			new SlashCommandBuilder()
+				.setName("crownnotificationchannelcreate")
+				.setDescription("crown notification channel create")
+				.addStringOption((option) =>
+					option
+						.setName("channelid")
+						.setDescription("string")
+						.setRequired(true),
+				),
+			new SlashCommandBuilder()
+				.setName("crownnotificationchanneldelete")
+				.setDescription("crown notification channel delete"),
 		];
 	}
 	async register(token: string) {

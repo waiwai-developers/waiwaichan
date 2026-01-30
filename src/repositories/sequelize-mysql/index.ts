@@ -7,6 +7,7 @@ import { CandyItemRepositoryImpl } from "./CandyItemRepositoryImpl";
 import { CandyNotificationChannelRepositoryImpl } from "./CandyNotificationChannelRepositoryImpl";
 import { CandyRepositoryImpl } from "./CandyRepositoryImpl";
 import { ContextRepositoryImpl } from "./ContextRepositoryImpl";
+import { CrownNotificationChannelRepositoryImpl } from "./CrownNotificationChannelRepositoryImpl";
 import { CrownRepositoryImpl } from "./CrownRepositoryImpl";
 import { DataDeletionCircularImpl } from "./DataDeletionCircularImpl";
 import { PersonalityContextRepositoryImpl } from "./PersonalityContextRepositoryImpl";
@@ -30,6 +31,7 @@ export {
 	CandyItemRepositoryImpl,
 	CandyNotificationChannelRepositoryImpl,
 	CandyRepositoryImpl,
+	CrownNotificationChannelRepositoryImpl,
 	CrownRepositoryImpl,
 	UserCandyItemRepositoryImpl,
 	ThreadRepositoryImpl,
