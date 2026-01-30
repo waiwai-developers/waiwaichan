@@ -1,12 +1,9 @@
 import { RoleConfig } from "@/src/entities/config/RoleConfig";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
-import { ChannelDto } from "@/src/entities/dto/ChannelDto";
 import { CommunityDto } from "@/src/entities/dto/CommunityDto";
 import { CrownNotificationChannelDto } from "@/src/entities/dto/CrownNotificationChannelDto";
-import { ChannelCategoryType } from "@/src/entities/vo/ChannelCategoryType";
 import { ChannelClientId } from "@/src/entities/vo/ChannelClientId";
 import { ChannelCommunityId } from "@/src/entities/vo/ChannelCommunityId";
-import { ChannelType } from "@/src/entities/vo/ChannelType";
 import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
 import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
