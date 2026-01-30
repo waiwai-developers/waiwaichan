@@ -6,6 +6,7 @@ import { CandyRepositoryImpl } from "@/src/repositories/sequelize-mysql/CandyRep
 import { ChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/ChannelRepositoryImpl";
 import { CommunityRepositoryImpl } from "@/src/repositories/sequelize-mysql/CommunityRepositoryImpl";
 import { ContextRepositoryImpl } from "@/src/repositories/sequelize-mysql/ContextRepositoryImpl";
+import { CrownNotificationChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/CrownNotificationChannelRepositoryImpl";
 import { CrownRepositoryImpl } from "@/src/repositories/sequelize-mysql/CrownRepositoryImpl";
 import { MessageRepositoryImpl } from "@/src/repositories/sequelize-mysql/MessageRepositoryImpl";
 import { PersonalityContextRepositoryImpl } from "@/src/repositories/sequelize-mysql/PersonalityContextRepositoryImpl";
@@ -38,6 +39,7 @@ export class MysqlConnector implements IDataBaseConnector<Sequelize, "mysql"> {
 				CandyItemRepositoryImpl,
 				CandyNotificationChannelRepositoryImpl,
 				ChannelRepositoryImpl,
+				CrownNotificationChannelRepositoryImpl,
 				CrownRepositoryImpl,
 				UserCandyItemRepositoryImpl,
 				ReminderRepositoryImpl,
