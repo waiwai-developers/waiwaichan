@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import { RoleConfig } from "@/src/entities/config/RoleConfig";
-import { CrownNotificationChannelRepositoryImpl, ChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql";
+import { ChannelRepositoryImpl, CrownNotificationChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql";
 import { mockSlashCommand, waitUntilReply as waitSlashUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { TestDiscordServer } from "@/tests/fixtures/discord.js/TestDiscordServer";
 import { expect } from "chai";
@@ -25,7 +25,7 @@ async function createChannelAndGetId(discordChannelId: string, communityId: numb
 
 async function setupTestEnvironment(): Promise<{ communityId: number }> {
 	const { CommunityRepositoryImpl, UserRepositoryImpl } = await import("@/src/repositories/sequelize-mysql");
-	
+
 	const community = await CommunityRepositoryImpl.create({
 		categoryType: 0,
 		clientId: BigInt(TEST_GUILD_ID),

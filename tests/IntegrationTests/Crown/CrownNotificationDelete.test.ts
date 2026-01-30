@@ -12,7 +12,7 @@ const TEST_GUILD_ID = "1234567890";
 
 async function setupTestEnvironment(): Promise<{ communityId: number }> {
 	const { CommunityRepositoryImpl } = await import("@/src/repositories/sequelize-mysql");
-	
+
 	const community = await CommunityRepositoryImpl.create({
 		categoryType: 0,
 		clientId: BigInt(TEST_GUILD_ID),
