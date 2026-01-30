@@ -8,7 +8,7 @@ import { CrownMessage } from "@/src/entities/vo/CrownMessage";
 import { CrownMessageLink } from "@/src/entities/vo/CrownMessageLink";
 import { MessageId } from "@/src/entities/vo/MessageId";
 import type { ICrownLogic } from "@/src/logics/Interfaces/logics/ICrownLogic";
-import { CommunityRepositoryImpl, CrownRepositoryImpl, UserRepositoryImpl } from "@/src/repositories/sequelize-mysql";
+import { ChannelRepositoryImpl, CommunityRepositoryImpl, CrownRepositoryImpl, MessageRepositoryImpl, UserRepositoryImpl } from "@/src/repositories/sequelize-mysql";
 import { MysqlConnector } from "@/tests/fixtures/database/MysqlConnector";
 import { mockCrownReaction } from "@/tests/fixtures/discord.js/MockReaction";
 import { TestDiscordServer } from "@/tests/fixtures/discord.js/TestDiscordServer";
@@ -27,6 +27,14 @@ describe("Test Crown Commands", () => {
 
 	afterEach(async () => {
 		await CrownRepositoryImpl.destroy({
+			truncate: true,
+			force: true,
+		});
+		await MessageRepositoryImpl.destroy({
+			truncate: true,
+			force: true,
+		});
+		await ChannelRepositoryImpl.destroy({
 			truncate: true,
 			force: true,
 		});
