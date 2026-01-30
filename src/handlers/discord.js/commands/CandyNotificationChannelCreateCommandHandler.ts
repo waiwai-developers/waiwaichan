@@ -31,7 +31,7 @@ export class CandyNotificationChannelCreateCommandHandler
 	private ChannelLogic!: IChannelLogic;
 
 	isHandle(commandName: string): boolean {
-		return commandName === "roomnotificationchannelcreate";
+		return commandName === "candynotificationchannelcreate";
 	}
 
 	async handle(

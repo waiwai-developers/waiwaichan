@@ -20,7 +20,7 @@ export class CandyNotificationChannelDeleteCommandHandler
 	private CommunityLogic!: ICommunityLogic;
 
 	isHandle(commandName: string): boolean {
-		return commandName === "roomnotificationchanneldelete";
+		return commandName === "candynotificationchanneldelete";
 	}
 
 	async handle(
