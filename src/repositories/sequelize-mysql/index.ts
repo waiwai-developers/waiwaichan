@@ -4,6 +4,7 @@ import { MessageRepositoryImpl } from "@/src/repositories/sequelize-mysql/Messag
 import { ReminderRepositoryImpl } from "@/src/repositories/sequelize-mysql/ReminderRepositoryImpl";
 import { ReminderSchedulerRepositoryImpl } from "@/src/repositories/sequelize-mysql/ReminderSchedulerRepositoryImpl";
 import { CandyItemRepositoryImpl } from "./CandyItemRepositoryImpl";
+import { CandyNotificationChannelRepositoryImpl } from "./CandyNotificationChannelRepositoryImpl";
 import { CandyRepositoryImpl } from "./CandyRepositoryImpl";
 import { ContextRepositoryImpl } from "./ContextRepositoryImpl";
 import { CrownRepositoryImpl } from "./CrownRepositoryImpl";
@@ -27,6 +28,7 @@ export {
 	ReminderRepositoryImpl,
 	ReminderSchedulerRepositoryImpl,
 	CandyItemRepositoryImpl,
+	CandyNotificationChannelRepositoryImpl,
 	CandyRepositoryImpl,
 	CrownRepositoryImpl,
 	UserCandyItemRepositoryImpl,

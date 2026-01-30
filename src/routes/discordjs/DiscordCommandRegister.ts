@@ -144,6 +144,18 @@ export class DiscordCommandRegister {
 					option.setName("amount").setDescription("integer"),
 				),
 			new SlashCommandBuilder()
+				.setName("candynotificationchannelcreate")
+				.setDescription("candy notification channel create")
+				.addStringOption((option) =>
+					option
+						.setName("channelid")
+						.setDescription("string")
+						.setRequired(true),
+				),
+			new SlashCommandBuilder()
+				.setName("candynotificationchanneldelete")
+				.setDescription("candy notification channel delete"),
+			new SlashCommandBuilder()
 				.setName("reviewgacha")
 				.setDescription("reviewgacha integer")
 				.addIntegerOption((option) =>

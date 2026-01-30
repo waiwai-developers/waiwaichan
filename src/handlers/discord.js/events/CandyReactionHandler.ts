@@ -1,8 +1,8 @@
-import { AppConfig } from "@/src/entities/config/AppConfig";
 import {
 	LogicTypes,
 	RepoTypes,
 } from "@/src/entities/constants/DIContainerTypes";
+import { AppConfig } from "@/src/entities/config/AppConfig";
 import { CommunityDto } from "@/src/entities/dto/CommunityDto";
 import { MessageDto } from "@/src/entities/dto/MessageDto";
 import { UserDto } from "@/src/entities/dto/UserDto";
@@ -26,6 +26,7 @@ import type {
 	ReactionInteraction,
 } from "@/src/handlers/discord.js/events/DiscordEventHandler";
 import type { ICandyLogic } from "@/src/logics/Interfaces/logics/ICandyLogic";
+import type { ICandyNotificationChannelLogic } from "@/src/logics/Interfaces/logics/ICandyNotificationChannelLogic";
 import type { IChannelLogic } from "@/src/logics/Interfaces/logics/IChannelLogic";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { IMessageLogic } from "@/src/logics/Interfaces/logics/IMessageLogic";
@@ -40,6 +41,9 @@ export class CandyReactionHandler
 {
 	@inject(LogicTypes.CandyLogic)
 	private candyLogic!: ICandyLogic;
+
+	@inject(LogicTypes.CandyNotificationChannelLogic)
+	private candyNotificationChannelLogic!: ICandyNotificationChannelLogic;
 
 	@inject(LogicTypes.CommunityLogic)
 	private CommunityLogic!: ICommunityLogic;
@@ -174,10 +178,29 @@ export class CandyReactionHandler
 			return;
 		}
 
+		// CandyNotificationChannelLogicから通知チャンネルを取得
+		const candyNotificationChannel =
+			await this.candyNotificationChannelLogic.find(communityId);
+		if (candyNotificationChannel == null) {
+			this.logger.debug("candy notification channel not registered");
+			return;
+		}
+
+		// チャンネルIDからClientIdを取得
+		const notificationChannelClientId = await this.ChannelLogic.getClientIdById(
+			candyNotificationChannel.channelId,
+		);
+		if (notificationChannelClientId == null) {
+			this.logger.error("notification channel client id not found");
+			return;
+		}
+
+		// Discord APIを使用してチャンネルを取得
 		const channel = reaction.message.guild?.channels.cache.get(
-			AppConfig.backend.candyLogChannel,
+			notificationChannelClientId.getValue().toString(),
 		);
 		if (!(channel instanceof TextChannel)) {
+			this.logger.error("notification channel is not a text channel");
 			return;
 		}
 		await channel.send(
