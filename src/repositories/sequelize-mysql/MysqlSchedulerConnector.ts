@@ -3,6 +3,7 @@ import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import type { IDataBaseConnector } from "@/src/logics/Interfaces/repositories/database/IDataBaseConnector";
 import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 import { CandyItemRepositoryImpl } from "@/src/repositories/sequelize-mysql/CandyItemRepositoryImpl";
+import { CandyNotificationChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/CandyNotificationChannelRepositoryImpl";
 import { CandyRepositoryImpl } from "@/src/repositories/sequelize-mysql/CandyRepositoryImpl";
 import { ChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/ChannelRepositoryImpl";
 import { CommunityRepositoryImpl } from "@/src/repositories/sequelize-mysql/CommunityRepositoryImpl";
@@ -35,6 +36,7 @@ export class MysqlSchedulerConnector
 		MessageRepositoryImpl,
 		// userId関連データ削除用
 		CandyRepositoryImpl,
+		CandyNotificationChannelRepositoryImpl,
 		CrownRepositoryImpl,
 		CandyItemRepositoryImpl,
 		UserCandyItemRepositoryImpl,
