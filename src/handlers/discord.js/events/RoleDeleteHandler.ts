@@ -3,13 +3,13 @@ import {
 	RepoTypes,
 } from "@/src/entities/constants/DIContainerTypes";
 import { CommunityDto } from "@/src/entities/dto/CommunityDto";
-import { RoleClientId } from "@/src/entities/vo/RoleClientId";
-import { RoleCommunityId } from "@/src/entities/vo/RoleCommunityId";
 import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
 import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
+import { RoleClientId } from "@/src/entities/vo/RoleClientId";
+import { RoleCommunityId } from "@/src/entities/vo/RoleCommunityId";
 import type { DiscordEventHandler } from "@/src/handlers/discord.js/events/DiscordEventHandler";
-import type { IRoleLogic } from "@/src/logics/Interfaces/logics/IRoleLogic";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
+import type { IRoleLogic } from "@/src/logics/Interfaces/logics/IRoleLogic";
 import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 import type { Role } from "discord.js";
 import { inject, injectable } from "inversify";

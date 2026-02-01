@@ -1,6 +1,6 @@
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
-import type { RoleDto } from "@/src/entities/dto/RoleDto";
 import type { DeletedRoleTargetDto } from "@/src/entities/dto/DeletedRoleTargetDto";
+import type { RoleDto } from "@/src/entities/dto/RoleDto";
 import type { IRoleLogic } from "@/src/logics/Interfaces/logics/IRoleLogic";
 import type { IRoleRepository } from "@/src/logics/Interfaces/repositories/database/IRoleRepository";
 import type { ITransaction } from "@/src/logics/Interfaces/repositories/database/ITransaction";

@@ -1,5 +1,5 @@
-import { RoleDto } from "@/src/entities/dto/RoleDto";
 import type { DeletedRoleTargetDto } from "@/src/entities/dto/DeletedRoleTargetDto";
+import { RoleDto } from "@/src/entities/dto/RoleDto";
 import { RoleBatchStatus } from "@/src/entities/vo/RoleBatchStatus";
 import { RoleCategoryType } from "@/src/entities/vo/RoleCategoryType";
 import { RoleClientId } from "@/src/entities/vo/RoleClientId";
@@ -118,9 +118,7 @@ class RoleRepositoryImpl extends Model implements IRoleRepository {
 				deletedAt: { [Op.not]: null },
 			},
 			paranoid: false,
-		}).then((res) =>
-			res.length > 0 ? res.map((r) => new RoleId(r.id)) : [],
-		);
+		}).then((res) => (res.length > 0 ? res.map((r) => new RoleId(r.id)) : []));
 	}
 
 	async findDeletionTargetsByBatchStatusAndDeletedAt(): Promise<

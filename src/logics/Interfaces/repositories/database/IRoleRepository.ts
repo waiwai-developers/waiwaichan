@@ -1,5 +1,5 @@
-import type { RoleDto } from "@/src/entities/dto/RoleDto";
 import type { DeletedRoleTargetDto } from "@/src/entities/dto/DeletedRoleTargetDto";
+import type { RoleDto } from "@/src/entities/dto/RoleDto";
 import type { RoleClientId } from "@/src/entities/vo/RoleClientId";
 import type { RoleCommunityId } from "@/src/entities/vo/RoleCommunityId";
 import type { RoleId } from "@/src/entities/vo/RoleId";
