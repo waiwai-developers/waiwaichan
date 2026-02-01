@@ -30,6 +30,8 @@ export class DiscordServer {
 			appContainer.get<DiscordEventRouter>(RouteTypes.MessageDeleteRoute),
 			appContainer.get<DiscordEventRouter>(RouteTypes.ChannelCreateRoute),
 			appContainer.get<DiscordEventRouter>(RouteTypes.ChannelDeleteRoute),
+			appContainer.get<DiscordEventRouter>(RouteTypes.RoleCreateRoute),
+			appContainer.get<DiscordEventRouter>(RouteTypes.RoleDeleteRoute),
 			appContainer.get<DiscordEventRouter>(RouteTypes.VoiceChannelEventRoute),
 		]);
 		await new DiscordCommandRegister().register(token);
