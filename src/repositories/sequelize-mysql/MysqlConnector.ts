@@ -14,6 +14,7 @@ import { MessageRepositoryImpl } from "@/src/repositories/sequelize-mysql/Messag
 import { PersonalityContextRepositoryImpl } from "@/src/repositories/sequelize-mysql/PersonalityContextRepositoryImpl";
 import { PersonalityRepositoryImpl } from "@/src/repositories/sequelize-mysql/PersonalityRepositoryImpl";
 import { ReminderRepositoryImpl } from "@/src/repositories/sequelize-mysql/ReminderRepositoryImpl";
+import { RoleRepositoryImpl } from "@/src/repositories/sequelize-mysql/RoleRepositoryImpl";
 import { RoomAddChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/RoomAddChannelRepositoryImpl";
 import { RoomCategoryChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/RoomCategoryChannelRepositoryImpl";
 import { RoomChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/RoomChannelRepositoryImpl";
@@ -40,6 +41,7 @@ export class MysqlConnector implements IDataBaseConnector<Sequelize, "mysql"> {
 		CrownRepositoryImpl,
 		UserCandyItemRepositoryImpl,
 		ReminderRepositoryImpl,
+		RoleRepositoryImpl,
 		ThreadRepositoryImpl,
 		StickyRepositoryImpl,
 		CommunityRepositoryImpl,

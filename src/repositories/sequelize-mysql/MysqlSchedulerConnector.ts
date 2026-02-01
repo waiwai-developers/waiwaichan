@@ -11,6 +11,7 @@ import { CrownNotificationChannelRepositoryImpl } from "@/src/repositories/seque
 import { CrownRepositoryImpl } from "@/src/repositories/sequelize-mysql/CrownRepositoryImpl";
 import { MessageRepositoryImpl } from "@/src/repositories/sequelize-mysql/MessageRepositoryImpl";
 import { ReminderSchedulerRepositoryImpl } from "@/src/repositories/sequelize-mysql/ReminderSchedulerRepositoryImpl";
+import { RoleRepositoryImpl } from "@/src/repositories/sequelize-mysql/RoleRepositoryImpl";
 import { RoomAddChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/RoomAddChannelRepositoryImpl";
 import { RoomCategoryChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/RoomCategoryChannelRepositoryImpl";
 import { RoomChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/RoomChannelRepositoryImpl";
@@ -35,6 +36,7 @@ export class MysqlSchedulerConnector
 		UserRepositoryImpl,
 		ChannelRepositoryImpl,
 		MessageRepositoryImpl,
+		RoleRepositoryImpl,
 		// userId関連データ削除用
 		CandyRepositoryImpl,
 		CandyNotificationChannelRepositoryImpl,
