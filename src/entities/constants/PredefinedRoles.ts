@@ -7,7 +7,7 @@ export const PredefinedRolesConst: {
 	PredefinedRoles: [
 		{
 			id: 1,
-			name: "owner",
+			name: "root",
 		},
 		{
 			id: 2,
