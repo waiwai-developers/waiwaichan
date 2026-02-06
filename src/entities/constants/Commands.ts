@@ -1,4 +1,4 @@
-export const Actions: {
+export const CommandsConst: {
 	Commands: {
 		name: string,
 		commandCategoryType: number;
@@ -159,6 +159,16 @@ export const Actions: {
 		{
 			name: "crownnotificationchanneldelete",
 			commandCategoryType: 8,
+			commandType: 2,
+		},
+		{
+			name: "rolebindedbypredefinedrole",
+			commandCategoryType: 9,
+			commandType: 1,
+		},
+		{
+			name: "rolereleasedbypredefinedrole",
+			commandCategoryType: 9,
 			commandType: 2,
 		},
 	],

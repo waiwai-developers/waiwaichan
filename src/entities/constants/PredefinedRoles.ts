@@ -1,17 +1,21 @@
-export const PersonalityContextsConst: {
-	PredefinedRole: {
+export const PredefinedRolesConst: {
+	PredefinedRoles: {
 		id: number;
 		name: string;
 	}[];
 } = {
-	PredefinedRole: [
+	PredefinedRoles: [
 		{
 			id: 1,
-			name: "admin",
+			name: "owner",
 		},
 		{
 			id: 2,
-			name: "user",
+			name: "admin",
+		},
+		{
+			id: 3,
+			name: "member",
 		},
 	],
 };
