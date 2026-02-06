@@ -2,6 +2,7 @@ import { ITEM_RECORDS } from "@/migrator/seeds/20241111041901-item";
 import { AppConfig } from "@/src/entities/config/AppConfig";
 import { CommandsConfig } from "@/src/entities/config/CommandsConfig";
 import { ContextsConst } from "@/src/entities/constants/Contexts";
+import { PredefinedRolesConst } from "@/src/entities/constants/PredefinedRoles";
 import { TranslateConst } from "@/src/entities/constants/translate";
 import {
 	REST,
@@ -242,6 +243,30 @@ export class DiscordCommandRegister {
 			new SlashCommandBuilder()
 				.setName("crownnotificationchanneldelete")
 				.setDescription("crown notification channel delete"),
+			new SlashCommandBuilder()
+				.setName("rolebindedbypredefinedrole")
+				.setDescription("rolebindedbypredefinedrole integer integer")
+				.addIntegerOption((option) =>
+					option
+						.setName("predefinedrole")
+						.setDescription("integer")
+						.setRequired(true)
+						.addChoices(
+							// TODO read from in memory db
+							PredefinedRolesConst.PredefinedRoles.map((pr) => {
+								return { name: pr.name, value: pr.id };
+							}),
+						),
+				)
+				.addStringOption((option) =>
+					option.setName("roleid").setDescription("integer").setRequired(true),
+				),
+			new SlashCommandBuilder()
+				.setName("rolereleasedbypredefinedrole")
+				.setDescription("rolereleasedbypredefinedrole integer")
+				.addStringOption((option) =>
+					option.setName("roleid").setDescription("integer").setRequired(true),
+				),
 		];
 	}
 	async register(token: string) {

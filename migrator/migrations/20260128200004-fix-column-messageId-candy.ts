@@ -86,10 +86,7 @@ export const up: Migration = async ({ context: sequelize }) => {
 									userClientId = message.author.id;
 									break;
 								}
-							} catch (error) {
-								// Message not in this channel, continue searching
-								continue;
-							}
+							} catch (error) {}
 						}
 					}
 					if (message) break;
@@ -206,7 +203,7 @@ export const up: Migration = async ({ context: sequelize }) => {
 					);
 				}
 			} catch (error) {
-				console.error(`Error processing candy record:`, error);
+				console.error("Error processing candy record:", error);
 			}
 		}
 
