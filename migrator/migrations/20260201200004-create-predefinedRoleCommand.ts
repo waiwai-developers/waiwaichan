@@ -20,6 +20,11 @@ export const up: Migration = async ({ context: sequelize }) => {
             primaryKey: true,
             type: DataTypes.INTEGER,
         },
+		isAllow: {
+            allowNull: false,
+            type: DataTypes.BOOLEAN,
+			defaultValue: true,
+		},
 		createdAt: {
 			allowNull: false,
 			type: DataTypes.DATE,

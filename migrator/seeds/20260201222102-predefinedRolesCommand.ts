@@ -9,6 +9,7 @@ export const up: Seed = async ({ context: sequelize }) => {
 			predefinedRolesId: prc.predefinedRolesId,
 			commandCategoryType: prc.commandCategoryType,
 			commandType: prc.commandType,
+			isAllow: prc.isAllow,
 		})),
 	);
 };
