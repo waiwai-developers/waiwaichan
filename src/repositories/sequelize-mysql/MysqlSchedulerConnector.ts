@@ -6,12 +6,16 @@ import { CandyItemRepositoryImpl } from "@/src/repositories/sequelize-mysql/Cand
 import { CandyNotificationChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/CandyNotificationChannelRepositoryImpl";
 import { CandyRepositoryImpl } from "@/src/repositories/sequelize-mysql/CandyRepositoryImpl";
 import { ChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/ChannelRepositoryImpl";
+import { CommandImpl } from "@/src/repositories/sequelize-mysql/CommandImpl";
 import { CommunityRepositoryImpl } from "@/src/repositories/sequelize-mysql/CommunityRepositoryImpl";
 import { CrownNotificationChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/CrownNotificationChannelRepositoryImpl";
 import { CrownRepositoryImpl } from "@/src/repositories/sequelize-mysql/CrownRepositoryImpl";
 import { MessageRepositoryImpl } from "@/src/repositories/sequelize-mysql/MessageRepositoryImpl";
+import { PredefinedRoleImpl } from "@/src/repositories/sequelize-mysql/PredefinedRoleImpl";
+import { PredefinedRoleCommandImpl } from "@/src/repositories/sequelize-mysql/PredefinedRoleCommandImpl";
 import { ReminderSchedulerRepositoryImpl } from "@/src/repositories/sequelize-mysql/ReminderSchedulerRepositoryImpl";
 import { RoleRepositoryImpl } from "@/src/repositories/sequelize-mysql/RoleRepositoryImpl";
+import { RolePredefinedRoleImpl } from "@/src/repositories/sequelize-mysql/RolePredefinedRoleImpl";
 import { RoomAddChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/RoomAddChannelRepositoryImpl";
 import { RoomCategoryChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/RoomCategoryChannelRepositoryImpl";
 import { RoomChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/RoomChannelRepositoryImpl";
@@ -35,8 +39,12 @@ export class MysqlSchedulerConnector
 		CommunityRepositoryImpl,
 		UserRepositoryImpl,
 		ChannelRepositoryImpl,
+		CommandImpl,
 		MessageRepositoryImpl,
+		PredefinedRoleImpl,
+		PredefinedRoleCommandImpl,
 		RoleRepositoryImpl,
+		RolePredefinedRoleImpl,
 		// userId関連データ削除用
 		CandyRepositoryImpl,
 		CandyNotificationChannelRepositoryImpl,

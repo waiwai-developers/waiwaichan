@@ -4,6 +4,10 @@ import { MessageRepositoryImpl } from "@/src/repositories/sequelize-mysql/Messag
 import { ReminderRepositoryImpl } from "@/src/repositories/sequelize-mysql/ReminderRepositoryImpl";
 import { ReminderSchedulerRepositoryImpl } from "@/src/repositories/sequelize-mysql/ReminderSchedulerRepositoryImpl";
 import { RoleRepositoryImpl } from "@/src/repositories/sequelize-mysql/RoleRepositoryImpl";
+import { RolePredefinedRoleImpl } from "@/src/repositories/sequelize-mysql/RolePredefinedRoleImpl";
+import { PredefinedRoleImpl } from "@/src/repositories/sequelize-mysql/PredefinedRoleImpl";
+import { CommandImpl } from "@/src/repositories/sequelize-mysql/CommandImpl";
+import { PredefinedRoleCommandImpl } from "@/src/repositories/sequelize-mysql/PredefinedRoleCommandImpl";
 import { CandyItemRepositoryImpl } from "./CandyItemRepositoryImpl";
 import { CandyNotificationChannelRepositoryImpl } from "./CandyNotificationChannelRepositoryImpl";
 import { CandyRepositoryImpl } from "./CandyRepositoryImpl";
@@ -24,9 +28,13 @@ import { UserRepositoryImpl } from "./UserRepositoryImpl";
 
 export {
 	ChannelRepositoryImpl,
+	CommandImpl,
 	CommunityRepositoryImpl,
 	MessageRepositoryImpl,
+	PredefinedRoleImpl,
+	PredefinedRoleCommandImpl,
 	RoleRepositoryImpl,
+	RolePredefinedRoleImpl,
 	UserRepositoryImpl,
 	ReminderRepositoryImpl,
 	ReminderSchedulerRepositoryImpl,
