@@ -10,7 +10,7 @@ import {
 	tableName: "PredefinedRolesCommands",
 	timestamps: true,
 })
-class SeederPredefinedRolesActionModel extends Model {
+class SeederPredefinedRolesCommandModel extends Model {
 	@PrimaryKey
 	@Column(DataType.INTEGER)
 	declare predefinedRolesId: number;
@@ -32,9 +32,9 @@ class SeederPredefinedRolesActionModel extends Model {
 		}>,
 	) {
 		await Promise.all(
-			data.map(async (d) => await SeederPredefinedRolesActionModel.upsert(d)),
+			data.map(async (d) => await SeederPredefinedRolesCommandModel.upsert(d)),
 		);
 	}
 }
 
-export { SeederPredefinedRolesActionModel };
+export { SeederPredefinedRolesCommandModel };
