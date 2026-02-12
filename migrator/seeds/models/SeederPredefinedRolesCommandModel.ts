@@ -14,11 +14,9 @@ class SeederPredefinedRolesActionModel extends Model {
 	@PrimaryKey
 	@Column(DataType.INTEGER)
 	declare predefinedRolesId: number;
-
 	@PrimaryKey
 	@Column(DataType.INTEGER)
 	declare commandCategoryType: number;
-
 	@PrimaryKey
 	@Column(DataType.INTEGER)
 	declare commandType: number;
