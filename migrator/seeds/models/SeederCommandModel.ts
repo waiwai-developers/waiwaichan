@@ -14,11 +14,9 @@ class SeederCommandModel extends Model {
 	@PrimaryKey
 	@Column(DataType.INTEGER)
 	declare commandCategoryType: number;
-
 	@PrimaryKey
 	@Column(DataType.INTEGER)
 	declare commandType: number;
-
 	@Column(DataType.STRING)
 	declare name: string;
 
