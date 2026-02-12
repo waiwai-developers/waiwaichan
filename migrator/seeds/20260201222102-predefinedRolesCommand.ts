@@ -1,10 +1,10 @@
 import type { Seed } from "@/migrator/umzug";
 import { PredefinedRolesCommandsConst } from "@/src/entities/constants/PredefinedRolesCommands";
-import { SeederPredefinedRolesActionModel } from "./models/SeederPredefinedRolesActionModel";
+import { SeederPredefinedRolesCommandModel } from "./models/SeederPredefinedRolesCommandModel";
 
 export const up: Seed = async ({ context: sequelize }) => {
-	sequelize.addModels([SeederPredefinedRolesActionModel]);
-	await new SeederPredefinedRolesActionModel().bulkUpsert(
+	sequelize.addModels([SeederPredefinedRolesCommandModel]);
+	await new SeederPredefinedRolesCommandModel().bulkUpsert(
 		PredefinedRolesCommandsConst.PredefinedRolesCommands.map((prc) => ({
 			predefinedRolesId: prc.predefinedRolesId,
 			commandCategoryType: prc.commandCategoryType,
