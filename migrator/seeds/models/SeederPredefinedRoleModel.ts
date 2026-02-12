@@ -14,7 +14,6 @@ class SeederPredefinedRoleModel extends Model {
 	@PrimaryKey
 	@Column(DataType.INTEGER)
 	declare id: number;
-
 	@Column(DataType.STRING)
 	declare name: string;
 
