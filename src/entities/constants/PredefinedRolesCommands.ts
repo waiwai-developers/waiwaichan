@@ -33,6 +33,12 @@ export const PredefinedRolesCommandsConst: {
 		},
 		{
 			predefinedRolesId: 1,
+			commandCategoryType: 1,
+			commandType: 5,
+			isAllow: true,
+		},
+		{
+			predefinedRolesId: 1,
 			commandCategoryType: 2,
 			commandType: 1,
 			isAllow: true,
@@ -231,6 +237,12 @@ export const PredefinedRolesCommandsConst: {
 		},
 		{
 			predefinedRolesId: 2,
+			commandCategoryType: 1,
+			commandType: 5,
+			isAllow: true,
+		},
+		{
+			predefinedRolesId: 2,
 			commandCategoryType: 2,
 			commandType: 1,
 			isAllow: true,
@@ -425,6 +437,12 @@ export const PredefinedRolesCommandsConst: {
 			predefinedRolesId: 3,
 			commandCategoryType: 1,
 			commandType: 4,
+			isAllow: true,
+		},
+		{
+			predefinedRolesId: 3,
+			commandCategoryType: 1,
+			commandType: 5,
 			isAllow: true,
 		},
 		{
