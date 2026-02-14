@@ -47,6 +47,7 @@ export class WaiwaiCommandHandler implements SlashCommandHandler {
 			),
 		);
 		if (!communityId) {
+			await interaction.reply("コミュニティが登録されていなかったよ！っ");
 			return;
 		}
 
