@@ -33,6 +33,8 @@ import { CandyNotificationChannelCreateCommandHandler } from "@/src/handlers/dis
 import { CandyNotificationChannelDeleteCommandHandler } from "@/src/handlers/discord.js/commands/CandyNotificationChannelDeleteCommandHandler";
 import { CrownNotificationChannelCreateCommandHandler } from "@/src/handlers/discord.js/commands/CrownNotificationChannelCreateCommandHandler";
 import { CrownNotificationChannelDeleteCommandHandler } from "@/src/handlers/discord.js/commands/CrownNotificationChannelDeleteCommandHandler";
+import { CommandPermissionChecker } from "@/src/handlers/discord.js/permissions/CommandPermissionChecker";
+import type { ICommandPermissionChecker } from "@/src/handlers/discord.js/permissions/ICommandPermissionChecker";
 import { RoleBindedByPredefinedRoleCommandHandler } from "@/src/handlers/discord.js/commands/RoleBindedByPredefinedRoleCommandHandler";
 import { RoleReleasedByPredefinedRoleCommandHandler } from "@/src/handlers/discord.js/commands/RoleReleasedByPredefinedRoleCommandHandler";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
@@ -75,6 +77,7 @@ import type { IMessageLogic } from "@/src/logics/Interfaces/logics/IMessageLogic
 import type { IPersonalityContextLogic } from "@/src/logics/Interfaces/logics/IPersonalityContextLogic";
 import type { IPersonalityLogic } from "@/src/logics/Interfaces/logics/IPersonalityLogic";
 import type { IPredefinedRoleLogic } from "@/src/logics/Interfaces/logics/IPredefinedRoleLogic";
+import type { IPredefinedRoleRepository } from "@/src/logics/Interfaces/repositories/database/IPredefinedRoleRepository";
 import type { IPullRequestLogic } from "@/src/logics/Interfaces/logics/IPullRequestLogic";
 import type { IReminderLogic } from "@/src/logics/Interfaces/logics/IReminderLogic";
 import type { IRoleLogic } from "@/src/logics/Interfaces/logics/IRoleLogic";
@@ -257,6 +260,7 @@ appContainer.bind<IPredefinedRoleLogic>(LogicTypes.PredefinedRoleLogic).to(Prede
 appContainer.bind<IMessageLogic>(LogicTypes.MessageLogic).to(MessageLogic);
 
 // Handlers
+appContainer.bind<ICommandPermissionChecker>(HandlerTypes.CommandPermissionChecker).to(CommandPermissionChecker);
 appContainer.bind<DiscordEventHandler<Message>>(HandlerTypes.MessageHandler).to(AIReplyHandler);
 appContainer.bind<DiscordEventHandler<Message>>(HandlerTypes.MessageHandler).to(StickyEventHandler);
 appContainer.bind<DiscordEventHandler<Message>>(HandlerTypes.MessageHandler).to(TranslateReplyHandler);
