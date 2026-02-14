@@ -34,6 +34,7 @@ export const RepoTypes = {
 	RoomChannelRepository: Symbol.for("RoomChannelRepository"),
 	RoomCategoryChannelRepository: Symbol.for("RoomCategoryChannelRepository"),
 	RolePredefinedRoleRepository: Symbol.for("RolePredefinedRoleRepository"),
+	PredefinedRoleRepository: Symbol.for("PredefinedRoleRepository"),
 	PredefinedRoleCommandRepository: Symbol.for(
 		"PredefinedRoleCommandRepository",
 	),
@@ -92,6 +93,7 @@ export const SchedulerRepoTypes = {
 
 export const HandlerTypes = {
 	SlashCommandHandler: Symbol.for("SlashCommandHandler"),
+	CommandPermissionChecker: Symbol.for("CommandPermissionChecker"),
 	ReactionHandler: Symbol.for("ReactionHandler"),
 	MessageHandler: Symbol.for("MessageHandler"),
 	BotAddHandler: Symbol.for("BotAddHandler"),
