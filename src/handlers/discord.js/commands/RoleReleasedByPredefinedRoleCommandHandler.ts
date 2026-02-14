@@ -48,14 +48,10 @@ export class RoleReleasedByPredefinedRoleCommandHandler
 			return;
 		}
 
-		// Get role ID from command options
-		const roleClientIdValue = interaction.options.getString("roleid", true);
-		const roleClientId = new RoleClientId(BigInt(roleClientIdValue));
-
-		// Get role ID from database
+		const roleClientId = interaction.options.getString("roleid", true);
 		const roleId = await this.roleLogic.getIdByCommunityIdAndClientId(
 			new RoleCommunityId(communityId.getValue()),
-			roleClientId,
+			new RoleClientId(BigInt(roleClientId)),
 		);
 
 		if (roleId == null) {

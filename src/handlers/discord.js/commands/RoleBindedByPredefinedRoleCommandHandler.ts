@@ -50,20 +50,15 @@ export class RoleBindedByPredefinedRoleCommandHandler
 		}
 
 		// Get predefined role ID from command options
-		const predefinedRoleIdValue = interaction.options.getInteger(
+		const predefinedRoleId = interaction.options.getInteger(
 			"predefinedrole",
 			true,
 		);
-		const predefinedRoleId = new PredefinedRoleId(predefinedRoleIdValue);
 
-		// Get role ID from command options
-		const roleClientIdValue = interaction.options.getString("roleid", true);
-		const roleClientId = new RoleClientId(BigInt(roleClientIdValue));
-
-		// Get role ID from database
+		const roleClientId = interaction.options.getString("roleid", true);
 		const roleId = await this.roleLogic.getIdByCommunityIdAndClientId(
 			new RoleCommunityId(communityId.getValue()),
-			roleClientId,
+			new RoleClientId(BigInt(roleClientId)),
 		);
 
 		if (roleId == null) {
@@ -74,7 +69,7 @@ export class RoleBindedByPredefinedRoleCommandHandler
 		// Bind role to predefined role
 		const result = await this.predefinedRoleLogic.bindRoleToPredefinedRole(
 			roleId,
-			predefinedRoleId,
+			new PredefinedRoleId(predefinedRoleId),
 		);
 
 		await interaction.reply(result);
