@@ -33,8 +33,6 @@ import { CandyNotificationChannelCreateCommandHandler } from "@/src/handlers/dis
 import { CandyNotificationChannelDeleteCommandHandler } from "@/src/handlers/discord.js/commands/CandyNotificationChannelDeleteCommandHandler";
 import { CrownNotificationChannelCreateCommandHandler } from "@/src/handlers/discord.js/commands/CrownNotificationChannelCreateCommandHandler";
 import { CrownNotificationChannelDeleteCommandHandler } from "@/src/handlers/discord.js/commands/CrownNotificationChannelDeleteCommandHandler";
-import { CommandPermissionChecker } from "@/src/handlers/discord.js/permissions/CommandPermissionChecker";
-import type { ICommandPermissionChecker } from "@/src/handlers/discord.js/permissions/ICommandPermissionChecker";
 import { RoleBindedByPredefinedRoleCommandHandler } from "@/src/handlers/discord.js/commands/RoleBindedByPredefinedRoleCommandHandler";
 import { RoleReleasedByPredefinedRoleCommandHandler } from "@/src/handlers/discord.js/commands/RoleReleasedByPredefinedRoleCommandHandler";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
@@ -57,6 +55,8 @@ import { UserRemoveHandler } from "@/src/handlers/discord.js/events/UserRemoveHa
 import { VoiceChannelConnectHandler } from "@/src/handlers/discord.js/events/VoiceChannelConnectHandler";
 import { VoiceChannelDisconnectHandler } from "@/src/handlers/discord.js/events/VoiceChannelDisconnectHandler";
 import type { VoiceChannelEventHandler, VoiceChannelState } from "@/src/handlers/discord.js/events/VoiceChannelEventHandler";
+import { CommandPermissionChecker } from "@/src/handlers/discord.js/permissions/CommandPermissionChecker";
+import type { ICommandPermissionChecker } from "@/src/handlers/discord.js/permissions/ICommandPermissionChecker";
 import { CandyLogic } from "@/src/logics/CandyLogic";
 import { CandyNotificationChannelLogic } from "@/src/logics/CandyNotificationChannelLogic";
 import { ChannelLogic } from "@/src/logics/ChannelLogic";
@@ -77,7 +77,6 @@ import type { IMessageLogic } from "@/src/logics/Interfaces/logics/IMessageLogic
 import type { IPersonalityContextLogic } from "@/src/logics/Interfaces/logics/IPersonalityContextLogic";
 import type { IPersonalityLogic } from "@/src/logics/Interfaces/logics/IPersonalityLogic";
 import type { IPredefinedRoleLogic } from "@/src/logics/Interfaces/logics/IPredefinedRoleLogic";
-import type { IPredefinedRoleRepository } from "@/src/logics/Interfaces/repositories/database/IPredefinedRoleRepository";
 import type { IPullRequestLogic } from "@/src/logics/Interfaces/logics/IPullRequestLogic";
 import type { IReminderLogic } from "@/src/logics/Interfaces/logics/IReminderLogic";
 import type { IRoleLogic } from "@/src/logics/Interfaces/logics/IRoleLogic";
@@ -105,6 +104,7 @@ import type { IMessageRepository } from "@/src/logics/Interfaces/repositories/da
 import type { IPersonalityContextRepository } from "@/src/logics/Interfaces/repositories/database/IPersonalityContextRepository";
 import type { IPersonalityRepository } from "@/src/logics/Interfaces/repositories/database/IPersonalityRepository";
 import type { IPredefinedRoleCommandRepository } from "@/src/logics/Interfaces/repositories/database/IPredefinedRoleCommandRepository";
+import type { IPredefinedRoleRepository } from "@/src/logics/Interfaces/repositories/database/IPredefinedRoleRepository";
 import type { IReminderRepository } from "@/src/logics/Interfaces/repositories/database/IReminderRepository";
 import type { IRolePredefinedRoleRepository } from "@/src/logics/Interfaces/repositories/database/IRolePredefinedRoleRepository";
 import type { IRoleRepository } from "@/src/logics/Interfaces/repositories/database/IRoleRepository";

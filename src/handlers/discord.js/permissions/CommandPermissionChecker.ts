@@ -5,7 +5,7 @@ import { CommandCategoryType } from "@/src/entities/vo/CommandCategoryType";
 import { CommandType } from "@/src/entities/vo/CommandType";
 import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
 import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
-import { CommunityId } from "@/src/entities/vo/CommunityId";
+import type { CommunityId } from "@/src/entities/vo/CommunityId";
 import { RoleClientId } from "@/src/entities/vo/RoleClientId";
 import type {
 	CommandPermissionCheckResult,
@@ -50,7 +50,7 @@ export class CommandPermissionChecker implements ICommandPermissionChecker {
 		if (interaction.guild?.ownerId === interaction.user.id) {
 			return {
 				isSuccess: true,
-				communityId: communityId
+				communityId: communityId,
 			};
 		}
 
