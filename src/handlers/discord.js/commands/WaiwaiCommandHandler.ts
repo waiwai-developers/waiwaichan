@@ -21,8 +21,10 @@ import { inject, injectable } from "inversify";
 export class WaiwaiCommandHandler implements SlashCommandHandler {
 	@inject(LogicTypes.UtilityLogic)
 	private utilLogic!: IUtilityLogic;
+
 	@inject(LogicTypes.PredefinedRoleLogic)
 	private predefinedRoleLogic!: IPredefinedRoleLogic;
+
 	@inject(LogicTypes.CommunityLogic)
 	private communityLogic!: ICommunityLogic;
 
@@ -33,49 +35,33 @@ export class WaiwaiCommandHandler implements SlashCommandHandler {
 	async handle(
 		interaction: ChatInputCommandInteraction<CacheType>,
 	): Promise<void> {
-		// Check if interaction is from a guild
 		if (!interaction.guildId || !interaction.member) {
 			await interaction.reply(await this.utilLogic.waiwai());
 			return;
 		}
 
-		// Get community ID
 		const communityId = await this.communityLogic.getId(
 			new CommunityDto(
 				CommunityCategoryType.Discord,
 				new CommunityClientId(BigInt(interaction.guildId)),
 			),
 		);
-
 		if (!communityId) {
-			// If community is not registered, allow command execution
-			await interaction.reply(await this.utilLogic.waiwai());
 			return;
 		}
 
-		// Get user's role IDs
 		const member = interaction.member as GuildMember;
-		const userRoleClientIds: RoleClientId[] = [];
+		const userRoleClientIds = member.roles.cache.map((r) =>
+			new RoleClientId(BigInt(r.id)),
+		);
 
-		if (member.roles && member.roles.cache) {
-			member.roles.cache.forEach((role) => {
-				userRoleClientIds.push(new RoleClientId(BigInt(role.id)));
-			});
-		}
-
-		// Find command info - for now allow all commands as waiwai is not in Commands list
-		// You can add it to Commands.ts if needed
 		const commandInfo = CommandsConst.Commands.find(
 			(cmd) => cmd.name === "waiwai",
 		);
-
 		if (!commandInfo) {
-			// If command is not found in Commands list, allow execution (backward compatibility)
-			await interaction.reply(await this.utilLogic.waiwai());
 			return;
 		}
 
-		// Check permission
 		const hasPermission =
 			await this.predefinedRoleLogic.checkUserCommandPermission(
 				communityId,
@@ -83,13 +69,11 @@ export class WaiwaiCommandHandler implements SlashCommandHandler {
 				new CommandCategoryType(commandInfo.commandCategoryType),
 				new CommandType(commandInfo.commandType),
 			);
-
 		if (!hasPermission) {
 			await interaction.reply("このコマンドを実行する権限がないよ！っ");
 			return;
 		}
 
-		// Execute command
 		await interaction.reply(await this.utilLogic.waiwai());
 	}
 }
