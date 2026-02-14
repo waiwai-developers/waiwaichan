@@ -51,8 +51,8 @@ export class WaiwaiCommandHandler implements SlashCommandHandler {
 		}
 
 		const member = interaction.member as GuildMember;
-		const userRoleClientIds = member.roles.cache.map((r) =>
-			new RoleClientId(BigInt(r.id)),
+		const userRoleClientIds = member.roles.cache.map(
+			(r) => new RoleClientId(BigInt(r.id)),
 		);
 
 		const commandInfo = CommandsConst.Commands.find(
