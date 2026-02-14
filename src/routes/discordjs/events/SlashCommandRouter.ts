@@ -3,6 +3,7 @@ import {
 	HandlerTypes,
 	RepoTypes,
 } from "@/src/entities/constants/DIContainerTypes";
+import type { ICommandPermissionChecker } from "@/src/handlers/discord.js/permissions/ICommandPermissionChecker";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
 import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 import type { DiscordEventRouter } from "@/src/routes/discordjs/events/DiscordEventRouter";
@@ -14,12 +15,18 @@ export class SlashCommandRouter implements DiscordEventRouter {
 	@inject(RepoTypes.Logger)
 	private readonly logger!: ILogger;
 
+	@inject(HandlerTypes.CommandPermissionChecker)
+	private readonly permissionChecker!: ICommandPermissionChecker;
+
 	@multiInject(HandlerTypes.SlashCommandHandler)
 	private readonly handlers!: SlashCommandHandler[];
+
 	register(client: Client<boolean>): void {
 		client.on("interactionCreate", async (interaction) => {
 			try {
 				if (!interaction.isChatInputCommand()) return;
+
+				// コマンドハンドラの検索
 				const matched = this.handlers.find((h) =>
 					h.isHandle(interaction.commandName),
 				);
@@ -28,6 +35,24 @@ export class SlashCommandRouter implements DiscordEventRouter {
 					await interaction.reply("そんなコマンドはないよ！っ");
 					return;
 				}
+
+				// 権限チェック
+				const permissionResult = await this.permissionChecker.checkPermission(
+					interaction,
+					interaction.commandName,
+				);
+
+				if (!permissionResult.isSuccess) {
+					this.logger.info(
+						`Permission denied for command /${interaction.commandName}: ${permissionResult.errorMessage}`,
+					);
+					await interaction.reply(
+						permissionResult.errorMessage || "権限がないよ！っ",
+					);
+					return;
+				}
+
+				// コマンド実行
 				await matched.handle(interaction);
 			} catch (error) {
 				this.logger.error(`Error: ${error}`);
