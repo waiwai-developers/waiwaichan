@@ -36,17 +36,6 @@ export class RoleReleasedByPredefinedRoleCommandHandler
 			return;
 		}
 
-		// Check if user has admin role
-		if (
-			RoleConfig.users.find((u) => u.discordId === interaction.user.id)
-				?.role !== "admin"
-		) {
-			await interaction.reply(
-				"ロールの紐づけを解除する権限を持っていないよ！っ",
-			);
-			return;
-		}
-
 		// Get community ID
 		const communityId = await this.communityLogic.getId(
 			new CommunityDto(

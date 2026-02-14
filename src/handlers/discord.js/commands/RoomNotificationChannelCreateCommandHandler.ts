@@ -43,14 +43,6 @@ export class RoomNotificationChannelCreateCommandHandler
 		if (interaction.channel == null) {
 			return;
 		}
-		// NOTE: todo CommunityとUserの追加を行ったあとにrbacを実現する
-		if (
-			RoleConfig.users.find((u) => u.discordId === interaction.user.id)
-				?.role !== "admin"
-		) {
-			interaction.reply("部屋通知チャンネルを登録する権限を持っていないよ！っ");
-			return;
-		}
 
 		const communityId = await this.CommunityLogic.getId(
 			new CommunityDto(

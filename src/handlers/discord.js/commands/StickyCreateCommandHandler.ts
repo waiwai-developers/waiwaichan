@@ -68,17 +68,6 @@ export class StickyCreateCommandHandler implements SlashCommandHandler {
 		if (interaction.channel == null) {
 			return;
 		}
-		// NOTE: todo CommunityとUserの追加を行ったあとにrbacを実現する
-		if (
-			RoleConfig.users.find((u) => u.discordId === interaction.user.id)
-				?.role !== "admin"
-		) {
-			interaction.reply("スティッキーを登録する権限を持っていないよ！っ");
-			return;
-		}
-		if (!interaction.guildId) {
-			return;
-		}
 
 		const communityId = await this.CommunityLogic.getId(
 			new CommunityDto(

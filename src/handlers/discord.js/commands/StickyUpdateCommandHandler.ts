@@ -51,14 +51,6 @@ export class StickyUpdateCommandHandler implements SlashCommandHandler {
 		if (interaction.channel == null) {
 			return;
 		}
-		// NOTE: todo CommunityとUserの追加を行ったあとにrbacを実現する
-		if (
-			RoleConfig.users.find((u) => u.discordId === interaction.user.id)
-				?.role !== "admin"
-		) {
-			interaction.reply("スティッキーを更新する権限を持っていないよ！っ");
-			return;
-		}
 
 		const channel = interaction.guild?.channels.cache.get(
 			interaction.options.getString("channelid", true),
