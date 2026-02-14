@@ -27,6 +27,11 @@ export const CommandsConst: {
 			commandType: 4,
 		},
 		{
+			name: "waiwai",
+			commandCategoryType: 1,
+			commandType: 5,
+		},
+		{
 			name: "translate",
 			commandCategoryType: 2,
 			commandType: 1,
