@@ -66,7 +66,6 @@ export class RoleBindedByPredefinedRoleCommandHandler
 			return;
 		}
 
-		// Bind role to predefined role
 		const result = await this.predefinedRoleLogic.bindRoleToPredefinedRole(
 			roleId,
 			new PredefinedRoleId(predefinedRoleId),

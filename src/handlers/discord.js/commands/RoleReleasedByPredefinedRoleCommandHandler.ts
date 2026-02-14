@@ -59,7 +59,6 @@ export class RoleReleasedByPredefinedRoleCommandHandler
 			return;
 		}
 
-		// Release role from predefined role
 		const result =
 			await this.predefinedRoleLogic.releaseRoleFromPredefinedRole(roleId);
 
