@@ -1,17 +1,21 @@
 import { CommandsConst } from "@/src/entities/constants/Commands";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
+import { CommunityDto } from "@/src/entities/dto/CommunityDto";
+import { CommandCategoryType } from "@/src/entities/vo/CommandCategoryType";
+import { CommandType } from "@/src/entities/vo/CommandType";
 import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
 import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
 import { RoleClientId } from "@/src/entities/vo/RoleClientId";
-import { CommandCategoryType } from "@/src/entities/vo/CommandCategoryType";
-import { CommandType } from "@/src/entities/vo/CommandType";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { IPredefinedRoleLogic } from "@/src/logics/Interfaces/logics/IPredefinedRoleLogic";
 import type { IUtilityLogic } from "@/src/logics/Interfaces/logics/IUtilityLogic";
-import type { CacheType, ChatInputCommandInteraction, GuildMember } from "discord.js";
+import type {
+	CacheType,
+	ChatInputCommandInteraction,
+	GuildMember,
+} from "discord.js";
 import { inject, injectable } from "inversify";
-import { CommunityDto } from "@/src/entities/dto/CommunityDto";
 
 @injectable()
 export class WaiwaiCommandHandler implements SlashCommandHandler {
@@ -72,17 +76,16 @@ export class WaiwaiCommandHandler implements SlashCommandHandler {
 		}
 
 		// Check permission
-		const hasPermission = await this.predefinedRoleLogic.checkUserCommandPermission(
-			communityId,
-			userRoleClientIds,
-			new CommandCategoryType(commandInfo.commandCategoryType),
-			new CommandType(commandInfo.commandType),
-		);
+		const hasPermission =
+			await this.predefinedRoleLogic.checkUserCommandPermission(
+				communityId,
+				userRoleClientIds,
+				new CommandCategoryType(commandInfo.commandCategoryType),
+				new CommandType(commandInfo.commandType),
+			);
 
 		if (!hasPermission) {
-			await interaction.reply(
-				"このコマンドを実行する権限がないよ！っ",
-			);
+			await interaction.reply("このコマンドを実行する権限がないよ！っ");
 			return;
 		}
 

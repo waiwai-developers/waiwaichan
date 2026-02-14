@@ -5,6 +5,7 @@ import { PredefinedRoleCommandIsAllow } from "@/src/entities/vo/PredefinedRoleCo
 import { PredefinedRoleId } from "@/src/entities/vo/PredefinedRoleId";
 import type { IPredefinedRoleCommandRepository } from "@/src/logics/Interfaces/repositories/database/IPredefinedRoleCommandRepository";
 import { injectable } from "inversify";
+import { Op } from "sequelize";
 import {
 	Column,
 	DataType,
@@ -12,7 +13,6 @@ import {
 	PrimaryKey,
 	Table,
 } from "sequelize-typescript";
-import { Op } from "sequelize";
 
 @injectable()
 @Table({
@@ -25,7 +25,7 @@ class PredefinedRoleCommandImpl
 {
 	@PrimaryKey
 	@Column(DataType.INTEGER)
-	declare predefinedRolesId: number
+	declare predefinedRolesId: number;
 	@PrimaryKey
 	@Column(DataType.INTEGER)
 	declare commandCategoryType: number;

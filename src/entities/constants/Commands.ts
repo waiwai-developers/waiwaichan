@@ -1,6 +1,6 @@
 export const CommandsConst: {
 	Commands: {
-		name: string,
+		name: string;
 		commandCategoryType: number;
 		commandType: number;
 	}[];

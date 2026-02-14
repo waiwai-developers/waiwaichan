@@ -20,11 +20,11 @@ import { UserType } from "@/src/entities/vo/UserType";
 import type { DiscordEventHandler } from "@/src/handlers/discord.js/events/DiscordEventHandler";
 import type { IChannelLogic } from "@/src/logics/Interfaces/logics/IChannelLogic";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
+import type { IRoleLogic } from "@/src/logics/Interfaces/logics/IRoleLogic";
 import type { IUserLogic } from "@/src/logics/Interfaces/logics/IUserLogic";
 import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 import { ChannelType as DiscordChannelType, type Guild } from "discord.js";
 import { inject, injectable } from "inversify";
-import type { IRoleLogic } from "@/src/logics/Interfaces/logics/IRoleLogic";
 
 /**
  * DiscordのChannelTypeをアプリケーションのChannelTypeに変換する

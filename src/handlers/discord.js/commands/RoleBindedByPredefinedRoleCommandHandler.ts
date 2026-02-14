@@ -1,5 +1,6 @@
 import { RoleConfig } from "@/src/entities/config/RoleConfig";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
+import { CommunityDto } from "@/src/entities/dto/CommunityDto";
 import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
 import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
 import { PredefinedRoleId } from "@/src/entities/vo/PredefinedRoleId";
@@ -11,7 +12,6 @@ import type { IPredefinedRoleLogic } from "@/src/logics/Interfaces/logics/IPrede
 import type { IRoleLogic } from "@/src/logics/Interfaces/logics/IRoleLogic";
 import type { CacheType, ChatInputCommandInteraction } from "discord.js";
 import { inject, injectable } from "inversify";
-import { CommunityDto } from "@/src/entities/dto/CommunityDto";
 
 @injectable()
 export class RoleBindedByPredefinedRoleCommandHandler
@@ -42,9 +42,7 @@ export class RoleBindedByPredefinedRoleCommandHandler
 			RoleConfig.users.find((u) => u.discordId === interaction.user.id)
 				?.role !== "admin"
 		) {
-			await interaction.reply(
-				"ロールを紐づける権限を持っていないよ！っ",
-			);
+			await interaction.reply("ロールを紐づける権限を持っていないよ！っ");
 			return;
 		}
 

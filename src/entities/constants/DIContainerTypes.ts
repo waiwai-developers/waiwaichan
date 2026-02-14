@@ -34,7 +34,9 @@ export const RepoTypes = {
 	RoomChannelRepository: Symbol.for("RoomChannelRepository"),
 	RoomCategoryChannelRepository: Symbol.for("RoomCategoryChannelRepository"),
 	RolePredefinedRoleRepository: Symbol.for("RolePredefinedRoleRepository"),
-	PredefinedRoleCommandRepository: Symbol.for("PredefinedRoleCommandRepository"),
+	PredefinedRoleCommandRepository: Symbol.for(
+		"PredefinedRoleCommandRepository",
+	),
 	SequelizeModels: Symbol.for("SequelizeModels"),
 	Logger: Symbol.for("Logger"),
 };

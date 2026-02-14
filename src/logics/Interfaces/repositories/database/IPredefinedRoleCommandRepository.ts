@@ -1,6 +1,6 @@
-import type { PredefinedRoleId } from "@/src/entities/vo/PredefinedRoleId";
 import type { CommandCategoryType } from "@/src/entities/vo/CommandCategoryType";
 import type { CommandType } from "@/src/entities/vo/CommandType";
+import type { PredefinedRoleId } from "@/src/entities/vo/PredefinedRoleId";
 
 export interface IPredefinedRoleCommandRepository {
 	checkCommandPermission(

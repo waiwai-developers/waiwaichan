@@ -1,15 +1,15 @@
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import { RolePredefinedRoleDto } from "@/src/entities/dto/RolePredefinedRoleDto";
-import { PredefinedRoleId } from "@/src/entities/vo/PredefinedRoleId";
-import { RoleId } from "@/src/entities/vo/RoleId";
-import { RoleClientId } from "@/src/entities/vo/RoleClientId";
+import type { CommandCategoryType } from "@/src/entities/vo/CommandCategoryType";
+import type { CommandType } from "@/src/entities/vo/CommandType";
+import type { CommunityId } from "@/src/entities/vo/CommunityId";
+import type { PredefinedRoleId } from "@/src/entities/vo/PredefinedRoleId";
+import type { RoleClientId } from "@/src/entities/vo/RoleClientId";
 import { RoleCommunityId } from "@/src/entities/vo/RoleCommunityId";
-import { CommunityId } from "@/src/entities/vo/CommunityId";
-import { CommandCategoryType } from "@/src/entities/vo/CommandCategoryType";
-import { CommandType } from "@/src/entities/vo/CommandType";
+import type { RoleId } from "@/src/entities/vo/RoleId";
 import type { IPredefinedRoleLogic } from "@/src/logics/Interfaces/logics/IPredefinedRoleLogic";
-import type { IRolePredefinedRoleRepository } from "@/src/logics/Interfaces/repositories/database/IRolePredefinedRoleRepository";
 import type { IPredefinedRoleCommandRepository } from "@/src/logics/Interfaces/repositories/database/IPredefinedRoleCommandRepository";
+import type { IRolePredefinedRoleRepository } from "@/src/logics/Interfaces/repositories/database/IRolePredefinedRoleRepository";
 import type { IRoleRepository } from "@/src/logics/Interfaces/repositories/database/IRoleRepository";
 import { inject, injectable } from "inversify";
 
