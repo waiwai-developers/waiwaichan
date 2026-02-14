@@ -7,6 +7,8 @@ import { ChoiceCommandHandler } from "@/src/handlers/discord.js/commands/ChoiceC
 import { DiceCommandHandler } from "@/src/handlers/discord.js/commands/DiceCommandHandler";
 import { HelpCommandHandler } from "@/src/handlers/discord.js/commands/HelpCommandHandler";
 import { ParrotCommandHandler } from "@/src/handlers/discord.js/commands/ParrotCommandHandler";
+import { CommandPermissionChecker } from "@/src/handlers/discord.js/permissions/CommandPermissionChecker";
+import type { ICommandPermissionChecker } from "@/src/handlers/discord.js/permissions/ICommandPermissionChecker";
 import { ReminderDeleteCommandHandler } from "@/src/handlers/discord.js/commands/ReminderDeleteCommandHandler";
 import { ReminderListCommandHandler } from "@/src/handlers/discord.js/commands/ReminderListCommandHandler";
 import { ReminderSetCommandHandler } from "@/src/handlers/discord.js/commands/ReminderSetCommandHandler";
