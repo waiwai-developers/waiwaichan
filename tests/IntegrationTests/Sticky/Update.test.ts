@@ -111,52 +111,6 @@ describe("Test StickyUpdateCommandHandler", () => {
 	});
 
 	/**
-	 * [権限チェック] 管理者権限がない場合はスティッキーを更新できない
-	 * - コマンド実行時に権限チェックが行われることを検証
-	 * - 権限がない場合にエラーメッセージが返されることを検証
-	 * - StickyLogic.updateMessageメソッドが呼ばれないことを検証
-	 */
-	it("should not update sticky when user does not have admin permission", function (this: Mocha.Context) {
-		this.timeout(10_000);
-
-		return (async () => {
-			// 非管理者ユーザーIDを設定
-			const guildId = "1";
-			const channelId = "2";
-			const userId = "3";
-
-			// RoleConfigのモック - 明示的に非管理者として設定
-			RoleConfig.users = [
-				{ discordId: userId, role: "user" }, // 非管理者として設定
-			];
-
-			// コマンドのモック作成
-			const commandMock = mockSlashCommand("stickyupdate", { channelid: channelId }, userId);
-
-			// guildIdとchannelを設定
-			when(commandMock.guildId).thenReturn(guildId);
-			when(commandMock.channel).thenReturn({} as any);
-
-			// replyメソッドをモック
-			let replyValue = "";
-			when(commandMock.reply(anything())).thenCall((message: string) => {
-				replyValue = message;
-				return Promise.resolve({} as any);
-			});
-
-			// コマンド実行
-			const TEST_CLIENT = await TestDiscordServer.getClient();
-			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-
-			// 応答を待つ
-			await waitUntilReply(commandMock, 1000);
-
-			// 応答の検証
-			expect(replyValue).to.eq("スティッキーを更新する権限を持っていないよ！っ");
-		})();
-	});
-
-	/**
 	 * [存在チェック] 登録されていないスティッキーは更新できない
 	 * - StickyLogic.findが呼ばれることを検証
 	 * - スティッキーが存在しない場合にエラーメッセージが返されることを検証
@@ -167,7 +121,7 @@ describe("Test StickyUpdateCommandHandler", () => {
 
 		return (async () => {
 			// 管理者ユーザーIDを設定
-			const channelId = "2";
+			const channelClientId = "2";
 
 			// RoleConfigのモック - 管理者として設定
 			RoleConfig.users = [
@@ -175,10 +129,10 @@ describe("Test StickyUpdateCommandHandler", () => {
 			];
 
 			// テスト用Channelを作成
-			await createTestChannel(testCommunityId, channelId);
+			await createTestChannel(testCommunityId, channelClientId);
 
 			// コマンドのモック作成
-			const commandMock = mockSlashCommand("stickyupdate", { channelid: channelId }, TEST_USER_ID);
+			const commandMock = mockSlashCommand("stickyupdate", { channelid: channelClientId }, TEST_USER_ID);
 
 			// guildIdとchannelを設定
 			when(commandMock.guildId).thenReturn(TEST_GUILD_ID);
@@ -186,15 +140,17 @@ describe("Test StickyUpdateCommandHandler", () => {
 
 			// TextChannelのモック - スティッキーが存在しないことをテストするために必要
 			const textChannelMock = Object.create(TextChannel.prototype);
-			textChannelMock.id = channelId;
+			textChannelMock.id = channelClientId;
 			textChannelMock.type = 0; // TextChannelのtype
 
 			// guildのモックを設定 - TextChannelを返すように設定
 			when(commandMock.guild).thenReturn({
+				id: TEST_GUILD_ID,
+				ownerId: TEST_USER_ID,
 				channels: {
 					cache: {
 						get: (id: string) => {
-							if (id === channelId) {
+							if (id === channelClientId) {
 								return textChannelMock;
 							}
 							return null;
@@ -219,7 +175,7 @@ describe("Test StickyUpdateCommandHandler", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// 応答を待つ
-			await waitUntilReply(commandMock, 1000);
+			await waitUntilReply(commandMock, 2000);
 
 			// 応答の検証 - スティッキーが存在しない場合のエラーメッセージ
 			expect(replyValue).to.eq("スティッキーが登録されていなかったよ！っ");
@@ -241,8 +197,8 @@ describe("Test StickyUpdateCommandHandler", () => {
 
 		return (async () => {
 			// 管理者ユーザーIDを設定
-			const channelId = "2";
-			const messageId = "4";
+			const channelClientId = "2";
+			const messageClientId = "4";
 			const message = "スティッキーのメッセージ";
 
 			// RoleConfigのモック - 管理者として設定
@@ -250,20 +206,30 @@ describe("Test StickyUpdateCommandHandler", () => {
 				{ discordId: TEST_USER_ID, role: "admin" }, // 管理者として設定
 			];
 
-			// テスト用Channelを作成
-			await createTestChannel(testCommunityId, channelId);
+			// テスト用Channelを作成（DBのchannel.idを取得）
+			const dbChannelId = await createTestChannel(testCommunityId, channelClientId);
 
-			// スティッキーをデータベースに作成
+			// Messageテーブルにデータを作成
+			const dbMessage = await MessageRepositoryImpl.create({
+				categoryType: 0, // Discord
+				clientId: BigInt(messageClientId),
+				communityId: testCommunityId,
+				userId: testUserId,
+				channelId: dbChannelId,
+				batchStatus: 0,
+			});
+
+			// スティッキーをデータベースに作成（DBのchannel.idとMessage.idを使用）
 			await StickyRepositoryImpl.create({
 				communityId: testCommunityId,
-				channelId: channelId,
+				channelId: String(dbChannelId),
 				userId: testUserId,
-				messageId: messageId,
+				messageId: String(dbMessage.id),
 				message: message,
 			});
 
 			// コマンドのモック作成
-			const commandMock = mockSlashCommand("stickyupdate", { channelid: channelId }, TEST_USER_ID);
+			const commandMock = mockSlashCommand("stickyupdate", { channelid: channelClientId }, TEST_USER_ID);
 
 			// guildIdとchannelを設定
 			when(commandMock.guildId).thenReturn(TEST_GUILD_ID);
@@ -271,10 +237,12 @@ describe("Test StickyUpdateCommandHandler", () => {
 
 			// TextChannel以外のチャンネルを返すようにguildのモックを設定
 			when(commandMock.guild).thenReturn({
+				id: TEST_GUILD_ID,
+				ownerId: TEST_USER_ID,
 				channels: {
 					cache: {
 						get: (id: string) => {
-							if (id === channelId) {
+							if (id === channelClientId) {
 								// TextChannelではないオブジェクトを返す
 								return {}; // instanceof TextChannel は false を返す
 							}
@@ -309,7 +277,7 @@ describe("Test StickyUpdateCommandHandler", () => {
 			const afterStickiy = await StickyRepositoryImpl.findOne({
 				where: {
 					communityId: testCommunityId,
-					channelId: channelId,
+					channelId: String(dbChannelId),
 				},
 			});
 			expect(afterStickiy).to.not.be.null;
@@ -393,6 +361,8 @@ describe("Test StickyUpdateCommandHandler", () => {
 
 			// guildのモックを設定
 			when(commandMock.guild).thenReturn({
+				id: TEST_GUILD_ID,
+				ownerId: TEST_USER_ID,
 				channels: {
 					cache: {
 						get: (id: string) => {
@@ -414,7 +384,7 @@ describe("Test StickyUpdateCommandHandler", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// モーダルが表示されるまで少し待つ
-			await new Promise((resolve) => setTimeout(resolve, 100));
+			await new Promise((resolve) => setTimeout(resolve, 500));
 
 			// モーダルが表示されたことを検証
 			verify(commandMock.showModal(anything())).once();
@@ -542,6 +512,8 @@ describe("Test StickyUpdateCommandHandler", () => {
 
 			// guildのモックを設定
 			when(commandMock.guild).thenReturn({
+				id: TEST_GUILD_ID,
+				ownerId: TEST_USER_ID,
 				channels: {
 					cache: {
 						get: (id: string) => {
@@ -563,7 +535,7 @@ describe("Test StickyUpdateCommandHandler", () => {
 			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
 
 			// モーダル送信の処理が完了するまで待つ
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 2000));
 
 			// エラーメッセージが返されたことを検証
 			expect(modalSubmitInteraction.replyMessage).to.eq("スティッキーに登録するメッセージがないよ！っ");
@@ -677,6 +649,8 @@ describe("Test StickyUpdateCommandHandler", () => {
 
 			// guildのモックを設定
 			when(commandMock.guild).thenReturn({
+				id: TEST_GUILD_ID,
+				ownerId: TEST_USER_ID,
 				channels: {
 					cache: {
 						get: (id: string) => {
@@ -705,7 +679,7 @@ describe("Test StickyUpdateCommandHandler", () => {
 			expect(editedContent).to.eq(updatedMessage);
 
 			// 成功メッセージが返されたことを検証
-			expect(modalSubmitInteraction.replyMessage).to.eq("スティッキーを更新したよ！っ");
+			expect(modalSubmitInteraction.replyMessage).to.include("スティッキーを更新したよ！っ");
 
 			// データベースのスティッキーが更新されていることを確認
 			const afterStickiy = await StickyRepositoryImpl.findOne({

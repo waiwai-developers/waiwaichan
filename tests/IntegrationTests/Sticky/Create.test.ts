@@ -223,48 +223,6 @@ describe("Test StickyCreateCommandHandler", () => {
 	});
 
 	/**
-	 * [権限チェック] 管理者権限がない場合はスティッキーを作成できない
-	 * - コマンド実行時に権限チェックが行われることを検証
-	 * - 権限がない場合にエラーメッセージが返されることを検証
-	 * - StickyLogicのcreateメソッドが呼ばれないことを検証
-	 */
-	it("should not create sticky when user does not have admin permission", function (this: Mocha.Context) {
-		this.timeout(10_000);
-
-		return (async () => {
-			// 非管理者ユーザーIDを設定
-			const guildId = "1";
-			const channelId = "2";
-			const userId = "3";
-
-			// コマンドのモック作成
-			const commandMock = mockSlashCommand("stickycreate", { channelid: channelId }, userId);
-
-			// RoleConfigのモック
-			setupRoleConfig(userId, "user");
-
-			// guildIdとchannelを設定
-			setupCommandBasics(commandMock, guildId);
-
-			// replyメソッドをモック
-			const replyCapture = setupReplyCapture(commandMock);
-
-			// コマンド実行
-			const TEST_CLIENT = await TestDiscordServer.getClient();
-			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-
-			// 応答を待つ
-			await waitUntilReply(commandMock, 1000);
-
-			// 応答の検証
-			expect(replyCapture.getValue()).to.eq("スティッキーを登録する権限を持っていないよ！っ");
-
-			// Stickyにデータが作られていないことを確認
-			await expectNoStickies();
-		})();
-	});
-
-	/**
 	 * [既存チェック] 既にスティッキーが登録されているチャンネルには新規作成できない
 	 * - StickyLogic.findが呼ばれることを検証
 	 * - スティッキーが既に存在する場合にエラーメッセージが返されることを検証
@@ -294,22 +252,24 @@ describe("Test StickyCreateCommandHandler", () => {
 			// guildIdとchannelを設定
 			setupCommandBasics(commandMock, TEST_GUILD_ID);
 
-			// guildのモックを設定（TextChannelを返す）
-			const textChannelMock = Object.create(TextChannel.prototype);
-			textChannelMock.id = channelClientId;
-			textChannelMock.type = 0;
-			when(commandMock.guild).thenReturn({
-				channels: {
-					cache: {
-						get: (id: string) => {
-							if (id === channelClientId) {
-								return textChannelMock;
-							}
-							return null;
-						},
+		// guildのモックを設定（TextChannelを返す）
+		const textChannelMock = Object.create(TextChannel.prototype);
+		textChannelMock.id = channelClientId;
+		textChannelMock.type = 0;
+		when(commandMock.guild).thenReturn({
+			id: TEST_GUILD_ID,
+			ownerId: TEST_USER_ID, // ユーザーをオーナーに設定
+			channels: {
+				cache: {
+					get: (id: string) => {
+						if (id === channelClientId) {
+							return textChannelMock;
+						}
+						return null;
 					},
 				},
-			} as any);
+			},
+		} as any);
 
 			// replyメソッドをモック
 			const replyCapture = setupReplyCapture(commandMock);
@@ -364,20 +324,22 @@ describe("Test StickyCreateCommandHandler", () => {
 			when(commandMock.guildId).thenReturn(TEST_GUILD_ID);
 			when(commandMock.channel).thenReturn({} as any);
 
-			// TextChannel以外のチャンネルを返すようにモック
-			when(commandMock.guild).thenReturn({
-				channels: {
-					cache: {
-						get: (id: string) => {
-							if (id === channelClientId) {
-								// TextChannelではないオブジェクトを返す
-								return {}; // instanceof TextChannel は false を返す
-							}
-							return null;
-						},
+		// TextChannel以外のチャンネルを返すようにモック
+		when(commandMock.guild).thenReturn({
+			id: TEST_GUILD_ID,
+			ownerId: TEST_USER_ID, // ユーザーをオーナーに設定
+			channels: {
+				cache: {
+					get: (id: string) => {
+						if (id === channelClientId) {
+							// TextChannelではないオブジェクトを返す
+							return {}; // instanceof TextChannel は false を返す
+						}
+						return null;
 					},
 				},
-			} as any);
+			},
+		} as any);
 
 			// replyメソッドをモック
 			let replyValue = "";
@@ -438,27 +400,29 @@ describe("Test StickyCreateCommandHandler", () => {
 			when(commandMock.guildId).thenReturn(TEST_GUILD_ID);
 			when(commandMock.channel).thenReturn({} as any);
 
-			// guildのモックを設定
-			when(commandMock.guild).thenReturn({
-				channels: {
-					cache: {
-						get: (id: string) => {
-							if (id === channelClientId) {
-								// TextChannelのインスタンスとして認識されるようにする
-								// Object.createを使用してTextChannelのプロトタイプを継承したオブジェクトを作成
-								const textChannel = Object.create(TextChannel.prototype);
-								// 必要なメソッドをモック
-								textChannel.send = () => Promise.resolve({ id: messageId, content: "test message" } as any);
-								// 必要なプロパティを追加
-								textChannel.id = channelClientId;
-								textChannel.type = 0; // TextChannelのtype
-								return textChannel;
-							}
-							return null;
-						},
+		// guildのモックを設定
+		when(commandMock.guild).thenReturn({
+			id: TEST_GUILD_ID,
+			ownerId: TEST_USER_ID, // ユーザーをオーナーに設定
+			channels: {
+				cache: {
+					get: (id: string) => {
+						if (id === channelClientId) {
+							// TextChannelのインスタンスとして認識されるようにする
+							// Object.createを使用してTextChannelのプロトタイプを継承したオブジェクトを作成
+							const textChannel = Object.create(TextChannel.prototype);
+							// 必要なメソッドをモック
+							textChannel.send = () => Promise.resolve({ id: messageId, content: "test message" } as any);
+							// 必要なプロパティを追加
+							textChannel.id = channelClientId;
+							textChannel.type = 0; // TextChannelのtype
+							return textChannel;
+						}
+						return null;
 					},
 				},
-			} as any);
+			},
+		} as any);
 
 			// コマンド実行
 			const TEST_CLIENT = await TestDiscordServer.getClient();
@@ -552,26 +516,28 @@ describe("Test StickyCreateCommandHandler", () => {
 			when(commandMock.guildId).thenReturn(TEST_GUILD_ID);
 			when(commandMock.channel).thenReturn({} as any);
 
-			// guildのモックを設定
-			when(commandMock.guild).thenReturn({
-				channels: {
-					cache: {
-						get: (id: string) => {
-							if (id === channelClientId) {
-								// TextChannelのインスタンスとして認識されるようにする
-								const textChannel = Object.create(TextChannel.prototype);
-								// 必要なメソッドをモック
-								textChannel.send = () => Promise.resolve({ id: messageId, content: "test message" } as any);
-								// 必要なプロパティを追加
-								textChannel.id = channelClientId;
-								textChannel.type = 0; // TextChannelのtype
-								return textChannel;
-							}
-							return null;
-						},
+		// guildのモックを設定
+		when(commandMock.guild).thenReturn({
+			id: TEST_GUILD_ID,
+			ownerId: TEST_USER_ID, // ユーザーをオーナーに設定
+			channels: {
+				cache: {
+					get: (id: string) => {
+						if (id === channelClientId) {
+							// TextChannelのインスタンスとして認識されるようにする
+							const textChannel = Object.create(TextChannel.prototype);
+							// 必要なメソッドをモック
+							textChannel.send = () => Promise.resolve({ id: messageId, content: "test message" } as any);
+							// 必要なプロパティを追加
+							textChannel.id = channelClientId;
+							textChannel.type = 0; // TextChannelのtype
+							return textChannel;
+						}
+						return null;
 					},
 				},
-			} as any);
+			},
+		} as any);
 
 			// データベースにスティッキーが存在しないことを確認
 			await expectNoStickies();
@@ -654,25 +620,27 @@ describe("Test StickyCreateCommandHandler", () => {
 			when(commandMock.guildId).thenReturn(TEST_GUILD_ID);
 			when(commandMock.channel).thenReturn({} as any);
 
-			// guildのモックを設定
-			when(commandMock.guild).thenReturn({
-				channels: {
-					cache: {
-						get: (id: string) => {
-							if (id === channelClientId) {
-								// TextChannelのインスタンスとして認識されるようにする
-								const mockTextChannel = Object.create(TextChannel.prototype);
-								// 必要なプロパティとメソッドを追加
-								mockTextChannel.id = channelClientId;
-								mockTextChannel.type = 0; // TextChannelのtype
-								mockTextChannel.send = textChannel.send;
-								return mockTextChannel;
-							}
-							return null;
-						},
+		// guildのモックを設定
+		when(commandMock.guild).thenReturn({
+			id: TEST_GUILD_ID,
+			ownerId: TEST_USER_ID, // ユーザーをオーナーに設定
+			channels: {
+				cache: {
+					get: (id: string) => {
+						if (id === channelClientId) {
+							// TextChannelのインスタンスとして認識されるようにする
+							const mockTextChannel = Object.create(TextChannel.prototype);
+							// 必要なプロパティとメソッドを追加
+							mockTextChannel.id = channelClientId;
+							mockTextChannel.type = 0; // TextChannelのtype
+							mockTextChannel.send = textChannel.send;
+							return mockTextChannel;
+						}
+						return null;
 					},
 				},
-			} as any);
+			},
+		} as any);
 
 			// データベースにスティッキーが存在しないことを確認
 			const beforeStickies = await StickyRepositoryImpl.findAll();

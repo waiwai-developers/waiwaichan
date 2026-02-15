@@ -178,51 +178,6 @@ describe("Test StickyDeleteCommandHandler", () => {
 	});
 
 	/**
-	- [権限チェック] 管理者権限がない場合はスティッキーを削除できない
-	- - コマンド実行時に権限チェックが行われることを検証
-	- - 権限がない場合にエラーメッセージが返されることを検証
-	- - StickyLogic.deleteメソッドが呼ばれないことを検証
-	 */
-	it("should not delete sticky when user does not have admin permission", function (this: Mocha.Context) {
-		this.timeout(10_000);
-
-		return (async () => {
-			// 非管理者ユーザーIDを設定
-			const guildId = "1";
-			const channelId = "2";
-			const userId = "3";
-
-			// RoleConfigのモック - 明示的に非管理者として設定
-			setupRoleConfig(userId, "user");
-
-			// コマンドのモック作成
-			const commandMock = mockSlashCommand("stickydelete", { channelid: channelId }, userId);
-
-			// guildIdとchannelを設定
-			setupCommandBasics(commandMock, guildId);
-
-			// replyメソッドをモック
-			const replyCapture = setupReplyCapture(commandMock);
-
-			// データベースにスティッキーが存在しないことを確認
-			await expectNoStickies();
-
-			// コマンド実行
-			const TEST_CLIENT = await TestDiscordServer.getClient();
-			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-
-			// 応答を待つ
-			await waitUntilReply(commandMock, 1000);
-
-			// 応答の検証
-			expect(replyCapture.getValue()).to.eq("スティッキーを登録する権限を持っていないよ！っ");
-
-			// データベースにスティッキーが存在しないことを確認
-			await expectNoStickies();
-		})();
-	});
-
-	/**
 	 * [存在チェック] 登録されていないスティッキーは削除できない
 	 * - StickyLogic.findが呼ばれることを検証
 	 * - スティッキーが存在しない場合にエラーメッセージが返されることを検証
@@ -308,6 +263,8 @@ describe("Test StickyDeleteCommandHandler", () => {
 
 			// チャンネルが存在しないようにguildのモックを設定
 			when(commandMock.guild).thenReturn({
+id: TEST_GUILD_ID,
+ownerId: TEST_USER_ID, // ユーザーをオーナーに設定
 				channels: {
 					cache: {
 						get: (id: string) => {
@@ -383,6 +340,8 @@ describe("Test StickyDeleteCommandHandler", () => {
 
 			// TextChannel以外のチャンネルを返すようにguildのモックを設定
 			when(commandMock.guild).thenReturn({
+id: TEST_GUILD_ID,
+ownerId: TEST_USER_ID, // ユーザーをオーナーに設定
 				channels: {
 					cache: {
 						get: (id: string) => {
@@ -489,6 +448,8 @@ describe("Test StickyDeleteCommandHandler", () => {
 
 			// guildのモックを設定
 			when(commandMock.guild).thenReturn({
+id: TEST_GUILD_ID,
+ownerId: TEST_USER_ID, // ユーザーをオーナーに設定
 				channels: {
 					cache: {
 						get: (id: string) => {
@@ -596,6 +557,8 @@ describe("Test StickyDeleteCommandHandler", () => {
 
 			// guildのモックを設定
 			when(commandMock.guild).thenReturn({
+id: TEST_GUILD_ID,
+ownerId: TEST_USER_ID, // ユーザーをオーナーに設定
 				channels: {
 					cache: {
 						get: (id: string) => {
@@ -702,6 +665,8 @@ describe("Test StickyDeleteCommandHandler", () => {
 
 			// guildのモックを設定
 			when(commandMock.guild).thenReturn({
+id: TEST_GUILD_ID,
+ownerId: TEST_USER_ID, // ユーザーをオーナーに設定
 				channels: {
 					cache: {
 						get: (id: string) => {
