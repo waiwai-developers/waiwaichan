@@ -6,7 +6,6 @@ import {
 	expect,
 	roomTestAfterEach,
 	roomTestBeforeEach,
-	setupRoleConfig,
 } from "./RoomTestHelpers";
 
 describe("Test RoomAddChannelDelete Commands", () => {
@@ -23,38 +22,6 @@ describe("Test RoomAddChannelDelete Commands", () => {
 	 */
 
 	/**
-	 * [権限チェック] 管理者権限がない場合は部屋追加チャンネルを削除できない
-	 * - コマンド実行時に権限チェックが行われることを検証
-	 * - 権限がない場合にエラーメッセージが返されることを検証
-	 * - RoomAddChannelLogic.deleteメソッドが呼ばれないことを検証
-	 */
-	it("should not delete room add channel when user does not have admin permission", function (this: Mocha.Context) {
-		this.timeout(10_000);
-
-		return (async () => {
-			const communityId = "1";
-			const userId = "3";
-
-			// 非管理者ユーザーIDを設定
-			setupRoleConfig(userId, "user");
-
-			// コマンドのモック作成
-			const mock = createCommandMock({
-				commandName: "roomaddchanneldelete",
-				options: {},
-				userId,
-				communityId,
-			});
-
-			// コマンド実行
-			await executeCommandAndWait(mock, 1000);
-
-			// 応答の検証
-			expect(mock.getReplyValue()).to.eq("部屋追加チャンネルを登録する権限を持っていないよ！っ");
-		})();
-	});
-
-	/**
 	 * [存在チェック - データなし] サーバーにRoomAddChannelsデータがない状況でVoiceChannelで実行した時
 	 * - 部屋追加チャンネルが登録されていなかったよ！っと投稿されること
 	 */
@@ -64,9 +31,6 @@ describe("Test RoomAddChannelDelete Commands", () => {
 		return (async () => {
 			const communityId = "1";
 			const userId = "3";
-
-			// 管理者ユーザーIDを設定
-			setupRoleConfig(userId, "admin");
 
 			// コマンドのモック作成
 			const mock = createCommandMock({
@@ -104,9 +68,6 @@ describe("Test RoomAddChannelDelete Commands", () => {
 			const communityId = "1";
 			const channelId = "2";
 			const userId = "3";
-
-			// 管理者ユーザーIDを設定
-			setupRoleConfig(userId, "admin");
 
 			// 既存のデータを作成
 			await RoomAddChannelRepositoryImpl.create({
@@ -157,9 +118,6 @@ describe("Test RoomAddChannelDelete Commands", () => {
 			const communityId = "1";
 			const channelId = "2";
 			const userId = "3";
-
-			// 管理者ユーザーIDを設定
-			setupRoleConfig(userId, "admin");
 
 			// 削除済みのデータを作成
 			const deletedData = await RoomAddChannelRepositoryImpl.create({

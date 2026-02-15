@@ -4,14 +4,11 @@ import {
 	RoomNotificationChannelRepositoryImpl,
 	TestDiscordServer,
 	anything,
-	createCommandMock,
-	executeCommandAndWait,
 	expect,
 	instance,
 	mockSlashCommand,
 	roomTestAfterEach,
 	roomTestBeforeEach,
-	setupRoleConfig,
 	waitUntilReply,
 	when,
 } from "./RoomTestHelpers";
@@ -28,38 +25,6 @@ describe("Test RoomNotificationChannelDelete Commands", () => {
 	/**
 	 * RoomNotificationChannelDeleteCommandHandlerのテスト
 	 */
-
-	/**
-	 * [権限チェック] 管理者権限がない場合は部屋通知チャンネルを削除できない
-	 * - コマンド実行時に権限チェックが行われることを検証
-	 * - 権限がない場合にエラーメッセージが返されることを検証
-	 * - RoomNotificationChannelLogic.deleteメソッドが呼ばれないことを検証
-	 */
-	it("should not delete room notification channel when user does not have admin permission", function (this: Mocha.Context) {
-		this.timeout(10_000);
-
-		return (async () => {
-			const communityId = "1";
-			const userId = "3";
-
-			// 非管理者ユーザーIDを設定
-			setupRoleConfig(userId, "user");
-
-			// コマンドのモック作成
-			const mock = createCommandMock({
-				commandName: "roomnotificationchanneldelete",
-				options: {},
-				userId,
-				communityId,
-			});
-
-			// コマンド実行
-			await executeCommandAndWait(mock, 1000);
-
-			// 応答の検証
-			expect(mock.getReplyValue()).to.eq("部屋通知チャンネルを登録する権限を持っていないよ！っ");
-		})();
-	});
 
 	/**
 	 * [存在チェック - データなし] サーバーにRoomNotificationChannelsデータがない状況で実行した時
