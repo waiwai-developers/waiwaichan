@@ -113,10 +113,10 @@ export class BotAddHandler implements DiscordEventHandler<Guild> {
 			const channelDtos = channels
 				.filter((c) => c !== null)
 				.map((c) => {
-					const channelType = getChannelType(c?.type);
+					const channelType = getChannelType(c.type);
 					return new ChannelDto(
 						ChannelCategoryType.Discord,
-						new ChannelClientId(BigInt(c?.id)),
+						new ChannelClientId(BigInt(c.id)),
 						channelType,
 						new ChannelCommunityId(communityId.getValue()),
 					);
@@ -132,7 +132,7 @@ export class BotAddHandler implements DiscordEventHandler<Guild> {
 				.map((r) => {
 					return new RoleDto(
 						RoleCategoryType.Discord,
-						new RoleClientId(BigInt(r?.id)),
+						new RoleClientId(BigInt(r.id)),
 						new RoleCommunityId(communityId.getValue()),
 					);
 				});
