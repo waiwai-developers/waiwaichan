@@ -1,12 +1,6 @@
 import "reflect-metadata";
 import { CommandCategoryType } from "@/src/entities/vo/CommandCategoryType";
-import {
-	PredefinedRoleCommandImpl,
-	PredefinedRoleImpl,
-	RolePredefinedRoleImpl,
-	RoleRepositoryImpl,
-} from "@/src/repositories/sequelize-mysql";
-import { mockSlashCommand } from "@/tests/fixtures/discord.js/MockSlashCommand";
+import { PredefinedRoleCommandImpl, PredefinedRoleImpl, RolePredefinedRoleImpl, RoleRepositoryImpl } from "@/src/repositories/sequelize-mysql";
 import {
 	TEST_GUILD_ID,
 	TEST_OWNER_ID,
@@ -15,6 +9,7 @@ import {
 	setupTestEnvironment,
 	teardownTestEnvironment,
 } from "@/tests/IntegrationTests/Permission/CommandPermissionCheckerTestHelpers";
+import { mockSlashCommand } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { expect } from "chai";
 import type { GuildMember } from "discord.js";
 import type Mocha from "mocha";
