@@ -10,8 +10,8 @@ import {
 	CommunityRepositoryImpl,
 	PredefinedRoleCommandImpl,
 	PredefinedRoleImpl,
-	RoleRepositoryImpl,
 	RolePredefinedRoleImpl,
+	RoleRepositoryImpl,
 } from "@/src/repositories/sequelize-mysql";
 import { MysqlConnector } from "@/tests/fixtures/database/MysqlConnector";
 import { mockSlashCommand } from "@/tests/fixtures/discord.js/MockSlashCommand";
@@ -105,10 +105,7 @@ describe("CommandPermissionChecker Integration Tests", () => {
 			when(commandMock.guildId).thenReturn(null);
 			when(commandMock.member).thenReturn({} as any);
 
-			const result = await testContext.checker.checkPermission(
-				instance(commandMock),
-				"help",
-			);
+			const result = await testContext.checker.checkPermission(instance(commandMock), "help");
 
 			expect(result.isSuccess).to.be.false;
 			expect(result.errorMessage).to.eq("このコマンドはサーバー内でのみ実行できるよ！っ");
@@ -127,10 +124,7 @@ describe("CommandPermissionChecker Integration Tests", () => {
 			when(commandMock.guildId).thenReturn(TEST_GUILD_ID);
 			when(commandMock.member).thenReturn(null as any);
 
-			const result = await testContext.checker.checkPermission(
-				instance(commandMock),
-				"help",
-			);
+			const result = await testContext.checker.checkPermission(instance(commandMock), "help");
 
 			expect(result.isSuccess).to.be.false;
 			expect(result.errorMessage).to.eq("このコマンドはサーバー内でのみ実行できるよ！っ");
@@ -152,10 +146,7 @@ describe("CommandPermissionChecker Integration Tests", () => {
 				roles: { cache: new Map() },
 			} as any);
 
-			const result = await testContext.checker.checkPermission(
-				instance(commandMock),
-				"help",
-			);
+			const result = await testContext.checker.checkPermission(instance(commandMock), "help");
 
 			expect(result.isSuccess).to.be.false;
 			expect(result.errorMessage).to.eq("コミュニティが登録されていなかったよ！っ");
@@ -182,10 +173,7 @@ describe("CommandPermissionChecker Integration Tests", () => {
 				id: TEST_OWNER_ID,
 			} as any);
 
-			const result = await testContext.checker.checkPermission(
-				instance(commandMock),
-				"help",
-			);
+			const result = await testContext.checker.checkPermission(instance(commandMock), "help");
 
 			expect(result.isSuccess).to.be.true;
 			expect(result.communityId).to.not.be.undefined;
@@ -204,10 +192,10 @@ describe("CommandPermissionChecker Integration Tests", () => {
 			const commandMock = mockSlashCommand("help", {}, TEST_USER_ID, TEST_GUILD_ID);
 			when(commandMock.guildId).thenReturn(TEST_GUILD_ID);
 			when(commandMock.member).thenReturn({
-				roles: { 
+				roles: {
 					cache: {
-						map: (fn: any) => Array.from(rolesMap.values()).map(fn)
-					}
+						map: (fn: any) => Array.from(rolesMap.values()).map(fn),
+					},
 				},
 			} as any);
 			when(commandMock.guild).thenReturn({
@@ -217,10 +205,7 @@ describe("CommandPermissionChecker Integration Tests", () => {
 				id: TEST_USER_ID,
 			} as any);
 
-			const result = await testContext.checker.checkPermission(
-				instance(commandMock),
-				"nonexistent_command",
-			);
+			const result = await testContext.checker.checkPermission(instance(commandMock), "nonexistent_command");
 
 			expect(result.isSuccess).to.be.false;
 			expect(result.errorMessage).to.eq("コマンド情報が見つからなかったよ！っ");
@@ -266,8 +251,8 @@ describe("CommandPermissionChecker Integration Tests", () => {
 			when(commandMock.member).thenReturn({
 				roles: {
 					cache: {
-						map: (fn: any) => Array.from(rolesMap.values()).map(fn)
-					}
+						map: (fn: any) => Array.from(rolesMap.values()).map(fn),
+					},
 				},
 			} as GuildMember);
 			when(commandMock.guild).thenReturn({
@@ -277,10 +262,7 @@ describe("CommandPermissionChecker Integration Tests", () => {
 				id: TEST_USER_ID,
 			} as any);
 
-			const result = await testContext.checker.checkPermission(
-				instance(commandMock),
-				"help",
-			);
+			const result = await testContext.checker.checkPermission(instance(commandMock), "help");
 
 			expect(result.isSuccess).to.be.false;
 			expect(result.errorMessage).to.eq("このコマンドを実行する権限がないよ！っ");
@@ -326,8 +308,8 @@ describe("CommandPermissionChecker Integration Tests", () => {
 			when(commandMock.member).thenReturn({
 				roles: {
 					cache: {
-						map: (fn: any) => Array.from(rolesMap.values()).map(fn)
-					}
+						map: (fn: any) => Array.from(rolesMap.values()).map(fn),
+					},
 				},
 			} as GuildMember);
 			when(commandMock.guild).thenReturn({
@@ -337,10 +319,7 @@ describe("CommandPermissionChecker Integration Tests", () => {
 				id: TEST_USER_ID,
 			} as any);
 
-			const result = await testContext.checker.checkPermission(
-				instance(commandMock),
-				"help",
-			);
+			const result = await testContext.checker.checkPermission(instance(commandMock), "help");
 
 			expect(result.isSuccess).to.be.true;
 			expect(result.communityId).to.not.be.undefined;
@@ -412,8 +391,8 @@ describe("CommandPermissionChecker Integration Tests", () => {
 			when(commandMock.member).thenReturn({
 				roles: {
 					cache: {
-						map: (fn: any) => Array.from(rolesMap.values()).map(fn)
-					}
+						map: (fn: any) => Array.from(rolesMap.values()).map(fn),
+					},
 				},
 			} as GuildMember);
 			when(commandMock.guild).thenReturn({
@@ -423,10 +402,7 @@ describe("CommandPermissionChecker Integration Tests", () => {
 				id: TEST_USER_ID,
 			} as any);
 
-			const result = await testContext.checker.checkPermission(
-				instance(commandMock),
-				"help",
-			);
+			const result = await testContext.checker.checkPermission(instance(commandMock), "help");
 
 			expect(result.isSuccess).to.be.true;
 			expect(result.communityId).to.not.be.undefined;
@@ -480,8 +456,8 @@ describe("CommandPermissionChecker Integration Tests", () => {
 			when(commandMock.member).thenReturn({
 				roles: {
 					cache: {
-						map: (fn: any) => Array.from(rolesMap.values()).map(fn)
-					}
+						map: (fn: any) => Array.from(rolesMap.values()).map(fn),
+					},
 				},
 			} as GuildMember);
 			when(commandMock.guild).thenReturn({
@@ -492,10 +468,7 @@ describe("CommandPermissionChecker Integration Tests", () => {
 			} as any);
 
 			// Candyコマンドは成功するはず
-			const resultCandy = await testContext.checker.checkPermission(
-				instance(commandMock),
-				"candycheck",
-			);
+			const resultCandy = await testContext.checker.checkPermission(instance(commandMock), "candycheck");
 
 			expect(resultCandy.isSuccess).to.be.true;
 			expect(resultCandy.communityId).to.not.be.undefined;
@@ -507,8 +480,8 @@ describe("CommandPermissionChecker Integration Tests", () => {
 			when(commandMock2.member).thenReturn({
 				roles: {
 					cache: {
-						map: (fn: any) => Array.from(rolesMap2.values()).map(fn)
-					}
+						map: (fn: any) => Array.from(rolesMap2.values()).map(fn),
+					},
 				},
 			} as GuildMember);
 			when(commandMock2.guild).thenReturn({
@@ -518,10 +491,7 @@ describe("CommandPermissionChecker Integration Tests", () => {
 				id: TEST_USER_ID,
 			} as any);
 
-			const resultHelp = await testContext.checker.checkPermission(
-				instance(commandMock2),
-				"help",
-			);
+			const resultHelp = await testContext.checker.checkPermission(instance(commandMock2), "help");
 
 			expect(resultHelp.isSuccess).to.be.false;
 			expect(resultHelp.errorMessage).to.eq("このコマンドを実行する権限がないよ！っ");
