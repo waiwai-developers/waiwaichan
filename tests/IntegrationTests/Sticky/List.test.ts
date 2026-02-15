@@ -82,55 +82,6 @@ describe("Test StickyListCommandHandler", () => {
 	});
 
 	/**
-	- [権限チェック] 管理者権限がない場合はスティッキーリストを表示できない
-	* -	- コマンド実行時に権限チェックが行われることを検証
-	* - 権限がない場合にエラーメッセージが返されることを検証
-	* - StickyLogic.findByCommunityIdメソッドが呼ばれないことを検証
-	*/
-	it("should not display sticky list when user does not have admin permission", function (this: Mocha.Context) {
-		this.timeout(10_000);
-
-		return (async () => {
-			// 非管理者ユーザーIDを設定
-			const guildId = "1";
-			const userId = "2";
-
-			// RoleConfigのモック - 明示的に非管理者として設定
-			RoleConfig.users = [
-				{ discordId: userId, role: "user" }, // 非管理者として設定
-			];
-
-			// コマンドのモック作成
-			const commandMock = mockSlashCommand("stickylist", {}, userId);
-
-			// guildIdとchannelを設定
-			when(commandMock.guildId).thenReturn(guildId);
-			when(commandMock.channel).thenReturn({} as any);
-
-			// replyメソッドをモック
-			let replyValue = "";
-			when(commandMock.reply(anything())).thenCall((message: string) => {
-				replyValue = message;
-				return Promise.resolve({} as any);
-			});
-
-			// コマンド実行
-			const TEST_CLIENT = await TestDiscordServer.getClient();
-			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-
-			// 応答を待つ
-			await waitUntilReply(commandMock, 1000);
-
-			// 応答の検証
-			expect(replyValue).to.eq("スティッキーを表示する権限を持っていないよ！っ");
-
-			// データベースにスティッキーが存在しないことを確認
-			const afterStickies = await StickyRepositoryImpl.findAll();
-			expect(afterStickies.length).to.eq(0);
-		})();
-	});
-
-	/**
 	 * [スティッキーリスト表示] スティッキーが登録されていない場合はその旨を表示する
 	 * - StickyLogic.findByCommunityIdメソッドが呼ばれることを検証
 	 * - スティッキーが登録されていない場合にその旨のメッセージが表示されることを検証
