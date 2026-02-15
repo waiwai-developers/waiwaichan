@@ -263,8 +263,8 @@ describe("Test StickyDeleteCommandHandler", () => {
 
 			// チャンネルが存在しないようにguildのモックを設定
 			when(commandMock.guild).thenReturn({
-id: TEST_GUILD_ID,
-ownerId: TEST_USER_ID, // ユーザーをオーナーに設定
+				id: TEST_GUILD_ID,
+				ownerId: TEST_USER_ID, // ユーザーをオーナーに設定
 				channels: {
 					cache: {
 						get: (id: string) => {
@@ -340,8 +340,8 @@ ownerId: TEST_USER_ID, // ユーザーをオーナーに設定
 
 			// TextChannel以外のチャンネルを返すようにguildのモックを設定
 			when(commandMock.guild).thenReturn({
-id: TEST_GUILD_ID,
-ownerId: TEST_USER_ID, // ユーザーをオーナーに設定
+				id: TEST_GUILD_ID,
+				ownerId: TEST_USER_ID, // ユーザーをオーナーに設定
 				channels: {
 					cache: {
 						get: (id: string) => {
@@ -448,8 +448,8 @@ ownerId: TEST_USER_ID, // ユーザーをオーナーに設定
 
 			// guildのモックを設定
 			when(commandMock.guild).thenReturn({
-id: TEST_GUILD_ID,
-ownerId: TEST_USER_ID, // ユーザーをオーナーに設定
+				id: TEST_GUILD_ID,
+				ownerId: TEST_USER_ID, // ユーザーをオーナーに設定
 				channels: {
 					cache: {
 						get: (id: string) => {
@@ -557,8 +557,8 @@ ownerId: TEST_USER_ID, // ユーザーをオーナーに設定
 
 			// guildのモックを設定
 			when(commandMock.guild).thenReturn({
-id: TEST_GUILD_ID,
-ownerId: TEST_USER_ID, // ユーザーをオーナーに設定
+				id: TEST_GUILD_ID,
+				ownerId: TEST_USER_ID, // ユーザーをオーナーに設定
 				channels: {
 					cache: {
 						get: (id: string) => {
@@ -665,8 +665,8 @@ ownerId: TEST_USER_ID, // ユーザーをオーナーに設定
 
 			// guildのモックを設定
 			when(commandMock.guild).thenReturn({
-id: TEST_GUILD_ID,
-ownerId: TEST_USER_ID, // ユーザーをオーナーに設定
+				id: TEST_GUILD_ID,
+				ownerId: TEST_USER_ID, // ユーザーをオーナーに設定
 				channels: {
 					cache: {
 						get: (id: string) => {

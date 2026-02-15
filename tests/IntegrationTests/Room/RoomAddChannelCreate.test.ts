@@ -55,11 +55,11 @@ describe("Test RoomAddChannelCreate Commands", () => {
 				communityId: discordGuildId,
 			});
 
-		// VoiceChannelを返すようにモック
-		setupGuildChannelMock(mock.commandMock, discordChannelId, "voice", userId);
+			// VoiceChannelを返すようにモック
+			setupGuildChannelMock(mock.commandMock, discordChannelId, "voice", userId);
 
-		// データベースにデータが存在しないことを確認
-		await RoomAddChannelTestHelper.expectEmpty();
+			// データベースにデータが存在しないことを確認
+			await RoomAddChannelTestHelper.expectEmpty();
 
 			// コマンド実行
 			await executeCommandAndWait(mock, 1000);
@@ -115,11 +115,11 @@ describe("Test RoomAddChannelCreate Commands", () => {
 				communityId: discordGuildId,
 			});
 
-		// VoiceChannelを返すようにモック
-		setupGuildChannelMock(mock.commandMock, discordChannelId, "voice", userId);
+			// VoiceChannelを返すようにモック
+			setupGuildChannelMock(mock.commandMock, discordChannelId, "voice", userId);
 
-		// コマンド実行
-		await executeCommandAndWait(mock, 10_000);
+			// コマンド実行
+			await executeCommandAndWait(mock, 10_000);
 
 			// 応答の検証
 			expect(mock.getReplyValue()).to.eq("部屋追加チャンネルを登録したよ！っ");
@@ -249,15 +249,15 @@ describe("Test RoomAddChannelCreate Commands", () => {
 				communityId: discordGuildId,
 			});
 
-		// VoiceChannelを返すようにモック
-		setupGuildChannelMock(mock.commandMock, discordChannelId, "voice", userId);
+			// VoiceChannelを返すようにモック
+			setupGuildChannelMock(mock.commandMock, discordChannelId, "voice", userId);
 
-		// データベースにデータが存在しないことを確認
-		const beforeData = await RoomAddChannelRepositoryImpl.findAll();
-		expect(beforeData.length).to.eq(0);
+			// データベースにデータが存在しないことを確認
+			const beforeData = await RoomAddChannelRepositoryImpl.findAll();
+			expect(beforeData.length).to.eq(0);
 
-		// コマンド実行
-		await executeCommandAndWait(mock, 5000);
+			// コマンド実行
+			await executeCommandAndWait(mock, 5000);
 
 			// 応答の検証
 			expect(mock.getReplyValue()).to.eq("部屋追加チャンネルを登録したよ！っ");

@@ -256,12 +256,7 @@ describe("Role event integration tests", () => {
 				return Promise.resolve(true);
 			});
 
-			const guild = createGuildMock(
-				"300",
-				[],
-				[],
-				[{ id: "1001" }, { id: "1002" }, { id: "1003" }],
-			);
+			const guild = createGuildMock("300", [], [], [{ id: "1001" }, { id: "1002" }, { id: "1003" }]);
 
 			await handler.handle(guild);
 

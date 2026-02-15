@@ -308,7 +308,12 @@ export type GuildChannelType = "voice" | "text" | "invalid";
 /**
  * ギルドチャンネルモックを設定する
  */
-export function setupGuildChannelMock(commandMock: ReturnType<typeof mockSlashCommand>, channelId: string, channelType: GuildChannelType, ownerId?: string): void {
+export function setupGuildChannelMock(
+	commandMock: ReturnType<typeof mockSlashCommand>,
+	channelId: string,
+	channelType: GuildChannelType,
+	ownerId?: string,
+): void {
 	// Get the current user ID from the mock
 	const currentUserId = commandMock.user?.id || "0";
 
