@@ -125,10 +125,14 @@ describe("Talk Command Error Handling Tests", function (this: Mocha.Suite) {
 	it("test talk command with null channel should skip processing safely", async function (this: Mocha.Context) {
 		this.timeout(10_000);
 
-		const commandMock = mockSlashCommand("talk", {
-			title: "テストタイトル",
-			type: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
-		});
+		const commandMock = mockSlashCommand(
+			"talk",
+			{
+				title: "テストタイトル",
+				type: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
+			},
+			{ guildId: TEST_GUILD_ID },
+		);
 		when(commandMock.channel).thenReturn(null);
 
 		await emitInteractionEvent(commandMock);
@@ -145,10 +149,14 @@ describe("Talk Command Error Handling Tests", function (this: Mocha.Suite) {
 	it("test talk command with non-text channel should skip processing safely", async function (this: Mocha.Context) {
 		this.timeout(10_000);
 
-		const commandMock = mockSlashCommand("talk", {
-			title: "テストタイトル",
-			type: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
-		});
+		const commandMock = mockSlashCommand(
+			"talk",
+			{
+				title: "テストタイトル",
+				type: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
+			},
+			{ guildId: TEST_GUILD_ID },
+		);
 
 		const nonTextChannelMock = mock<any>();
 		when(nonTextChannelMock.threads).thenReturn({});
