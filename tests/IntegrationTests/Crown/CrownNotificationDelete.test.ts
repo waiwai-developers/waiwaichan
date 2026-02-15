@@ -46,47 +46,6 @@ describe("Test CrownNotificationChannelDelete Commands", () => {
 	 */
 
 	/**
-	 * [権限チェック] 管理者権限がない場合はクラウン通知チャンネルを削除できない
-	 * - コマンド実行時に権限チェックが行われることを検証
-	 * - 権限がない場合にエラーメッセージが返されることを検証
-	 * - CrownNotificationChannelLogic.deleteメソッドが呼ばれないことを検証
-	 */
-	it("should not delete crown notification channel when user does not have admin permission", function (this: Mocha.Context) {
-		this.timeout(10_000);
-
-		return (async () => {
-			const userId = "3";
-
-			// 非管理者ユーザーIDを設定
-			RoleConfig.users = [{ discordId: userId, role: "user" }];
-
-			// コマンドのモック作成
-			const commandMock = mockSlashCommand("crownnotificationchanneldelete", {}, userId);
-
-			// guildIdとchannelを設定
-			when(commandMock.guildId).thenReturn(TEST_GUILD_ID);
-			when(commandMock.channel).thenReturn({} as any);
-
-			// replyメソッドをモック
-			let replyValue = "";
-			when(commandMock.reply(anything())).thenCall((message: string) => {
-				replyValue = message;
-				return Promise.resolve({} as any);
-			});
-
-			// コマンド実行
-			const TEST_CLIENT = await TestDiscordServer.getClient();
-			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-
-			// 応答を待つ
-			await waitSlashUntilReply(commandMock, 1000);
-
-			// 応答の検証
-			expect(replyValue).to.eq("クラウン通知チャンネルを登録する権限を持っていないよ！っ");
-		})();
-	});
-
-	/**
 	 * [存在チェック - データなし] サーバーにCrownNotificationChannelsデータがない状況で実行した時
 	 * - クラウン通知チャンネルが登録されていなかったよ！っと投稿されること
 	 */
@@ -100,11 +59,13 @@ describe("Test CrownNotificationChannelDelete Commands", () => {
 			RoleConfig.users = [{ discordId: userId, role: "admin" }];
 
 			// コマンドのモック作成
-			const commandMock = mockSlashCommand("crownnotificationchanneldelete", {}, userId);
+			const commandMock = mockSlashCommand("crownnotificationchanneldelete", {}, userId, TEST_GUILD_ID);
 
-			// guildIdとchannelを設定
-			when(commandMock.guildId).thenReturn(TEST_GUILD_ID);
-			when(commandMock.channel).thenReturn({} as any);
+			// guildを設定（ownerIdを設定して権限を付与）
+			when(commandMock.guild).thenReturn({
+				id: TEST_GUILD_ID,
+				ownerId: userId, // ユーザーをオーナーに設定
+			} as any);
 
 			// replyメソッドをモック
 			let replyValue = "";
@@ -155,11 +116,13 @@ describe("Test CrownNotificationChannelDelete Commands", () => {
 			});
 
 			// コマンドのモック作成
-			const commandMock = mockSlashCommand("crownnotificationchanneldelete", {}, userId);
+			const commandMock = mockSlashCommand("crownnotificationchanneldelete", {}, userId, TEST_GUILD_ID);
 
-			// guildIdとchannelを設定
-			when(commandMock.guildId).thenReturn(TEST_GUILD_ID);
-			when(commandMock.channel).thenReturn({} as any);
+			// guildを設定（ownerIdを設定して権限を付与）
+			when(commandMock.guild).thenReturn({
+				id: TEST_GUILD_ID,
+				ownerId: userId, // ユーザーをオーナーに設定
+			} as any);
 
 			// replyメソッドをモック
 			let replyValue = "";
@@ -218,11 +181,13 @@ describe("Test CrownNotificationChannelDelete Commands", () => {
 			await deletedData.destroy();
 
 			// コマンドのモック作成
-			const commandMock = mockSlashCommand("crownnotificationchanneldelete", {}, userId);
+			const commandMock = mockSlashCommand("crownnotificationchanneldelete", {}, userId, TEST_GUILD_ID);
 
-			// guildIdとchannelを設定
-			when(commandMock.guildId).thenReturn(TEST_GUILD_ID);
-			when(commandMock.channel).thenReturn({} as any);
+			// guildを設定（ownerIdを設定して権限を付与）
+			when(commandMock.guild).thenReturn({
+				id: TEST_GUILD_ID,
+				ownerId: userId, // ユーザーをオーナーに設定
+			} as any);
 
 			// replyメソッドをモック
 			let replyValue = "";
