@@ -41,16 +41,19 @@ describe("Test CandyNotificationChannelDelete Commands", () => {
 
 		return (async () => {
 			const userId = "3";
+			const ownerId = "999"; // 異なるオーナーID
 
 			// 非管理者ユーザーIDを設定
 			RoleConfig.users = [{ discordId: userId, role: "user" }];
 
 			// コマンドのモック作成
-			const commandMock = mockSlashCommand("candynotificationchanneldelete", {}, userId);
+			const commandMock = mockSlashCommand("candynotificationchanneldelete", {}, userId, TEST_GUILD_ID);
 
-			// guildIdとchannelを設定
-			when(commandMock.guildId).thenReturn(TEST_GUILD_ID);
-			when(commandMock.channel).thenReturn({} as any);
+			// guildを設定（ownerIdを含む）
+			when(commandMock.guild).thenReturn({
+				id: TEST_GUILD_ID,
+				ownerId: ownerId,
+			} as any);
 
 			// replyメソッドをモック
 			let replyValue = "";
@@ -85,11 +88,13 @@ describe("Test CandyNotificationChannelDelete Commands", () => {
 			RoleConfig.users = [{ discordId: userId, role: "admin" }];
 
 			// コマンドのモック作成
-			const commandMock = mockSlashCommand("candynotificationchanneldelete", {}, userId);
+			const commandMock = mockSlashCommand("candynotificationchanneldelete", {}, userId, TEST_GUILD_ID);
 
-			// guildIdとchannelを設定
-			when(commandMock.guildId).thenReturn(TEST_GUILD_ID);
-			when(commandMock.channel).thenReturn({} as any);
+			// guildを設定（ownerIdを含む）
+			when(commandMock.guild).thenReturn({
+				id: TEST_GUILD_ID,
+				ownerId: userId, // ユーザーをオーナーに設定
+			} as any);
 
 			// replyメソッドをモック
 			let replyValue = "";
@@ -140,11 +145,13 @@ describe("Test CandyNotificationChannelDelete Commands", () => {
 			});
 
 			// コマンドのモック作成
-			const commandMock = mockSlashCommand("candynotificationchanneldelete", {}, userId);
+			const commandMock = mockSlashCommand("candynotificationchanneldelete", {}, userId, TEST_GUILD_ID);
 
-			// guildIdとchannelを設定
-			when(commandMock.guildId).thenReturn(TEST_GUILD_ID);
-			when(commandMock.channel).thenReturn({} as any);
+			// guildを設定（ownerIdを含む）
+			when(commandMock.guild).thenReturn({
+				id: TEST_GUILD_ID,
+				ownerId: userId, // ユーザーをオーナーに設定
+			} as any);
 
 			// replyメソッドをモック
 			let replyValue = "";
@@ -203,11 +210,13 @@ describe("Test CandyNotificationChannelDelete Commands", () => {
 			await deletedData.destroy();
 
 			// コマンドのモック作成
-			const commandMock = mockSlashCommand("candynotificationchanneldelete", {}, userId);
+			const commandMock = mockSlashCommand("candynotificationchanneldelete", {}, userId, TEST_GUILD_ID);
 
-			// guildIdとchannelを設定
-			when(commandMock.guildId).thenReturn(TEST_GUILD_ID);
-			when(commandMock.channel).thenReturn({} as any);
+			// guildを設定（ownerIdを含む）
+			when(commandMock.guild).thenReturn({
+				id: TEST_GUILD_ID,
+				ownerId: userId, // ユーザーをオーナーに設定
+			} as any);
 
 			// replyメソッドをモック
 			let replyValue = "";

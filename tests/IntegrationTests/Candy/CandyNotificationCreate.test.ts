@@ -56,16 +56,24 @@ describe("Test CandyNotificationChannelCreate Commands", () => {
 		return (async () => {
 			const channelId = "2";
 			const userId = "3";
+			const ownerId = "999"; // 異なるオーナーID
 
 			// 非管理者ユーザーIDを設定
 			RoleConfig.users = [{ discordId: userId, role: "user" }];
 
 			// コマンドのモック作成
-			const commandMock = mockSlashCommand("candynotificationchannelcreate", { channelid: channelId }, userId);
+			const commandMock = mockSlashCommand("candynotificationchannelcreate", { channelid: channelId }, userId, TEST_GUILD_ID);
 
-			// guildIdとchannelを設定
-			when(commandMock.guildId).thenReturn(TEST_GUILD_ID);
-			when(commandMock.channel).thenReturn({} as any);
+			// guildを設定（ownerIdを含む）
+			when(commandMock.guild).thenReturn({
+				id: TEST_GUILD_ID,
+				ownerId: ownerId,
+				channels: {
+					cache: {
+						get: () => null,
+					},
+				},
+			} as any);
 
 			// replyメソッドをモック
 			let replyValue = "";
@@ -109,14 +117,12 @@ describe("Test CandyNotificationChannelCreate Commands", () => {
 			const channelDbId = await createChannelAndGetId(discordChannelId, testCommunityId, DISCORD_TEXT_CHANNEL_TYPE);
 
 			// コマンドのモック作成
-			const commandMock = mockSlashCommand("candynotificationchannelcreate", { channelid: discordChannelId }, userId);
+			const commandMock = mockSlashCommand("candynotificationchannelcreate", { channelid: discordChannelId }, userId, TEST_GUILD_ID);
 
-			// guildIdとchannelを設定
-			when(commandMock.guildId).thenReturn(TEST_GUILD_ID);
-			when(commandMock.channel).thenReturn({} as any);
-
-			// TextChannelを返すようにモック
+			// TextChannelを返すようにモック（ownerIdを含む）
 			when(commandMock.guild).thenReturn({
+				id: TEST_GUILD_ID,
+				ownerId: userId, // ユーザーをオーナーに設定
 				channels: {
 					cache: {
 						get: (id: string) => {
@@ -191,14 +197,12 @@ describe("Test CandyNotificationChannelCreate Commands", () => {
 			expect(beforeActiveData.length).to.eq(0);
 
 			// コマンドのモック作成
-			const commandMock = mockSlashCommand("candynotificationchannelcreate", { channelid: discordChannelId }, userId);
+			const commandMock = mockSlashCommand("candynotificationchannelcreate", { channelid: discordChannelId }, userId, TEST_GUILD_ID);
 
-			// guildIdとchannelを設定
-			when(commandMock.guildId).thenReturn(TEST_GUILD_ID);
-			when(commandMock.channel).thenReturn({} as any);
-
-			// TextChannelを返すようにモック
+			// TextChannelを返すようにモック（ownerIdを含む）
 			when(commandMock.guild).thenReturn({
+				id: TEST_GUILD_ID,
+				ownerId: userId, // ユーザーをオーナーに設定
 				channels: {
 					cache: {
 						get: (id: string) => {
@@ -313,14 +317,12 @@ describe("Test CandyNotificationChannelCreate Commands", () => {
 			RoleConfig.users = [{ discordId: userId, role: "admin" }];
 
 			// コマンドのモック作成
-			const commandMock = mockSlashCommand("candynotificationchannelcreate", { channelid: channelId }, userId);
+			const commandMock = mockSlashCommand("candynotificationchannelcreate", { channelid: channelId }, userId, TEST_GUILD_ID);
 
-			// guildIdとchannelを設定
-			when(commandMock.guildId).thenReturn(TEST_GUILD_ID);
-			when(commandMock.channel).thenReturn({} as any);
-
-			// TextChannel以外のチャンネルを返すようにモック
+			// TextChannel以外のチャンネルを返すようにモック（ownerIdを含む）
 			when(commandMock.guild).thenReturn({
+				id: TEST_GUILD_ID,
+				ownerId: userId, // ユーザーをオーナーに設定
 				channels: {
 					cache: {
 						get: (id: string) => {
@@ -381,14 +383,12 @@ describe("Test CandyNotificationChannelCreate Commands", () => {
 			const channelDbId = await createChannelAndGetId(discordChannelId, testCommunityId, DISCORD_TEXT_CHANNEL_TYPE);
 
 			// コマンドのモック作成
-			const commandMock = mockSlashCommand("candynotificationchannelcreate", { channelid: discordChannelId }, userId);
+			const commandMock = mockSlashCommand("candynotificationchannelcreate", { channelid: discordChannelId }, userId, TEST_GUILD_ID);
 
-			// guildIdとchannelを設定
-			when(commandMock.guildId).thenReturn(TEST_GUILD_ID);
-			when(commandMock.channel).thenReturn({} as any);
-
-			// TextChannelを返すようにモック
+			// TextChannelを返すようにモック（ownerIdを含む）
 			when(commandMock.guild).thenReturn({
+				id: TEST_GUILD_ID,
+				ownerId: userId, // ユーザーをオーナーに設定
 				channels: {
 					cache: {
 						get: (id: string) => {
