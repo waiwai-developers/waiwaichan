@@ -1,4 +1,3 @@
-import { RoleConfig } from "@/src/entities/config/RoleConfig";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
 import { CommunityDto } from "@/src/entities/dto/CommunityDto";
 import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
@@ -30,16 +29,6 @@ export class RoomCategoryChannelDeleteCommandHandler
 			return;
 		}
 		if (interaction.channel == null) {
-			return;
-		}
-		// NOTE: todo CommunityとUserの追加を行ったあとにrbacを実現する
-		if (
-			RoleConfig.users.find((u) => u.discordId === interaction.user.id)
-				?.role !== "admin"
-		) {
-			interaction.reply(
-				"カテゴリーチャンネルを登録する権限を持っていないよ！っ",
-			);
 			return;
 		}
 

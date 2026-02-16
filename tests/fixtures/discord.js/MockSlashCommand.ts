@@ -4,6 +4,8 @@ import {
 	type CacheType,
 	ChatInputCommandInteraction,
 	type CommandInteractionOptionResolver,
+	type Guild,
+	type GuildMember,
 	type Message,
 	TextChannel,
 	type ThreadChannel,
@@ -16,6 +18,7 @@ export type MockSlashCommandOptions = {
 	guildId?: string;
 	withChannel?: boolean;
 	replyMessage?: Message<boolean>;
+	withMember?: boolean;
 };
 
 export const mockSlashCommand = (
@@ -110,6 +113,22 @@ export const mockSlashCommand = (
 	when(commandInteractionMock.user).thenReturn(instance(userMock));
 	when(commandInteractionMock.channelId).thenReturn("5678");
 	when(commandInteractionMock.guildId).thenReturn(guildId);
+
+	// Setup member mock if requested or if guildId is present
+	const withMember = typeof userIdOrOptions === "object" ? (userIdOrOptions.withMember ?? true) : true;
+	if (withMember && guildId) {
+		const memberMock = mock<GuildMember>();
+		when(memberMock.roles).thenReturn({
+			cache: new Map(),
+		} as any);
+		when(memberMock.user).thenReturn(instance(userMock));
+		when(commandInteractionMock.member).thenReturn(instance(memberMock) as any);
+
+		// Setup guild mock with ownerId
+		const guildMock = mock<Guild>();
+		when(guildMock.ownerId).thenReturn(userId); // Set owner to current user by default
+		when(commandInteractionMock.guild).thenReturn(instance(guildMock) as any);
+	}
 
 	// Setup channel mock if requested
 	if (withChannel) {

@@ -33,6 +33,8 @@ import { CandyNotificationChannelCreateCommandHandler } from "@/src/handlers/dis
 import { CandyNotificationChannelDeleteCommandHandler } from "@/src/handlers/discord.js/commands/CandyNotificationChannelDeleteCommandHandler";
 import { CrownNotificationChannelCreateCommandHandler } from "@/src/handlers/discord.js/commands/CrownNotificationChannelCreateCommandHandler";
 import { CrownNotificationChannelDeleteCommandHandler } from "@/src/handlers/discord.js/commands/CrownNotificationChannelDeleteCommandHandler";
+import { RoleBindedByPredefinedRoleCommandHandler } from "@/src/handlers/discord.js/commands/RoleBindedByPredefinedRoleCommandHandler";
+import { RoleReleasedByPredefinedRoleCommandHandler } from "@/src/handlers/discord.js/commands/RoleReleasedByPredefinedRoleCommandHandler";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
 import { AIReplyHandler } from "@/src/handlers/discord.js/events/AIReplyHandler";
 import { BotAddHandler } from "@/src/handlers/discord.js/events/BotAddHandler";
@@ -44,6 +46,8 @@ import { CrownReactionHandler } from "@/src/handlers/discord.js/events/CrownReac
 import type { DiscordEventHandler } from "@/src/handlers/discord.js/events/DiscordEventHandler";
 import type { ReactionInteraction } from "@/src/handlers/discord.js/events/DiscordEventHandler";
 import { MessageDeleteHandler } from "@/src/handlers/discord.js/events/MessageDeleteHandler";
+import { RoleCreateHandler } from "@/src/handlers/discord.js/events/RoleCreateHandler";
+import { RoleDeleteHandler } from "@/src/handlers/discord.js/events/RoleDeleteHandler";
 import { StickyEventHandler } from "@/src/handlers/discord.js/events/StickyEventHandler";
 import { TranslateReplyHandler } from "@/src/handlers/discord.js/events/TranslateReplyHandler";
 import { UserAddHandler } from "@/src/handlers/discord.js/events/UserAddHandler";
@@ -51,6 +55,8 @@ import { UserRemoveHandler } from "@/src/handlers/discord.js/events/UserRemoveHa
 import { VoiceChannelConnectHandler } from "@/src/handlers/discord.js/events/VoiceChannelConnectHandler";
 import { VoiceChannelDisconnectHandler } from "@/src/handlers/discord.js/events/VoiceChannelDisconnectHandler";
 import type { VoiceChannelEventHandler, VoiceChannelState } from "@/src/handlers/discord.js/events/VoiceChannelEventHandler";
+import { CommandPermissionChecker } from "@/src/handlers/discord.js/permissions/CommandPermissionChecker";
+import type { ICommandPermissionChecker } from "@/src/handlers/discord.js/permissions/ICommandPermissionChecker";
 import { CandyLogic } from "@/src/logics/CandyLogic";
 import { CandyNotificationChannelLogic } from "@/src/logics/CandyNotificationChannelLogic";
 import { ChannelLogic } from "@/src/logics/ChannelLogic";
@@ -70,8 +76,10 @@ import type { ICrownNotificationChannelLogic } from "@/src/logics/Interfaces/log
 import type { IMessageLogic } from "@/src/logics/Interfaces/logics/IMessageLogic";
 import type { IPersonalityContextLogic } from "@/src/logics/Interfaces/logics/IPersonalityContextLogic";
 import type { IPersonalityLogic } from "@/src/logics/Interfaces/logics/IPersonalityLogic";
+import type { IPredefinedRoleLogic } from "@/src/logics/Interfaces/logics/IPredefinedRoleLogic";
 import type { IPullRequestLogic } from "@/src/logics/Interfaces/logics/IPullRequestLogic";
 import type { IReminderLogic } from "@/src/logics/Interfaces/logics/IReminderLogic";
+import type { IRoleLogic } from "@/src/logics/Interfaces/logics/IRoleLogic";
 import type { IRoomAddChannelLogic } from "@/src/logics/Interfaces/logics/IRoomAddChannelLogic";
 import type { IRoomCategoryChannelLogic } from "@/src/logics/Interfaces/logics/IRoomCategoryChannelLogic";
 import type { IRoomChannelLogic } from "@/src/logics/Interfaces/logics/IRoomChannelLogic";
@@ -95,7 +103,11 @@ import type { IDataDeletionCircular } from "@/src/logics/Interfaces/repositories
 import type { IMessageRepository } from "@/src/logics/Interfaces/repositories/database/IMessageRepository";
 import type { IPersonalityContextRepository } from "@/src/logics/Interfaces/repositories/database/IPersonalityContextRepository";
 import type { IPersonalityRepository } from "@/src/logics/Interfaces/repositories/database/IPersonalityRepository";
+import type { IPredefinedRoleCommandRepository } from "@/src/logics/Interfaces/repositories/database/IPredefinedRoleCommandRepository";
+import type { IPredefinedRoleRepository } from "@/src/logics/Interfaces/repositories/database/IPredefinedRoleRepository";
 import type { IReminderRepository } from "@/src/logics/Interfaces/repositories/database/IReminderRepository";
+import type { IRolePredefinedRoleRepository } from "@/src/logics/Interfaces/repositories/database/IRolePredefinedRoleRepository";
+import type { IRoleRepository } from "@/src/logics/Interfaces/repositories/database/IRoleRepository";
 import type { IRoomAddChannelRepository } from "@/src/logics/Interfaces/repositories/database/IRoomAddChannelRepository";
 import type { IRoomCategoryChannelRepository } from "@/src/logics/Interfaces/repositories/database/IRoomCategoryChannelRepository";
 import type { IRoomChannelRepository } from "@/src/logics/Interfaces/repositories/database/IRoomChannelRepository";
@@ -112,8 +124,10 @@ import type { ITranslatorRepository } from "@/src/logics/Interfaces/repositories
 import { MessageLogic } from "@/src/logics/MessageLogic";
 import { PersonalityContextLogic } from "@/src/logics/PersonalityContextLogic";
 import { PersonalityLogic } from "@/src/logics/PersonalityLogic";
+import { PredefinedRoleLogic } from "@/src/logics/PredefinedRoleLogic";
 import { PullRequestLogic } from "@/src/logics/PullRequestLogic";
 import { ReminderLogic } from "@/src/logics/ReminderLogic";
+import { RoleLogic } from "@/src/logics/RoleLogic";
 import { RoomAddChannelLogic } from "@/src/logics/RoomAddChannelLogic";
 import { RoomCategoryChannelLogic } from "@/src/logics/RoomCategoryChannelLogic";
 import { RoomChannelLogic } from "@/src/logics/RoomChannelLogic";
@@ -152,6 +166,9 @@ import {
 import { CandyNotificationChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/CandyNotificationChannelRepositoryImpl";
 import { CrownNotificationChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/CrownNotificationChannelRepositoryImpl";
 import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnector";
+import { PredefinedRoleCommandImpl } from "@/src/repositories/sequelize-mysql/PredefinedRoleCommandImpl";
+import { RolePredefinedRoleImpl } from "@/src/repositories/sequelize-mysql/RolePredefinedRoleImpl";
+import { RoleRepositoryImpl } from "@/src/repositories/sequelize-mysql/RoleRepositoryImpl";
 import { SequelizeTransaction } from "@/src/repositories/sequelize-mysql/SequelizeTransaction";
 import { BotAddRouter } from "@/src/routes/discordjs/events/BotAddRouter";
 import { BotRemoveRouter } from "@/src/routes/discordjs/events/BotRemoveRouter";
@@ -162,6 +179,8 @@ import { MessageDeleteRouter } from "@/src/routes/discordjs/events/MessageDelete
 import { MessageReplyRouter } from "@/src/routes/discordjs/events/MessageReplyRouter";
 import { ReactionRouter } from "@/src/routes/discordjs/events/ReactionRouter";
 import { ReadyStateRouter } from "@/src/routes/discordjs/events/ReadyStateRouter";
+import { RoleCreateRouter } from "@/src/routes/discordjs/events/RoleCreateRouter";
+import { RoleDeleteRouter } from "@/src/routes/discordjs/events/RoleDeleteRouter";
 import { SlashCommandRouter } from "@/src/routes/discordjs/events/SlashCommandRouter";
 import { UserAddRouter } from "@/src/routes/discordjs/events/UserAddRouter";
 import { UserRemoveRouter } from "@/src/routes/discordjs/events/UserRemoveRouter";
@@ -199,6 +218,9 @@ appContainer.bind<IStickyRepository>(RepoTypes.StickyRepository).to(StickyReposi
 appContainer.bind<ICommunityRepository>(RepoTypes.CommunityRepository).to(CommunityRepositoryImpl);
 appContainer.bind<IUserRepository>(RepoTypes.UserRepository).to(UserRepositoryImpl);
 appContainer.bind<IChannelRepository>(RepoTypes.ChannelRepository).to(ChannelRepositoryImpl);
+appContainer.bind<IRoleRepository>(RepoTypes.RoleRepository).to(RoleRepositoryImpl);
+appContainer.bind<IRolePredefinedRoleRepository>(RepoTypes.RolePredefinedRoleRepository).to(RolePredefinedRoleImpl);
+appContainer.bind<IPredefinedRoleCommandRepository>(RepoTypes.PredefinedRoleCommandRepository).to(PredefinedRoleCommandImpl);
 appContainer.bind<IMessageRepository>(RepoTypes.MessageRepository).to(MessageRepositoryImpl);
 appContainer.bind<IDataDeletionCircular>(RepoTypes.DataDeletionCircular).to(DataDeletionCircularImpl);
 // ChatGPT
@@ -233,9 +255,12 @@ appContainer.bind<IUtilityLogic>(LogicTypes.UtilityLogic).to(UtilityLogic);
 appContainer.bind<ICommunityLogic>(LogicTypes.CommunityLogic).to(CommunityLogic);
 appContainer.bind<IUserLogic>(LogicTypes.UserLogic).to(UserLogic);
 appContainer.bind<IChannelLogic>(LogicTypes.ChannelLogic).to(ChannelLogic);
+appContainer.bind<IRoleLogic>(LogicTypes.RoleLogic).to(RoleLogic);
+appContainer.bind<IPredefinedRoleLogic>(LogicTypes.PredefinedRoleLogic).to(PredefinedRoleLogic);
 appContainer.bind<IMessageLogic>(LogicTypes.MessageLogic).to(MessageLogic);
 
 // Handlers
+appContainer.bind<ICommandPermissionChecker>(HandlerTypes.CommandPermissionChecker).to(CommandPermissionChecker);
 appContainer.bind<DiscordEventHandler<Message>>(HandlerTypes.MessageHandler).to(AIReplyHandler);
 appContainer.bind<DiscordEventHandler<Message>>(HandlerTypes.MessageHandler).to(StickyEventHandler);
 appContainer.bind<DiscordEventHandler<Message>>(HandlerTypes.MessageHandler).to(TranslateReplyHandler);
@@ -247,6 +272,8 @@ appContainer.bind<DiscordEventHandler<GuildMember>>(HandlerTypes.UserRemoveHandl
 appContainer.bind<DiscordEventHandler<Message | PartialMessage>>(HandlerTypes.MessageDeleteHandler).to(MessageDeleteHandler);
 appContainer.bind<DiscordEventHandler<GuildChannel>>(HandlerTypes.ChannelCreateHandler).to(ChannelCreateHandler);
 appContainer.bind<DiscordEventHandler<GuildChannel | DMChannel>>(HandlerTypes.ChannelDeleteHandler).to(ChannelDeleteHandler);
+appContainer.bind<DiscordEventHandler<any>>(HandlerTypes.RoleCreateHandler).to(RoleCreateHandler);
+appContainer.bind<DiscordEventHandler<any>>(HandlerTypes.RoleDeleteHandler).to(RoleDeleteHandler);
 appContainer.bind<DiscordEventHandler<ReactionInteraction>>(HandlerTypes.ReactionHandler).to(CrownReactionHandler);
 appContainer.bind<VoiceChannelEventHandler<VoiceChannelState>>(HandlerTypes.VoiceChannelEventHandler).to(VoiceChannelConnectHandler);
 appContainer.bind<VoiceChannelEventHandler<VoiceChannelState>>(HandlerTypes.VoiceChannelEventHandler).to(VoiceChannelDisconnectHandler);
@@ -281,6 +308,8 @@ appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(Cand
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(CandyNotificationChannelDeleteCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(CrownNotificationChannelCreateCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(CrownNotificationChannelDeleteCommandHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(RoleBindedByPredefinedRoleCommandHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(RoleReleasedByPredefinedRoleCommandHandler);
 
 // Routes
 appContainer.bind<DiscordEventRouter>(RouteTypes.SlashCommandRoute).to(SlashCommandRouter);
@@ -294,5 +323,7 @@ appContainer.bind<DiscordEventRouter>(RouteTypes.UserRemoveRoute).to(UserRemoveR
 appContainer.bind<DiscordEventRouter>(RouteTypes.MessageDeleteRoute).to(MessageDeleteRouter);
 appContainer.bind<DiscordEventRouter>(RouteTypes.ChannelCreateRoute).to(ChannelCreateRouter);
 appContainer.bind<DiscordEventRouter>(RouteTypes.ChannelDeleteRoute).to(ChannelDeleteRouter);
+appContainer.bind<DiscordEventRouter>(RouteTypes.RoleCreateRoute).to(RoleCreateRouter);
+appContainer.bind<DiscordEventRouter>(RouteTypes.RoleDeleteRoute).to(RoleDeleteRouter);
 appContainer.bind<DiscordEventRouter>(RouteTypes.VoiceChannelEventRoute).to(VoiceChannelEventRouter);
 export { appContainer };

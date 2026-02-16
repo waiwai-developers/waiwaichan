@@ -295,10 +295,14 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		this.timeout(10_000);
 
 		// コマンドモックを手動で設定（チャンネルがnullの特殊ケース）
-		const commandMock = mockSlashCommand("talk", {
-			title: "テストタイトル",
-			type: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
-		});
+		const commandMock = mockSlashCommand(
+			"talk",
+			{
+				title: "テストタイトル",
+				type: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
+			},
+			{ guildId: TEST_GUILD_ID },
+		);
 		when(commandMock.channel).thenReturn(null);
 
 		// イベント発行
@@ -322,10 +326,14 @@ describe("Test Talk Commands", function (this: Mocha.Suite) {
 		this.timeout(10_000);
 
 		// コマンドモックを手動で設定（非テキストチャンネルの特殊ケース）
-		const commandMock = mockSlashCommand("talk", {
-			title: "テストタイトル",
-			type: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
-		});
+		const commandMock = mockSlashCommand(
+			"talk",
+			{
+				title: "テストタイトル",
+				type: ThreadCategoryType.CATEGORY_TYPE_CHATGPT.getValue(),
+			},
+			{ guildId: TEST_GUILD_ID },
+		);
 
 		// テキストチャンネル以外のチャンネルを設定（threads.createメソッドがない）
 		const nonTextChannelMock = mock<any>();

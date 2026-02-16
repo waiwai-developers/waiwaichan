@@ -25,6 +25,8 @@ import { StickyUpdateCommandHandler } from "@/src/handlers/discord.js/commands/S
 import { TalkCommandHandler } from "@/src/handlers/discord.js/commands/TalkCommandHandler";
 import { TranslateCommandHandler } from "@/src/handlers/discord.js/commands/TranslateCommandHandler";
 import { WaiwaiCommandHandler } from "@/src/handlers/discord.js/commands/WaiwaiCommandHandler";
+import { CommandPermissionChecker } from "@/src/handlers/discord.js/permissions/CommandPermissionChecker";
+import type { ICommandPermissionChecker } from "@/src/handlers/discord.js/permissions/ICommandPermissionChecker";
 export {
 	ReminderSetCommandHandler,
 	ReminderListCommandHandler,

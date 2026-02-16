@@ -6,6 +6,7 @@ import { CandyItemRepositoryImpl } from "@/src/repositories/sequelize-mysql/Cand
 import { CandyNotificationChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/CandyNotificationChannelRepositoryImpl";
 import { CandyRepositoryImpl } from "@/src/repositories/sequelize-mysql/CandyRepositoryImpl";
 import { ChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/ChannelRepositoryImpl";
+import { CommandImpl } from "@/src/repositories/sequelize-mysql/CommandImpl";
 import { CommunityRepositoryImpl } from "@/src/repositories/sequelize-mysql/CommunityRepositoryImpl";
 import { ContextRepositoryImpl } from "@/src/repositories/sequelize-mysql/ContextRepositoryImpl";
 import { CrownNotificationChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/CrownNotificationChannelRepositoryImpl";
@@ -13,7 +14,11 @@ import { CrownRepositoryImpl } from "@/src/repositories/sequelize-mysql/CrownRep
 import { MessageRepositoryImpl } from "@/src/repositories/sequelize-mysql/MessageRepositoryImpl";
 import { PersonalityContextRepositoryImpl } from "@/src/repositories/sequelize-mysql/PersonalityContextRepositoryImpl";
 import { PersonalityRepositoryImpl } from "@/src/repositories/sequelize-mysql/PersonalityRepositoryImpl";
+import { PredefinedRoleCommandImpl } from "@/src/repositories/sequelize-mysql/PredefinedRoleCommandImpl";
+import { PredefinedRoleImpl } from "@/src/repositories/sequelize-mysql/PredefinedRoleImpl";
 import { ReminderRepositoryImpl } from "@/src/repositories/sequelize-mysql/ReminderRepositoryImpl";
+import { RolePredefinedRoleImpl } from "@/src/repositories/sequelize-mysql/RolePredefinedRoleImpl";
+import { RoleRepositoryImpl } from "@/src/repositories/sequelize-mysql/RoleRepositoryImpl";
 import { RoomAddChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/RoomAddChannelRepositoryImpl";
 import { RoomCategoryChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/RoomCategoryChannelRepositoryImpl";
 import { RoomChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/RoomChannelRepositoryImpl";
@@ -36,10 +41,13 @@ export class MysqlConnector implements IDataBaseConnector<Sequelize, "mysql"> {
 		CandyItemRepositoryImpl,
 		CandyNotificationChannelRepositoryImpl,
 		ChannelRepositoryImpl,
+		CommandImpl,
 		CrownNotificationChannelRepositoryImpl,
 		CrownRepositoryImpl,
 		UserCandyItemRepositoryImpl,
 		ReminderRepositoryImpl,
+		RoleRepositoryImpl,
+		RolePredefinedRoleImpl,
 		ThreadRepositoryImpl,
 		StickyRepositoryImpl,
 		CommunityRepositoryImpl,
@@ -48,6 +56,8 @@ export class MysqlConnector implements IDataBaseConnector<Sequelize, "mysql"> {
 		PersonalityRepositoryImpl,
 		PersonalityContextRepositoryImpl,
 		ContextRepositoryImpl,
+		PredefinedRoleImpl,
+		PredefinedRoleCommandImpl,
 		RoomAddChannelRepositoryImpl,
 		RoomChannelRepositoryImpl,
 		RoomNotificationChannelRepositoryImpl,

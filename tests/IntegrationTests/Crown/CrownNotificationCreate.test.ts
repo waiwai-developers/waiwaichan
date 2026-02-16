@@ -59,52 +59,6 @@ describe("Test CrownNotificationChannelCreate Commands", () => {
 	 */
 
 	/**
-	 * [権限チェック] 管理者権限がない場合はクラウン通知チャンネルを登録できない
-	 * - コマンド実行時に権限チェックが行われることを検証
-	 * - 権限がない場合にエラーメッセージが返されることを検証
-	 * - CrownNotificationChannelLogic.createメソッドが呼ばれないことを検証
-	 */
-	it("should not create crown notification channel when user does not have admin permission", function (this: Mocha.Context) {
-		this.timeout(10_000);
-
-		return (async () => {
-			const channelId = "2";
-			const userId = "3";
-
-			// 非管理者ユーザーIDを設定
-			RoleConfig.users = [{ discordId: userId, role: "user" }];
-
-			// コマンドのモック作成
-			const commandMock = mockSlashCommand("crownnotificationchannelcreate", { channelid: channelId }, userId);
-
-			// guildIdとchannelを設定
-			when(commandMock.guildId).thenReturn(TEST_GUILD_ID);
-			when(commandMock.channel).thenReturn({} as any);
-
-			// replyメソッドをモック
-			let replyValue = "";
-			when(commandMock.reply(anything())).thenCall((message: string) => {
-				replyValue = message;
-				return Promise.resolve({} as any);
-			});
-
-			// コマンド実行
-			const TEST_CLIENT = await TestDiscordServer.getClient();
-			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-
-			// 応答を待つ
-			await waitSlashUntilReply(commandMock, 1000);
-
-			// 応答の検証
-			expect(replyValue).to.eq("クラウン通知チャンネルを登録する権限を持っていないよ！っ");
-
-			// データが作られていないことを確認
-			const afterData = await CrownNotificationChannelRepositoryImpl.findAll();
-			expect(afterData.length).to.eq(0);
-		})();
-	});
-
-	/**
 	 * [正常作成 - データなし] サーバーにCrownNotificationChannelsデータがない状況でTextChannelで実行した時
 	 * - クラウン通知チャンネルを登録したよ！っと投稿されること
 	 * - CrownNotificationChannelsにdeletedAtがnullでデータ作成されること
@@ -123,14 +77,12 @@ describe("Test CrownNotificationChannelCreate Commands", () => {
 			const channelDbId = await createChannelAndGetId(discordChannelId, testCommunityId, DISCORD_TEXT_CHANNEL_TYPE);
 
 			// コマンドのモック作成
-			const commandMock = mockSlashCommand("crownnotificationchannelcreate", { channelid: discordChannelId }, userId);
+			const commandMock = mockSlashCommand("crownnotificationchannelcreate", { channelid: discordChannelId }, userId, TEST_GUILD_ID);
 
-			// guildIdとchannelを設定
-			when(commandMock.guildId).thenReturn(TEST_GUILD_ID);
-			when(commandMock.channel).thenReturn({} as any);
-
-			// TextChannelを返すようにモック
+			// TextChannelを返すようにモック（ownerIdを含む）
 			when(commandMock.guild).thenReturn({
+				id: TEST_GUILD_ID,
+				ownerId: userId, // ユーザーをオーナーに設定
 				channels: {
 					cache: {
 						get: (id: string) => {
@@ -205,14 +157,12 @@ describe("Test CrownNotificationChannelCreate Commands", () => {
 			expect(beforeActiveData.length).to.eq(0);
 
 			// コマンドのモック作成
-			const commandMock = mockSlashCommand("crownnotificationchannelcreate", { channelid: discordChannelId }, userId);
+			const commandMock = mockSlashCommand("crownnotificationchannelcreate", { channelid: discordChannelId }, userId, TEST_GUILD_ID);
 
-			// guildIdとchannelを設定
-			when(commandMock.guildId).thenReturn(TEST_GUILD_ID);
-			when(commandMock.channel).thenReturn({} as any);
-
-			// TextChannelを返すようにモック
+			// TextChannelを返すようにモック（ownerIdを含む）
 			when(commandMock.guild).thenReturn({
+				id: TEST_GUILD_ID,
+				ownerId: userId, // ユーザーをオーナーに設定
 				channels: {
 					cache: {
 						get: (id: string) => {
@@ -327,14 +277,12 @@ describe("Test CrownNotificationChannelCreate Commands", () => {
 			RoleConfig.users = [{ discordId: userId, role: "admin" }];
 
 			// コマンドのモック作成
-			const commandMock = mockSlashCommand("crownnotificationchannelcreate", { channelid: channelId }, userId);
+			const commandMock = mockSlashCommand("crownnotificationchannelcreate", { channelid: channelId }, userId, TEST_GUILD_ID);
 
-			// guildIdとchannelを設定
-			when(commandMock.guildId).thenReturn(TEST_GUILD_ID);
-			when(commandMock.channel).thenReturn({} as any);
-
-			// TextChannel以外のチャンネルを返すようにモック
+			// TextChannel以外のチャンネルを返すようにモック（ownerIdを含む）
 			when(commandMock.guild).thenReturn({
+				id: TEST_GUILD_ID,
+				ownerId: userId, // ユーザーをオーナーに設定
 				channels: {
 					cache: {
 						get: (id: string) => {
@@ -395,14 +343,12 @@ describe("Test CrownNotificationChannelCreate Commands", () => {
 			const channelDbId = await createChannelAndGetId(discordChannelId, testCommunityId, DISCORD_TEXT_CHANNEL_TYPE);
 
 			// コマンドのモック作成
-			const commandMock = mockSlashCommand("crownnotificationchannelcreate", { channelid: discordChannelId }, userId);
+			const commandMock = mockSlashCommand("crownnotificationchannelcreate", { channelid: discordChannelId }, userId, TEST_GUILD_ID);
 
-			// guildIdとchannelを設定
-			when(commandMock.guildId).thenReturn(TEST_GUILD_ID);
-			when(commandMock.channel).thenReturn({} as any);
-
-			// TextChannelを返すようにモック
+			// TextChannelを返すようにモック（ownerIdを含む）
 			when(commandMock.guild).thenReturn({
+				id: TEST_GUILD_ID,
+				ownerId: userId, // ユーザーをオーナーに設定
 				channels: {
 					cache: {
 						get: (id: string) => {

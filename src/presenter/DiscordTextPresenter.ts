@@ -119,15 +119,14 @@ class CodeBlockHandler {
 		if (lastNewlinePos > 0) {
 			const adjusted = StringUtils.splitAt(payload, lastNewlinePos);
 			return {
-				chunk: adjusted.head + CODE_BLOCK.CLOSE_MARKER + "\n",
-				remaining:
-					"\n" + CodeBlockHandler.createOpenMarker(language) + adjusted.tail,
+				chunk: `${adjusted.head + CODE_BLOCK.CLOSE_MARKER}\n`,
+				remaining: `\n${CodeBlockHandler.createOpenMarker(language)}${adjusted.tail}`,
 			};
 		}
 
 		return {
-			chunk: head + CODE_BLOCK.CLOSE_MARKER + "\n",
-			remaining: "\n" + CodeBlockHandler.createOpenMarker(language) + tail,
+			chunk: `${head + CODE_BLOCK.CLOSE_MARKER}\n`,
+			remaining: `\n${CodeBlockHandler.createOpenMarker(language)}${tail}`,
 		};
 	}
 }
@@ -192,7 +191,7 @@ class TextSplitter {
 				codeBlockState.language,
 			);
 			chunks.push(chunk);
-			return this.split(remaining, chunks, {
+			return TextSplitter.split(remaining, chunks, {
 				isInside: true,
 				language: codeBlockState.language,
 			});
@@ -201,7 +200,7 @@ class TextSplitter {
 		// 通常のテキストで2000文字超過
 		const { head, tail } = StringUtils.splitAt(payload, MAX_REPLY_CHARACTERS);
 		chunks.push(head);
-		return this.split(tail, chunks, { isInside: false, language: "" });
+		return TextSplitter.split(tail, chunks, { isInside: false, language: "" });
 	}
 
 	/**
@@ -239,7 +238,7 @@ class TextSplitter {
 				: codeBlockState;
 
 		chunks.push(head);
-		return this.split(tail, chunks, newState);
+		return TextSplitter.split(tail, chunks, newState);
 	}
 
 	/**
@@ -250,16 +249,19 @@ class TextSplitter {
 		chunks: string[] = [],
 		codeBlockState: CodeBlockState = { isInside: false, language: "" },
 	): string[] {
-		const delimiterIndices = this.findDelimiterIndices(payload, codeBlockState);
+		const delimiterIndices = TextSplitter.findDelimiterIndices(
+			payload,
+			codeBlockState,
+		);
 		const hasDelimiters =
 			delimiterIndices.paragraphIndex >= 0 ||
 			delimiterIndices.codeBlockIndex >= 0;
 
 		if (!hasDelimiters) {
-			return this.handleNoDelimiter(payload, chunks, codeBlockState);
+			return TextSplitter.handleNoDelimiter(payload, chunks, codeBlockState);
 		}
 
-		return this.splitAtDelimiter(
+		return TextSplitter.splitAtDelimiter(
 			payload,
 			chunks,
 			codeBlockState,
