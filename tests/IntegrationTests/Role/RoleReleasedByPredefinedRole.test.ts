@@ -56,12 +56,7 @@ describe("Test RoleReleasedByPredefinedRole Commands", () => {
 			expect(beforeData.length).to.eq(1);
 
 			// コマンドのモック作成
-			const commandMock = mockSlashCommand(
-				"rolereleasedbypredefinedrole",
-				{ roleid: roleClientId },
-				testUserId,
-				TEST_GUILD_ID,
-			);
+			const commandMock = mockSlashCommand("rolereleasedbypredefinedrole", { roleid: roleClientId }, testUserId, TEST_GUILD_ID);
 
 			// guildIdを設定
 			when(commandMock.guildId).thenReturn(TEST_GUILD_ID);
@@ -115,12 +110,7 @@ describe("Test RoleReleasedByPredefinedRole Commands", () => {
 			expect(beforeData.length).to.eq(0);
 
 			// コマンドのモック作成
-			const commandMock = mockSlashCommand(
-				"rolereleasedbypredefinedrole",
-				{ roleid: roleClientId },
-				testUserId,
-				TEST_GUILD_ID,
-			);
+			const commandMock = mockSlashCommand("rolereleasedbypredefinedrole", { roleid: roleClientId }, testUserId, TEST_GUILD_ID);
 
 			// guildIdを設定
 			when(commandMock.guildId).thenReturn(TEST_GUILD_ID);
@@ -163,12 +153,7 @@ describe("Test RoleReleasedByPredefinedRole Commands", () => {
 			RoleConfig.users = [{ discordId: testUserId, role: "admin" }];
 
 			// コマンドのモック作成
-			const commandMock = mockSlashCommand(
-				"rolereleasedbypredefinedrole",
-				{ roleid: roleClientId },
-				testUserId,
-				UNREGISTERED_GUILD_ID,
-			);
+			const commandMock = mockSlashCommand("rolereleasedbypredefinedrole", { roleid: roleClientId }, testUserId, UNREGISTERED_GUILD_ID);
 
 			// guildIdを設定
 			when(commandMock.guildId).thenReturn(UNREGISTERED_GUILD_ID);
@@ -206,12 +191,7 @@ describe("Test RoleReleasedByPredefinedRole Commands", () => {
 			RoleConfig.users = [{ discordId: testUserId, role: "admin" }];
 
 			// コマンドのモック作成（ロールは作成しない）
-			const commandMock = mockSlashCommand(
-				"rolereleasedbypredefinedrole",
-				{ roleid: roleClientId },
-				testUserId,
-				TEST_GUILD_ID,
-			);
+			const commandMock = mockSlashCommand("rolereleasedbypredefinedrole", { roleid: roleClientId }, testUserId, TEST_GUILD_ID);
 
 			// guildIdを設定
 			when(commandMock.guildId).thenReturn(TEST_GUILD_ID);
@@ -269,12 +249,7 @@ describe("Test RoleReleasedByPredefinedRole Commands", () => {
 			expect(beforeData.length).to.eq(1);
 
 			// コマンドのモック作成
-			const commandMock = mockSlashCommand(
-				"rolereleasedbypredefinedrole",
-				{ roleid: roleClientId },
-				testUserId,
-				TEST_GUILD_ID,
-			);
+			const commandMock = mockSlashCommand("rolereleasedbypredefinedrole", { roleid: roleClientId }, testUserId, TEST_GUILD_ID);
 
 			// guildIdを設定
 			when(commandMock.guildId).thenReturn(TEST_GUILD_ID);

@@ -1,6 +1,6 @@
-import type { Datafix } from "@/migrator/umzug";
 import { DatafixCommunityModel } from "@/migrator/datafixies/models/DatafixCommunityModel";
 import { DatafixRoleModel } from "@/migrator/datafixies/models/DatafixRoleModel";
+import type { Datafix } from "@/migrator/umzug";
 import { GetEnvAppConfig } from "@/src/entities/config/AppConfig";
 import { Client, GatewayIntentBits, Partials } from "discord.js";
 
@@ -118,7 +118,7 @@ export const up: Datafix = async ({ context: sequelize }) => {
 		} catch (destroyError) {
 			console.error("Error destroying client:", destroyError);
 		}
-		
+
 		// トークンエラーの場合は警告を出して正常終了
 		if (error instanceof Error && error.message.includes("token")) {
 			console.warn(
@@ -126,7 +126,7 @@ export const up: Datafix = async ({ context: sequelize }) => {
 			);
 			return;
 		}
-		
+
 		throw error;
 	}
 };
