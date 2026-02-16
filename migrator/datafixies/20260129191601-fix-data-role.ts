@@ -14,6 +14,14 @@ export const up: Datafix = async ({ context: sequelize }) => {
 	const appConfig = GetEnvAppConfig();
 	const discordToken = appConfig.discord.token;
 
+	// トークンが無効またはテスト用のダミートークンの場合はスキップ
+	if (!discordToken || discordToken === "dummy" || discordToken === "test") {
+		console.log(
+			"Discord token is not available or is a test token. Skipping fix-data-role datafix.",
+		);
+		return;
+	}
+
 	// Discordクライアントを作成
 	const client = new Client({
 		intents: Object.values(GatewayIntentBits).reduce(
@@ -110,6 +118,15 @@ export const up: Datafix = async ({ context: sequelize }) => {
 		} catch (destroyError) {
 			console.error("Error destroying client:", destroyError);
 		}
+		
+		// トークンエラーの場合は警告を出して正常終了
+		if (error instanceof Error && error.message.includes("token")) {
+			console.warn(
+				"Discord token error detected. This datafix requires a valid Discord token. Skipping...",
+			);
+			return;
+		}
+		
 		throw error;
 	}
 };
