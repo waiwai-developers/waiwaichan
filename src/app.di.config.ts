@@ -35,6 +35,12 @@ import { CrownNotificationChannelCreateCommandHandler } from "@/src/handlers/dis
 import { CrownNotificationChannelDeleteCommandHandler } from "@/src/handlers/discord.js/commands/CrownNotificationChannelDeleteCommandHandler";
 import { RoleBindedByPredefinedRoleCommandHandler } from "@/src/handlers/discord.js/commands/RoleBindedByPredefinedRoleCommandHandler";
 import { RoleReleasedByPredefinedRoleCommandHandler } from "@/src/handlers/discord.js/commands/RoleReleasedByPredefinedRoleCommandHandler";
+import { CustomRoleBindedByCommandHandler } from "@/src/handlers/discord.js/commands/CustomRoleBindedByCommandHandler";
+import { CustomRoleReleasedByCommandHandler } from "@/src/handlers/discord.js/commands/CustomRoleReleasedByCommandHandler";
+import { CustomRoleCreateHandler } from "@/src/handlers/discord.js/commands/CustomRoleCreateHandler";
+import { CustomRoleDeleteHandler } from "@/src/handlers/discord.js/commands/CustomRoleDeleteHandler";
+import { RoleBindedByCustomRoleHandler } from "@/src/handlers/discord.js/commands/RoleBindedByCustomRoleHandler";
+import { RoleReleasedByCustomRoleHandler } from "@/src/handlers/discord.js/commands/RoleReleasedByCustomRoleHandler";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
 import { AIReplyHandler } from "@/src/handlers/discord.js/events/AIReplyHandler";
 import { BotAddHandler } from "@/src/handlers/discord.js/events/BotAddHandler";
@@ -65,6 +71,7 @@ import { CommunityLogic } from "@/src/logics/CommunityLogic";
 import { ContextLogic } from "@/src/logics/ContextLogic";
 import { CrownLogic } from "@/src/logics/CrownLogic";
 import { CrownNotificationChannelLogic } from "@/src/logics/CrownNotificationChannelLogic";
+import { CustomRoleLogic } from "@/src/logics/CustomRoleLogic";
 import type { ICandyLogic } from "@/src/logics/Interfaces/logics/ICandyLogic";
 import type { ICandyNotificationChannelLogic } from "@/src/logics/Interfaces/logics/ICandyNotificationChannelLogic";
 import type { IChannelLogic } from "@/src/logics/Interfaces/logics/IChannelLogic";
@@ -76,6 +83,7 @@ import type { ICrownNotificationChannelLogic } from "@/src/logics/Interfaces/log
 import type { IMessageLogic } from "@/src/logics/Interfaces/logics/IMessageLogic";
 import type { IPersonalityContextLogic } from "@/src/logics/Interfaces/logics/IPersonalityContextLogic";
 import type { IPersonalityLogic } from "@/src/logics/Interfaces/logics/IPersonalityLogic";
+import type { ICustomRoleLogic } from "@/src/logics/Interfaces/logics/ICustomRoleLogic";
 import type { IPredefinedRoleLogic } from "@/src/logics/Interfaces/logics/IPredefinedRoleLogic";
 import type { IPullRequestLogic } from "@/src/logics/Interfaces/logics/IPullRequestLogic";
 import type { IReminderLogic } from "@/src/logics/Interfaces/logics/IReminderLogic";
@@ -94,6 +102,8 @@ import type { ICandyItemRepository } from "@/src/logics/Interfaces/repositories/
 import type { ICandyNotificationChannelRepository } from "@/src/logics/Interfaces/repositories/database/ICandyNotificationChannelRepository";
 import type { ICandyRepository } from "@/src/logics/Interfaces/repositories/database/ICandyRepository";
 import type { IChannelRepository } from "@/src/logics/Interfaces/repositories/database/IChannelRepository";
+import type { ICustomRoleCommandRepository } from "@/src/logics/Interfaces/repositories/database/ICustomRoleCommandRepository";
+import type { ICustomRoleRepository } from "@/src/logics/Interfaces/repositories/database/ICustomRoleRepository";
 import type { ICommunityRepository } from "@/src/logics/Interfaces/repositories/database/ICommunityRepository";
 import type { IContextRepository } from "@/src/logics/Interfaces/repositories/database/IContextRepository";
 import type { ICrownNotificationChannelRepository } from "@/src/logics/Interfaces/repositories/database/ICrownNotificationChannelRepository";
@@ -106,6 +116,7 @@ import type { IPersonalityRepository } from "@/src/logics/Interfaces/repositorie
 import type { IPredefinedRoleCommandRepository } from "@/src/logics/Interfaces/repositories/database/IPredefinedRoleCommandRepository";
 import type { IPredefinedRoleRepository } from "@/src/logics/Interfaces/repositories/database/IPredefinedRoleRepository";
 import type { IReminderRepository } from "@/src/logics/Interfaces/repositories/database/IReminderRepository";
+import type { IRoleCustomRoleRepository } from "@/src/logics/Interfaces/repositories/database/IRoleCustomRoleRepository";
 import type { IRolePredefinedRoleRepository } from "@/src/logics/Interfaces/repositories/database/IRolePredefinedRoleRepository";
 import type { IRoleRepository } from "@/src/logics/Interfaces/repositories/database/IRoleRepository";
 import type { IRoomAddChannelRepository } from "@/src/logics/Interfaces/repositories/database/IRoomAddChannelRepository";
@@ -165,8 +176,11 @@ import {
 } from "@/src/repositories/sequelize-mysql";
 import { CandyNotificationChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/CandyNotificationChannelRepositoryImpl";
 import { CrownNotificationChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/CrownNotificationChannelRepositoryImpl";
+import { CustomRoleCommandImpl } from "@/src/repositories/sequelize-mysql/CustomRoleCommandImpl";
+import { CustomRoleImpl } from "@/src/repositories/sequelize-mysql/CustomRoleImpl";
 import { MysqlConnector } from "@/src/repositories/sequelize-mysql/MysqlConnector";
 import { PredefinedRoleCommandImpl } from "@/src/repositories/sequelize-mysql/PredefinedRoleCommandImpl";
+import { RoleCustomRoleImpl } from "@/src/repositories/sequelize-mysql/RoleCustomRoleImpl";
 import { RolePredefinedRoleImpl } from "@/src/repositories/sequelize-mysql/RolePredefinedRoleImpl";
 import { RoleRepositoryImpl } from "@/src/repositories/sequelize-mysql/RoleRepositoryImpl";
 import { SequelizeTransaction } from "@/src/repositories/sequelize-mysql/SequelizeTransaction";
@@ -221,6 +235,9 @@ appContainer.bind<IChannelRepository>(RepoTypes.ChannelRepository).to(ChannelRep
 appContainer.bind<IRoleRepository>(RepoTypes.RoleRepository).to(RoleRepositoryImpl);
 appContainer.bind<IRolePredefinedRoleRepository>(RepoTypes.RolePredefinedRoleRepository).to(RolePredefinedRoleImpl);
 appContainer.bind<IPredefinedRoleCommandRepository>(RepoTypes.PredefinedRoleCommandRepository).to(PredefinedRoleCommandImpl);
+appContainer.bind<ICustomRoleRepository>(RepoTypes.CustomRoleRepository).to(CustomRoleImpl);
+appContainer.bind<IRoleCustomRoleRepository>(RepoTypes.RoleCustomRoleRepository).to(RoleCustomRoleImpl);
+appContainer.bind<ICustomRoleCommandRepository>(RepoTypes.CustomRoleCommandRepository).to(CustomRoleCommandImpl);
 appContainer.bind<IMessageRepository>(RepoTypes.MessageRepository).to(MessageRepositoryImpl);
 appContainer.bind<IDataDeletionCircular>(RepoTypes.DataDeletionCircular).to(DataDeletionCircularImpl);
 // ChatGPT
@@ -257,6 +274,7 @@ appContainer.bind<IUserLogic>(LogicTypes.UserLogic).to(UserLogic);
 appContainer.bind<IChannelLogic>(LogicTypes.ChannelLogic).to(ChannelLogic);
 appContainer.bind<IRoleLogic>(LogicTypes.RoleLogic).to(RoleLogic);
 appContainer.bind<IPredefinedRoleLogic>(LogicTypes.PredefinedRoleLogic).to(PredefinedRoleLogic);
+appContainer.bind<ICustomRoleLogic>(LogicTypes.CustomRoleLogic).to(CustomRoleLogic);
 appContainer.bind<IMessageLogic>(LogicTypes.MessageLogic).to(MessageLogic);
 
 // Handlers
@@ -310,6 +328,12 @@ appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(Crow
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(CrownNotificationChannelDeleteCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(RoleBindedByPredefinedRoleCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(RoleReleasedByPredefinedRoleCommandHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(CustomRoleBindedByCommandHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(CustomRoleReleasedByCommandHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(CustomRoleCreateHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(CustomRoleDeleteHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(RoleBindedByCustomRoleHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(RoleReleasedByCustomRoleHandler);
 
 // Routes
 appContainer.bind<DiscordEventRouter>(RouteTypes.SlashCommandRoute).to(SlashCommandRouter);
