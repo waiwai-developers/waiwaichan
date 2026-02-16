@@ -10,10 +10,13 @@ import { CommandImpl } from "@/src/repositories/sequelize-mysql/CommandImpl";
 import { CommunityRepositoryImpl } from "@/src/repositories/sequelize-mysql/CommunityRepositoryImpl";
 import { CrownNotificationChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/CrownNotificationChannelRepositoryImpl";
 import { CrownRepositoryImpl } from "@/src/repositories/sequelize-mysql/CrownRepositoryImpl";
+import { CustomRoleCommandImpl } from "@/src/repositories/sequelize-mysql/CustomRoleCommandImpl";
+import { CustomRoleImpl } from "@/src/repositories/sequelize-mysql/CustomRoleImpl";
 import { MessageRepositoryImpl } from "@/src/repositories/sequelize-mysql/MessageRepositoryImpl";
 import { PredefinedRoleCommandImpl } from "@/src/repositories/sequelize-mysql/PredefinedRoleCommandImpl";
 import { PredefinedRoleImpl } from "@/src/repositories/sequelize-mysql/PredefinedRoleImpl";
 import { ReminderSchedulerRepositoryImpl } from "@/src/repositories/sequelize-mysql/ReminderSchedulerRepositoryImpl";
+import { RoleCustomRoleImpl } from "@/src/repositories/sequelize-mysql/RoleCustomRoleImpl";
 import { RolePredefinedRoleImpl } from "@/src/repositories/sequelize-mysql/RolePredefinedRoleImpl";
 import { RoleRepositoryImpl } from "@/src/repositories/sequelize-mysql/RoleRepositoryImpl";
 import { RoomAddChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/RoomAddChannelRepositoryImpl";
@@ -43,7 +46,10 @@ export class MysqlSchedulerConnector
 		MessageRepositoryImpl,
 		PredefinedRoleImpl,
 		PredefinedRoleCommandImpl,
+		CustomRoleImpl,
+		CustomRoleCommandImpl,
 		RoleRepositoryImpl,
+		RoleCustomRoleImpl,
 		RolePredefinedRoleImpl,
 		// userId関連データ削除用
 		CandyRepositoryImpl,
