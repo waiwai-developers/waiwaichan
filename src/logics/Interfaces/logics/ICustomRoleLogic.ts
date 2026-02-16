@@ -10,7 +10,10 @@ import type { RoleId } from "@/src/entities/vo/RoleId";
 export interface ICustomRoleLogic {
 	createCustomRole(name: CustomRoleName): Promise<string>;
 	deleteCustomRole(id: CustomRoleId): Promise<string>;
-	bindRoleToCustomRole(roleId: RoleId, customRoleId: CustomRoleId): Promise<string>;
+	bindRoleToCustomRole(
+		roleId: RoleId,
+		customRoleId: CustomRoleId,
+	): Promise<string>;
 	releaseRoleFromCustomRole(roleId: RoleId): Promise<string>;
 	updateCommandPermission(
 		customRoleId: CustomRoleId,

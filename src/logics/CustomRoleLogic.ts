@@ -33,8 +33,7 @@ export class CustomRoleLogic implements ICustomRoleLogic {
 
 	async createCustomRole(name: CustomRoleName): Promise<string> {
 		// Check if custom role with same name already exists
-		const existingCustomRole =
-			await this.customRoleRepository.findByName(name);
+		const existingCustomRole = await this.customRoleRepository.findByName(name);
 
 		if (existingCustomRole) {
 			return "同じ名前のカスタムロールが既に存在するよ！っ";

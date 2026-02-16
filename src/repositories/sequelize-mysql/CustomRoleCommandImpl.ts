@@ -21,7 +21,10 @@ import {
 	timestamps: true,
 	paranoid: true,
 })
-class CustomRoleCommandImpl extends Model implements ICustomRoleCommandRepository {
+class CustomRoleCommandImpl
+	extends Model
+	implements ICustomRoleCommandRepository
+{
 	@PrimaryKey
 	@AutoIncrement
 	@Column(DataType.INTEGER)

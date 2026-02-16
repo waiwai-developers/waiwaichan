@@ -9,9 +9,7 @@ import type { CacheType, ChatInputCommandInteraction } from "discord.js";
 import { inject, injectable } from "inversify";
 
 @injectable()
-export class CustomRoleReleasedByCommandHandler
-	implements SlashCommandHandler
-{
+export class CustomRoleReleasedByCommandHandler implements SlashCommandHandler {
 	@inject(LogicTypes.CustomRoleLogic)
 	private customRoleLogic!: ICustomRoleLogic;
 

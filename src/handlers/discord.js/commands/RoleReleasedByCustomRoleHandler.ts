@@ -56,8 +56,7 @@ export class RoleReleasedByCustomRoleHandler implements SlashCommandHandler {
 			return;
 		}
 
-		const result =
-			await this.customRoleLogic.releaseRoleFromCustomRole(roleId);
+		const result = await this.customRoleLogic.releaseRoleFromCustomRole(roleId);
 
 		await interaction.reply(result);
 	}
