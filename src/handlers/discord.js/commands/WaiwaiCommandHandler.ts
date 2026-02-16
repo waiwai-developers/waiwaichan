@@ -8,6 +8,7 @@ import { inject, injectable } from "inversify";
 export class WaiwaiCommandHandler implements SlashCommandHandler {
 	@inject(LogicTypes.UtilityLogic)
 	private utilLogic!: IUtilityLogic;
+
 	isHandle(commandName: string): boolean {
 		return commandName === "waiwai";
 	}

@@ -1,4 +1,3 @@
-import { RoleConfig } from "@/src/entities/config/RoleConfig";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
 import { ChannelDto } from "@/src/entities/dto/ChannelDto";
 import { CommunityDto } from "@/src/entities/dto/CommunityDto";
@@ -41,14 +40,6 @@ export class RoomNotificationChannelCreateCommandHandler
 			return;
 		}
 		if (interaction.channel == null) {
-			return;
-		}
-		// NOTE: todo CommunityとUserの追加を行ったあとにrbacを実現する
-		if (
-			RoleConfig.users.find((u) => u.discordId === interaction.user.id)
-				?.role !== "admin"
-		) {
-			interaction.reply("部屋通知チャンネルを登録する権限を持っていないよ！っ");
 			return;
 		}
 

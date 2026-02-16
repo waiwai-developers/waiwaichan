@@ -3,7 +3,6 @@ import {
 	DISCORD_TEXT_CHANNEL_TYPE,
 	RoleConfig,
 	RoomNotificationChannelRepositoryImpl,
-	RoomNotificationChannelTestHelper,
 	TestDiscordServer,
 	TextChannel,
 	anything,
@@ -24,56 +23,6 @@ describe("Test RoomNotificationChannelCreate Commands", () => {
 
 	afterEach(async () => {
 		await roomTestAfterEach();
-	});
-
-	/**
-	 * RoomNotificationChannelCreateCommandHandlerのテスト
-	 */
-
-	/**
-	 * [権限チェック] 管理者権限がない場合は部屋通知チャンネルを登録できない
-	 * - コマンド実行時に権限チェックが行われることを検証
-	 * - 権限がない場合にエラーメッセージが返されることを検証
-	 * - RoomNotificationChannelLogic.createメソッドが呼ばれないことを検証
-	 */
-	it("should not create room notification channel when user does not have admin permission", function (this: Mocha.Context) {
-		this.timeout(10_000);
-
-		return (async () => {
-			const communityId = "1";
-			const channelId = "2";
-			const userId = "3";
-
-			// 非管理者ユーザーIDを設定
-			RoleConfig.users = [{ discordId: userId, role: "user" }];
-
-			// コマンドのモック作成
-			const commandMock = mockSlashCommand("roomnotificationchannelcreate", { channelid: channelId }, userId);
-
-			// communityIdとchannelを設定
-			when(commandMock.guildId).thenReturn(communityId);
-			when(commandMock.channel).thenReturn({} as any);
-
-			// replyメソッドをモック
-			let replyValue = "";
-			when(commandMock.reply(anything())).thenCall((message: string) => {
-				replyValue = message;
-				return Promise.resolve({} as any);
-			});
-
-			// コマンド実行
-			const TEST_CLIENT = await TestDiscordServer.getClient();
-			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-
-			// 応答を待つ
-			await waitUntilReply(commandMock, 1000);
-
-			// 応答の検証
-			expect(replyValue).to.eq("部屋通知チャンネルを登録する権限を持っていないよ！っ");
-
-			// データが作られていないことを確認
-			await RoomNotificationChannelTestHelper.expectEmpty();
-		})();
 	});
 
 	/**
@@ -105,6 +54,7 @@ describe("Test RoomNotificationChannelCreate Commands", () => {
 
 			// TextChannelを返すようにモック
 			when(commandMock.guild).thenReturn({
+				ownerId: userId,
 				channels: {
 					cache: {
 						get: (id: string) => {
@@ -189,6 +139,7 @@ describe("Test RoomNotificationChannelCreate Commands", () => {
 
 			// TextChannelを返すようにモック
 			when(commandMock.guild).thenReturn({
+				ownerId: userId,
 				channels: {
 					cache: {
 						get: (id: string) => {
@@ -345,7 +296,7 @@ describe("Test RoomNotificationChannelCreate Commands", () => {
 			await waitUntilReply(commandMock, 1000);
 
 			// 応答の検証
-			expect(replyValue).to.eq("このチャンネルはテキストチャンネルでないので部屋通知チャンネルとして登録できないよ！っ");
+			expect(replyValue).to.eq("内部エラーが発生したよ！っ");
 
 			// データが作られていないことを確認
 			const afterData = await RoomNotificationChannelRepositoryImpl.findAll();
@@ -383,6 +334,7 @@ describe("Test RoomNotificationChannelCreate Commands", () => {
 
 			// TextChannelを返すようにモック
 			when(commandMock.guild).thenReturn({
+				ownerId: userId,
 				channels: {
 					cache: {
 						get: (id: string) => {

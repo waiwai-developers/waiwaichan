@@ -18,6 +18,7 @@ export const RepoTypes = {
 	CommunityRepository: Symbol.for("CommunityRepository"),
 	UserRepository: Symbol.for("UserRepository"),
 	ChannelRepository: Symbol.for("ChannelRepository"),
+	RoleRepository: Symbol.for("RoleRepository"),
 	MessageRepository: Symbol.for("MessageRepository"),
 	DataDeletionCircular: Symbol.for("DataDeletionCircular"),
 	RoomAddChannelRepository: Symbol.for("RoomAddChannelRepository"),
@@ -32,6 +33,11 @@ export const RepoTypes = {
 	),
 	RoomChannelRepository: Symbol.for("RoomChannelRepository"),
 	RoomCategoryChannelRepository: Symbol.for("RoomCategoryChannelRepository"),
+	RolePredefinedRoleRepository: Symbol.for("RolePredefinedRoleRepository"),
+	PredefinedRoleRepository: Symbol.for("PredefinedRoleRepository"),
+	PredefinedRoleCommandRepository: Symbol.for(
+		"PredefinedRoleCommandRepository",
+	),
 	SequelizeModels: Symbol.for("SequelizeModels"),
 	Logger: Symbol.for("Logger"),
 };
@@ -51,6 +57,7 @@ export const LogicTypes = {
 	CommunityLogic: Symbol.for("CommunityLogic"),
 	UserLogic: Symbol.for("UserLogic"),
 	ChannelLogic: Symbol.for("ChannelLogic"),
+	RoleLogic: Symbol.for("RoleLogic"),
 	MessageLogic: Symbol.for("MessageLogic"),
 	CrownLogic: Symbol.for("CrownLogic"),
 	dataDeletionCircularLogic: Symbol.for("dataDeletionCircularLogic"),
@@ -60,6 +67,7 @@ export const LogicTypes = {
 	CrownNotificationChannelLogic: Symbol.for("CrownNotificationChannelLogic"),
 	RoomChannelLogic: Symbol.for("RoomChannelLogic"),
 	RoomCategoryChannelLogic: Symbol.for("RoomCategoryChannelLogic"),
+	PredefinedRoleLogic: Symbol.for("PredefinedRoleLogic"),
 };
 
 export const RouteTypes = {
@@ -74,6 +82,8 @@ export const RouteTypes = {
 	MessageDeleteRoute: Symbol.for("MessageDeleteRoute"),
 	ChannelCreateRoute: Symbol.for("ChannelCreateRoute"),
 	ChannelDeleteRoute: Symbol.for("ChannelDeleteRoute"),
+	RoleCreateRoute: Symbol.for("RoleCreateRoute"),
+	RoleDeleteRoute: Symbol.for("RoleDeleteRoute"),
 	VoiceChannelEventRoute: Symbol.for("VoiceChannelEventRoute"),
 };
 
@@ -83,6 +93,7 @@ export const SchedulerRepoTypes = {
 
 export const HandlerTypes = {
 	SlashCommandHandler: Symbol.for("SlashCommandHandler"),
+	CommandPermissionChecker: Symbol.for("CommandPermissionChecker"),
 	ReactionHandler: Symbol.for("ReactionHandler"),
 	MessageHandler: Symbol.for("MessageHandler"),
 	BotAddHandler: Symbol.for("BotAddHandler"),
@@ -92,5 +103,7 @@ export const HandlerTypes = {
 	MessageDeleteHandler: Symbol.for("MessageDeleteHandler"),
 	ChannelCreateHandler: Symbol.for("ChannelCreateHandler"),
 	ChannelDeleteHandler: Symbol.for("ChannelDeleteHandler"),
+	RoleCreateHandler: Symbol.for("RoleCreateHandler"),
+	RoleDeleteHandler: Symbol.for("RoleDeleteHandler"),
 	VoiceChannelEventHandler: Symbol.for("VoiceChannelEventHandler"),
 };

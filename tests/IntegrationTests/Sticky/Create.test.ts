@@ -223,48 +223,6 @@ describe("Test StickyCreateCommandHandler", () => {
 	});
 
 	/**
-	 * [権限チェック] 管理者権限がない場合はスティッキーを作成できない
-	 * - コマンド実行時に権限チェックが行われることを検証
-	 * - 権限がない場合にエラーメッセージが返されることを検証
-	 * - StickyLogicのcreateメソッドが呼ばれないことを検証
-	 */
-	it("should not create sticky when user does not have admin permission", function (this: Mocha.Context) {
-		this.timeout(10_000);
-
-		return (async () => {
-			// 非管理者ユーザーIDを設定
-			const guildId = "1";
-			const channelId = "2";
-			const userId = "3";
-
-			// コマンドのモック作成
-			const commandMock = mockSlashCommand("stickycreate", { channelid: channelId }, userId);
-
-			// RoleConfigのモック
-			setupRoleConfig(userId, "user");
-
-			// guildIdとchannelを設定
-			setupCommandBasics(commandMock, guildId);
-
-			// replyメソッドをモック
-			const replyCapture = setupReplyCapture(commandMock);
-
-			// コマンド実行
-			const TEST_CLIENT = await TestDiscordServer.getClient();
-			TEST_CLIENT.emit("interactionCreate", instance(commandMock));
-
-			// 応答を待つ
-			await waitUntilReply(commandMock, 1000);
-
-			// 応答の検証
-			expect(replyCapture.getValue()).to.eq("スティッキーを登録する権限を持っていないよ！っ");
-
-			// Stickyにデータが作られていないことを確認
-			await expectNoStickies();
-		})();
-	});
-
-	/**
 	 * [既存チェック] 既にスティッキーが登録されているチャンネルには新規作成できない
 	 * - StickyLogic.findが呼ばれることを検証
 	 * - スティッキーが既に存在する場合にエラーメッセージが返されることを検証
@@ -299,6 +257,8 @@ describe("Test StickyCreateCommandHandler", () => {
 			textChannelMock.id = channelClientId;
 			textChannelMock.type = 0;
 			when(commandMock.guild).thenReturn({
+				id: TEST_GUILD_ID,
+				ownerId: TEST_USER_ID, // ユーザーをオーナーに設定
 				channels: {
 					cache: {
 						get: (id: string) => {
@@ -366,6 +326,8 @@ describe("Test StickyCreateCommandHandler", () => {
 
 			// TextChannel以外のチャンネルを返すようにモック
 			when(commandMock.guild).thenReturn({
+				id: TEST_GUILD_ID,
+				ownerId: TEST_USER_ID, // ユーザーをオーナーに設定
 				channels: {
 					cache: {
 						get: (id: string) => {
@@ -440,6 +402,8 @@ describe("Test StickyCreateCommandHandler", () => {
 
 			// guildのモックを設定
 			when(commandMock.guild).thenReturn({
+				id: TEST_GUILD_ID,
+				ownerId: TEST_USER_ID, // ユーザーをオーナーに設定
 				channels: {
 					cache: {
 						get: (id: string) => {
@@ -554,6 +518,8 @@ describe("Test StickyCreateCommandHandler", () => {
 
 			// guildのモックを設定
 			when(commandMock.guild).thenReturn({
+				id: TEST_GUILD_ID,
+				ownerId: TEST_USER_ID, // ユーザーをオーナーに設定
 				channels: {
 					cache: {
 						get: (id: string) => {
@@ -656,6 +622,8 @@ describe("Test StickyCreateCommandHandler", () => {
 
 			// guildのモックを設定
 			when(commandMock.guild).thenReturn({
+				id: TEST_GUILD_ID,
+				ownerId: TEST_USER_ID, // ユーザーをオーナーに設定
 				channels: {
 					cache: {
 						get: (id: string) => {

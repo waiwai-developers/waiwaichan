@@ -2,6 +2,7 @@ import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
 import { ChannelDto } from "@/src/entities/dto/ChannelDto";
 import { CommunityDto } from "@/src/entities/dto/CommunityDto";
+import { RoleDto } from "@/src/entities/dto/RoleDto";
 import { UserDto } from "@/src/entities/dto/UserDto";
 import { ChannelCategoryType } from "@/src/entities/vo/ChannelCategoryType";
 import { ChannelClientId } from "@/src/entities/vo/ChannelClientId";
@@ -9,6 +10,9 @@ import { ChannelCommunityId } from "@/src/entities/vo/ChannelCommunityId";
 import { ChannelType } from "@/src/entities/vo/ChannelType";
 import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
 import { CommunityClientId } from "@/src/entities/vo/CommunityClientId";
+import { RoleCategoryType } from "@/src/entities/vo/RoleCategoryType";
+import { RoleClientId } from "@/src/entities/vo/RoleClientId";
+import { RoleCommunityId } from "@/src/entities/vo/RoleCommunityId";
 import { UserCategoryType } from "@/src/entities/vo/UserCategoryType";
 import { UserClientId } from "@/src/entities/vo/UserClientId";
 import { UserCommunityId } from "@/src/entities/vo/UserCommunityId";
@@ -16,6 +20,7 @@ import { UserType } from "@/src/entities/vo/UserType";
 import type { DiscordEventHandler } from "@/src/handlers/discord.js/events/DiscordEventHandler";
 import type { IChannelLogic } from "@/src/logics/Interfaces/logics/IChannelLogic";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
+import type { IRoleLogic } from "@/src/logics/Interfaces/logics/IRoleLogic";
 import type { IUserLogic } from "@/src/logics/Interfaces/logics/IUserLogic";
 import type { ILogger } from "@/src/logics/Interfaces/repositories/logger/ILogger";
 import { ChannelType as DiscordChannelType, type Guild } from "discord.js";
@@ -73,6 +78,9 @@ export class BotAddHandler implements DiscordEventHandler<Guild> {
 	@inject(LogicTypes.ChannelLogic)
 	private readonly ChannelLogic!: IChannelLogic;
 
+	@inject(LogicTypes.RoleLogic)
+	private readonly RoleLogic!: IRoleLogic;
+
 	async handle(guild: Guild): Promise<void> {
 		try {
 			this.logger.info(
@@ -105,10 +113,10 @@ export class BotAddHandler implements DiscordEventHandler<Guild> {
 			const channelDtos = channels
 				.filter((c) => c !== null)
 				.map((c) => {
-					const channelType = getChannelType(c?.type);
+					const channelType = getChannelType(c.type);
 					return new ChannelDto(
 						ChannelCategoryType.Discord,
-						new ChannelClientId(BigInt(c?.id)),
+						new ChannelClientId(BigInt(c.id)),
 						channelType,
 						new ChannelCommunityId(communityId.getValue()),
 					);
@@ -116,6 +124,21 @@ export class BotAddHandler implements DiscordEventHandler<Guild> {
 
 			if (channelDtos.length > 0) {
 				await this.ChannelLogic.bulkCreate(channelDtos);
+			}
+
+			const roles = await guild.roles.fetch();
+			const roleDtos = roles
+				.filter((r) => r !== null)
+				.map((r) => {
+					return new RoleDto(
+						RoleCategoryType.Discord,
+						new RoleClientId(BigInt(r.id)),
+						new RoleCommunityId(communityId.getValue()),
+					);
+				});
+
+			if (roleDtos.length > 0) {
+				await this.RoleLogic.bulkCreate(roleDtos);
 			}
 		} catch (error) {
 			this.logger.error(`BotAddHandler error: ${error}`);

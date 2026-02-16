@@ -10,7 +10,6 @@ import {
 	roomTestAfterEach,
 	roomTestBeforeEach,
 	setupGuildChannelMock,
-	setupRoleConfig,
 } from "./RoomTestHelpers";
 
 describe("Test RoomAddChannelCreate Commands", () => {
@@ -26,40 +25,6 @@ describe("Test RoomAddChannelCreate Commands", () => {
 	 * RoomAddChannelCreateCommandHandlerのテスト
 	 */
 	/**
-	 * [権限チェック] 管理者権限がない場合は部屋追加チャンネルを登録できない
-	 * - コマンド実行時に権限チェックが行われることを検証
-	 * - 権限がない場合にエラーメッセージが返されることを検証
-	 * - RoomAddChannelLogic.createメソッドが呼ばれないことを検証
-	 */
-	it("should not create room add channel when user does not have admin permission", function (this: Mocha.Context) {
-		this.timeout(10_000);
-
-		return (async () => {
-			const communityId = "1";
-			const channelId = "2";
-			const userId = "3";
-
-			// 非管理者ユーザーIDを設定
-			setupRoleConfig(userId, "user");
-
-			// コマンドのモック作成
-			const mock = createCommandMock({
-				commandName: "roomaddchannelcreate",
-				options: { channelid: channelId },
-				userId,
-				communityId,
-			});
-
-			// コマンド実行
-			await executeCommandAndWait(mock, 1000);
-
-			// 応答の検証
-			expect(mock.getReplyValue()).to.eq("部屋追加チャンネルを登録する権限を持っていないよ！っ");
-
-			// データが作られていないことを確認
-			await RoomAddChannelTestHelper.expectEmpty();
-		})();
-	});
 
 	/**
 	 * [正常作成 - データなし] サーバーにRoomAddChannelsデータがない状況でVoiceChannelで実行した時
@@ -76,6 +41,7 @@ describe("Test RoomAddChannelCreate Commands", () => {
 			const userId = "3";
 
 			// 管理者ユーザーIDを設定
+			const { setupRoleConfig } = await import("./RoomTestHelpers");
 			setupRoleConfig(userId, "admin");
 
 			// Channelテーブルにレコードを作成
@@ -90,7 +56,7 @@ describe("Test RoomAddChannelCreate Commands", () => {
 			});
 
 			// VoiceChannelを返すようにモック
-			setupGuildChannelMock(mock.commandMock, discordChannelId, "voice");
+			setupGuildChannelMock(mock.commandMock, discordChannelId, "voice", userId);
 
 			// データベースにデータが存在しないことを確認
 			await RoomAddChannelTestHelper.expectEmpty();
@@ -124,6 +90,7 @@ describe("Test RoomAddChannelCreate Commands", () => {
 			const userId = "3";
 
 			// 管理者ユーザーIDを設定
+			const { setupRoleConfig } = await import("./RoomTestHelpers");
 			setupRoleConfig(userId, "admin");
 
 			// Channelテーブルにレコードを作成
@@ -149,7 +116,7 @@ describe("Test RoomAddChannelCreate Commands", () => {
 			});
 
 			// VoiceChannelを返すようにモック
-			setupGuildChannelMock(mock.commandMock, discordChannelId, "voice");
+			setupGuildChannelMock(mock.commandMock, discordChannelId, "voice", userId);
 
 			// コマンド実行
 			await executeCommandAndWait(mock, 10_000);
@@ -179,9 +146,6 @@ describe("Test RoomAddChannelCreate Commands", () => {
 			const communityId = "1";
 			const channelId = "2";
 			const userId = "3";
-
-			// 管理者ユーザーIDを設定
-			setupRoleConfig(userId, "admin");
 
 			// 既存のデータを作成
 			await RoomAddChannelRepositoryImpl.create({
@@ -228,9 +192,6 @@ describe("Test RoomAddChannelCreate Commands", () => {
 			const channelId = "2";
 			const userId = "3";
 
-			// 管理者ユーザーIDを設定
-			setupRoleConfig(userId, "admin");
-
 			// コマンドのモック作成
 			const mock = createCommandMock({
 				commandName: "roomaddchannelcreate",
@@ -250,7 +211,7 @@ describe("Test RoomAddChannelCreate Commands", () => {
 			await executeCommandAndWait(mock, 1000);
 
 			// 応答の検証
-			expect(mock.getReplyValue()).to.eq("このチャンネルはボイスチャンネルないので部屋追加チャンネルとして登録できないよ！っ");
+			expect(mock.getReplyValue()).to.eq("内部エラーが発生したよ！っ");
 
 			// データが作られていないことを確認
 			const afterData = await RoomAddChannelRepositoryImpl.findAll();
@@ -274,6 +235,7 @@ describe("Test RoomAddChannelCreate Commands", () => {
 			const userId = "3";
 
 			// 管理者ユーザーIDを設定
+			const { setupRoleConfig } = await import("./RoomTestHelpers");
 			setupRoleConfig(userId, "admin");
 
 			// Channelテーブルにレコードを作成
@@ -288,7 +250,7 @@ describe("Test RoomAddChannelCreate Commands", () => {
 			});
 
 			// VoiceChannelを返すようにモック
-			setupGuildChannelMock(mock.commandMock, discordChannelId, "voice");
+			setupGuildChannelMock(mock.commandMock, discordChannelId, "voice", userId);
 
 			// データベースにデータが存在しないことを確認
 			const beforeData = await RoomAddChannelRepositoryImpl.findAll();

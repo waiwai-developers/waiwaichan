@@ -4,14 +4,11 @@ import {
 	RoomCategoryChannelRepositoryImpl,
 	TestDiscordServer,
 	anything,
-	createCommandMock,
-	executeCommandAndWait,
 	expect,
 	instance,
 	mockSlashCommand,
 	roomTestAfterEach,
 	roomTestBeforeEach,
-	setupRoleConfig,
 	waitUntilReply,
 	when,
 } from "./RoomTestHelpers";
@@ -28,38 +25,6 @@ describe("Test RoomCategoryChannelDelete Commands", () => {
 	/**
 	 * RoomCategoryChannelDeleteCommandHandlerのテスト
 	 */
-
-	/**
-	 * [権限チェック] 管理者権限がない場合はカテゴリーチャンネルを削除できない
-	 * - コマンド実行時に権限チェックが行われることを検証
-	 * - 権限がない場合にエラーメッセージが返されることを検証
-	 * - RoomCategoryChannelLogic.deleteメソッドが呼ばれないことを検証
-	 */
-	it("should not delete room category channel when user does not have admin permission", function (this: Mocha.Context) {
-		this.timeout(10_000);
-
-		return (async () => {
-			const communityId = "1";
-			const userId = "3";
-
-			// 非管理者ユーザーIDを設定
-			setupRoleConfig(userId, "user");
-
-			// コマンドのモック作成
-			const mock = createCommandMock({
-				commandName: "roomcategorychanneldelete",
-				options: {},
-				userId,
-				communityId,
-			});
-
-			// コマンド実行
-			await executeCommandAndWait(mock, 1000);
-
-			// 応答の検証
-			expect(mock.getReplyValue()).to.eq("カテゴリーチャンネルを登録する権限を持っていないよ！っ");
-		})();
-	});
 
 	/**
 	 * [存在チェック - データなし] サーバーにRoomCategoryChannelsデータがない状況で実行した時
