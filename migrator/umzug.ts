@@ -21,6 +21,7 @@ import {
 import { Sequelize } from "sequelize-typescript";
 import { SequelizeStorage, Umzug } from "umzug";
 import type { MigrationParams } from "umzug/lib/types";
+import { DatafixRoleModel } from "./datafixies/models/DatafixRoleModel";
 import { DatafixStickyModel } from "./datafixies/models/DatafixStickyModel";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -159,6 +160,7 @@ export const datafixer = (
 				DatafixRoomChannelsModel,
 				DatafixRoomNotificationChannelsModel,
 				DatafixChannelModel,
+				DatafixRoleModel,
 			],
 		},
 	);
