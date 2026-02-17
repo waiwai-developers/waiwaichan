@@ -33,12 +33,11 @@ import { CandyNotificationChannelCreateCommandHandler } from "@/src/handlers/dis
 import { CandyNotificationChannelDeleteCommandHandler } from "@/src/handlers/discord.js/commands/CandyNotificationChannelDeleteCommandHandler";
 import { CrownNotificationChannelCreateCommandHandler } from "@/src/handlers/discord.js/commands/CrownNotificationChannelCreateCommandHandler";
 import { CrownNotificationChannelDeleteCommandHandler } from "@/src/handlers/discord.js/commands/CrownNotificationChannelDeleteCommandHandler";
-import { CustomRoleBindedByCommandHandler } from "@/src/handlers/discord.js/commands/CustomRoleBindedByCommandHandler";
+import { CustomRoleBindToggleByCommandHandler } from "@/src/handlers/discord.js/commands/CustomRoleBindToggleByCommandHandler";
 import { CustomRoleCreateHandler } from "@/src/handlers/discord.js/commands/CustomRoleCreateHandler";
 import { CustomRoleDeleteHandler } from "@/src/handlers/discord.js/commands/CustomRoleDeleteHandler";
-import { RoleBindedByCustomRoleHandler } from "@/src/handlers/discord.js/commands/RoleBindedByCustomRoleHandler";
+import { RoleBindToggleByCustomRoleHandler } from "@/src/handlers/discord.js/commands/RoleBindToggleByCustomRoleHandler";
 import { RoleBindedByPredefinedRoleCommandHandler } from "@/src/handlers/discord.js/commands/RoleBindedByPredefinedRoleCommandHandler";
-import { RoleReleasedByCustomRoleHandler } from "@/src/handlers/discord.js/commands/RoleReleasedByCustomRoleHandler";
 import { RoleReleasedByPredefinedRoleCommandHandler } from "@/src/handlers/discord.js/commands/RoleReleasedByPredefinedRoleCommandHandler";
 import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/SlashCommandHandler";
 import { AIReplyHandler } from "@/src/handlers/discord.js/events/AIReplyHandler";
@@ -327,11 +326,10 @@ appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(Crow
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(CrownNotificationChannelDeleteCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(RoleBindedByPredefinedRoleCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(RoleReleasedByPredefinedRoleCommandHandler);
-appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(CustomRoleBindedByCommandHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(CustomRoleBindToggleByCommandHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(CustomRoleCreateHandler);
 appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(CustomRoleDeleteHandler);
-appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(RoleBindedByCustomRoleHandler);
-appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(RoleReleasedByCustomRoleHandler);
+appContainer.bind<SlashCommandHandler>(HandlerTypes.SlashCommandHandler).to(RoleBindToggleByCustomRoleHandler);
 
 // Routes
 appContainer.bind<DiscordEventRouter>(RouteTypes.SlashCommandRoute).to(SlashCommandRouter);
