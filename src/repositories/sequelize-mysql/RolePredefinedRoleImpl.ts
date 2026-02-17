@@ -41,20 +41,26 @@ class RolePredefinedRoleImpl
 		}).then((res) => !!res);
 	}
 
-	async deleteByRoleId(roleId: RoleId): Promise<boolean> {
+	async deleteByRoleId(
+		roleId: RoleId,
+		communityId: CommunityId,
+	): Promise<boolean> {
 		return RolePredefinedRoleImpl.destroy({
 			where: {
 				roleId: roleId.getValue(),
+				communityId: communityId.getValue(),
 			},
 		}).then((res) => !!res);
 	}
 
 	async findByRoleId(
 		roleId: RoleId,
+		communityId: CommunityId,
 	): Promise<RolePredefinedRoleDto | undefined> {
 		return RolePredefinedRoleImpl.findOne({
 			where: {
 				roleId: roleId.getValue(),
+				communityId: communityId.getValue(),
 			},
 		}).then((res) => (res ? res.toDto() : undefined));
 	}

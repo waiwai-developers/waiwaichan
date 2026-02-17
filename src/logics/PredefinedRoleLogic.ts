@@ -31,7 +31,10 @@ export class PredefinedRoleLogic implements IPredefinedRoleLogic {
 	): Promise<string> {
 		// Check if the role is already bound to a predefined role
 		const existingBinding =
-			await this.rolePredefinedRoleRepository.findByRoleId(roleId);
+			await this.rolePredefinedRoleRepository.findByRoleId(
+				roleId,
+				communityId,
+			);
 
 		if (existingBinding) {
 			return "このロールは既に事前定義ロールに紐づけられているよ！っ";
@@ -55,15 +58,20 @@ export class PredefinedRoleLogic implements IPredefinedRoleLogic {
 	): Promise<string> {
 		// Check if the role is bound to a predefined role
 		const existingBinding =
-			await this.rolePredefinedRoleRepository.findByRoleId(roleId);
+			await this.rolePredefinedRoleRepository.findByRoleId(
+				roleId,
+				communityId,
+			);
 
 		if (!existingBinding) {
 			return "このロールは事前定義ロールに紐づけられていないよ！っ";
 		}
 
 		// Delete the binding
-		const result =
-			await this.rolePredefinedRoleRepository.deleteByRoleId(roleId);
+		const result = await this.rolePredefinedRoleRepository.deleteByRoleId(
+			roleId,
+			communityId,
+		);
 
 		if (result) {
 			return "ロールの紐づけを解除したよ！っ";
@@ -103,7 +111,10 @@ export class PredefinedRoleLogic implements IPredefinedRoleLogic {
 		const predefinedRoleIds: PredefinedRoleId[] = [];
 		for (const roleId of roleIds) {
 			const rolePredefinedRole =
-				await this.rolePredefinedRoleRepository.findByRoleId(roleId);
+				await this.rolePredefinedRoleRepository.findByRoleId(
+					roleId,
+					communityId,
+				);
 			if (rolePredefinedRole) {
 				predefinedRoleIds.push(rolePredefinedRole.predefinedRoleId);
 			}
