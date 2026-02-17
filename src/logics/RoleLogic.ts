@@ -1,19 +1,25 @@
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import type { DeletedRoleTargetDto } from "@/src/entities/dto/DeletedRoleTargetDto";
+import type { RoleCustomRoleDto } from "@/src/entities/dto/RoleCustomRoleDto";
 import type { RoleDto } from "@/src/entities/dto/RoleDto";
+import type { CommunityId } from "@/src/entities/vo/CommunityId";
+import type { RoleClientId } from "@/src/entities/vo/RoleClientId";
+import type { RoleCommunityId } from "@/src/entities/vo/RoleCommunityId";
+import { RoleCustomRoleCommunityId } from "@/src/entities/vo/RoleCustomRoleCommunityId";
+import type { RoleId } from "@/src/entities/vo/RoleId";
 import type { IRoleLogic } from "@/src/logics/Interfaces/logics/IRoleLogic";
+import type { IRoleCustomRoleRepository } from "@/src/logics/Interfaces/repositories/database/IRoleCustomRoleRepository";
 import type { IRoleRepository } from "@/src/logics/Interfaces/repositories/database/IRoleRepository";
 import type { ITransaction } from "@/src/logics/Interfaces/repositories/database/ITransaction";
 import { inject, injectable } from "inversify";
-
-import type { RoleClientId } from "@/src/entities/vo/RoleClientId";
-import type { RoleCommunityId } from "@/src/entities/vo/RoleCommunityId";
-import type { RoleId } from "@/src/entities/vo/RoleId";
 
 @injectable()
 export class RoleLogic implements IRoleLogic {
 	@inject(RepoTypes.RoleRepository)
 	private readonly RoleRepository!: IRoleRepository;
+
+	@inject(RepoTypes.RoleCustomRoleRepository)
+	private readonly roleCustomRoleRepository!: IRoleCustomRoleRepository;
 
 	@inject(RepoTypes.Transaction)
 	private readonly transaction!: ITransaction;
@@ -107,6 +113,18 @@ export class RoleLogic implements IRoleLogic {
 	async updatebatchStatus(id: RoleId): Promise<boolean> {
 		return this.transaction.startTransaction(async () => {
 			return await this.RoleRepository.updatebatchStatus(id);
+		});
+	}
+
+	async getRoleCustomRoleByRoleId(
+		communityId: CommunityId,
+		roleId: RoleId,
+	): Promise<RoleCustomRoleDto | undefined> {
+		return this.transaction.startTransaction(async () => {
+			return await this.roleCustomRoleRepository.findByRoleId(
+				new RoleCustomRoleCommunityId(communityId.getValue()),
+				roleId,
+			);
 		});
 	}
 }
