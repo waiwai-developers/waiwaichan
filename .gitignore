@@ -3,7 +3,6 @@
 config/*.json
 !config/databasetest.json
 !config/configtest.json
-!config/roletest.json
 !config/accountstest.json
 config/*.pem
 node_modules/

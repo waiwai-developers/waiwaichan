@@ -21,7 +21,6 @@ jobs:
           cp config/accountstest.json config/accounts.json
           cp config/configtest.json config/config.json
           cp config/databasetest.json config/database.json
-          cp config/roletest.json config/role.json
       - name: docker compose up
         run: |
           docker compose \
