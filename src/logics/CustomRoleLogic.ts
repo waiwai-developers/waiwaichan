@@ -107,11 +107,10 @@ export class CustomRoleLogic implements ICustomRoleLogic {
 		}
 
 		// Check if the role is already bound to a custom role
-		const existingBinding =
-			await this.roleCustomRoleRepository.findByRoleId(
-				new RoleCustomRoleCommunityId(communityId.getValue()),
-				roleId,
-			);
+		const existingBinding = await this.roleCustomRoleRepository.findByRoleId(
+			new RoleCustomRoleCommunityId(communityId.getValue()),
+			roleId,
+		);
 
 		if (existingBinding) {
 			return "このロールは既にカスタムロールに紐づけられているよ！っ";
@@ -138,11 +137,10 @@ export class CustomRoleLogic implements ICustomRoleLogic {
 		roleId: RoleId,
 	): Promise<string> {
 		// Check if the role is bound to a custom role
-		const existingBinding =
-			await this.roleCustomRoleRepository.findByRoleId(
-				new RoleCustomRoleCommunityId(communityId.getValue()),
-				roleId,
-			);
+		const existingBinding = await this.roleCustomRoleRepository.findByRoleId(
+			new RoleCustomRoleCommunityId(communityId.getValue()),
+			roleId,
+		);
 
 		if (!existingBinding) {
 			return "このロールはカスタムロールに紐づけられていないよ！っ";
@@ -225,11 +223,10 @@ export class CustomRoleLogic implements ICustomRoleLogic {
 		// Get CustomRoleIds from RoleIds
 		const customRoleIds: CustomRoleId[] = [];
 		for (const roleId of roleIds) {
-			const roleCustomRole =
-				await this.roleCustomRoleRepository.findByRoleId(
-					new RoleCustomRoleCommunityId(communityId.getValue()),
-					roleId,
-				);
+			const roleCustomRole = await this.roleCustomRoleRepository.findByRoleId(
+				new RoleCustomRoleCommunityId(communityId.getValue()),
+				roleId,
+			);
 			if (roleCustomRole) {
 				customRoleIds.push(roleCustomRole.customRoleId);
 			}

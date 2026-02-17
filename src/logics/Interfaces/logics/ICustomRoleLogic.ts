@@ -14,10 +14,7 @@ export interface ICustomRoleLogic {
 		communityId: CommunityId,
 		name: CustomRoleName,
 	): Promise<string>;
-	deleteCustomRole(
-		communityId: CommunityId,
-		id: CustomRoleId,
-	): Promise<string>;
+	deleteCustomRole(communityId: CommunityId, id: CustomRoleId): Promise<string>;
 	bindRoleToCustomRole(
 		communityId: CommunityId,
 		roleId: RoleId,

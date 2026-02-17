@@ -50,11 +50,15 @@ export class CustomRoleBindedByCommandHandler implements SlashCommandHandler {
 
 		if (focusedOption.name === "customrolename") {
 			// Get all custom roles
-			const customRoles = await this.customRoleLogic.getAllCustomRoles(communityId);
+			const customRoles =
+				await this.customRoleLogic.getAllCustomRoles(communityId);
 
 			// Filter based on user input
 			const filtered = customRoles.filter((role) =>
-				role.name.getValue().toLowerCase().includes(focusedOption.value.toLowerCase()),
+				role.name
+					.getValue()
+					.toLowerCase()
+					.includes(focusedOption.value.toLowerCase()),
 			);
 
 			// Return up to 25 results (Discord limit)
@@ -103,7 +107,10 @@ export class CustomRoleBindedByCommandHandler implements SlashCommandHandler {
 		}
 
 		// Get custom role name from command options
-		const customRoleName = interaction.options.getString("customrolename", true);
+		const customRoleName = interaction.options.getString(
+			"customrolename",
+			true,
+		);
 
 		// Get command name from command options
 		const commandName = interaction.options.getString("commandname", true);
@@ -112,7 +119,8 @@ export class CustomRoleBindedByCommandHandler implements SlashCommandHandler {
 		const isAllow = interaction.options.getBoolean("isallow", true);
 
 		// Find custom role by name
-		const customRole = await this.customRoleLogic.getAllCustomRoles(communityId);
+		const customRole =
+			await this.customRoleLogic.getAllCustomRoles(communityId);
 		const targetCustomRole = customRole.find(
 			(role) => role.name.getValue() === customRoleName,
 		);
@@ -123,7 +131,9 @@ export class CustomRoleBindedByCommandHandler implements SlashCommandHandler {
 		}
 
 		// Find command by name
-		const command = CommandsConst.Commands.find((cmd) => cmd.name === commandName);
+		const command = CommandsConst.Commands.find(
+			(cmd) => cmd.name === commandName,
+		);
 
 		if (!command) {
 			await interaction.reply("コマンドが見つからなかったよ！っ");
