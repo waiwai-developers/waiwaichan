@@ -21,4 +21,8 @@ export interface ICustomRoleCommandRepository {
 		commandCategoryType: CommandCategoryType,
 		commandType: CommandType,
 	): Promise<boolean>;
+	findAllByCustomRoleId(
+		communityId: CustomRoleCommandCommunityId,
+		customRoleId: CustomRoleId,
+	): Promise<CustomRoleCommandDto[]>;
 }

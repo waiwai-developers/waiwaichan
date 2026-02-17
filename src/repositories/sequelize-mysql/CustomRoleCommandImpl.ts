@@ -116,6 +116,18 @@ class CustomRoleCommandImpl
 		return !!result;
 	}
 
+	async findAllByCustomRoleId(
+		communityId: CustomRoleCommandCommunityId,
+		customRoleId: CustomRoleId,
+	): Promise<CustomRoleCommandDto[]> {
+		return CustomRoleCommandImpl.findAll({
+			where: {
+				communityId: communityId.getValue(),
+				customRoleId: customRoleId.getValue(),
+			},
+		}).then((results) => results.map((res) => res.toDto()));
+	}
+
 	toDto(): CustomRoleCommandDto {
 		return new CustomRoleCommandDto(
 			new CustomRoleCommandCommunityId(this.communityId),
