@@ -303,9 +303,6 @@ export class DiscordCommandRegister {
 			new SlashCommandBuilder()
 				.setName("customrolebindedbycommand")
 				.setDescription("customrolebindedbycommand"),
-			new SlashCommandBuilder()
-				.setName("customrolereleasedbycommand")
-				.setDescription("customrolereleasedbycommand"),
 		];
 	}
 	async register(token: string) {
