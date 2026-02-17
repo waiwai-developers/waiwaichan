@@ -310,7 +310,6 @@ describe("Test StickyUpdateCommandHandler", () => {
 				message: message,
 			});
 
-
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("stickyupdate", { channelid: channelClientId }, TEST_USER_ID);
 
