@@ -7,6 +7,11 @@ import type { SlashCommandHandler } from "@/src/handlers/discord.js/commands/Sla
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
 import type { ICustomRoleLogic } from "@/src/logics/Interfaces/logics/ICustomRoleLogic";
 import type { CacheType, ChatInputCommandInteraction } from "discord.js";
+import {
+	ActionRowBuilder,
+	StringSelectMenuBuilder,
+	StringSelectMenuOptionBuilder,
+} from "discord.js";
 import { inject, injectable } from "inversify";
 
 @injectable()
@@ -40,14 +45,71 @@ export class CustomRoleDeleteHandler implements SlashCommandHandler {
 			return;
 		}
 
-		// Get custom role ID from command options
-		const customRoleId = interaction.options.getInteger("customroleid", true);
+		// Get all custom roles
+		const customRoles =
+			await this.customRoleLogic.getAllCustomRoles(communityId);
 
-		const result = await this.customRoleLogic.deleteCustomRole(
-			communityId,
-			new CustomRoleId(customRoleId),
+		if (customRoles.length === 0) {
+			await interaction.reply("カスタムロールが見つからなかったよ！っ");
+			return;
+		}
+
+		// Create select menu for custom roles (表示はname、値はid)
+		const customRoleSelect = new StringSelectMenuBuilder()
+			.setCustomId("customRoleSelect")
+			.setPlaceholder("削除するカスタムロールを選択してください")
+			.addOptions(
+				customRoles.map((role) =>
+					new StringSelectMenuOptionBuilder()
+						.setLabel(role.name.getValue())
+						.setValue(role.id.getValue().toString())
+						.setDescription(`ID: ${role.id.getValue()}`),
+				),
+			);
+
+		const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+			customRoleSelect,
 		);
 
-		await interaction.reply(result);
+		const response = await interaction.reply({
+			content: "削除するカスタムロールを選択してください：",
+			components: [row],
+			ephemeral: true,
+		});
+
+		// Wait for selection
+		const collectorFilter = (i: { user: { id: string } }) =>
+			i.user.id === interaction.user.id;
+
+		try {
+			const selectInteraction = await response.awaitMessageComponent({
+				filter: collectorFilter,
+				time: 60000,
+			});
+
+			if (!selectInteraction.isStringSelectMenu()) {
+				return;
+			}
+
+			const selectedCustomRoleId = new CustomRoleId(
+				Number.parseInt(selectInteraction.values[0]),
+			);
+
+			const result = await this.customRoleLogic.deleteCustomRole(
+				communityId,
+				selectedCustomRoleId,
+			);
+
+			await selectInteraction.update({
+				content: result,
+				components: [],
+			});
+		} catch (error) {
+			console.error(error);
+			await interaction.editReply({
+				content: "タイムアウトしたよ！っ",
+				components: [],
+			});
+		}
 	}
 }

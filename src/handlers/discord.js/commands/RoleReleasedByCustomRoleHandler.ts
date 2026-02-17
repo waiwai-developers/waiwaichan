@@ -9,6 +9,11 @@ import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityL
 import type { ICustomRoleLogic } from "@/src/logics/Interfaces/logics/ICustomRoleLogic";
 import type { IRoleLogic } from "@/src/logics/Interfaces/logics/IRoleLogic";
 import type { CacheType, ChatInputCommandInteraction } from "discord.js";
+import {
+	ActionRowBuilder,
+	StringSelectMenuBuilder,
+	StringSelectMenuOptionBuilder,
+} from "discord.js";
 import { inject, injectable } from "inversify";
 
 @injectable()
@@ -33,6 +38,10 @@ export class RoleReleasedByCustomRoleHandler implements SlashCommandHandler {
 			return;
 		}
 
+		if (!interaction.guild) {
+			return;
+		}
+
 		// Get community ID
 		const communityId = await this.communityLogic.getId(
 			new CommunityDto(
@@ -45,22 +54,83 @@ export class RoleReleasedByCustomRoleHandler implements SlashCommandHandler {
 			return;
 		}
 
-		const roleClientId = interaction.options.getString("roleid", true);
-		const roleId = await this.roleLogic.getIdByCommunityIdAndClientId(
-			new RoleCommunityId(communityId.getValue()),
-			new RoleClientId(BigInt(roleClientId)),
-		);
+		// Get guild roles
+		const guildRoles = Array.from(interaction.guild.roles.cache.values());
 
-		if (roleId == null) {
-			await interaction.reply("ロールが登録されていなかったよ！っ");
+		if (guildRoles.length === 0) {
+			await interaction.reply("Discordロールが見つからなかったよ！っ");
 			return;
 		}
 
-		const result = await this.customRoleLogic.releaseRoleFromCustomRole(
-			communityId,
-			roleId,
+		// Create select menu for Discord roles (表示はname、値はid)
+		const roleSelect = new StringSelectMenuBuilder()
+			.setCustomId("roleSelect")
+			.setPlaceholder("紐づけを解除するDiscordロールを選択してください")
+			.addOptions(
+				guildRoles
+					.slice(0, 25)
+					.map((role) =>
+						new StringSelectMenuOptionBuilder()
+							.setLabel(role.name)
+							.setValue(role.id)
+							.setDescription(`ID: ${role.id}`),
+					),
+			);
+
+		const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+			roleSelect,
 		);
 
-		await interaction.reply(result);
+		const response = await interaction.reply({
+			content:
+				"カスタムロールとの紐づけを解除するDiscordロールを選択してください：",
+			components: [row],
+			ephemeral: true,
+		});
+
+		// Wait for selection
+		const collectorFilter = (i: { user: { id: string } }) =>
+			i.user.id === interaction.user.id;
+
+		try {
+			const selectInteraction = await response.awaitMessageComponent({
+				filter: collectorFilter,
+				time: 60000,
+			});
+
+			if (!selectInteraction.isStringSelectMenu()) {
+				return;
+			}
+
+			const roleClientId = selectInteraction.values[0];
+			const roleId = await this.roleLogic.getIdByCommunityIdAndClientId(
+				new RoleCommunityId(communityId.getValue()),
+				new RoleClientId(BigInt(roleClientId)),
+			);
+
+			if (roleId == null) {
+				await selectInteraction.update({
+					content: "ロールが登録されていなかったよ！っ",
+					components: [],
+				});
+				return;
+			}
+
+			const result = await this.customRoleLogic.releaseRoleFromCustomRole(
+				communityId,
+				roleId,
+			);
+
+			await selectInteraction.update({
+				content: result,
+				components: [],
+			});
+		} catch (error) {
+			console.error(error);
+			await interaction.editReply({
+				content: "タイムアウトしたよ！っ",
+				components: [],
+			});
+		}
 	}
 }
