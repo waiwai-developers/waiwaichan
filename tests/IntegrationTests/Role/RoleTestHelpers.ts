@@ -1,5 +1,11 @@
 import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
-import { CommunityRepositoryImpl, PredefinedRoleCommandImpl, PredefinedRoleImpl, RolePredefinedRoleImpl, RoleRepositoryImpl } from "@/src/repositories/sequelize-mysql";
+import {
+	CommunityRepositoryImpl,
+	PredefinedRoleCommandImpl,
+	PredefinedRoleImpl,
+	RolePredefinedRoleImpl,
+	RoleRepositoryImpl,
+} from "@/src/repositories/sequelize-mysql";
 import { MysqlConnector } from "@/tests/fixtures/database/MysqlConnector";
 
 export const TEST_GUILD_ID = "1234567890" as const;

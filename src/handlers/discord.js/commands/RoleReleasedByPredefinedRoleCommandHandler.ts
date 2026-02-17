@@ -59,11 +59,10 @@ export class RoleReleasedByPredefinedRoleCommandHandler
 			return;
 		}
 
-		const result =
-			await this.predefinedRoleLogic.releaseRoleFromPredefinedRole(
-				roleId,
-				communityId,
-			);
+		const result = await this.predefinedRoleLogic.releaseRoleFromPredefinedRole(
+			roleId,
+			communityId,
+		);
 
 		await interaction.reply(result);
 	}
