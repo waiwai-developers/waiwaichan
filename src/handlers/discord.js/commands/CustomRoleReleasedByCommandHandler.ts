@@ -149,9 +149,7 @@ export class CustomRoleReleasedByCommandHandler implements SlashCommandHandler {
 
 			// 権限が設定されているカテゴリ一覧を取得
 			const categoriesWithPermissions = Array.from(
-				new Set(
-					commandsWithPermissions.map((cmd) => cmd.commandCategoryType),
-				),
+				new Set(commandsWithPermissions.map((cmd) => cmd.commandCategoryType)),
 			).sort((a, b) => a - b);
 
 			// カテゴリ選択メニューを作成
