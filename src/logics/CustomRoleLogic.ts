@@ -1,5 +1,6 @@
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import { CustomRoleCommandDto } from "@/src/entities/dto/CustomRoleCommandDto";
+import type { CustomRoleDto } from "@/src/entities/dto/CustomRoleDto";
 import { RoleCustomRoleDto } from "@/src/entities/dto/RoleCustomRoleDto";
 import type { CommandCategoryType } from "@/src/entities/vo/CommandCategoryType";
 import type { CommandType } from "@/src/entities/vo/CommandType";
@@ -38,6 +39,32 @@ export class CustomRoleLogic implements ICustomRoleLogic {
 		return await this.customRoleRepository.findAllByCommunityId(
 			new CustomRoleCommunityId(communityId.getValue()),
 		);
+	}
+
+	async getCustomRoleByName(
+		communityId: CommunityId,
+		name: CustomRoleName,
+	): Promise<CustomRoleDto | undefined> {
+		return await this.customRoleRepository.findByName(
+			new CustomRoleCommunityId(communityId.getValue()),
+			name,
+		);
+	}
+
+	async getCommandPermissionsByCustomRoleId(
+		communityId: CommunityId,
+		customRoleId: CustomRoleId,
+	): Promise<CustomRoleCommandDto[]> {
+		return await this.customRoleCommandRepository.findAllByCustomRoleId(
+			new CustomRoleCommandCommunityId(communityId.getValue()),
+			customRoleId,
+		);
+	}
+
+	async getCustomRoleById(
+		customRoleId: CustomRoleId,
+	): Promise<CustomRoleDto | undefined> {
+		return await this.customRoleRepository.findById(customRoleId);
 	}
 
 	async createCustomRole(

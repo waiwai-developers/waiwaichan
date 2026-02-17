@@ -1,3 +1,4 @@
+import type { CustomRoleCommandDto } from "@/src/entities/dto/CustomRoleCommandDto";
 import type { CustomRoleDto } from "@/src/entities/dto/CustomRoleDto";
 import type { CommandCategoryType } from "@/src/entities/vo/CommandCategoryType";
 import type { CommandType } from "@/src/entities/vo/CommandType";
@@ -10,6 +11,17 @@ import type { RoleId } from "@/src/entities/vo/RoleId";
 
 export interface ICustomRoleLogic {
 	getAllCustomRoles(communityId: CommunityId): Promise<CustomRoleDto[]>;
+	getCustomRoleByName(
+		communityId: CommunityId,
+		name: CustomRoleName,
+	): Promise<CustomRoleDto | undefined>;
+	getCommandPermissionsByCustomRoleId(
+		communityId: CommunityId,
+		customRoleId: CustomRoleId,
+	): Promise<CustomRoleCommandDto[]>;
+	getCustomRoleById(
+		customRoleId: CustomRoleId,
+	): Promise<CustomRoleDto | undefined>;
 	createCustomRole(
 		communityId: CommunityId,
 		name: CustomRoleName,
