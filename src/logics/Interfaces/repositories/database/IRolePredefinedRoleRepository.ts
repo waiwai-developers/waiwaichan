@@ -4,10 +4,7 @@ import type { RoleId } from "@/src/entities/vo/RoleId";
 
 export interface IRolePredefinedRoleRepository {
 	create(data: RolePredefinedRoleDto): Promise<boolean>;
-	deleteByRoleId(
-		roleId: RoleId,
-		communityId: CommunityId,
-	): Promise<boolean>;
+	deleteByRoleId(roleId: RoleId, communityId: CommunityId): Promise<boolean>;
 	findByRoleId(
 		roleId: RoleId,
 		communityId: CommunityId,

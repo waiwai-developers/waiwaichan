@@ -31,10 +31,7 @@ export class PredefinedRoleLogic implements IPredefinedRoleLogic {
 	): Promise<string> {
 		// Check if the role is already bound to a predefined role
 		const existingBinding =
-			await this.rolePredefinedRoleRepository.findByRoleId(
-				roleId,
-				communityId,
-			);
+			await this.rolePredefinedRoleRepository.findByRoleId(roleId, communityId);
 
 		if (existingBinding) {
 			return "このロールは既に事前定義ロールに紐づけられているよ！っ";
@@ -58,10 +55,7 @@ export class PredefinedRoleLogic implements IPredefinedRoleLogic {
 	): Promise<string> {
 		// Check if the role is bound to a predefined role
 		const existingBinding =
-			await this.rolePredefinedRoleRepository.findByRoleId(
-				roleId,
-				communityId,
-			);
+			await this.rolePredefinedRoleRepository.findByRoleId(roleId, communityId);
 
 		if (!existingBinding) {
 			return "このロールは事前定義ロールに紐づけられていないよ！っ";
