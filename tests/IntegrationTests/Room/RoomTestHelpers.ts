@@ -344,7 +344,6 @@ export function setupGuildChannelMock(
 	} as any);
 }
 
-
 /**
  * コマンドを実行し、応答を待つ
  */
