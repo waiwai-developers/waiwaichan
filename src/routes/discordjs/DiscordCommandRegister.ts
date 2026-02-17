@@ -267,6 +267,83 @@ export class DiscordCommandRegister {
 				.addStringOption((option) =>
 					option.setName("roleid").setDescription("integer").setRequired(true),
 				),
+			new SlashCommandBuilder()
+				.setName("customrolecreate")
+				.setDescription("customrolecreate string")
+				.addStringOption((option) =>
+					option.setName("name").setDescription("string").setRequired(true),
+				),
+			new SlashCommandBuilder()
+				.setName("customroledelete")
+				.setDescription("customroledelete integer")
+				.addIntegerOption((option) =>
+					option
+						.setName("customroleid")
+						.setDescription("integer")
+						.setRequired(true),
+				),
+			new SlashCommandBuilder()
+				.setName("rolebindedbycustomrole")
+				.setDescription("rolebindedbycustomrole integer string")
+				.addIntegerOption((option) =>
+					option
+						.setName("customroleid")
+						.setDescription("integer")
+						.setRequired(true),
+				)
+				.addStringOption((option) =>
+					option.setName("roleid").setDescription("string").setRequired(true),
+				),
+			new SlashCommandBuilder()
+				.setName("rolereleasedbycustomrole")
+				.setDescription("rolereleasedbycustomrole string")
+				.addStringOption((option) =>
+					option.setName("roleid").setDescription("string").setRequired(true),
+				),
+			new SlashCommandBuilder()
+				.setName("customrolebindedbycommand")
+				.setDescription("customrolebindedbycommand string string boolean")
+				.addStringOption((option) =>
+					option
+						.setName("customrolename")
+						.setDescription("string")
+						.setRequired(true)
+						.setAutocomplete(true),
+				)
+				.addStringOption((option) =>
+					option
+						.setName("commandname")
+						.setDescription("string")
+						.setRequired(true)
+						.setAutocomplete(true),
+				)
+				.addBooleanOption((option) =>
+					option
+						.setName("isallow")
+						.setDescription("boolean")
+						.setRequired(true),
+				),
+			new SlashCommandBuilder()
+				.setName("customrolereleasedbycommand")
+				.setDescription("customrolereleasedbycommand integer integer integer")
+				.addIntegerOption((option) =>
+					option
+						.setName("customroleid")
+						.setDescription("integer")
+						.setRequired(true),
+				)
+				.addIntegerOption((option) =>
+					option
+						.setName("commandcategorytype")
+						.setDescription("integer")
+						.setRequired(true),
+				)
+				.addIntegerOption((option) =>
+					option
+						.setName("commandtype")
+						.setDescription("integer")
+						.setRequired(true),
+				),
 		];
 	}
 	async register(token: string) {
