@@ -167,6 +167,7 @@ describe("CommandPermissionChecker Integration Tests", () => {
 			await RolePredefinedRoleImpl.create({
 				roleId: role.id,
 				predefinedRolesId: predefinedRole.id,
+				communityId: testContext.communityId,
 			});
 
 			// コマンド権限を作成（許可しない）
@@ -224,6 +225,7 @@ describe("CommandPermissionChecker Integration Tests", () => {
 			await RolePredefinedRoleImpl.create({
 				roleId: role.id,
 				predefinedRolesId: predefinedRole.id,
+				communityId: testContext.communityId,
 			});
 
 			// コマンド権限を作成（許可する）
@@ -281,6 +283,7 @@ describe("CommandPermissionChecker Integration Tests", () => {
 			await RolePredefinedRoleImpl.create({
 				roleId: role1.id,
 				predefinedRolesId: predefinedRole1.id,
+				communityId: testContext.communityId,
 			});
 
 			await PredefinedRoleCommandImpl.create({
@@ -305,6 +308,7 @@ describe("CommandPermissionChecker Integration Tests", () => {
 			await RolePredefinedRoleImpl.create({
 				roleId: role2.id,
 				predefinedRolesId: predefinedRole2.id,
+				communityId: testContext.communityId,
 			});
 
 			await PredefinedRoleCommandImpl.create({
@@ -364,6 +368,7 @@ describe("CommandPermissionChecker Integration Tests", () => {
 			await RolePredefinedRoleImpl.create({
 				roleId: role.id,
 				predefinedRolesId: predefinedRole.id,
+				communityId: testContext.communityId,
 			});
 
 			// Candyコマンドには権限あり

@@ -1,4 +1,3 @@
-import { RoleConfig } from "@/src/entities/config/RoleConfig";
 import {
 	ChannelRepositoryImpl,
 	CommunityRepositoryImpl,
@@ -37,9 +36,6 @@ interface ReplyCapture {
  * @param userId ユーザーID
  * @param role ロール ('admin' | 'user')
  */
-function setupRoleConfig(userId: string, role: "admin" | "user"): void {
-	RoleConfig.users = [{ discordId: userId, role }];
-}
 
 /**
  * replyメソッドのモックを設定し、返り値をキャプチャする
@@ -187,11 +183,7 @@ describe("Test StickyDeleteCommandHandler", () => {
 		this.timeout(10_000);
 
 		return (async () => {
-			// 管理者ユーザーIDを設定
 			const channelId = "2";
-
-			// RoleConfigのモック - 管理者として設定
-			setupRoleConfig(TEST_USER_ID, "admin");
 
 			// テスト用Channelを作成
 			await createTestChannel(testCommunityId, channelId);
@@ -236,11 +228,6 @@ describe("Test StickyDeleteCommandHandler", () => {
 			const channelClientId = "3";
 			const messageId = "4";
 			const message = "スティッキーのメッセージ";
-
-			// RoleConfigのモック - 管理者として設定
-			RoleConfig.users = [
-				{ discordId: TEST_USER_ID, role: "admin" }, // 管理者として設定
-			];
 
 			// テスト用Channelを作成（DBのchannel.idを取得）
 			const dbChannelId = await createTestChannel(testCommunityId, channelClientId);
@@ -313,11 +300,6 @@ describe("Test StickyDeleteCommandHandler", () => {
 			const channelClientId = "2";
 			const messageId = "4";
 			const message = "スティッキーのメッセージ";
-
-			// RoleConfigのモック - 管理者として設定
-			RoleConfig.users = [
-				{ discordId: TEST_USER_ID, role: "admin" }, // 管理者として設定
-			];
 
 			// テスト用Channelを作成（DBのchannel.idを取得）
 			const dbChannelId = await createTestChannel(testCommunityId, channelClientId);
@@ -393,10 +375,6 @@ describe("Test StickyDeleteCommandHandler", () => {
 			const channelClientId = "2";
 			const messageClientId = "4";
 			const message = "スティッキーのメッセージ";
-
-			RoleConfig.users = [
-				{ discordId: TEST_USER_ID, role: "admin" }, // 管理者として設定
-			];
 
 			// テスト用Channelを作成（DBのchannel.idを取得）
 			const dbChannelId = await createTestChannel(testCommunityId, channelClientId);
@@ -502,11 +480,6 @@ describe("Test StickyDeleteCommandHandler", () => {
 			const messageClientId = "4";
 			const message = "スティッキーのメッセージ";
 
-			// RoleConfigのモック - 管理者として設定
-			RoleConfig.users = [
-				{ discordId: TEST_USER_ID, role: "admin" }, // 管理者として設定
-			];
-
 			// テスト用Channelを作成（DBのchannel.idを取得）
 			const dbChannelId = await createTestChannel(testCommunityId, channelClientId);
 
@@ -609,11 +582,6 @@ describe("Test StickyDeleteCommandHandler", () => {
 			const channelClientId = "2";
 			const messageClientId = "4";
 			const message = "スティッキーのメッセージ";
-
-			// RoleConfigのモック - 管理者として設定
-			RoleConfig.users = [
-				{ discordId: TEST_USER_ID, role: "admin" }, // 管理者として設定
-			];
 
 			// テスト用Channelを作成（DBのchannel.idを取得）
 			const dbChannelId = await createTestChannel(testCommunityId, channelClientId);

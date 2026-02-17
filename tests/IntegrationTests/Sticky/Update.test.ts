@@ -1,4 +1,3 @@
-import { RoleConfig } from "@/src/entities/config/RoleConfig";
 import {
 	ChannelRepositoryImpl,
 	CommunityRepositoryImpl,
@@ -123,11 +122,6 @@ describe("Test StickyUpdateCommandHandler", () => {
 			// 管理者ユーザーIDを設定
 			const channelClientId = "2";
 
-			// RoleConfigのモック - 管理者として設定
-			RoleConfig.users = [
-				{ discordId: TEST_USER_ID, role: "admin" }, // 管理者として設定
-			];
-
 			// テスト用Channelを作成
 			await createTestChannel(testCommunityId, channelClientId);
 
@@ -200,11 +194,6 @@ describe("Test StickyUpdateCommandHandler", () => {
 			const channelClientId = "2";
 			const messageClientId = "4";
 			const message = "スティッキーのメッセージ";
-
-			// RoleConfigのモック - 管理者として設定
-			RoleConfig.users = [
-				{ discordId: TEST_USER_ID, role: "admin" }, // 管理者として設定
-			];
 
 			// テスト用Channelを作成（DBのchannel.idを取得）
 			const dbChannelId = await createTestChannel(testCommunityId, channelClientId);
@@ -321,10 +310,6 @@ describe("Test StickyUpdateCommandHandler", () => {
 				message: message,
 			});
 
-			// RoleConfigのモック
-			(RoleConfig as any).users = [
-				{ discordId: TEST_USER_ID, role: "admin" }, // 管理者ユーザーを追加
-			];
 
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("stickyupdate", { channelid: channelClientId }, TEST_USER_ID);
@@ -455,11 +440,6 @@ describe("Test StickyUpdateCommandHandler", () => {
 				message: message,
 			});
 
-			// RoleConfigのモック - 管理者として設定
-			RoleConfig.users = [
-				{ discordId: TEST_USER_ID, role: "admin" }, // 管理者として設定
-			];
-
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("stickyupdate", { channelid: channelClientId }, TEST_USER_ID);
 
@@ -588,11 +568,6 @@ describe("Test StickyUpdateCommandHandler", () => {
 				messageId: String(dbMessage.id),
 				message: originalMessage,
 			});
-
-			// RoleConfigのモック - 管理者として設定
-			RoleConfig.users = [
-				{ discordId: TEST_USER_ID, role: "admin" }, // 管理者として設定
-			];
 
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("stickyupdate", { channelid: channelClientId }, TEST_USER_ID);

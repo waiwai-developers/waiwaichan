@@ -1,4 +1,3 @@
-import { RoleConfig } from "@/src/entities/config/RoleConfig";
 import { ChannelRepositoryImpl, CommunityRepositoryImpl, StickyRepositoryImpl, UserRepositoryImpl } from "@/src/repositories/sequelize-mysql";
 import { MysqlConnector } from "@/tests/fixtures/database/MysqlConnector";
 import { mockSlashCommand, waitUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
@@ -92,11 +91,6 @@ describe("Test StickyListCommandHandler", () => {
 		return (async () => {
 			// 管理者ユーザーIDを設定
 
-			// RoleConfigのモック - 管理者として設定
-			RoleConfig.users = [
-				{ discordId: TEST_USER_ID, role: "admin" }, // 管理者として設定
-			];
-
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("stickylist", {}, TEST_USER_ID);
 
@@ -146,11 +140,6 @@ describe("Test StickyListCommandHandler", () => {
 			const channelClientId2 = BigInt("223456789012345678");
 			const messageId = "5";
 			const message = "スティッキーのメッセージ";
-
-			// RoleConfigのモック - 管理者として設定
-			RoleConfig.users = [
-				{ discordId: TEST_USER_ID, role: "admin" }, // 管理者として設定
-			];
 
 			// チャンネルをデータベースに作成
 			const channel1 = await ChannelRepositoryImpl.create({
