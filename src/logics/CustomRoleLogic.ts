@@ -1,12 +1,13 @@
+import { CommandsConst } from "@/src/entities/constants/Commands";
 import { RepoTypes } from "@/src/entities/constants/DIContainerTypes";
 import { CustomRoleCommandDto } from "@/src/entities/dto/CustomRoleCommandDto";
 import type { CustomRoleDto } from "@/src/entities/dto/CustomRoleDto";
 import { RoleCustomRoleDto } from "@/src/entities/dto/RoleCustomRoleDto";
-import type { CommandCategoryType } from "@/src/entities/vo/CommandCategoryType";
-import type { CommandType } from "@/src/entities/vo/CommandType";
+import { CommandCategoryType } from "@/src/entities/vo/CommandCategoryType";
+import { CommandType } from "@/src/entities/vo/CommandType";
 import type { CommunityId } from "@/src/entities/vo/CommunityId";
 import { CustomRoleCommandCommunityId } from "@/src/entities/vo/CustomRoleCommandCommunityId";
-import type { CustomRoleCommandIsAllow } from "@/src/entities/vo/CustomRoleCommandIsAllow";
+import { CustomRoleCommandIsAllow } from "@/src/entities/vo/CustomRoleCommandIsAllow";
 import { CustomRoleCommunityId } from "@/src/entities/vo/CustomRoleCommunityId";
 import type { CustomRoleId } from "@/src/entities/vo/CustomRoleId";
 import type { CustomRoleName } from "@/src/entities/vo/CustomRoleName";
@@ -87,11 +88,31 @@ export class CustomRoleLogic implements ICustomRoleLogic {
 			name,
 		);
 
-		if (customRoleId) {
-			return "カスタムロールを作成したよ！っ";
+		if (!customRoleId) {
+			return "カスタムロールの作成に失敗したよ！っ";
 		}
 
-		return "カスタムロールの作成に失敗したよ！っ";
+		// Create CustomRoleCommand for all commands with isAllow: false
+		const customRoleCommandCommunityId = new CustomRoleCommandCommunityId(
+			communityId.getValue(),
+		);
+		const isAllow = new CustomRoleCommandIsAllow(false);
+
+		for (const command of CommandsConst.Commands) {
+			const customRoleCommandDto = new CustomRoleCommandDto(
+				customRoleCommandCommunityId,
+				customRoleId,
+				new CommandCategoryType(command.commandCategoryType),
+				new CommandType(command.commandType),
+				isAllow,
+			);
+
+			await this.customRoleCommandRepository.updateOrCreate(
+				customRoleCommandDto,
+			);
+		}
+
+		return "カスタムロールを作成したよ！っ";
 	}
 
 	async deleteCustomRole(
