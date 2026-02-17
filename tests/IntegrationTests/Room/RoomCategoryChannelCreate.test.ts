@@ -2,7 +2,6 @@ import { CategoryChannel } from "discord.js";
 import type Mocha from "mocha";
 import {
 	DISCORD_CATEGORY_CHANNEL_TYPE,
-	RoleConfig,
 	RoomCategoryChannelRepositoryImpl,
 	TestDiscordServer,
 	anything,

@@ -1,7 +1,6 @@
 import type Mocha from "mocha";
 import {
 	DISCORD_TEXT_CHANNEL_TYPE,
-	RoleConfig,
 	RoomNotificationChannelRepositoryImpl,
 	TestDiscordServer,
 	TextChannel,

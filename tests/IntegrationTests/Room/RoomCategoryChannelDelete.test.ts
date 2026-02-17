@@ -1,6 +1,5 @@
 import type Mocha from "mocha";
 import {
-	RoleConfig,
 	RoomCategoryChannelRepositoryImpl,
 	TestDiscordServer,
 	anything,
