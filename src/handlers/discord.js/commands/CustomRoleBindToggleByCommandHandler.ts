@@ -26,7 +26,9 @@ import {
 import { inject, injectable } from "inversify";
 
 @injectable()
-export class CustomRoleBindToggleByCommandHandler implements SlashCommandHandler {
+export class CustomRoleBindToggleByCommandHandler
+	implements SlashCommandHandler
+{
 	@inject(LogicTypes.CustomRoleLogic)
 	private customRoleLogic!: ICustomRoleLogic;
 

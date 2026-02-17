@@ -4,6 +4,7 @@ import { CandyDrawCommandHandler } from "@/src/handlers/discord.js/commands/Cand
 import { CandyExchangeCommandHandler } from "@/src/handlers/discord.js/commands/CandyExchangeCommandHandler";
 import { CandyItemCommandHandler } from "@/src/handlers/discord.js/commands/CandyItemCommandHandler";
 import { ChoiceCommandHandler } from "@/src/handlers/discord.js/commands/ChoiceCommandHandler";
+import { CustomRoleBindToggleByCommandHandler } from "@/src/handlers/discord.js/commands/CustomRoleBindToggleByCommandHandler";
 import { DiceCommandHandler } from "@/src/handlers/discord.js/commands/DiceCommandHandler";
 import { HelpCommandHandler } from "@/src/handlers/discord.js/commands/HelpCommandHandler";
 import { ParrotCommandHandler } from "@/src/handlers/discord.js/commands/ParrotCommandHandler";
@@ -12,7 +13,6 @@ import { ReminderListCommandHandler } from "@/src/handlers/discord.js/commands/R
 import { ReminderSetCommandHandler } from "@/src/handlers/discord.js/commands/ReminderSetCommandHandler";
 import { ReviewGachaCommandHandler } from "@/src/handlers/discord.js/commands/ReviewGachaCommandHandler";
 import { ReviewListCommandHandler } from "@/src/handlers/discord.js/commands/ReviewListCommandHandler";
-import { CustomRoleBindToggleByCommandHandler } from "@/src/handlers/discord.js/commands/CustomRoleBindToggleByCommandHandler";
 import { RoleBindToggleByCustomRoleHandler } from "@/src/handlers/discord.js/commands/RoleBindToggleByCustomRoleHandler";
 import { RoomAddChannelCreateCommandHandler } from "@/src/handlers/discord.js/commands/RoomAddChannelCreateCommandHandler";
 import { RoomAddChannelDeleteCommandHandler } from "@/src/handlers/discord.js/commands/RoomAddChannelDeleteCommandHandler";

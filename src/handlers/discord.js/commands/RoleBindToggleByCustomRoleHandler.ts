@@ -83,7 +83,8 @@ export class RoleBindToggleByCustomRoleHandler implements SlashCommandHandler {
 		);
 
 		const response = await interaction.reply({
-			content: "カスタムロールを選択してDiscordロールの紐づけを管理してください：",
+			content:
+				"カスタムロールを選択してDiscordロールの紐づけを管理してください：",
 			components: [row],
 			ephemeral: true,
 		});
@@ -232,10 +233,9 @@ export class RoleBindToggleByCustomRoleHandler implements SlashCommandHandler {
 				buttons = [releaseButton];
 			} else if (currentBinding) {
 				// Bound to a different custom role - show message
-				const otherCustomRole =
-					await this.customRoleLogic.getCustomRoleById(
-						currentBinding.customRoleId,
-					);
+				const otherCustomRole = await this.customRoleLogic.getCustomRoleById(
+					currentBinding.customRoleId,
+				);
 				const otherCustomRoleName = otherCustomRole
 					? otherCustomRole.name.getValue()
 					: "不明なカスタムロール";
