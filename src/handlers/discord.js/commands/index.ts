@@ -12,6 +12,8 @@ import { ReminderListCommandHandler } from "@/src/handlers/discord.js/commands/R
 import { ReminderSetCommandHandler } from "@/src/handlers/discord.js/commands/ReminderSetCommandHandler";
 import { ReviewGachaCommandHandler } from "@/src/handlers/discord.js/commands/ReviewGachaCommandHandler";
 import { ReviewListCommandHandler } from "@/src/handlers/discord.js/commands/ReviewListCommandHandler";
+import { CustomRoleBindToggleByCommandHandler } from "@/src/handlers/discord.js/commands/CustomRoleBindToggleByCommandHandler";
+import { RoleBindToggleByCustomRoleHandler } from "@/src/handlers/discord.js/commands/RoleBindToggleByCustomRoleHandler";
 import { RoomAddChannelCreateCommandHandler } from "@/src/handlers/discord.js/commands/RoomAddChannelCreateCommandHandler";
 import { RoomAddChannelDeleteCommandHandler } from "@/src/handlers/discord.js/commands/RoomAddChannelDeleteCommandHandler";
 import { RoomCategoryChannelCreateCommandHandler } from "@/src/handlers/discord.js/commands/RoomCategoryChannelCreateCommandHandler";
@@ -55,4 +57,6 @@ export {
 	RoomNotificationChannelDeleteCommandHandler,
 	RoomCategoryChannelCreateCommandHandler,
 	RoomCategoryChannelDeleteCommandHandler,
+	RoleBindToggleByCustomRoleHandler,
+	CustomRoleBindToggleByCommandHandler,
 };
