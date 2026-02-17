@@ -40,10 +40,6 @@ describe("Test RoomAddChannelCreate Commands", () => {
 			const discordChannelId = "2"; // Discord channel ID
 			const userId = "3";
 
-			// 管理者ユーザーIDを設定
-			const { setupRoleConfig } = await import("./RoomTestHelpers");
-			setupRoleConfig(userId, "admin");
-
 			// Channelテーブルにレコードを作成
 			const channelDbId = await createChannelAndGetId(discordChannelId, communityId, DISCORD_VOICE_CHANNEL_TYPE);
 
@@ -88,10 +84,6 @@ describe("Test RoomAddChannelCreate Commands", () => {
 			const discordGuildId = "1"; // Discord guild ID
 			const discordChannelId = "2"; // Discord channel ID
 			const userId = "3";
-
-			// 管理者ユーザーIDを設定
-			const { setupRoleConfig } = await import("./RoomTestHelpers");
-			setupRoleConfig(userId, "admin");
 
 			// Channelテーブルにレコードを作成
 			const channelDbId = await createChannelAndGetId(discordChannelId, communityId, DISCORD_VOICE_CHANNEL_TYPE);
@@ -233,10 +225,6 @@ describe("Test RoomAddChannelCreate Commands", () => {
 			const discordGuildId = "1"; // Discord guild ID
 			const discordChannelId = "2"; // Discord channel ID
 			const userId = "3";
-
-			// 管理者ユーザーIDを設定
-			const { setupRoleConfig } = await import("./RoomTestHelpers");
-			setupRoleConfig(userId, "admin");
 
 			// Channelテーブルにレコードを作成
 			const channelDbId = await createChannelAndGetId(discordChannelId, communityId, DISCORD_VOICE_CHANNEL_TYPE);

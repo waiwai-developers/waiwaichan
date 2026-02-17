@@ -1,5 +1,4 @@
 import "reflect-metadata";
-import { RoleConfig } from "@/src/entities/config/RoleConfig";
 import { RolePredefinedRoleImpl, RoleRepositoryImpl } from "@/src/repositories/sequelize-mysql";
 import { mockSlashCommand, waitUntilReply as waitSlashUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { TestDiscordServer } from "@/tests/fixtures/discord.js/TestDiscordServer";
@@ -35,7 +34,6 @@ describe("Test RoleReleasedByPredefinedRole Commands", () => {
 			const predefinedRoleId = 1;
 
 			// 管理者ユーザーIDを設定
-			RoleConfig.users = [{ discordId: testUserId, role: "admin" }];
 
 			// Roleテーブルにレコードを作成
 			const role = await RoleRepositoryImpl.create({
@@ -95,7 +93,6 @@ describe("Test RoleReleasedByPredefinedRole Commands", () => {
 			const roleClientId = "123456789";
 
 			// 管理者ユーザーIDを設定
-			RoleConfig.users = [{ discordId: testUserId, role: "admin" }];
 
 			// Roleテーブルにレコードを作成（紐づけは作成しない）
 			await RoleRepositoryImpl.create({
@@ -150,7 +147,6 @@ describe("Test RoleReleasedByPredefinedRole Commands", () => {
 			const UNREGISTERED_GUILD_ID = "9999999999";
 
 			// 管理者ユーザーIDを設定
-			RoleConfig.users = [{ discordId: testUserId, role: "admin" }];
 
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("rolereleasedbypredefinedrole", { roleid: roleClientId }, testUserId, UNREGISTERED_GUILD_ID);
@@ -188,7 +184,6 @@ describe("Test RoleReleasedByPredefinedRole Commands", () => {
 			const roleClientId = "123456789";
 
 			// 管理者ユーザーIDを設定
-			RoleConfig.users = [{ discordId: testUserId, role: "admin" }];
 
 			// コマンドのモック作成（ロールは作成しない）
 			const commandMock = mockSlashCommand("rolereleasedbypredefinedrole", { roleid: roleClientId }, testUserId, TEST_GUILD_ID);
@@ -228,7 +223,6 @@ describe("Test RoleReleasedByPredefinedRole Commands", () => {
 			const predefinedRoleId = 1;
 
 			// 管理者ユーザーIDを設定
-			RoleConfig.users = [{ discordId: testUserId, role: "admin" }];
 
 			// Roleテーブルにレコードを作成
 			const role = await RoleRepositoryImpl.create({
