@@ -47,6 +47,7 @@ describe("Test RoleReleasedByPredefinedRole Commands", () => {
 			await RolePredefinedRoleImpl.create({
 				roleId: role.id,
 				predefinedRolesId: predefinedRoleId,
+				communityId: testCommunityId,
 			});
 
 			// データベースに既存データが存在することを確認
@@ -236,6 +237,7 @@ describe("Test RoleReleasedByPredefinedRole Commands", () => {
 			const binding = await RolePredefinedRoleImpl.create({
 				roleId: role.id,
 				predefinedRolesId: predefinedRoleId,
+				communityId: testCommunityId,
 			});
 
 			// データベースに既存データが存在することを確認

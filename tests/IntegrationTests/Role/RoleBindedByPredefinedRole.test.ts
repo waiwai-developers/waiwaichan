@@ -110,6 +110,7 @@ describe("Test RoleBindedByPredefinedRole Commands", () => {
 			await RolePredefinedRoleImpl.create({
 				roleId: role.id,
 				predefinedRolesId: predefinedRoleId,
+				communityId: testCommunityId,
 			});
 
 			// データベースに既存データが存在することを確認
