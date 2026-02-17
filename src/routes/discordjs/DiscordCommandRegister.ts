@@ -318,10 +318,7 @@ export class DiscordCommandRegister {
 						.setAutocomplete(true),
 				)
 				.addBooleanOption((option) =>
-					option
-						.setName("isallow")
-						.setDescription("boolean")
-						.setRequired(true),
+					option.setName("isallow").setDescription("boolean").setRequired(true),
 				),
 			new SlashCommandBuilder()
 				.setName("customrolereleasedbycommand")
