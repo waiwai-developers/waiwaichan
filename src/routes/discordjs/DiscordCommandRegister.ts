@@ -302,45 +302,10 @@ export class DiscordCommandRegister {
 				),
 			new SlashCommandBuilder()
 				.setName("customrolebindedbycommand")
-				.setDescription("customrolebindedbycommand string string boolean")
-				.addStringOption((option) =>
-					option
-						.setName("customrolename")
-						.setDescription("string")
-						.setRequired(true)
-						.setAutocomplete(true),
-				)
-				.addStringOption((option) =>
-					option
-						.setName("commandname")
-						.setDescription("string")
-						.setRequired(true)
-						.setAutocomplete(true),
-				)
-				.addBooleanOption((option) =>
-					option.setName("isallow").setDescription("boolean").setRequired(true),
-				),
+				.setDescription("customrolebindedbycommand"),
 			new SlashCommandBuilder()
 				.setName("customrolereleasedbycommand")
-				.setDescription("customrolereleasedbycommand integer integer integer")
-				.addIntegerOption((option) =>
-					option
-						.setName("customroleid")
-						.setDescription("integer")
-						.setRequired(true),
-				)
-				.addIntegerOption((option) =>
-					option
-						.setName("commandcategorytype")
-						.setDescription("integer")
-						.setRequired(true),
-				)
-				.addIntegerOption((option) =>
-					option
-						.setName("commandtype")
-						.setDescription("integer")
-						.setRequired(true),
-				),
+				.setDescription("customrolereleasedbycommand"),
 		];
 	}
 	async register(token: string) {
