@@ -60,7 +60,10 @@ export class RoleReleasedByPredefinedRoleCommandHandler
 		}
 
 		const result =
-			await this.predefinedRoleLogic.releaseRoleFromPredefinedRole(roleId);
+			await this.predefinedRoleLogic.releaseRoleFromPredefinedRole(
+				roleId,
+				communityId,
+			);
 
 		await interaction.reply(result);
 	}

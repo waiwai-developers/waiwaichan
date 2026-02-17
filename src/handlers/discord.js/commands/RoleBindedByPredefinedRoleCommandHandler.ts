@@ -69,6 +69,7 @@ export class RoleBindedByPredefinedRoleCommandHandler
 		const result = await this.predefinedRoleLogic.bindRoleToPredefinedRole(
 			roleId,
 			new PredefinedRoleId(predefinedRoleId),
+			communityId,
 		);
 
 		await interaction.reply(result);

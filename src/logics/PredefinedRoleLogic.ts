@@ -27,6 +27,7 @@ export class PredefinedRoleLogic implements IPredefinedRoleLogic {
 	async bindRoleToPredefinedRole(
 		roleId: RoleId,
 		predefinedRoleId: PredefinedRoleId,
+		communityId: CommunityId,
 	): Promise<string> {
 		// Check if the role is already bound to a predefined role
 		const existingBinding =
@@ -38,7 +39,7 @@ export class PredefinedRoleLogic implements IPredefinedRoleLogic {
 
 		// Create the binding
 		const result = await this.rolePredefinedRoleRepository.create(
-			new RolePredefinedRoleDto(roleId, predefinedRoleId),
+			new RolePredefinedRoleDto(roleId, predefinedRoleId, communityId),
 		);
 
 		if (result) {
@@ -48,7 +49,10 @@ export class PredefinedRoleLogic implements IPredefinedRoleLogic {
 		return "ロールの紐づけに失敗したよ！っ";
 	}
 
-	async releaseRoleFromPredefinedRole(roleId: RoleId): Promise<string> {
+	async releaseRoleFromPredefinedRole(
+		roleId: RoleId,
+		communityId: CommunityId,
+	): Promise<string> {
 		// Check if the role is bound to a predefined role
 		const existingBinding =
 			await this.rolePredefinedRoleRepository.findByRoleId(roleId);

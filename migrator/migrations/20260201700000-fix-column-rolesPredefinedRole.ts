@@ -6,7 +6,6 @@ const COLUMN_NAME = "communityId";
 
 export const up: Migration = async ({ context: sequelize }) => {
 	await sequelize.getQueryInterface().addColumn(TABLE_NAME, COLUMN_NAME, {
-		allowNull: false,
 		type: DataTypes.INTEGER,
 	});
 };
