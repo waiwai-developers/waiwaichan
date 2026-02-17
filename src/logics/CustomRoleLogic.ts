@@ -4,11 +4,14 @@ import { RoleCustomRoleDto } from "@/src/entities/dto/RoleCustomRoleDto";
 import type { CommandCategoryType } from "@/src/entities/vo/CommandCategoryType";
 import type { CommandType } from "@/src/entities/vo/CommandType";
 import type { CommunityId } from "@/src/entities/vo/CommunityId";
+import { CustomRoleCommandCommunityId } from "@/src/entities/vo/CustomRoleCommandCommunityId";
 import type { CustomRoleCommandIsAllow } from "@/src/entities/vo/CustomRoleCommandIsAllow";
+import { CustomRoleCommunityId } from "@/src/entities/vo/CustomRoleCommunityId";
 import type { CustomRoleId } from "@/src/entities/vo/CustomRoleId";
 import type { CustomRoleName } from "@/src/entities/vo/CustomRoleName";
 import type { RoleClientId } from "@/src/entities/vo/RoleClientId";
 import { RoleCommunityId } from "@/src/entities/vo/RoleCommunityId";
+import { RoleCustomRoleCommunityId } from "@/src/entities/vo/RoleCustomRoleCommunityId";
 import type { RoleId } from "@/src/entities/vo/RoleId";
 import type { ICustomRoleLogic } from "@/src/logics/Interfaces/logics/ICustomRoleLogic";
 import type { ICustomRoleCommandRepository } from "@/src/logics/Interfaces/repositories/database/ICustomRoleCommandRepository";
@@ -31,16 +34,31 @@ export class CustomRoleLogic implements ICustomRoleLogic {
 	@inject(RepoTypes.RoleRepository)
 	private roleRepository!: IRoleRepository;
 
-	async createCustomRole(name: CustomRoleName): Promise<string> {
+	async getAllCustomRoles(communityId: CommunityId) {
+		return await this.customRoleRepository.findAllByCommunityId(
+			new CustomRoleCommunityId(communityId.getValue()),
+		);
+	}
+
+	async createCustomRole(
+		communityId: CommunityId,
+		name: CustomRoleName,
+	): Promise<string> {
 		// Check if custom role with same name already exists
-		const existingCustomRole = await this.customRoleRepository.findByName(name);
+		const existingCustomRole = await this.customRoleRepository.findByName(
+			new CustomRoleCommunityId(communityId.getValue()),
+			name,
+		);
 
 		if (existingCustomRole) {
 			return "同じ名前のカスタムロールが既に存在するよ！っ";
 		}
 
 		// Create custom role
-		const customRoleId = await this.customRoleRepository.create(name);
+		const customRoleId = await this.customRoleRepository.create(
+			new CustomRoleCommunityId(communityId.getValue()),
+			name,
+		);
 
 		if (customRoleId) {
 			return "カスタムロールを作成したよ！っ";
@@ -49,7 +67,10 @@ export class CustomRoleLogic implements ICustomRoleLogic {
 		return "カスタムロールの作成に失敗したよ！っ";
 	}
 
-	async deleteCustomRole(id: CustomRoleId): Promise<string> {
+	async deleteCustomRole(
+		communityId: CommunityId,
+		id: CustomRoleId,
+	): Promise<string> {
 		// Check if custom role exists
 		const customRole = await this.customRoleRepository.findById(id);
 
@@ -58,7 +79,10 @@ export class CustomRoleLogic implements ICustomRoleLogic {
 		}
 
 		// Delete all related custom role commands
-		await this.customRoleCommandRepository.deleteByCustomRoleId(id);
+		await this.customRoleCommandRepository.deleteByCustomRoleId(
+			new CustomRoleCommandCommunityId(communityId.getValue()),
+			id,
+		);
 
 		// Delete custom role
 		const result = await this.customRoleRepository.deleteById(id);
@@ -71,6 +95,7 @@ export class CustomRoleLogic implements ICustomRoleLogic {
 	}
 
 	async bindRoleToCustomRole(
+		communityId: CommunityId,
 		roleId: RoleId,
 		customRoleId: CustomRoleId,
 	): Promise<string> {
@@ -83,7 +108,10 @@ export class CustomRoleLogic implements ICustomRoleLogic {
 
 		// Check if the role is already bound to a custom role
 		const existingBinding =
-			await this.roleCustomRoleRepository.findByRoleId(roleId);
+			await this.roleCustomRoleRepository.findByRoleId(
+				new RoleCustomRoleCommunityId(communityId.getValue()),
+				roleId,
+			);
 
 		if (existingBinding) {
 			return "このロールは既にカスタムロールに紐づけられているよ！っ";
@@ -91,7 +119,11 @@ export class CustomRoleLogic implements ICustomRoleLogic {
 
 		// Create the binding
 		const result = await this.roleCustomRoleRepository.create(
-			new RoleCustomRoleDto(roleId, customRoleId),
+			new RoleCustomRoleDto(
+				new RoleCustomRoleCommunityId(communityId.getValue()),
+				roleId,
+				customRoleId,
+			),
 		);
 
 		if (result) {
@@ -101,17 +133,26 @@ export class CustomRoleLogic implements ICustomRoleLogic {
 		return "ロールの紐づけに失敗したよ！っ";
 	}
 
-	async releaseRoleFromCustomRole(roleId: RoleId): Promise<string> {
+	async releaseRoleFromCustomRole(
+		communityId: CommunityId,
+		roleId: RoleId,
+	): Promise<string> {
 		// Check if the role is bound to a custom role
 		const existingBinding =
-			await this.roleCustomRoleRepository.findByRoleId(roleId);
+			await this.roleCustomRoleRepository.findByRoleId(
+				new RoleCustomRoleCommunityId(communityId.getValue()),
+				roleId,
+			);
 
 		if (!existingBinding) {
 			return "このロールはカスタムロールに紐づけられていないよ！っ";
 		}
 
 		// Delete the binding
-		const result = await this.roleCustomRoleRepository.deleteByRoleId(roleId);
+		const result = await this.roleCustomRoleRepository.deleteByRoleId(
+			new RoleCustomRoleCommunityId(communityId.getValue()),
+			roleId,
+		);
 
 		if (result) {
 			return "ロールの紐づけを解除したよ！っ";
@@ -121,6 +162,7 @@ export class CustomRoleLogic implements ICustomRoleLogic {
 	}
 
 	async updateCommandPermission(
+		communityId: CommunityId,
 		customRoleId: CustomRoleId,
 		commandCategoryType: CommandCategoryType,
 		commandType: CommandType,
@@ -136,6 +178,7 @@ export class CustomRoleLogic implements ICustomRoleLogic {
 		// Update or create command permission
 		const result = await this.customRoleCommandRepository.updateOrCreate(
 			new CustomRoleCommandDto(
+				new CustomRoleCommandCommunityId(communityId.getValue()),
 				customRoleId,
 				commandCategoryType,
 				commandType,
@@ -183,7 +226,10 @@ export class CustomRoleLogic implements ICustomRoleLogic {
 		const customRoleIds: CustomRoleId[] = [];
 		for (const roleId of roleIds) {
 			const roleCustomRole =
-				await this.roleCustomRoleRepository.findByRoleId(roleId);
+				await this.roleCustomRoleRepository.findByRoleId(
+					new RoleCustomRoleCommunityId(communityId.getValue()),
+					roleId,
+				);
 			if (roleCustomRole) {
 				customRoleIds.push(roleCustomRole.customRoleId);
 			}
