@@ -61,6 +61,7 @@ export class RoleBindedByCustomRoleHandler implements SlashCommandHandler {
 		}
 
 		const result = await this.customRoleLogic.bindRoleToCustomRole(
+			communityId,
 			roleId,
 			new CustomRoleId(customRoleId),
 		);
