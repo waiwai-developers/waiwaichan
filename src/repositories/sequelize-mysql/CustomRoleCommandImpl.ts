@@ -1,6 +1,7 @@
 import { CustomRoleCommandDto } from "@/src/entities/dto/CustomRoleCommandDto";
 import { CommandCategoryType } from "@/src/entities/vo/CommandCategoryType";
 import { CommandType } from "@/src/entities/vo/CommandType";
+import { CustomRoleCommandCommunityId } from "@/src/entities/vo/CustomRoleCommandCommunityId";
 import { CustomRoleCommandIsAllow } from "@/src/entities/vo/CustomRoleCommandIsAllow";
 import { CustomRoleId } from "@/src/entities/vo/CustomRoleId";
 import type { ICustomRoleCommandRepository } from "@/src/logics/Interfaces/repositories/database/ICustomRoleCommandRepository";
@@ -30,6 +31,8 @@ class CustomRoleCommandImpl
 	@Column(DataType.INTEGER)
 	declare id: number;
 	@Column(DataType.INTEGER)
+	declare communityId: number;
+	@Column(DataType.INTEGER)
 	declare customRoleId: number;
 	@Column(DataType.INTEGER)
 	declare commandCategoryType: number;
@@ -41,6 +44,7 @@ class CustomRoleCommandImpl
 	async updateOrCreate(data: CustomRoleCommandDto): Promise<boolean> {
 		const existing = await CustomRoleCommandImpl.findOne({
 			where: {
+				communityId: data.communityId.getValue(),
 				customRoleId: data.customRoleId.getValue(),
 				commandCategoryType: data.commandCategoryType.getValue(),
 				commandType: data.commandType.getValue(),
@@ -53,6 +57,7 @@ class CustomRoleCommandImpl
 		}
 
 		return await CustomRoleCommandImpl.create({
+			communityId: data.communityId.getValue(),
 			customRoleId: data.customRoleId.getValue(),
 			commandCategoryType: data.commandCategoryType.getValue(),
 			commandType: data.commandType.getValue(),
@@ -60,21 +65,27 @@ class CustomRoleCommandImpl
 		}).then((res) => !!res);
 	}
 
-	async deleteByCustomRoleId(customRoleId: CustomRoleId): Promise<boolean> {
+	async deleteByCustomRoleId(
+		communityId: CustomRoleCommandCommunityId,
+		customRoleId: CustomRoleId,
+	): Promise<boolean> {
 		return CustomRoleCommandImpl.destroy({
 			where: {
+				communityId: communityId.getValue(),
 				customRoleId: customRoleId.getValue(),
 			},
 		}).then((res) => !!res);
 	}
 
 	async findByCustomRoleIdAndCommand(
+		communityId: CustomRoleCommandCommunityId,
 		customRoleId: CustomRoleId,
 		commandCategoryType: CommandCategoryType,
 		commandType: CommandType,
 	): Promise<CustomRoleCommandDto | undefined> {
 		return CustomRoleCommandImpl.findOne({
 			where: {
+				communityId: communityId.getValue(),
 				customRoleId: customRoleId.getValue(),
 				commandCategoryType: commandCategoryType.getValue(),
 				commandType: commandType.getValue(),
@@ -107,6 +118,7 @@ class CustomRoleCommandImpl
 
 	toDto(): CustomRoleCommandDto {
 		return new CustomRoleCommandDto(
+			new CustomRoleCommandCommunityId(this.communityId),
 			new CustomRoleId(this.customRoleId),
 			new CommandCategoryType(this.commandCategoryType),
 			new CommandType(this.commandType),

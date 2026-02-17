@@ -1,4 +1,5 @@
 import { CustomRoleDto } from "@/src/entities/dto/CustomRoleDto";
+import { CustomRoleCommunityId } from "@/src/entities/vo/CustomRoleCommunityId";
 import { CustomRoleId } from "@/src/entities/vo/CustomRoleId";
 import { CustomRoleName } from "@/src/entities/vo/CustomRoleName";
 import type { ICustomRoleRepository } from "@/src/logics/Interfaces/repositories/database/ICustomRoleRepository";
@@ -23,11 +24,17 @@ class CustomRoleImpl extends Model implements ICustomRoleRepository {
 	@AutoIncrement
 	@Column(DataType.INTEGER)
 	declare id: number;
+	@Column(DataType.INTEGER)
+	declare communityId: number;
 	@Column(DataType.STRING)
 	declare name: string;
 
-	async create(name: CustomRoleName): Promise<CustomRoleId | undefined> {
+	async create(
+		communityId: CustomRoleCommunityId,
+		name: CustomRoleName,
+	): Promise<CustomRoleId | undefined> {
 		return await CustomRoleImpl.create({
+			communityId: communityId.getValue(),
 			name: name.getValue(),
 		}).then((res) => (res ? new CustomRoleId(res.id) : undefined));
 	}
@@ -48,17 +55,32 @@ class CustomRoleImpl extends Model implements ICustomRoleRepository {
 		}).then((res) => (res ? res.toDto() : undefined));
 	}
 
-	async findByName(name: CustomRoleName): Promise<CustomRoleDto | undefined> {
+	async findByName(
+		communityId: CustomRoleCommunityId,
+		name: CustomRoleName,
+	): Promise<CustomRoleDto | undefined> {
 		return CustomRoleImpl.findOne({
 			where: {
+				communityId: communityId.getValue(),
 				name: name.getValue(),
 			},
 		}).then((res) => (res ? res.toDto() : undefined));
 	}
 
+	async findAllByCommunityId(
+		communityId: CustomRoleCommunityId,
+	): Promise<CustomRoleDto[]> {
+		return CustomRoleImpl.findAll({
+			where: {
+				communityId: communityId.getValue(),
+			},
+		}).then((res) => res.map((r) => r.toDto()));
+	}
+
 	toDto(): CustomRoleDto {
 		return new CustomRoleDto(
 			new CustomRoleId(this.id),
+			new CustomRoleCommunityId(this.communityId),
 			new CustomRoleName(this.name),
 		);
 	}
