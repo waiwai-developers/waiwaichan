@@ -1,4 +1,3 @@
-import { RoleConfig } from "@/src/entities/config/RoleConfig";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
 import { CommunityDto } from "@/src/entities/dto/CommunityDto";
 import { CommunityCategoryType } from "@/src/entities/vo/CommunityCategoryType";
@@ -69,6 +68,7 @@ export class RoleBindedByPredefinedRoleCommandHandler
 		const result = await this.predefinedRoleLogic.bindRoleToPredefinedRole(
 			roleId,
 			new PredefinedRoleId(predefinedRoleId),
+			communityId,
 		);
 
 		await interaction.reply(result);

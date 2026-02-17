@@ -1,4 +1,3 @@
-import { RoleConfig } from "@/src/entities/config/RoleConfig";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
 import { CommunityDto } from "@/src/entities/dto/CommunityDto";
 import { CrownNotificationChannelDto } from "@/src/entities/dto/CrownNotificationChannelDto";

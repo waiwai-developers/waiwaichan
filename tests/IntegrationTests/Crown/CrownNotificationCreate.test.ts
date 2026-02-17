@@ -1,5 +1,4 @@
 import "reflect-metadata";
-import { RoleConfig } from "@/src/entities/config/RoleConfig";
 import { ChannelRepositoryImpl, CrownNotificationChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql";
 import { mockSlashCommand, waitUntilReply as waitSlashUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { TestDiscordServer } from "@/tests/fixtures/discord.js/TestDiscordServer";
@@ -71,7 +70,6 @@ describe("Test CrownNotificationChannelCreate Commands", () => {
 			const userId = "3";
 
 			// 管理者ユーザーIDを設定
-			RoleConfig.users = [{ discordId: userId, role: "admin" }];
 
 			// Channelテーブルにレコードを作成
 			const channelDbId = await createChannelAndGetId(discordChannelId, testCommunityId, DISCORD_TEXT_CHANNEL_TYPE);
@@ -140,7 +138,6 @@ describe("Test CrownNotificationChannelCreate Commands", () => {
 			const userId = "3";
 
 			// 管理者ユーザーIDを設定
-			RoleConfig.users = [{ discordId: userId, role: "admin" }];
 
 			// Channelテーブルにレコードを作成
 			const channelDbId = await createChannelAndGetId(discordChannelId, testCommunityId, DISCORD_TEXT_CHANNEL_TYPE);
@@ -217,7 +214,6 @@ describe("Test CrownNotificationChannelCreate Commands", () => {
 			const userId = "3";
 
 			// 管理者ユーザーIDを設定
-			RoleConfig.users = [{ discordId: userId, role: "admin" }];
 
 			// 既存のデータを作成
 			await CrownNotificationChannelRepositoryImpl.create({
@@ -274,7 +270,6 @@ describe("Test CrownNotificationChannelCreate Commands", () => {
 			const userId = "3";
 
 			// 管理者ユーザーIDを設定
-			RoleConfig.users = [{ discordId: userId, role: "admin" }];
 
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("crownnotificationchannelcreate", { channelid: channelId }, userId, TEST_GUILD_ID);
@@ -337,7 +332,6 @@ describe("Test CrownNotificationChannelCreate Commands", () => {
 			const userId = "3";
 
 			// 管理者ユーザーIDを設定
-			RoleConfig.users = [{ discordId: userId, role: "admin" }];
 
 			// Channelテーブルにレコードを作成
 			const channelDbId = await createChannelAndGetId(discordChannelId, testCommunityId, DISCORD_TEXT_CHANNEL_TYPE);

@@ -1,4 +1,3 @@
-import { RoleConfig } from "@/src/entities/config/RoleConfig";
 import {
 	ChannelRepositoryImpl,
 	CommunityRepositoryImpl,
@@ -59,9 +58,6 @@ interface MockDiscordMessage {
  * @param userId ユーザーID
  * @param role ロール ('admin' | 'user')
  */
-function setupRoleConfig(userId: string, role: "admin" | "user"): void {
-	RoleConfig.users = [{ discordId: userId, role }];
-}
 
 /**
  * メッセージのモックを作成

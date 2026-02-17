@@ -1,6 +1,5 @@
 import type Mocha from "mocha";
 import {
-	RoleConfig,
 	RoomCategoryChannelRepositoryImpl,
 	TestDiscordServer,
 	anything,
@@ -38,7 +37,6 @@ describe("Test RoomCategoryChannelDelete Commands", () => {
 			const userId = "3";
 
 			// 管理者ユーザーIDを設定
-			RoleConfig.users = [{ discordId: userId, role: "admin" }];
 
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("roomcategorychanneldelete", {}, userId);
@@ -88,7 +86,6 @@ describe("Test RoomCategoryChannelDelete Commands", () => {
 			const userId = "3";
 
 			// 管理者ユーザーIDを設定
-			RoleConfig.users = [{ discordId: userId, role: "admin" }];
 
 			// 既存のデータを作成
 			await RoomCategoryChannelRepositoryImpl.create({
@@ -151,7 +148,6 @@ describe("Test RoomCategoryChannelDelete Commands", () => {
 			const userId = "3";
 
 			// 管理者ユーザーIDを設定
-			RoleConfig.users = [{ discordId: userId, role: "admin" }];
 
 			// 削除済みのデータを作成
 			const deletedData = await RoomCategoryChannelRepositoryImpl.create({

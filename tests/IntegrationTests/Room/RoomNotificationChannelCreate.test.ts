@@ -1,7 +1,6 @@
 import type Mocha from "mocha";
 import {
 	DISCORD_TEXT_CHANNEL_TYPE,
-	RoleConfig,
 	RoomNotificationChannelRepositoryImpl,
 	TestDiscordServer,
 	TextChannel,
@@ -40,7 +39,6 @@ describe("Test RoomNotificationChannelCreate Commands", () => {
 			const userId = "3";
 
 			// 管理者ユーザーIDを設定
-			RoleConfig.users = [{ discordId: userId, role: "admin" }];
 
 			// Channelテーブルにレコードを作成
 			const channelDbId = await createChannelAndGetId(discordChannelId, communityId, DISCORD_TEXT_CHANNEL_TYPE);
@@ -114,7 +112,6 @@ describe("Test RoomNotificationChannelCreate Commands", () => {
 			const userId = "3";
 
 			// 管理者ユーザーIDを設定
-			RoleConfig.users = [{ discordId: userId, role: "admin" }];
 
 			// Channelテーブルにレコードを作成
 			const channelDbId = await createChannelAndGetId(discordChannelId, communityId, DISCORD_TEXT_CHANNEL_TYPE);
@@ -195,7 +192,6 @@ describe("Test RoomNotificationChannelCreate Commands", () => {
 			const userId = "3";
 
 			// 管理者ユーザーIDを設定
-			RoleConfig.users = [{ discordId: userId, role: "admin" }];
 
 			// 既存のデータを作成
 			await RoomNotificationChannelRepositoryImpl.create({
@@ -253,7 +249,6 @@ describe("Test RoomNotificationChannelCreate Commands", () => {
 			const userId = "3";
 
 			// 管理者ユーザーIDを設定
-			RoleConfig.users = [{ discordId: userId, role: "admin" }];
 
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("roomnotificationchannelcreate", { channelid: channelId }, userId);
@@ -320,7 +315,6 @@ describe("Test RoomNotificationChannelCreate Commands", () => {
 			const userId = "3";
 
 			// 管理者ユーザーIDを設定
-			RoleConfig.users = [{ discordId: userId, role: "admin" }];
 
 			// Channelテーブルにレコードを作成
 			const channelDbId = await createChannelAndGetId(discordChannelId, communityId, DISCORD_TEXT_CHANNEL_TYPE);

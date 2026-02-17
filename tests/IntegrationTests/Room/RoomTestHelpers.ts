@@ -1,4 +1,3 @@
-import { RoleConfig } from "@/src/entities/config/RoleConfig";
 import {
 	ChannelRepositoryImpl,
 	CommunityRepositoryImpl,
@@ -346,13 +345,6 @@ export function setupGuildChannelMock(
 }
 
 /**
- * RoleConfigの設定を行う
- */
-export function setupRoleConfig(userId: string, role: "admin" | "user"): void {
-	RoleConfig.users = [{ discordId: userId, role }];
-}
-
-/**
  * コマンドを実行し、応答を待つ
  */
 export async function executeCommandAndWait(commandMock: CommandMockResult, timeout = 1000): Promise<void> {
@@ -544,4 +536,3 @@ export { instance, when, anything } from "ts-mockito";
 export { mockSlashCommand, waitUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 export { TestDiscordServer } from "../../fixtures/discord.js/TestDiscordServer";
 export { TextChannel, VoiceChannel } from "discord.js";
-export { RoleConfig } from "@/src/entities/config/RoleConfig";

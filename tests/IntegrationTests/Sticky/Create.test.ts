@@ -1,4 +1,3 @@
-import { RoleConfig } from "@/src/entities/config/RoleConfig";
 import {
 	ChannelRepositoryImpl,
 	CommunityRepositoryImpl,
@@ -38,15 +37,6 @@ interface ExpectedStickyData {
 // ============================================
 // モックファクトリ関数
 // ============================================
-
-/**
- * RoleConfigのモック設定
- * @param userId ユーザーID
- * @param role ロール ('admin' | 'user')
- */
-function setupRoleConfig(userId: string, role: "admin" | "user"): void {
-	RoleConfig.users = [{ discordId: userId, role }];
-}
 
 /**
  * replyメソッドのモックを設定し、返り値をキャプチャする
@@ -237,9 +227,6 @@ describe("Test StickyCreateCommandHandler", () => {
 			const messageId = "4";
 			const message = "スティッキーのメッセージ";
 
-			// RoleConfigのモック
-			setupRoleConfig(TEST_USER_ID, "admin");
-
 			// テスト用Channelを作成（DBのchannel.idを取得）
 			const dbChannelId = await createTestChannel(testCommunityId, channelClientId);
 
@@ -309,11 +296,6 @@ describe("Test StickyCreateCommandHandler", () => {
 			// テスト用のチャンネルID
 			const channelClientId = "2";
 
-			// RoleConfigのモック
-			(RoleConfig as any).users = [
-				{ discordId: TEST_USER_ID, role: "admin" }, // 管理者ユーザーを追加
-			];
-
 			// テスト用Channelを作成（DBのchannel.idを取得）
 			await createTestChannel(testCommunityId, channelClientId);
 
@@ -377,11 +359,6 @@ describe("Test StickyCreateCommandHandler", () => {
 			// 管理者ユーザーIDを設定
 			const channelClientId = "2";
 			const messageId = "4";
-
-			// RoleConfigのモック
-			(RoleConfig as any).users = [
-				{ discordId: TEST_USER_ID, role: "admin" }, // 管理者ユーザーを追加
-			];
 
 			// テスト用Channelを作成（DBのchannel.idを取得）
 			await createTestChannel(testCommunityId, channelClientId);
@@ -477,11 +454,6 @@ describe("Test StickyCreateCommandHandler", () => {
 			const channelClientId = "2";
 			const messageId = "4";
 
-			// RoleConfigのモック
-			(RoleConfig as any).users = [
-				{ discordId: TEST_USER_ID, role: "admin" }, // 管理者ユーザーを追加
-			];
-
 			// テスト用Channelを作成（DBのchannel.idを取得）
 			await createTestChannel(testCommunityId, channelClientId);
 
@@ -569,11 +541,6 @@ describe("Test StickyCreateCommandHandler", () => {
 			const channelClientId = "2";
 			const messageId = "4";
 			const stickyMessageText = "これはスティッキーメッセージです";
-
-			// RoleConfigのモック
-			(RoleConfig as any).users = [
-				{ discordId: TEST_USER_ID, role: "admin" }, // 管理者ユーザーを追加
-			];
 
 			// テスト用Channelを作成（DBのchannel.idを取得）
 			const dbChannelId = await createTestChannel(testCommunityId, channelClientId);

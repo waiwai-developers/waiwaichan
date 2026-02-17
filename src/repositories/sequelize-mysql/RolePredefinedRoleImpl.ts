@@ -1,4 +1,5 @@
 import { RolePredefinedRoleDto } from "@/src/entities/dto/RolePredefinedRoleDto";
+import { CommunityId } from "@/src/entities/vo/CommunityId";
 import { PredefinedRoleId } from "@/src/entities/vo/PredefinedRoleId";
 import { RoleId } from "@/src/entities/vo/RoleId";
 import type { IRolePredefinedRoleRepository } from "@/src/logics/Interfaces/repositories/database/IRolePredefinedRoleRepository";
@@ -29,28 +30,37 @@ class RolePredefinedRoleImpl
 	declare roleId: number;
 	@Column(DataType.INTEGER)
 	declare predefinedRolesId: number;
+	@Column(DataType.INTEGER)
+	declare communityId: number;
 
 	async create(data: RolePredefinedRoleDto): Promise<boolean> {
 		return await RolePredefinedRoleImpl.create({
 			roleId: data.roleId.getValue(),
 			predefinedRolesId: data.predefinedRoleId.getValue(),
+			communityId: data.communityId.getValue(),
 		}).then((res) => !!res);
 	}
 
-	async deleteByRoleId(roleId: RoleId): Promise<boolean> {
+	async deleteByRoleId(
+		roleId: RoleId,
+		communityId: CommunityId,
+	): Promise<boolean> {
 		return RolePredefinedRoleImpl.destroy({
 			where: {
 				roleId: roleId.getValue(),
+				communityId: communityId.getValue(),
 			},
 		}).then((res) => !!res);
 	}
 
 	async findByRoleId(
 		roleId: RoleId,
+		communityId: CommunityId,
 	): Promise<RolePredefinedRoleDto | undefined> {
 		return RolePredefinedRoleImpl.findOne({
 			where: {
 				roleId: roleId.getValue(),
+				communityId: communityId.getValue(),
 			},
 		}).then((res) => (res ? res.toDto() : undefined));
 	}
@@ -59,6 +69,7 @@ class RolePredefinedRoleImpl
 		return new RolePredefinedRoleDto(
 			new RoleId(this.roleId),
 			new PredefinedRoleId(this.predefinedRolesId),
+			new CommunityId(this.communityId),
 		);
 	}
 }
