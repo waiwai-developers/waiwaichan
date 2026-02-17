@@ -1,5 +1,4 @@
 import "reflect-metadata";
-import { RoleConfig } from "@/src/entities/config/RoleConfig";
 import { CandyNotificationChannelRepositoryImpl, ChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql";
 import { mockSlashCommand, waitUntilReply as waitSlashUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { TestDiscordServer } from "@/tests/fixtures/discord.js/TestDiscordServer";
@@ -55,9 +54,6 @@ describe("Test CandyNotificationChannelCreate Commands", () => {
 		return (async () => {
 			const discordChannelId = "2";
 			const userId = "3";
-
-			// 管理者ユーザーIDを設定
-			RoleConfig.users = [{ discordId: userId, role: "admin" }];
 
 			// Channelテーブルにレコードを作成
 			const channelDbId = await createChannelAndGetId(discordChannelId, testCommunityId, DISCORD_TEXT_CHANNEL_TYPE);
@@ -124,9 +120,6 @@ describe("Test CandyNotificationChannelCreate Commands", () => {
 		return (async () => {
 			const discordChannelId = "2";
 			const userId = "3";
-
-			// 管理者ユーザーIDを設定
-			RoleConfig.users = [{ discordId: userId, role: "admin" }];
 
 			// Channelテーブルにレコードを作成
 			const channelDbId = await createChannelAndGetId(discordChannelId, testCommunityId, DISCORD_TEXT_CHANNEL_TYPE);
@@ -202,9 +195,6 @@ describe("Test CandyNotificationChannelCreate Commands", () => {
 			const channelId = "2";
 			const userId = "3";
 
-			// 管理者ユーザーIDを設定
-			RoleConfig.users = [{ discordId: userId, role: "admin" }];
-
 			// 既存のデータを作成
 			await CandyNotificationChannelRepositoryImpl.create({
 				communityId: testCommunityId,
@@ -258,9 +248,6 @@ describe("Test CandyNotificationChannelCreate Commands", () => {
 		return (async () => {
 			const channelId = "2";
 			const userId = "3";
-
-			// 管理者ユーザーIDを設定
-			RoleConfig.users = [{ discordId: userId, role: "admin" }];
 
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("candynotificationchannelcreate", { channelid: channelId }, userId, TEST_GUILD_ID);
@@ -321,9 +308,6 @@ describe("Test CandyNotificationChannelCreate Commands", () => {
 		return (async () => {
 			const discordChannelId = "2";
 			const userId = "3";
-
-			// 管理者ユーザーIDを設定
-			RoleConfig.users = [{ discordId: userId, role: "admin" }];
 
 			// Channelテーブルにレコードを作成
 			const channelDbId = await createChannelAndGetId(discordChannelId, testCommunityId, DISCORD_TEXT_CHANNEL_TYPE);

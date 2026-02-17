@@ -2,7 +2,6 @@ import { CategoryChannel } from "discord.js";
 import type Mocha from "mocha";
 import {
 	DISCORD_CATEGORY_CHANNEL_TYPE,
-	RoleConfig,
 	RoomCategoryChannelRepositoryImpl,
 	TestDiscordServer,
 	anything,
@@ -44,7 +43,6 @@ describe("Test RoomCategoryChannelCreate Commands", () => {
 			const userId = "3";
 
 			// 管理者ユーザーIDを設定
-			RoleConfig.users = [{ discordId: userId, role: "admin" }];
 
 			// Channelテーブルにレコードを作成
 			const channelDbId = await createChannelAndGetId(discordChannelId, communityId, DISCORD_CATEGORY_CHANNEL_TYPE);
@@ -118,7 +116,6 @@ describe("Test RoomCategoryChannelCreate Commands", () => {
 			const userId = "3";
 
 			// 管理者ユーザーIDを設定
-			RoleConfig.users = [{ discordId: userId, role: "admin" }];
 
 			// Channelテーブルにレコードを作成
 			const channelDbId = await createChannelAndGetId(discordChannelId, communityId, DISCORD_CATEGORY_CHANNEL_TYPE);
@@ -199,7 +196,6 @@ describe("Test RoomCategoryChannelCreate Commands", () => {
 			const userId = "3";
 
 			// 管理者ユーザーIDを設定
-			RoleConfig.users = [{ discordId: userId, role: "admin" }];
 
 			// 既存のデータを作成
 			await RoomCategoryChannelRepositoryImpl.create({
@@ -257,7 +253,6 @@ describe("Test RoomCategoryChannelCreate Commands", () => {
 			const userId = "3";
 
 			// 管理者ユーザーIDを設定
-			RoleConfig.users = [{ discordId: userId, role: "admin" }];
 
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("roomcategorychannelcreate", { channelid: channelId }, userId);
@@ -324,7 +319,6 @@ describe("Test RoomCategoryChannelCreate Commands", () => {
 			const userId = "3";
 
 			// 管理者ユーザーIDを設定
-			RoleConfig.users = [{ discordId: userId, role: "admin" }];
 
 			// Channelテーブルにレコードを作成
 			const channelDbId = await createChannelAndGetId(discordChannelId, communityId, DISCORD_CATEGORY_CHANNEL_TYPE);

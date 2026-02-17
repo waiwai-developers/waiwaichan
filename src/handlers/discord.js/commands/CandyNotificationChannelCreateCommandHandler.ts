@@ -1,4 +1,3 @@
-import { RoleConfig } from "@/src/entities/config/RoleConfig";
 import { LogicTypes } from "@/src/entities/constants/DIContainerTypes";
 import { CandyNotificationChannelDto } from "@/src/entities/dto/CandyNotificationChannelDto";
 import { CommunityDto } from "@/src/entities/dto/CommunityDto";

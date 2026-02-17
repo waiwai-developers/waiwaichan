@@ -9,8 +9,12 @@ export interface IPredefinedRoleLogic {
 	bindRoleToPredefinedRole(
 		roleId: RoleId,
 		predefinedRoleId: PredefinedRoleId,
+		communityId: CommunityId,
 	): Promise<string>;
-	releaseRoleFromPredefinedRole(roleId: RoleId): Promise<string>;
+	releaseRoleFromPredefinedRole(
+		roleId: RoleId,
+		communityId: CommunityId,
+	): Promise<string>;
 	checkUserCommandPermission(
 		communityId: CommunityId,
 		userRoleClientIds: RoleClientId[],

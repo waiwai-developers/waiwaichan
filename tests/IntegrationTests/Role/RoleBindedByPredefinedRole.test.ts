@@ -1,5 +1,4 @@
 import "reflect-metadata";
-import { RoleConfig } from "@/src/entities/config/RoleConfig";
 import { PredefinedRoleImpl, RolePredefinedRoleImpl, RoleRepositoryImpl } from "@/src/repositories/sequelize-mysql";
 import { mockSlashCommand, waitUntilReply as waitSlashUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { TestDiscordServer } from "@/tests/fixtures/discord.js/TestDiscordServer";
@@ -35,7 +34,6 @@ describe("Test RoleBindedByPredefinedRole Commands", () => {
 			const predefinedRoleId = 1;
 
 			// 管理者ユーザーIDを設定
-			RoleConfig.users = [{ discordId: testUserId, role: "admin" }];
 
 			// Roleテーブルにレコードを作成
 			const role = await RoleRepositoryImpl.create({
@@ -99,7 +97,6 @@ describe("Test RoleBindedByPredefinedRole Commands", () => {
 			const predefinedRoleId = 1;
 
 			// 管理者ユーザーIDを設定
-			RoleConfig.users = [{ discordId: testUserId, role: "admin" }];
 
 			// Roleテーブルにレコードを作成
 			const role = await RoleRepositoryImpl.create({
@@ -113,6 +110,7 @@ describe("Test RoleBindedByPredefinedRole Commands", () => {
 			await RolePredefinedRoleImpl.create({
 				roleId: role.id,
 				predefinedRolesId: predefinedRoleId,
+				communityId: testCommunityId,
 			});
 
 			// データベースに既存データが存在することを確認
@@ -166,7 +164,6 @@ describe("Test RoleBindedByPredefinedRole Commands", () => {
 			const UNREGISTERED_GUILD_ID = "9999999999";
 
 			// 管理者ユーザーIDを設定
-			RoleConfig.users = [{ discordId: testUserId, role: "admin" }];
 
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand(
@@ -214,7 +211,6 @@ describe("Test RoleBindedByPredefinedRole Commands", () => {
 			const predefinedRoleId = 1;
 
 			// 管理者ユーザーIDを設定
-			RoleConfig.users = [{ discordId: testUserId, role: "admin" }];
 
 			// コマンドのモック作成（ロールは作成しない）
 			const commandMock = mockSlashCommand(
@@ -263,7 +259,6 @@ describe("Test RoleBindedByPredefinedRole Commands", () => {
 			const predefinedRoleId = 2; // admin role
 
 			// 管理者ユーザーIDを設定
-			RoleConfig.users = [{ discordId: testUserId, role: "admin" }];
 
 			// Roleテーブルにレコードを作成
 			const role = await RoleRepositoryImpl.create({

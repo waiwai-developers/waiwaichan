@@ -1,5 +1,4 @@
 import "reflect-metadata";
-import { RoleConfig } from "@/src/entities/config/RoleConfig";
 import { CandyNotificationChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql";
 import { mockSlashCommand, waitUntilReply as waitSlashUntilReply } from "@/tests/fixtures/discord.js/MockSlashCommand";
 import { TestDiscordServer } from "@/tests/fixtures/discord.js/TestDiscordServer";
@@ -39,9 +38,6 @@ describe("Test CandyNotificationChannelDelete Commands", () => {
 
 		return (async () => {
 			const userId = "3";
-
-			// 管理者ユーザーIDを設定
-			RoleConfig.users = [{ discordId: userId, role: "admin" }];
 
 			// コマンドのモック作成
 			const commandMock = mockSlashCommand("candynotificationchanneldelete", {}, userId, TEST_GUILD_ID);
@@ -90,9 +86,6 @@ describe("Test CandyNotificationChannelDelete Commands", () => {
 		return (async () => {
 			const channelId = "2";
 			const userId = "3";
-
-			// 管理者ユーザーIDを設定
-			RoleConfig.users = [{ discordId: userId, role: "admin" }];
 
 			// 既存のデータを作成
 			await CandyNotificationChannelRepositoryImpl.create({
@@ -154,9 +147,6 @@ describe("Test CandyNotificationChannelDelete Commands", () => {
 		return (async () => {
 			const channelId = "2";
 			const userId = "3";
-
-			// 管理者ユーザーIDを設定
-			RoleConfig.users = [{ discordId: userId, role: "admin" }];
 
 			// 削除済みのデータを作成
 			const deletedData = await CandyNotificationChannelRepositoryImpl.create({
