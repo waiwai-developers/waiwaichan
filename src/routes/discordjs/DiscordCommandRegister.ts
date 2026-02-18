@@ -275,13 +275,7 @@ export class DiscordCommandRegister {
 				),
 			new SlashCommandBuilder()
 				.setName("customroledelete")
-				.setDescription("customroledelete integer")
-				.addIntegerOption((option) =>
-					option
-						.setName("customroleid")
-						.setDescription("integer")
-						.setRequired(true),
-				),
+				.setDescription("customroledelete"),
 			new SlashCommandBuilder()
 				.setName("rolebindtogglebycustomrole")
 				.setDescription("rolebindtogglebycustomrole"),
