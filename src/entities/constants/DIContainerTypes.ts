@@ -38,6 +38,9 @@ export const RepoTypes = {
 	PredefinedRoleCommandRepository: Symbol.for(
 		"PredefinedRoleCommandRepository",
 	),
+	CustomRoleRepository: Symbol.for("CustomRoleRepository"),
+	RoleCustomRoleRepository: Symbol.for("RoleCustomRoleRepository"),
+	CustomRoleCommandRepository: Symbol.for("CustomRoleCommandRepository"),
 	SequelizeModels: Symbol.for("SequelizeModels"),
 	Logger: Symbol.for("Logger"),
 };
@@ -68,6 +71,7 @@ export const LogicTypes = {
 	RoomChannelLogic: Symbol.for("RoomChannelLogic"),
 	RoomCategoryChannelLogic: Symbol.for("RoomCategoryChannelLogic"),
 	PredefinedRoleLogic: Symbol.for("PredefinedRoleLogic"),
+	CustomRoleLogic: Symbol.for("CustomRoleLogic"),
 };
 
 export const RouteTypes = {

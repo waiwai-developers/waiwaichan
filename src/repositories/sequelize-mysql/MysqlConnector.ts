@@ -11,12 +11,15 @@ import { CommunityRepositoryImpl } from "@/src/repositories/sequelize-mysql/Comm
 import { ContextRepositoryImpl } from "@/src/repositories/sequelize-mysql/ContextRepositoryImpl";
 import { CrownNotificationChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/CrownNotificationChannelRepositoryImpl";
 import { CrownRepositoryImpl } from "@/src/repositories/sequelize-mysql/CrownRepositoryImpl";
+import { CustomRoleCommandImpl } from "@/src/repositories/sequelize-mysql/CustomRoleCommandImpl";
+import { CustomRoleImpl } from "@/src/repositories/sequelize-mysql/CustomRoleImpl";
 import { MessageRepositoryImpl } from "@/src/repositories/sequelize-mysql/MessageRepositoryImpl";
 import { PersonalityContextRepositoryImpl } from "@/src/repositories/sequelize-mysql/PersonalityContextRepositoryImpl";
 import { PersonalityRepositoryImpl } from "@/src/repositories/sequelize-mysql/PersonalityRepositoryImpl";
 import { PredefinedRoleCommandImpl } from "@/src/repositories/sequelize-mysql/PredefinedRoleCommandImpl";
 import { PredefinedRoleImpl } from "@/src/repositories/sequelize-mysql/PredefinedRoleImpl";
 import { ReminderRepositoryImpl } from "@/src/repositories/sequelize-mysql/ReminderRepositoryImpl";
+import { RoleCustomRoleImpl } from "@/src/repositories/sequelize-mysql/RoleCustomRoleImpl";
 import { RolePredefinedRoleImpl } from "@/src/repositories/sequelize-mysql/RolePredefinedRoleImpl";
 import { RoleRepositoryImpl } from "@/src/repositories/sequelize-mysql/RoleRepositoryImpl";
 import { RoomAddChannelRepositoryImpl } from "@/src/repositories/sequelize-mysql/RoomAddChannelRepositoryImpl";
@@ -44,9 +47,12 @@ export class MysqlConnector implements IDataBaseConnector<Sequelize, "mysql"> {
 		CommandImpl,
 		CrownNotificationChannelRepositoryImpl,
 		CrownRepositoryImpl,
+		CustomRoleImpl,
+		CustomRoleCommandImpl,
 		UserCandyItemRepositoryImpl,
 		ReminderRepositoryImpl,
 		RoleRepositoryImpl,
+		RoleCustomRoleImpl,
 		RolePredefinedRoleImpl,
 		ThreadRepositoryImpl,
 		StickyRepositoryImpl,

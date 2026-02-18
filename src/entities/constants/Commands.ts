@@ -4,7 +4,19 @@ export const CommandsConst: {
 		commandCategoryType: number;
 		commandType: number;
 	}[];
+	CategoryNames: { [key: number]: string };
 } = {
+	CategoryNames: {
+		1: "基本コマンド",
+		2: "AI機能",
+		3: "リマインダー",
+		4: "キャンディ",
+		5: "レビュー",
+		6: "スティッキー",
+		7: "ルーム",
+		8: "クラウン",
+		9: "ロール",
+	},
 	Commands: [
 		{
 			name: "help",
