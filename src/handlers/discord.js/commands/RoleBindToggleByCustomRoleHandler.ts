@@ -57,39 +57,38 @@ export class RoleBindToggleByCustomRoleHandler implements SlashCommandHandler {
 			return;
 		}
 
-		// Get all custom roles
-		const customRoles =
-			await this.customRoleLogic.getAllCustomRoles(communityId);
+		// Get guild roles
+		const guildRoles = Array.from(interaction.guild.roles.cache.values());
 
-		if (customRoles.length === 0) {
-			await interaction.reply("カスタムロールが見つからなかったよ！っ");
+		if (guildRoles.length === 0) {
+			await interaction.reply("Discordロールが見つからなかったよ！っ");
 			return;
 		}
 
-		// Create select menu for custom roles
-		const customRoleSelect = new StringSelectMenuBuilder()
-			.setCustomId("customRoleSelect")
-			.setPlaceholder("カスタムロールを選択してください")
+		// Create select menu for Discord roles
+		const roleSelect = new StringSelectMenuBuilder()
+			.setCustomId("roleSelect")
+			.setPlaceholder("Discordロールを選択してください")
 			.addOptions(
-				customRoles.map((role) =>
+				guildRoles.slice(0, 25).map((role) =>
 					new StringSelectMenuOptionBuilder()
-						.setLabel(role.name.getValue())
-						.setValue(role.id.getValue().toString()),
+						.setLabel(role.name)
+						.setValue(role.id),
 				),
 			);
 
 		const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-			customRoleSelect,
+			roleSelect,
 		);
 
 		const response = await interaction.reply({
 			content:
-				"カスタムロールを選択してDiscordロールの紐づけを管理してください：",
+				"Discordロールを選択してカスタムロールの紐づけを管理してください：",
 			components: [row],
 			ephemeral: true,
 		});
 
-		// Wait for custom role selection
+		// Wait for role selection
 		const collectorFilter = (i: { user: { id: string } }) =>
 			i.user.id === interaction.user.id;
 
@@ -103,14 +102,29 @@ export class RoleBindToggleByCustomRoleHandler implements SlashCommandHandler {
 				return;
 			}
 
-			const selectedCustomRoleId = new CustomRoleId(
-				Number.parseInt(selectInteraction.values[0]),
+			const roleClientId = selectInteraction.values[0];
+			const roleId = await this.roleLogic.getIdByCommunityIdAndClientId(
+				new RoleCommunityId(communityId.getValue()),
+				new RoleClientId(BigInt(roleClientId)),
 			);
 
-			// Get custom role details
-			const selectedCustomRole =
-				await this.customRoleLogic.getCustomRoleById(selectedCustomRoleId);
-			if (!selectedCustomRole) {
+			if (roleId == null) {
+				await selectInteraction.update({
+					content: "ロールが登録されていなかったよ！っ",
+					components: [],
+				});
+				return;
+			}
+
+			// Get selected role name
+			const selectedRoleName =
+				guildRoles.find((r) => r.id === roleClientId)?.name || "不明なロール";
+
+			// Get all custom roles
+			const customRoles =
+				await this.customRoleLogic.getAllCustomRoles(communityId);
+
+			if (customRoles.length === 0) {
 				await selectInteraction.update({
 					content: "カスタムロールが見つからなかったよ！っ",
 					components: [],
@@ -118,57 +132,38 @@ export class RoleBindToggleByCustomRoleHandler implements SlashCommandHandler {
 				return;
 			}
 
-			// Get guild roles
-			const guildRoles = Array.from(interaction.guild.roles.cache.values());
-
-			if (guildRoles.length === 0) {
-				await selectInteraction.update({
-					content: "Discordロールが見つからなかったよ！っ",
-					components: [],
-				});
-				return;
-			}
-
-			// Check binding status for each role
-			const roleOptions = await Promise.all(
-				guildRoles.slice(0, 25).map(async (role) => {
-					const roleId = await this.roleLogic.getIdByCommunityIdAndClientId(
-						new RoleCommunityId(communityId.getValue()),
-						new RoleClientId(BigInt(role.id)),
-					);
-
-					let bindingStatus = "❌";
-					let isBound = false;
-
-					if (roleId != null) {
-						const binding = await this.roleLogic.getRoleCustomRoleByRoleId(
-							communityId,
-							roleId,
-						);
-						if (
-							binding &&
-							binding.customRoleId.getValue() ===
-								selectedCustomRoleId.getValue()
-						) {
-							bindingStatus = "✅";
-							isBound = true;
-						}
-					}
-
-					return {
-						label: `${bindingStatus} ${role.name}`,
-						value: role.id,
-						description: isBound ? "紐づけ済み" : "未紐づけ",
-					};
-				}),
+			// Check current binding
+			const currentBinding = await this.roleLogic.getRoleCustomRoleByRoleId(
+				communityId,
+				roleId,
 			);
 
-			// Create select menu for Discord roles with binding status
-			const roleSelect = new StringSelectMenuBuilder()
-				.setCustomId("roleSelect")
-				.setPlaceholder("Discordロールを選択してください")
+			// Check binding status for each custom role
+			const customRoleOptions = customRoles.map((customRole) => {
+				let bindingStatus = "❌";
+				let isBound = false;
+
+				if (
+					currentBinding &&
+					currentBinding.customRoleId.getValue() === customRole.id.getValue()
+				) {
+					bindingStatus = "✅";
+					isBound = true;
+				}
+
+				return {
+					label: `${bindingStatus} ${customRole.name.getValue()}`,
+					value: customRole.id.getValue().toString(),
+					description: isBound ? "紐づけ済み" : "未紐づけ",
+				};
+			});
+
+			// Create select menu for custom roles with binding status
+			const customRoleSelect = new StringSelectMenuBuilder()
+				.setCustomId("customRoleSelect")
+				.setPlaceholder("カスタムロールを選択してください")
 				.addOptions(
-					roleOptions.map((opt) =>
+					customRoleOptions.map((opt) =>
 						new StringSelectMenuOptionBuilder()
 							.setLabel(opt.label)
 							.setValue(opt.value)
@@ -176,46 +171,43 @@ export class RoleBindToggleByCustomRoleHandler implements SlashCommandHandler {
 					),
 				);
 
-			const roleRow =
+			const customRoleRow =
 				new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-					roleSelect,
+					customRoleSelect,
 				);
 
 			await selectInteraction.update({
-				content: `カスタムロール「${selectedCustomRole.name.getValue()}」に対するDiscordロールを選択してください：\n✅=紐づけ済み ❌=未紐づけ`,
-				components: [roleRow],
+				content: `Discordロール「${selectedRoleName}」に対するカスタムロールを選択してください：\n✅=紐づけ済み ❌=未紐づけ`,
+				components: [customRoleRow],
 			});
 
-			// Wait for role selection
-			const roleInteraction =
+			// Wait for custom role selection
+			const customRoleInteraction =
 				await selectInteraction.message.awaitMessageComponent({
 					filter: collectorFilter,
 					time: 60000,
 				});
 
-			if (!roleInteraction.isStringSelectMenu()) {
+			if (!customRoleInteraction.isStringSelectMenu()) {
 				return;
 			}
 
-			const roleClientId = roleInteraction.values[0];
-			const roleId = await this.roleLogic.getIdByCommunityIdAndClientId(
-				new RoleCommunityId(communityId.getValue()),
-				new RoleClientId(BigInt(roleClientId)),
+			const selectedCustomRoleId = new CustomRoleId(
+				Number.parseInt(customRoleInteraction.values[0]),
 			);
 
-			if (roleId == null) {
-				await roleInteraction.update({
-					content: "ロールが登録されていなかったよ！っ",
+			// Get custom role details
+			const selectedCustomRole =
+				await this.customRoleLogic.getCustomRoleById(selectedCustomRoleId);
+			if (!selectedCustomRole) {
+				await customRoleInteraction.update({
+					content: "カスタムロールが見つからなかったよ！っ",
 					components: [],
 				});
 				return;
 			}
 
-			// Check current binding status
-			const currentBinding = await this.roleLogic.getRoleCustomRoleByRoleId(
-				communityId,
-				roleId,
-			);
+			// Check if already bound to this custom role
 			const isBoundToThisCustomRole =
 				currentBinding &&
 				currentBinding.customRoleId.getValue() ===
@@ -240,8 +232,8 @@ export class RoleBindToggleByCustomRoleHandler implements SlashCommandHandler {
 					? otherCustomRole.name.getValue()
 					: "不明なカスタムロール";
 
-				await roleInteraction.update({
-					content: `このロールは既に別のカスタムロール「${otherCustomRoleName}」に紐づけられているよ！っ\n先にそちらの紐づけを解除してください。`,
+				await customRoleInteraction.update({
+					content: `このDiscordロールは既に別のカスタムロール「${otherCustomRoleName}」に紐づけられているよ！っ\n先にそちらの紐づけを解除してください。`,
 					components: [],
 				});
 				return;
@@ -259,17 +251,14 @@ export class RoleBindToggleByCustomRoleHandler implements SlashCommandHandler {
 				...buttons,
 			);
 
-			const selectedRoleName =
-				guildRoles.find((r) => r.id === roleClientId)?.name || "不明なロール";
-
-			await roleInteraction.update({
-				content: `Discordロール「${selectedRoleName}」の操作を選択してください：`,
+			await customRoleInteraction.update({
+				content: `Discordロール「${selectedRoleName}」とカスタムロール「${selectedCustomRole.name.getValue()}」の操作を選択してください：`,
 				components: [buttonRow],
 			});
 
 			// Wait for button click
 			const buttonInteraction =
-				await roleInteraction.message.awaitMessageComponent({
+				await customRoleInteraction.message.awaitMessageComponent({
 					filter: collectorFilter,
 					time: 60000,
 				});
