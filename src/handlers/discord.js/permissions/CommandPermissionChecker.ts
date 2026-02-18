@@ -12,6 +12,7 @@ import type {
 	ICommandPermissionChecker,
 } from "@/src/handlers/discord.js/permissions/ICommandPermissionChecker";
 import type { ICommunityLogic } from "@/src/logics/Interfaces/logics/ICommunityLogic";
+import type { ICustomRoleLogic } from "@/src/logics/Interfaces/logics/ICustomRoleLogic";
 import type { IPredefinedRoleLogic } from "@/src/logics/Interfaces/logics/IPredefinedRoleLogic";
 import type {
 	CacheType,
@@ -24,6 +25,9 @@ import { inject, injectable } from "inversify";
 export class CommandPermissionChecker implements ICommandPermissionChecker {
 	@inject(LogicTypes.PredefinedRoleLogic)
 	private predefinedRoleLogic!: IPredefinedRoleLogic;
+
+	@inject(LogicTypes.CustomRoleLogic)
+	private customRoleLogic!: ICustomRoleLogic;
 
 	@inject(LogicTypes.CommunityLogic)
 	private communityLogic!: ICommunityLogic;
@@ -110,11 +114,32 @@ export class CommandPermissionChecker implements ICommandPermissionChecker {
 		commandCategoryType: number,
 		commandType: number,
 	): Promise<boolean> {
-		return await this.predefinedRoleLogic.checkUserCommandPermission(
-			communityId,
-			userRoleClientIds,
-			new CommandCategoryType(commandCategoryType),
-			new CommandType(commandType),
-		);
+		// Check both predefined roles and custom roles
+		// If either has permission, return true
+		const hasPredefinedRolePermission =
+			await this.predefinedRoleLogic.checkUserCommandPermission(
+				communityId,
+				userRoleClientIds,
+				new CommandCategoryType(commandCategoryType),
+				new CommandType(commandType),
+			);
+
+		if (hasPredefinedRolePermission) {
+			return true;
+		}
+
+		const hasCustomRolePermission =
+			await this.customRoleLogic.checkUserCommandPermission(
+				communityId,
+				userRoleClientIds,
+				new CommandCategoryType(commandCategoryType),
+				new CommandType(commandType),
+			);
+
+		if (hasCustomRolePermission) {
+			return true;
+		}
+
+		return false;
 	}
 }

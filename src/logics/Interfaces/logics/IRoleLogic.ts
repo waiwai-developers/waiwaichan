@@ -1,5 +1,7 @@
 import type { DeletedRoleTargetDto } from "@/src/entities/dto/DeletedRoleTargetDto";
+import type { RoleCustomRoleDto } from "@/src/entities/dto/RoleCustomRoleDto";
 import type { RoleDto } from "@/src/entities/dto/RoleDto";
+import type { CommunityId } from "@/src/entities/vo/CommunityId";
 import type { RoleClientId } from "@/src/entities/vo/RoleClientId";
 import type { RoleCommunityId } from "@/src/entities/vo/RoleCommunityId";
 import type { RoleId } from "@/src/entities/vo/RoleId";
@@ -30,4 +32,8 @@ export interface IRoleLogic {
 		DeletedRoleTargetDto[]
 	>;
 	updatebatchStatus(id: RoleId): Promise<boolean>;
+	getRoleCustomRoleByRoleId(
+		communityId: CommunityId,
+		roleId: RoleId,
+	): Promise<RoleCustomRoleDto | undefined>;
 }

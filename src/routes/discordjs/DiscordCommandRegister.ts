@@ -267,6 +267,21 @@ export class DiscordCommandRegister {
 				.addStringOption((option) =>
 					option.setName("roleid").setDescription("integer").setRequired(true),
 				),
+			new SlashCommandBuilder()
+				.setName("customrolecreate")
+				.setDescription("customrolecreate string")
+				.addStringOption((option) =>
+					option.setName("name").setDescription("string").setRequired(true),
+				),
+			new SlashCommandBuilder()
+				.setName("customroledelete")
+				.setDescription("customroledelete"),
+			new SlashCommandBuilder()
+				.setName("rolebindtogglebycustomrole")
+				.setDescription("rolebindtogglebycustomrole"),
+			new SlashCommandBuilder()
+				.setName("customrolebindtogglebycommand")
+				.setDescription("customrolebindtogglebycommand"),
 		];
 	}
 	async register(token: string) {
