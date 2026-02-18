@@ -197,7 +197,7 @@ import { SlashCommandRouter } from "@/src/routes/discordjs/events/SlashCommandRo
 import { UserAddRouter } from "@/src/routes/discordjs/events/UserAddRouter";
 import { UserRemoveRouter } from "@/src/routes/discordjs/events/UserRemoveRouter";
 import { VoiceChannelEventRouter } from "@/src/routes/discordjs/events/VoiceChannelEventRouter";
-import type { DMChannel, Guild, GuildChannel, GuildMember, Message, PartialMessage } from "discord.js";
+import type { DMChannel, Guild, GuildChannel, GuildMember, Message, PartialMessage, Role } from "discord.js";
 import { Container } from "inversify";
 import type { Sequelize } from "sequelize";
 import { DiceLogic } from "./logics/DiceLogic";
@@ -288,8 +288,8 @@ appContainer.bind<DiscordEventHandler<GuildMember>>(HandlerTypes.UserRemoveHandl
 appContainer.bind<DiscordEventHandler<Message | PartialMessage>>(HandlerTypes.MessageDeleteHandler).to(MessageDeleteHandler);
 appContainer.bind<DiscordEventHandler<GuildChannel>>(HandlerTypes.ChannelCreateHandler).to(ChannelCreateHandler);
 appContainer.bind<DiscordEventHandler<GuildChannel | DMChannel>>(HandlerTypes.ChannelDeleteHandler).to(ChannelDeleteHandler);
-appContainer.bind<DiscordEventHandler<any>>(HandlerTypes.RoleCreateHandler).to(RoleCreateHandler);
-appContainer.bind<DiscordEventHandler<any>>(HandlerTypes.RoleDeleteHandler).to(RoleDeleteHandler);
+appContainer.bind<DiscordEventHandler<Role>>(HandlerTypes.RoleCreateHandler).to(RoleCreateHandler);
+appContainer.bind<DiscordEventHandler<Role>>(HandlerTypes.RoleDeleteHandler).to(RoleDeleteHandler);
 appContainer.bind<DiscordEventHandler<ReactionInteraction>>(HandlerTypes.ReactionHandler).to(CrownReactionHandler);
 appContainer.bind<VoiceChannelEventHandler<VoiceChannelState>>(HandlerTypes.VoiceChannelEventHandler).to(VoiceChannelConnectHandler);
 appContainer.bind<VoiceChannelEventHandler<VoiceChannelState>>(HandlerTypes.VoiceChannelEventHandler).to(VoiceChannelDisconnectHandler);

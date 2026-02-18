@@ -1,5 +1,6 @@
 import type { Migration } from "@/migrator/umzug";
 import { GetEnvAppConfig } from "@/src/entities/config/AppConfig";
+import type { Message } from "discord.js";
 import { Client, GatewayIntentBits, Partials } from "discord.js";
 import { DataTypes, QueryTypes } from "sequelize";
 
@@ -70,7 +71,7 @@ export const up: Migration = async ({ context: sequelize }) => {
 				const discordMessageId = crownRecord.messageId;
 
 				// Find the Discord message
-				let message: any = null;
+				let message: Message | null = null;
 				let channelClientId: string | null = null;
 				let userClientId: string | null = null;
 
