@@ -70,11 +70,13 @@ export class RoleBindToggleByCustomRoleHandler implements SlashCommandHandler {
 			.setCustomId("roleSelect")
 			.setPlaceholder("Discordロールを選択してください")
 			.addOptions(
-				guildRoles.slice(0, 25).map((role) =>
-					new StringSelectMenuOptionBuilder()
-						.setLabel(role.name)
-						.setValue(role.id),
-				),
+				guildRoles
+					.slice(0, 25)
+					.map((role) =>
+						new StringSelectMenuOptionBuilder()
+							.setLabel(role.name)
+							.setValue(role.id),
+					),
 			);
 
 		const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
